@@ -381,13 +381,21 @@ class BattleController extends Controller
     /**
      * Cancel a battle or request cancellation.
      */
-    public function cancel(Battle $battle)
+    public function cancel(Request $request, Battle $battle)
     {
         $user = Auth::user();
 
         try {
             $updatedBattle = $this->battleService->cancelBattle($battle, $user);
             
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'status' => $updatedBattle->status,
+                    'message' => $updatedBattle->status === 'cancelled' ? 'Battle cancelled successfully.' : 'Cancellation request sent to the other player.'
+                ]);
+            }
+
             if ($updatedBattle->status === 'cancelled') {
                 return redirect()->route('battles.index')
                     ->with('success', 'Battle cancelled successfully.');
@@ -395,6 +403,9 @@ class BattleController extends Controller
 
             return back()->with('success', 'Cancellation request sent to the other player.');
         } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+            }
             return back()->with('error', $e->getMessage());
         }
     }

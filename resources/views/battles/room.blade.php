@@ -373,12 +373,9 @@
                 @endphp
 
                 @if($canCancel)
-                    <form method="POST" action="{{ route('battles.cancel', $battle) }}" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-neon-danger" data-confirm="{{ in_array($battle->status, ['active', 'failed']) && Auth::id() !== $battle->adjudicator_id ? 'Request cancellation of this battle? The other player must agree.' : 'Cancel this battle?' }}">
-                            <i class="bi bi-x-circle"></i> {{ in_array($battle->status, ['ready', 'active', 'failed']) && Auth::id() !== $battle->adjudicator_id ? 'REQUEST CANCEL' : 'CANCEL BATTLE' }}
-                        </button>
-                    </form>
+                    <button type="button" class="btn btn-neon-danger" onclick="cancelBattle(this)" data-message="{{ in_array($battle->status, ['active', 'failed']) && Auth::id() !== $battle->adjudicator_id ? 'Request cancellation of this battle? The other player must agree.' : 'Cancel this battle?' }}">
+                        <i class="bi bi-x-circle"></i> <span class="btn-text">{{ in_array($battle->status, ['ready', 'active', 'failed']) && Auth::id() !== $battle->adjudicator_id ? 'REQUEST CANCEL' : 'CANCEL BATTLE' }}</span>
+                    </button>
                 @endif
 
                 <!-- Share QR (Mobile Only) -->
@@ -670,8 +667,7 @@
     }
 @endphp
 
-@if($showCancelModal)
-<div class="modal fade show" id="cancellationRequestModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" style="display: block; background: rgba(0,0,0,0.8);">
+<div class="modal fade" id="cancellationRequestModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #ff00ff; backdrop-filter: blur(20px); box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);">
             <div class="modal-header border-0 pb-0">
@@ -682,7 +678,7 @@
                     <i class="bi bi-exclamation-triangle-fill" style="font-size: 3rem; color: #ff00ff; opacity: 0.8;"></i>
                 </div>
                 <p class="mb-4" style="font-size: 1.1rem;">
-                    <strong>{{ $requesterName }}</strong> has requested to cancel this battle. 
+                    <strong id="cancel-requester-name">{{ $requesterName }}</strong> has requested to cancel this battle. 
                     Do you agree to cancel the match?
                 </p>
                 <p class="text-muted small mb-4">
@@ -710,7 +706,6 @@
         </div>
     </div>
 </div>
-@endif
 
 @endpush
 
@@ -718,6 +713,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        @if($showCancelModal)
+            const initialCancelModal = new bootstrap.Modal(document.getElementById('cancellationRequestModal'));
+            initialCancelModal.show();
+        @endif
+
         const qrcodeContainer = document.getElementById('qrcode');
         if (qrcodeContainer) {
             new QRCode(qrcodeContainer, {
@@ -764,11 +764,23 @@
                     }
 
                     // For major structural changes (like someone joining or the battle completing),
-                    if (['join', 'start', 'winner', 'adjudicator_accepted', 'cancel', 'cancel_request', 'cancel_agree', 'cancel_reject', 'declare', 'conflict', 'adjudicator_decision', 'consensus'].includes(e.type)) {
+                    if (['join', 'start', 'winner', 'adjudicator_accepted', 'cancel', 'cancel_agree', 'cancel_reject', 'declare', 'conflict', 'adjudicator_decision', 'consensus'].includes(e.type)) {
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500); // Give user a moment to see the notification
                         return;
+                    }
+
+                    // Handle cancel_request without reloading
+                    if (e.type === 'cancel_request') {
+                        const messageText = e.message || '';
+                        const requesterName = messageText.split(' ')[0] || 'Opponent';
+                        const requesterNameEl = document.getElementById('cancel-requester-name');
+                        if (requesterNameEl) {
+                            requesterNameEl.innerText = requesterName;
+                        }
+                        const cancelModal = new bootstrap.Modal(document.getElementById('cancellationRequestModal'));
+                        cancelModal.show();
                     }
 
                     // For lightweight changes, we just append to the activity log dynamically
@@ -779,6 +791,57 @@
                 });
         }
     });
+
+    async function cancelBattle(btn) {
+        const message = btn.getAttribute('data-message');
+        const result = await window.neonConfirm(message);
+        
+        if (!result) return;
+        
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> <span class="btn-text">PROCESSING...</span>';
+        btn.disabled = true;
+
+        fetch(`{{ route('battles.cancel', $battle) }}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+                return null;
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data) return;
+            if(data.success) {
+                if (data.status === 'cancelled') {
+                    showNeonNotification(data.message, 'cancel');
+                    setTimeout(() => {
+                        window.location.href = "{{ route('battles.index') }}";
+                    }, 1000);
+                } else {
+                    showNeonNotification(data.message, 'cancel_request');
+                    btn.style.display = 'none'; // hide the button since request was sent
+                }
+            } else {
+                showNeonNotification(data.message, 'conflict');
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
+        })
+        .catch(err => {
+            showNeonNotification('An error occurred while cancelling.', 'conflict');
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        });
+    }
 
     function pokePlayer(btn) {
         if(btn.disabled) return;
