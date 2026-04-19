@@ -74,7 +74,7 @@
             <i class="bi bi-suit-diamond-fill section-icon"></i> CARDS AT STAKE
         </h5>
 
-        <!-- Desktop View (Side by Side) -->
+        <!-- Desktop View (Side by Side) --> 
         <div class="d-none d-md-block">
             <div class="row g-4">
                 <!-- Challenger -->
