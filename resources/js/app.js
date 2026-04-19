@@ -160,17 +160,18 @@ class DigitalCardRenderer {
         } else {
             ctx.fillText(title, textStartX, titleY + titleH * 0.28);
         }
-        ctx.fillStyle = secondaryTextColor;
-        ctx.font = `italic ${fontSizeGame}px sans-serif`;
-        ctx.fillText(game, textStartX, titleY + titleH * 0.55);
 
         const fontSizeSerial = Math.floor(fontSizeGame * 0.85);
         ctx.fillStyle = primaryTextColor;
         ctx.font = `bold ${fontSizeSerial}px 'Orbitron', sans-serif`;
-        if (options.serialNumber) {
+        if (options.serialNumber !== null && options.serialNumber !== undefined) {
             const paddedSerial = '#' + String(options.serialNumber).padStart(5, '0');
-            ctx.fillText(paddedSerial, textStartX, titleY + titleH * 0.72);
+            ctx.fillText(paddedSerial, textStartX, titleY + titleH * 0.52);
         }
+
+        ctx.fillStyle = secondaryTextColor;
+        ctx.font = `italic ${fontSizeGame}px sans-serif`;
+        ctx.fillText(game, textStartX, titleY + titleH * 0.72);
 
         const fontSizeCreator = Math.floor(fontSizeGame * 0.85);
         ctx.fillStyle = secondaryTextColor;
