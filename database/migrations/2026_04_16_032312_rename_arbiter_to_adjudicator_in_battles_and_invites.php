@@ -9,19 +9,15 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     * 
+     * NOTE: This migration has been nullified because the base migrations
+     * (2024_01_02_000003_create_battles_table.php and 2024_01_02_000004_create_battle_invites_table.php)
+     * were manually updated to use 'adjudicator' instead of 'arbiter'.
+     * This file remains to prevent "migration not found" errors in existing environments.
      */
     public function up(): void
     {
-        Schema::table('battles', function (Blueprint $table) {
-            $table->renameColumn('arbiter_id', 'adjudicator_id');
-        });
-
-        // Update existing data in battle_invites
-        DB::table('battle_invites')->where('role', 'arbiter')->update(['role' => 'adjudicator']);
-
-        // Modify the enum column
-        // Note: This is MySQL specific as per GEMINI.md project requirements
-        DB::statement("ALTER TABLE battle_invites MODIFY COLUMN role ENUM('opponent', 'adjudicator') NOT NULL");
+        // No-op: Columns already named correctly in base migrations.
     }
 
     /**
@@ -29,12 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('battles', function (Blueprint $table) {
-            $table->renameColumn('adjudicator_id', 'arbiter_id');
-        });
-
-        DB::table('battle_invites')->where('role', 'adjudicator')->update(['role' => 'arbiter']);
-
-        DB::statement("ALTER TABLE battle_invites MODIFY COLUMN role ENUM('opponent', 'arbiter') NOT NULL");
+        // No-op
     }
 };
