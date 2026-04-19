@@ -4,7 +4,7 @@
 
 @section('content')
 <h1 class="page-title">
-    <span class="page-title-accent"><i class="bi bi-suit-diamond-fill"></i></span> MY INVENTORY
+    <span class="page-title-accent"><i class="bi bi-suit-diamond-fill"></i></span>INVENTORY
 </h1>
 
 <!-- Own Cards Section -->

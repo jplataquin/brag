@@ -52,8 +52,8 @@
         </h5>
         <div class="text-center">
             <x-digital-card 
-                id="challenger_card_display_{{ $challengerCard->id }}"
-                mode="display" 
+                id="challenger_card_display_{{ $challengerCard->id }}" 
+                mode="display"
                 fullscreen="true"
                 :rarity="$challengerCard->rarity ?? 'common'"
                 :title="$challengerCard->template->card_title" 
@@ -68,8 +68,8 @@
                 :image="$challengerCard->template->display_photo"
                 :statsText="'LVL ' . $challengerCard->level . ' • W: ' . $challengerCard->wins . ' • L: ' . $challengerCard->losses"
                 :rankLevel="$challengerCard->level"
-            />
-        </div>
+                :serialNumber="$challengerCard->serial_number"
+            />        </div>
     </div>
 
     <!-- 3.) Eligible Cards Selection -->
@@ -110,6 +110,7 @@
                             :image="$card->template->display_photo"
                             :statsText="'LVL ' . $card->level . ' • W: ' . $card->wins . ' • L: ' . $card->losses"
                             :rankLevel="$card->level"
+                            :serialNumber="$card->serial_number"
                         />
                         <button type="button" class="btn btn-neon-lime btn-neon-sm w-100 mt-2 select-bet-card" data-card-id="{{ $card->id }}" data-card-name="{{ $card->template->card_title }}">
                             <i class="bi bi-check-lg"></i> SELECT CARD
@@ -142,6 +143,7 @@
                                         :image="$card->template->display_photo"
                                         :statsText="'LVL ' . $card->level . ' • W: ' . $card->wins . ' • L: ' . $card->losses"
                                         :rankLevel="$card->level"
+                                        :serialNumber="$card->serial_number"
                                     />
                                     <button type="button" class="btn btn-neon-lime w-100 mt-3 select-bet-card" data-card-id="{{ $card->id }}" data-card-name="{{ $card->template->card_title }}">
                                         <i class="bi bi-check-lg"></i> SELECT THIS CARD

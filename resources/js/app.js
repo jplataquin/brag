@@ -162,11 +162,20 @@ class DigitalCardRenderer {
         }
         ctx.fillStyle = secondaryTextColor;
         ctx.font = `italic ${fontSizeGame}px sans-serif`;
-        ctx.fillText(game, textStartX, titleY + titleH * 0.60);
+        ctx.fillText(game, textStartX, titleY + titleH * 0.55);
+
+        const fontSizeSerial = Math.floor(fontSizeGame * 0.85);
+        ctx.fillStyle = primaryTextColor;
+        ctx.font = `bold ${fontSizeSerial}px 'Orbitron', sans-serif`;
+        if (options.serialNumber) {
+            const paddedSerial = '#' + String(options.serialNumber).padStart(5, '0');
+            ctx.fillText(paddedSerial, textStartX, titleY + titleH * 0.72);
+        }
+
         const fontSizeCreator = Math.floor(fontSizeGame * 0.85);
         ctx.fillStyle = secondaryTextColor;
         ctx.font = `${fontSizeCreator}px sans-serif`;
-        ctx.fillText(`By ${creator}`, textStartX, titleY + titleH * 0.85);
+        ctx.fillText(`By ${creator}`, textStartX, titleY + titleH * 0.88);
         ctx.restore();
         ctx.save();
         ctx.fillStyle = primaryTextColor;

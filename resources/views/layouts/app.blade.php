@@ -56,7 +56,7 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('cards.*') ? 'active' : '' }}" href="{{ route('cards.index') }}" id="nav-cards">
-                                    <i class="bi bi-suit-diamond-fill"></i> Cards
+                                    <i class="bi bi-suit-diamond-fill"></i> Inventory
                                 </a>
                             </li>
                             <li class="nav-item">

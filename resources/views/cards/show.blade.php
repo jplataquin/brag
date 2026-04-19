@@ -28,6 +28,7 @@
                 :image="$digitalCard->template->display_photo"
                 :statsText="'LVL ' . $digitalCard->level . ' • W: ' . $digitalCard->wins . ' • L: ' . $digitalCard->losses . ' • COPIES: ' . $digitalCard->template->cards_in_circulation"
                 :rankLevel="$digitalCard->level"
+                :serialNumber="$digitalCard->serial_number"
             />
 
 

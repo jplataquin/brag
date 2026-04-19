@@ -114,6 +114,7 @@
                             :image="$battle->challengerCard->template->display_photo"
                             :statsText="'LVL ' . $battle->challengerCard->level . ' • W: ' . $battle->challengerCard->wins . ' • L: ' . $battle->challengerCard->losses"
                             :rankLevel="$battle->challengerCard->level"
+                            :serialNumber="$battle->challengerCard->serial_number"
                         />
                         </div>
                     @endif
@@ -158,6 +159,7 @@
                             :image="$battle->opponentCard->template->display_photo"
                             :statsText="'LVL ' . $battle->opponentCard->level . ' • W: ' . $battle->opponentCard->wins . ' • L: ' . $battle->opponentCard->losses"
                             :rankLevel="$battle->opponentCard->level"
+                            :serialNumber="$battle->opponentCard->serial_number"
                         />
                         </div>
                     @else
@@ -211,8 +213,8 @@
                                 :image="$battle->challengerCard->template->display_photo"
                                 :statsText="'LVL ' . $battle->challengerCard->level . ' • W: ' . $battle->challengerCard->wins . ' • L: ' . $battle->challengerCard->losses"
                                 :rankLevel="$battle->challengerCard->level"
-                            />
-                            </div>
+                                :serialNumber="$battle->challengerCard->serial_number"
+                                />                            </div>
                         @endif
                     </div>
                     <!-- Opponent Slide -->
@@ -254,8 +256,8 @@
                                 :image="$battle->opponentCard->template->display_photo"
                                 :statsText="'LVL ' . $battle->opponentCard->level . ' • W: ' . $battle->opponentCard->wins . ' • L: ' . $battle->opponentCard->losses"
                                 :rankLevel="$battle->opponentCard->level"
-                            />
-                            </div>
+                                :serialNumber="$battle->opponentCard->serial_number"
+                                />                            </div>
                         @else
                             <div class="empty-stake-slot d-flex flex-column align-items-center justify-content-center" style="height: 350px; background: rgba(255,0,255,0.02); border: 2px dashed rgba(255,0,255,0.15); border-radius: 16px;">
                                 <i class="bi bi-person-plus" style="font-size: 3rem; color: rgba(255,0,255,0.2);"></i>
@@ -351,7 +353,7 @@
 
                     @if($canDeclare)
                         <button type="button" class="btn btn-neon-magenta" data-bs-toggle="modal" data-bs-target="#declareWinnerModal">
-                            <i class="bi bi-trophy-fill"></i> DECLARE WINNER
+                            <i class="bi bi-trophy-fill"></i> DECLARE RESULT
                         </button>
                     @endif
                 @endif
@@ -538,12 +540,12 @@
 </div>
 @endif
 
-<!-- Declare Winner Modal -->
+<!-- Declare Result Modal -->
 <div class="modal fade" id="declareWinnerModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #ff00ff; backdrop-filter: blur(20px);">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title neon-text-magenta">DECLARE WINNER</h5>
+                <h5 class="modal-title neon-text-magenta">DECLARE RESULT</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body py-4">
@@ -553,49 +555,77 @@
                     </div>
                 @endif
 
-                <p class="text-center mb-4">Click on a player below to declare them as the winner of this match. The battle is only completed if both players agree or an adjudicator decides.</p>
-                
-                <div class="d-flex flex-column gap-3 text-start mb-2">
-                    <!-- Challenger Option -->
-                    <button type="button" onclick="declareWinnerAjax({{ $battle->challenger_id }}, this)" data-message="Declare {{ $battle->challenger->username }} as winner?" class="w-100 p-3 rounded d-flex flex-column gap-2 border-0" style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.5) !important; color: #fff; cursor: pointer; text-align: left; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(0, 240, 255, 0.15)'; this.style.boxShadow='0 0 15px rgba(0, 240, 255, 0.4)';" onmouseout="this.style.background='rgba(0, 240, 255, 0.05)'; this.style.boxShadow='none';">
-                        <div class="d-flex justify-content-between align-items-center w-100">
-                            <span style="font-size: 1.1rem;"><i class="bi bi-person-fill text-info"></i> {{ $battle->challenger->username }}</span>
-                            <span class="badge text-dark" style="background-color: #00f0ff;">CHALLENGER</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center w-100 small" style="color: #8888aa;">
-                            <span>Their Declaration:</span>
-                            <strong style="color: #fff;" id="challenger-declaration-text">{{ $battle->challenger_declared_user_win ? \App\Models\User::find($battle->challenger_declared_user_win)->username : 'NONE' }}</strong>
-                        </div>
-                    </button>
+                @if($battle->adjudicator_id === Auth::id())
+                    {{-- ADJUDICATOR VIEW: Full selection --}}
+                    <p class="text-center mb-4">Click on a player below to declare them as the winner of this match. As an adjudicator, your decision will finalize the battle immediately.</p>
+                    
+                    <div class="d-flex flex-column gap-3 text-start mb-2">
+                        <!-- Challenger Option -->
+                        <button type="button" onclick="declareWinnerAjax({{ $battle->challenger_id }}, this)" data-message="Declare {{ $battle->challenger->username }} as winner?" class="w-100 p-3 rounded d-flex flex-column gap-2 border-0" style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.5) !important; color: #fff; cursor: pointer; text-align: left; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(0, 240, 255, 0.15)'; this.style.boxShadow='0 0 15px rgba(0, 240, 255, 0.4)';" onmouseout="this.style.background='rgba(0, 240, 255, 0.05)'; this.style.boxShadow='none';">
+                            <div class="d-flex justify-content-between align-items-center w-100">
+                                <span style="font-size: 1.1rem;"><i class="bi bi-person-fill text-info"></i> {{ $battle->challenger->username }}</span>
+                                <span class="badge text-dark" style="background-color: #00f0ff;">CHALLENGER</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center w-100 small" style="color: #8888aa;">
+                                <span>Their Declaration:</span>
+                                <strong style="color: #fff;" id="challenger-declaration-text">{{ $battle->challenger_declared_user_win ? \App\Models\User::find($battle->challenger_declared_user_win)->username : 'NONE' }}</strong>
+                            </div>
+                        </button>
 
-                    <!-- Opponent Option -->
-                    @if($battle->opponent)
-                    <button type="button" onclick="declareWinnerAjax({{ $battle->opponent_id }}, this)" data-message="Declare {{ $battle->opponent->username }} as winner?" class="w-100 p-3 rounded d-flex flex-column gap-2 border-0" style="background: rgba(255, 0, 255, 0.05); border: 1px solid rgba(255, 0, 255, 0.5) !important; color: #fff; cursor: pointer; text-align: left; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255, 0, 255, 0.15)'; this.style.boxShadow='0 0 15px rgba(255, 0, 255, 0.4)';" onmouseout="this.style.background='rgba(255, 0, 255, 0.05)'; this.style.boxShadow='none';">
-                        <div class="d-flex justify-content-between align-items-center w-100">
-                            <span style="font-size: 1.1rem;"><i class="bi bi-person-fill text-magenta" style="color: #ff00ff;"></i> {{ $battle->opponent->username }}</span>
-                            <span class="badge text-white" style="background-color: #ff00ff;">OPPONENT</span>
+                        <!-- Opponent Option -->
+                        @if($battle->opponent)
+                        <button type="button" onclick="declareWinnerAjax({{ $battle->opponent_id }}, this)" data-message="Declare {{ $battle->opponent->username }} as winner?" class="w-100 p-3 rounded d-flex flex-column gap-2 border-0" style="background: rgba(255, 0, 255, 0.05); border: 1px solid rgba(255, 0, 255, 0.5) !important; color: #fff; cursor: pointer; text-align: left; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255, 0, 255, 0.15)'; this.style.boxShadow='0 0 15px rgba(255, 0, 255, 0.4)';" onmouseout="this.style.background='rgba(255, 0, 255, 0.05)'; this.style.boxShadow='none';">
+                            <div class="d-flex justify-content-between align-items-center w-100">
+                                <span style="font-size: 1.1rem;"><i class="bi bi-person-fill text-magenta" style="color: #ff00ff;"></i> {{ $battle->opponent->username }}</span>
+                                <span class="badge text-white" style="background-color: #ff00ff;">OPPONENT</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center w-100 small" style="color: #8888aa;">
+                                <span>Their Declaration:</span>
+                                <strong style="color: #fff;" id="opponent-declaration-text">{{ $battle->opponent_declared_user_win ? \App\Models\User::find($battle->opponent_declared_user_win)->username : 'NONE' }}</strong>
+                            </div>
+                        </button>
+                        @endif
+                    </div>
+                @else
+                    {{-- PLAYER VIEW: Simple Won/Lost --}}
+                    <h4 class="text-center mb-4 neon-text" style="font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">WHAT'S YOUR RESULT?</h4>
+                    
+                    <div class="row g-3">
+                        @php
+                            $isChallenger = Auth::id() === $battle->challenger_id;
+                            $myId = Auth::id();
+                            $opponentId = $isChallenger ? $battle->opponent_id : $battle->challenger_id;
+                        @endphp
+                        <div class="col-6">
+                            <button type="button" onclick="declareWinnerAjax({{ $opponentId }}, this)" data-message="Confirm that you LOST this match?" class="btn btn-outline-danger w-100 py-4 d-flex flex-column align-items-center gap-2" style="border-width: 2px; background: rgba(255,0,0,0.05);">
+                                <i class="bi bi-hand-thumbs-down-fill fs-1"></i>
+                                <span style="font-family: 'Orbitron', sans-serif; font-weight: bold; letter-spacing: 2px;">I LOST</span>
+                            </button>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center w-100 small" style="color: #8888aa;">
-                            <span>Their Declaration:</span>
-                            <strong style="color: #fff;" id="opponent-declaration-text">{{ $battle->opponent_declared_user_win ? \App\Models\User::find($battle->opponent_declared_user_win)->username : 'NONE' }}</strong>
-                        </div>
-                    </button>
-                    @endif
-
-                    <!-- Adjudicator Status (Non-clickable) -->
-                    @if($battle->adjudicator)
-                    <div class="w-100 p-3 rounded d-flex flex-column gap-2 mt-2" style="background: rgba(255, 221, 0, 0.05); border: 1px dashed rgba(255, 221, 0, 0.5); color: #fff; text-align: left;">
-                        <div class="d-flex justify-content-between align-items-center w-100">
-                            <span style="font-size: 1.1rem;"><i class="bi bi-shield-shaded text-warning"></i> {{ $battle->adjudicator->username }}</span>
-                            <span class="badge bg-warning text-dark">ADJUDICATOR</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center w-100 small" style="color: #8888aa;">
-                            <span>Their Decision:</span>
-                            <strong style="color: #fff;">{{ $battle->adjudicator_declared_user_win ? \App\Models\User::find($battle->adjudicator_declared_user_win)->username : 'NONE' }}</strong>
+                        <div class="col-6">
+                            <button type="button" onclick="declareWinnerAjax({{ $myId }}, this)" data-message="Confirm that you WON this match?" class="btn btn-neon-lime w-100 py-4 d-flex flex-column align-items-center gap-2" style="border-width: 2px;">
+                                <i class="bi bi-trophy-fill fs-1"></i>
+                                <span style="font-family: 'Orbitron', sans-serif; font-weight: bold; letter-spacing: 2px;">I WON</span>
+                            </button>
                         </div>
                     </div>
-                    @endif
-                </div>
+
+                    <div class="mt-4 p-3 rounded" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="d-flex justify-content-between align-items-center mb-2 small text-muted">
+                            <span>CURRENT STATUS:</span>
+                        </div>
+                        <div class="d-flex flex-column gap-2 small">
+                            <div class="d-flex justify-content-between">
+                                <span style="color: #00f0ff;">CHALLENGER:</span>
+                                <strong id="status-text-challenger" style="color: #fff;">{{ $battle->challenger_declared_user_win ? 'DECLARED WINNER' : 'PENDING...' }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span style="color: #ff00ff;">OPPONENT:</span>
+                                <strong id="status-text-opponent" style="color: #fff;">{{ $battle->opponent_declared_user_win ? 'DECLARED WINNER' : 'PENDING...' }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -788,10 +818,28 @@
                         // If it's a declaration and doesn't trigger a reload (no consensus yet)
                         // update the UI text dynamically
                         if (e.type === 'declare' || e.type === 'conflict') {
-                            // Close modal if open so they see the activity log or have to reopen it to see updated status
-                            const declareModal = bootstrap.Modal.getInstance(document.getElementById('declareWinnerModal'));
-                            if (declareModal) declareModal.hide();
+                            // Update status text in simplified player modal if it exists
+                            const challengerStatusText = document.getElementById('status-text-challenger');
+                            const opponentStatusText = document.getElementById('status-text-opponent');
                             
+                            if (challengerStatusText && e.challenger_declared_user_win) {
+                                challengerStatusText.innerText = 'DECLARED WINNER';
+                            }
+                            if (opponentStatusText && e.opponent_declared_user_win) {
+                                opponentStatusText.innerText = 'DECLARED WINNER';
+                            }
+
+                            // Update declaration names in adjudicator modal if it exists
+                            const challengerDeclName = document.getElementById('challenger-declaration-text');
+                            const opponentDeclName = document.getElementById('opponent-declaration-text');
+
+                            if (challengerDeclName && e.challenger_declared_name) {
+                                challengerDeclName.innerText = e.challenger_declared_name;
+                            }
+                            if (opponentDeclName && e.opponent_declared_name) {
+                                opponentDeclName.innerText = e.opponent_declared_name;
+                            }
+
                             if (e.type === 'conflict') {
                                 // Add conflict banner dynamically
                                 const modalBody = document.querySelector('#declareWinnerModal .modal-body');

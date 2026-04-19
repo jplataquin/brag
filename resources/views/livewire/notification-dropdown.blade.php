@@ -1,22 +1,22 @@
 <div>
     @if($isMobile)
     <div class="nav-item notification-dropdown">
-        <a href="{{ route('notifications.index') }}" class="nav-link d-flex align-items-center position-relative">
+        <a href="{{ route('notifications.index') }}" class="nav-link d-flex align-items-center position-relative" onclick="hideNotificationBubble()">
             <i class="bi bi-bell-fill fs-5"></i>
             @if($unreadCount > 0)
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; border: 1px solid #000;">
-                    {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                <span id="notification-bubble-mobile" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; border: 1px solid #000; transition: opacity 0.2s;">
+                    {{ $unreadCount > 99 ? '99+' : $unreadCount }}
                 </span>
             @endif
         </a>
     </div>
     @else
     <div class="nav-item dropdown notification-dropdown">
-        <a id="navbarNotificationDropdown" class="nav-link d-flex align-items-center position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <a id="navbarNotificationDropdown" class="nav-link d-flex align-items-center position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="hideNotificationBubble()">
             <i class="bi bi-bell-fill fs-5"></i>
             @if($unreadCount > 0)
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; border: 1px solid #000;">
-                    {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                <span id="notification-bubble-desktop" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; border: 1px solid #000; transition: opacity 0.2s;">
+                    {{ $unreadCount > 99 ? '99+' : $unreadCount }}
                 </span>
             @endif
         </a>
@@ -98,5 +98,23 @@
             border-radius: 10px;
         }
     </style>
+    <script>
+        function hideNotificationBubble() {
+            const mobileBubble = document.getElementById('notification-bubble-mobile');
+            const desktopBubble = document.getElementById('notification-bubble-desktop');
+            if (mobileBubble) mobileBubble.style.opacity = '0';
+            if (desktopBubble) desktopBubble.style.opacity = '0';
+        }
+
+        // Livewire hook to restore opacity when component updates (i.e. a new notification comes in and Livewire re-renders)
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.hook('morph.updated', (el, component) => {
+                const mobileBubble = document.getElementById('notification-bubble-mobile');
+                const desktopBubble = document.getElementById('notification-bubble-desktop');
+                if (mobileBubble) mobileBubble.style.opacity = '1';
+                if (desktopBubble) desktopBubble.style.opacity = '1';
+            });
+        });
+    </script>
     @endif
 </div>

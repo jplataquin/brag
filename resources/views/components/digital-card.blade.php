@@ -17,7 +17,8 @@
     'primaryTextColor' => '#ffffff',
     'secondaryTextColor' => '#dddddd',
     'statsText' => 'LVL 1 • W: 0 • L: 0 • COPIES: 1',
-    'rankLevel' => 1
+    'rankLevel' => 1,
+    'serialNumber' => null
 ])
 
 @php
@@ -97,7 +98,8 @@ $hasFullscreen = $mode === 'thumbnail' || filter_var($fullscreen, FILTER_VALIDAT
                 primaryTextColor: '{{ $primaryTextColor }}',
                 secondaryTextColor: '{{ $secondaryTextColor }}',
                 statsText: `{!! addslashes($statsText) !!}`,
-                rankLevel: {{ $rankLevel }}
+                rankLevel: {{ $rankLevel }},
+                serialNumber: {{ $serialNumber !== null ? $serialNumber : 'null' }}
             };
 
             window.digitalCardRenderers[canvasId].draw(initialOptions_{{ $id }});
