@@ -281,7 +281,7 @@ class BattleService
                     $this->logActivity($battle->id, null, 'cancel', "Battle cancelled by mutual agreement.");
                     event(new \App\Events\BattleUpdated($battle, "Battle cancelled by mutual agreement.", 'cancel'));
                 } else {
-                    event(new \App\Events\BattleUpdated($battle, "{$user->username} requested to cancel the battle.", 'cancel_request'));
+                    event(new \App\Events\BattleUpdated($battle, "{$user->username} requested to cancel the battle.", 'cancel_request_' . $user->id));
                 }
 
                 return $battle;

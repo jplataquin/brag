@@ -228,7 +228,7 @@
                                 </div>
                             @endif
                             <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #ff00ff;">
-                                OPPONENT @if(Auth::id() === $battle->opponent_id) <span style="font-size: 0.7rem; opacity: 0.8;"> - (YOU)</span> @endif
+                                OPPONENT @if(Auth::id() === $battle->opponent_id) - (YOU) @endif
                             </div>
                             <h4 style="color: #fff;" id="opponent-name-display-mob">
                                 {{ $battle->opponent ? $battle->opponent->username : 'AWAITING...' }}
@@ -772,21 +772,28 @@
                     }
 
                     // Handle cancel_request without reloading
-                    if (e.type === 'cancel_request') {
-                        const messageText = e.message || '';
-                        const requesterName = messageText.split(' ')[0] || 'Opponent';
-                        const requesterNameEl = document.getElementById('cancel-requester-name');
-                        if (requesterNameEl) {
-                            requesterNameEl.innerText = requesterName;
+                    if (e.type && e.type.startsWith('cancel_request_')) {
+                        const requesterId = parseInt(e.type.split('_')[2]);
+                        
+                        // If this user is the one who requested it, don't show them the modal!
+                        if (requesterId !== {{ Auth::id() }}) {
+                            const messageText = e.message || '';
+                            const requesterName = messageText.split(' ')[0] || 'Opponent';
+                            const requesterNameEl = document.getElementById('cancel-requester-name');
+                            if (requesterNameEl) {
+                                requesterNameEl.innerText = requesterName;
+                            }
+                            const cancelModal = new bootstrap.Modal(document.getElementById('cancellationRequestModal'));
+                            cancelModal.show();
                         }
-                        const cancelModal = new bootstrap.Modal(document.getElementById('cancellationRequestModal'));
-                        cancelModal.show();
                     }
 
                     // For lightweight changes, we just append to the activity log dynamically
                     // Exclude poke events from the activity log per requirement
-                    if (!e.type.startsWith('poke')) {
+                    if (!e.type.startsWith('poke') && !e.type.startsWith('cancel_request_')) {
                         appendActivity(e.message, e.type);
+                    } else if (e.type.startsWith('cancel_request_')) {
+                        appendActivity(e.message, 'cancel_request');
                     }
                 });
         }
