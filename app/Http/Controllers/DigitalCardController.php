@@ -37,6 +37,12 @@ class DigitalCardController extends Controller
 
         if ($sortBy === 'level') {
             $query->orderBy('wins', 'desc');
+        } elseif ($sortBy === 'name') {
+            $query->select('digital_cards.*')
+                ->join('templates', 'digital_cards.template_id', '=', 'templates.id')
+                ->orderBy('templates.card_title', 'asc');
+        } elseif ($sortBy === 'serial') {
+            $query->orderBy('serial_number', 'asc');
         } else {
             $query->latest('updated_at');
         }

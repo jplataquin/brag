@@ -32,6 +32,14 @@
                    class="btn {{ $sortBy === 'level' ? 'btn-neon' : 'btn-outline-neon' }}">
                     LEVEL
                 </a>
+                <a href="{{ route('cards.index', ['sort' => 'name', 'game' => $gameId]) }}" 
+                   class="btn {{ $sortBy === 'name' ? 'btn-neon' : 'btn-outline-neon' }}">
+                    NAME
+                </a>
+                <a href="{{ route('cards.index', ['sort' => 'serial', 'game' => $gameId]) }}" 
+                   class="btn {{ $sortBy === 'serial' ? 'btn-neon' : 'btn-outline-neon' }}">
+                    SERIAL
+                </a>
             </div>
         </div>
     </div>
