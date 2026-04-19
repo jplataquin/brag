@@ -84,9 +84,13 @@
                             <div class="mb-1">
                                 <span class="badge bg-warning text-dark" style="font-size: 0.7rem; letter-spacing: 1px; box-shadow: 0 0 10px rgba(255, 221, 0, 0.5);"><i class="bi bi-trophy-fill"></i> WINNER</span>
                             </div>
+                        @elseif($battle->status === 'completed' && $battle->winner_id !== null && $battle->winner_id !== $battle->challenger_id)
+                            <div class="mb-1">
+                                <span class="badge bg-danger text-light" style="font-size: 0.7rem; letter-spacing: 1px; box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);"><i class="bi bi-x-circle-fill"></i> LOSER</span>
+                            </div>
                         @endif
                         <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #00f0ff;">
-                            CHALLENGER @if(Auth::id() === $battle->challenger_id) <span style="font-size: 0.7rem; opacity: 0.8;">(YOU)</span> @endif
+                            CHALLENGER @if(Auth::id() === $battle->challenger_id) <span style="font-size: 0.7rem; opacity: 0.8;"> - (YOU)</span> @endif
                         </div>
                         <h4 style="color: #fff;">{{ $battle->challenger->username }}</h4>
                     </div>
@@ -122,9 +126,13 @@
                             <div class="mb-1">
                                 <span class="badge bg-warning text-dark" style="font-size: 0.7rem; letter-spacing: 1px; box-shadow: 0 0 10px rgba(255, 221, 0, 0.5);"><i class="bi bi-trophy-fill"></i> WINNER</span>
                             </div>
+                        @elseif($battle->status === 'completed' && $battle->winner_id !== null && $battle->winner_id !== $battle->opponent_id)
+                            <div class="mb-1">
+                                <span class="badge bg-danger text-light" style="font-size: 0.7rem; letter-spacing: 1px; box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);"><i class="bi bi-x-circle-fill"></i> LOSER</span>
+                            </div>
                         @endif
                         <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #ff00ff;">
-                            OPPONENT @if(Auth::id() === $battle->opponent_id) <span style="font-size: 0.7rem; opacity: 0.8;">(YOU)</span> @endif
+                            OPPONENT @if(Auth::id() === $battle->opponent_id) <span style="font-size: 0.7rem; opacity: 0.8;"> - (YOU)</span> @endif
                         </div>
                         <h4 style="color: #fff;" id="opponent-name-display">
                             {{ $battle->opponent ? $battle->opponent->username : 'AWAITING...' }}
@@ -173,9 +181,13 @@
                                 <div class="mb-1">
                                     <span class="badge bg-warning text-dark" style="font-size: 0.7rem; letter-spacing: 1px; box-shadow: 0 0 10px rgba(255, 221, 0, 0.5);"><i class="bi bi-trophy-fill"></i> WINNER</span>
                                 </div>
+                            @elseif($battle->status === 'completed' && $battle->winner_id !== null && $battle->winner_id !== $battle->challenger_id)
+                                <div class="mb-1">
+                                    <span class="badge bg-danger text-light" style="font-size: 0.7rem; letter-spacing: 1px; box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);"><i class="bi bi-x-circle-fill"></i> LOSER</span>
+                                </div>
                             @endif
                             <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #00f0ff;">
-                                CHALLENGER @if(Auth::id() === $battle->challenger_id) <span style="font-size: 0.7rem; opacity: 0.8;">(YOU)</span> @endif
+                                CHALLENGER @if(Auth::id() === $battle->challenger_id) <span style="font-size: 0.7rem; opacity: 0.8;"> - (YOU)</span> @endif
                             </div>
                             <h4 style="color: #fff;">{{ $battle->challenger->username }}</h4>
                         </div>
@@ -210,9 +222,13 @@
                                 <div class="mb-1">
                                     <span class="badge bg-warning text-dark" style="font-size: 0.7rem; letter-spacing: 1px; box-shadow: 0 0 10px rgba(255, 221, 0, 0.5);"><i class="bi bi-trophy-fill"></i> WINNER</span>
                                 </div>
+                            @elseif($battle->status === 'completed' && $battle->winner_id !== null && $battle->winner_id !== $battle->opponent_id)
+                                <div class="mb-1">
+                                    <span class="badge bg-danger text-light" style="font-size: 0.7rem; letter-spacing: 1px; box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);"><i class="bi bi-x-circle-fill"></i> LOSER</span>
+                                </div>
                             @endif
                             <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #ff00ff;">
-                                OPPONENT @if(Auth::id() === $battle->opponent_id) <span style="font-size: 0.7rem; opacity: 0.8;">(YOU)</span> @endif
+                                OPPONENT @if(Auth::id() === $battle->opponent_id) <span style="font-size: 0.7rem; opacity: 0.8;"> - (YOU)</span> @endif
                             </div>
                             <h4 style="color: #fff;" id="opponent-name-display-mob">
                                 {{ $battle->opponent ? $battle->opponent->username : 'AWAITING...' }}
