@@ -318,7 +318,7 @@
             progressBar.style.width = '0%';
             statusText.innerText = 'Uploading: 0%';
 
-            const CHUNK_SIZE = 1 * 1024 * 1024; // 1MB
+            const CHUNK_SIZE = 256 * 1024; // 256KB
             const fileId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
             const extension = file.name.split('.').pop();
