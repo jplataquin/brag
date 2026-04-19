@@ -8,21 +8,31 @@
         <span class="page-title-accent"><i class="bi bi-suit-diamond-fill"></i></span> MY COLLECTION
     </h1>
 
-    <div class="d-flex align-items-center gap-2">
-        <span class="text-muted small text-nowrap"><i class="bi bi-sort-down"></i> SORT BY:</span>
-        <div class="btn-group btn-group-sm" role="group" aria-label="Sort cards">
-            <a href="{{ route('cards.index', ['sort' => 'latest']) }}" 
-               class="btn {{ $sortBy === 'latest' ? 'btn-neon' : 'btn-outline-neon' }}">
-                LATEST
-            </a>
-            <a href="{{ route('cards.index', ['sort' => 'level']) }}" 
-               class="btn {{ $sortBy === 'level' ? 'btn-neon' : 'btn-outline-neon' }}">
-                LEVEL
-            </a>
-            <a href="{{ route('cards.index', ['sort' => 'game']) }}" 
-               class="btn {{ $sortBy === 'game' ? 'btn-neon' : 'btn-outline-neon' }}">
-                GAME
-            </a>
+    <div class="d-flex flex-wrap align-items-center justify-content-md-end gap-3">
+        <div class="d-flex align-items-center gap-2">
+            <span class="text-muted small text-nowrap"><i class="bi bi-funnel"></i> FILTER:</span>
+            <select class="form-select form-select-sm" style="background-color: rgba(10, 10, 26, 0.8); color: #fff; border-color: rgba(0, 240, 255, 0.3); width: auto;" onchange="window.location.href=this.value">
+                <option value="{{ route('cards.index', ['sort' => $sortBy]) }}">All Games</option>
+                @foreach($games as $game)
+                    <option value="{{ route('cards.index', ['sort' => $sortBy, 'game' => $game->id]) }}" {{ $gameId == $game->id ? 'selected' : '' }}>
+                        {{ $game->title }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <span class="text-muted small text-nowrap"><i class="bi bi-sort-down"></i> SORT BY:</span>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Sort cards">
+                <a href="{{ route('cards.index', ['sort' => 'latest', 'game' => $gameId]) }}" 
+                   class="btn {{ $sortBy === 'latest' ? 'btn-neon' : 'btn-outline-neon' }}">
+                    LATEST
+                </a>
+                <a href="{{ route('cards.index', ['sort' => 'level', 'game' => $gameId]) }}" 
+                   class="btn {{ $sortBy === 'level' ? 'btn-neon' : 'btn-outline-neon' }}">
+                    LEVEL
+                </a>
+            </div>
         </div>
     </div>
 </div>

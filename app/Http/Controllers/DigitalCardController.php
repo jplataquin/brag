@@ -24,24 +24,36 @@ class DigitalCardController extends Controller
     {
         $user = Auth::user();
         $sortBy = $request->query('sort', 'latest');
+        $gameId = $request->query('game');
 
         $query = $user->digitalCards()
             ->with(['template.gameTitle', 'originalOwner']);
 
+        if ($gameId) {
+            $query->whereHas('template', function ($q) use ($gameId) {
+                $q->where('game_title_id', $gameId);
+            });
+        }
+
         if ($sortBy === 'level') {
             $query->orderBy('wins', 'desc');
-        } elseif ($sortBy === 'game') {
-            $query->select('digital_cards.*')
-                ->join('templates', 'digital_cards.template_id', '=', 'templates.id')
-                ->join('game_titles', 'templates.game_title_id', '=', 'game_titles.id')
-                ->orderBy('game_titles.title', 'asc');
         } else {
             $query->latest('updated_at');
         }
 
         $cards = $query->get();
 
-        return view('cards.index', compact('cards', 'sortBy'));
+        // Get unique games the user has cards for to populate the filter dropdown
+        $games = $user->digitalCards()
+            ->with('template.gameTitle')
+            ->get()
+            ->map(function ($card) {
+                return $card->template->gameTitle;
+            })
+            ->unique('id')
+            ->values();
+
+        return view('cards.index', compact('cards', 'sortBy', 'games', 'gameId'));
     }
 
     /**
