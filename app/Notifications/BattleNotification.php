@@ -24,7 +24,7 @@ class BattleNotification extends Notification
         $this->battle = $battle;
         $this->message = $message;
         $this->type = $type;
-        $this->actionUrl = $actionUrl ?? route('battles.show', $battle->id);
+        $this->actionUrl = $actionUrl ?? route('battles.room', $battle);
     }
 
     /**
