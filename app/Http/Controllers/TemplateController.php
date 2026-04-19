@@ -35,14 +35,10 @@ class TemplateController extends Controller
     {
         $request->validate([
             'ai_prompt' => 'required|string|max:200',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'temporary_photo_path' => 'nullable|string',
         ]);
 
-        $photoPath = '';
-        if ($request->hasFile('photo')) {
-            // Save it temporarily so the service can access it
-            $photoPath = $request->file('photo')->store('templates/tmp', 'public');
-        }
+        $photoPath = $request->input('temporary_photo_path', '');
 
         try {
             $aiPhotoPath = $nanoBanana->enhanceImage($photoPath, $request->ai_prompt);
@@ -65,7 +61,7 @@ class TemplateController extends Controller
             'card_title' => 'required|string|max:50|unique:templates,card_title',
             'game_title_id' => 'required|exists:game_titles,id',
             'quote' => 'required|string|max:500',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'temporary_photo_path' => 'nullable|string',
             'enhance_photo' => 'nullable|boolean',
             'ai_prompt' => 'nullable|string|max:200|required_if:enhance_photo,1',
             'generated_ai_photo' => 'nullable|string',
@@ -103,8 +99,15 @@ class TemplateController extends Controller
         $data['card_title'] = strtoupper($data['card_title']);
         $data['user_id'] = $user->id;
 
-        if ($request->hasFile('photo')) {
-            $data['photo'] = $request->file('photo')->store('templates', 'public');
+        if ($request->filled('temporary_photo_path')) {
+            $tmpPath = $request->input('temporary_photo_path');
+            if (Storage::disk('public')->exists($tmpPath)) {
+                $newPath = 'templates/' . basename($tmpPath);
+                Storage::disk('public')->move($tmpPath, $newPath);
+                $data['photo'] = $newPath;
+            } else {
+                $data['photo'] = $tmpPath; // Just in case it's already moved or formatted
+            }
 
             if ($request->filled('enhance_photo')) {
                 if ($request->filled('generated_ai_photo')) {
@@ -170,7 +173,7 @@ class TemplateController extends Controller
             'card_title' => 'required|string|max:50|unique:templates,card_title,' . $template->id,
             'game_title_id' => 'required|exists:game_titles,id',
             'quote' => 'required|string|max:500',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'temporary_photo_path' => 'nullable|string',
             'enhance_photo' => 'nullable|boolean',
             'ai_prompt' => 'nullable|string|max:200|required_if:enhance_photo,1',
             'generated_ai_photo' => 'nullable|string',
@@ -205,7 +208,7 @@ class TemplateController extends Controller
         $data = $request->only(['card_title', 'game_title_id', 'quote', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
         $data['card_title'] = strtoupper($data['card_title']);
 
-        if ($request->hasFile('photo')) {
+        if ($request->filled('temporary_photo_path')) {
             // Delete old photos
             if ($template->photo) {
                 Storage::disk('public')->delete($template->photo);
@@ -215,7 +218,14 @@ class TemplateController extends Controller
                 $data['ai_photo'] = null;
             }
 
-            $data['photo'] = $request->file('photo')->store('templates', 'public');
+            $tmpPath = $request->input('temporary_photo_path');
+            if (Storage::disk('public')->exists($tmpPath)) {
+                $newPath = 'templates/' . basename($tmpPath);
+                Storage::disk('public')->move($tmpPath, $newPath);
+                $data['photo'] = $newPath;
+            } else {
+                $data['photo'] = $tmpPath;
+            }
 
             if ($request->filled('enhance_photo')) {
                 if ($request->filled('generated_ai_photo')) {

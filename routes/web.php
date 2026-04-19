@@ -36,6 +36,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 Route::middleware('auth')->group(function () {
     Route::post('/templates/ai-preview', [TemplateController::class, 'generateAiPreview'])->name('templates.ai-preview');
     Route::resource('templates', TemplateController::class);
+    Route::post('/upload/chunk', [App\Http\Controllers\UploadController::class, 'uploadChunk'])->name('upload.chunk');
 });
 
 // Digital Cards

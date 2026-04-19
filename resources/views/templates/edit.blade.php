@@ -77,10 +77,19 @@
                         </div>
                     @endif
                     <input type="file" class="form-control @error('photo') is-invalid @enderror"
-                           id="photo" name="photo" accept="image/*">
+                           id="photo" accept="image/*">
+                    <input type="hidden" name="temporary_photo_path" id="temporary_photo_path" value="{{ old('temporary_photo_path') }}">
                     @error('photo')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
+
+                    <!-- Upload Progress -->
+                    <div id="upload-progress-container" class="mt-2" style="display: none;">
+                        <div class="progress" style="height: 10px; background-color: #111122;">
+                            <div id="upload-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; background-color: #00f0ff;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small id="upload-status" style="color: #00f0ff; font-size: 0.75rem;">Uploading: 0%</small>
+                    </div>
                 </div>
 
                 <!-- Nano Banana Enhancement -->
@@ -281,6 +290,73 @@
                 updateLivePreview({ image: e.target.result });
             };
             reader.readAsDataURL(file);
+
+            // Chunk Upload
+            const btnSubmit = document.getElementById('btn-submit-template');
+            const progressContainer = document.getElementById('upload-progress-container');
+            const progressBar = document.getElementById('upload-progress-bar');
+            const statusText = document.getElementById('upload-status');
+            const tempInput = document.getElementById('temporary_photo_path');
+
+            btnSubmit.disabled = true;
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            statusText.innerText = 'Uploading: 0%';
+
+            const CHUNK_SIZE = 1 * 1024 * 1024; // 1MB
+            const fileId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+            const extension = file.name.split('.').pop();
+            let chunkIndex = 0;
+
+            function uploadNextChunk() {
+                const start = chunkIndex * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, file.size);
+                const chunk = file.slice(start, end);
+
+                const formData = new FormData();
+                formData.append('file', chunk);
+                formData.append('file_id', fileId);
+                formData.append('chunk_index', chunkIndex);
+                formData.append('total_chunks', totalChunks);
+                formData.append('extension', extension);
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+                fetch('{{ route("upload.chunk") }}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        statusText.innerText = 'Upload failed!';
+                        statusText.style.color = 'red';
+                        btnSubmit.disabled = false;
+                        return;
+                    }
+                    
+                    chunkIndex++;
+                    const percent = Math.round((chunkIndex / totalChunks) * 100);
+                    progressBar.style.width = percent + '%';
+                    statusText.innerText = 'Uploading: ' + percent + '%';
+
+                    if (chunkIndex < totalChunks) {
+                        uploadNextChunk();
+                    } else if (data.success && data.path) {
+                        tempInput.value = data.path;
+                        statusText.innerText = 'Upload complete!';
+                        statusText.style.color = '#39ff14';
+                        btnSubmit.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    console.error('Upload Error:', err);
+                    statusText.innerText = 'Upload error!';
+                    statusText.style.color = 'red';
+                    btnSubmit.disabled = false;
+                });
+            }
+            uploadNextChunk();
         }
     });
 
@@ -305,7 +381,7 @@
         const resultContainer = document.getElementById('ai-result-container');
         const img = document.getElementById('ai-preview-img');
         const hiddenInput = document.getElementById('generated_ai_photo');
-        const photoInput = document.getElementById('photo');
+        const tempPhotoInput = document.getElementById('temporary_photo_path');
 
         btn.disabled = true;
         loading.style.display = 'inline-block';
@@ -313,8 +389,13 @@
 
         const formData = new FormData();
         formData.append('ai_prompt', prompt);
-        if (photoInput.files.length > 0) {
-            formData.append('photo', photoInput.files[0]);
+        if (tempPhotoInput.value) {
+            formData.append('temporary_photo_path', tempPhotoInput.value);
+        } else if ("{{ $template->photo }}") {
+            // Include existing photo logic if needed? We will just pass nothing and backend uses default if applicable?
+            // Actually TemplateController requires temporary_photo_path or it fails?
+            // Let's pass the existing photo path if we don't have a new one.
+            formData.append('temporary_photo_path', "{{ $template->photo }}");
         }
         
         // Add CSRF token
