@@ -90,7 +90,7 @@
                             </div>
                         @endif
                         <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #00f0ff;">
-                            CHALLENGER @if(Auth::id() === $battle->challenger_id) <span style="font-size: 0.7rem; opacity: 0.8;"> - (YOU)</span> @endif
+                            CHALLENGER @if(Auth::id() === $battle->challenger_id) - (YOU) @endif
                         </div>
                         <h4 style="color: #fff;">{{ $battle->challenger->username }}</h4>
                     </div>
@@ -132,7 +132,7 @@
                             </div>
                         @endif
                         <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #ff00ff;">
-                            OPPONENT @if(Auth::id() === $battle->opponent_id) <span style="font-size: 0.7rem; opacity: 0.8;"> - (YOU)</span> @endif
+                            OPPONENT @if(Auth::id() === $battle->opponent_id) - (YOU) @endif
                         </div>
                         <h4 style="color: #fff;" id="opponent-name-display">
                             {{ $battle->opponent ? $battle->opponent->username : 'AWAITING...' }}

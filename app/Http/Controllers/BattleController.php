@@ -44,7 +44,7 @@ class BattleController extends Controller
     /**
      * Show the form for creating a new battle.
      */
-    public function create()
+    public function create(Request $request)
     {
         $cards = Auth::user()->digitalCards()
             ->with('template.gameTitle')
@@ -55,7 +55,10 @@ class BattleController extends Controller
             return $card->template->gameTitle;
         })->unique('id')->values();
 
-        return view('battles.create', compact('cards', 'games'));
+        $preSelectedGameId = $request->query('game_id');
+        $preSelectedCardId = $request->query('card_id');
+
+        return view('battles.create', compact('cards', 'games', 'preSelectedGameId', 'preSelectedCardId'));
     }
 
     /**

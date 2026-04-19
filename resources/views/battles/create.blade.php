@@ -63,6 +63,12 @@
                             <span class="visually-hidden">Next</span>
                         </button>
                     </div>
+
+                    <div class="mt-4 pt-3 border-top" style="border-color: rgba(0, 240, 255, 0.1) !important;">
+                        <button type="submit" id="submit-battle-btn" class="btn btn-neon w-100" style="font-size: 1.1rem; padding: 12px;" disabled>
+                            <i class="bi bi-crosshair"></i> CREATE BATTLE ROOM
+                        </button>
+                    </div>
                 </div>
                 
                 @endif
@@ -142,11 +148,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const carouselInner = document.getElementById('carousel-inner-content');
     const form = document.getElementById('create-battle-form');
     const selectedCardIdInput = document.getElementById('selected_card_id');
+    const submitBtn = document.getElementById('submit-battle-btn');
+
+    let allCardButtons = [];
 
     gameSelect.addEventListener('change', function() {
         const selectedGameId = this.value;
         cardSelectionGrid.innerHTML = '';
         carouselInner.innerHTML = '';
+        allCardButtons = [];
+        selectedCardIdInput.value = '';
+        if (submitBtn) submitBtn.disabled = true;
 
         // Clear any old modals from the body
         document.querySelectorAll('.modal.fade').forEach(modal => modal.remove());
@@ -176,9 +188,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const selectButton = document.createElement('button');
                 selectButton.type = 'button';
-                selectButton.classList.add('btn', 'btn-neon-lime', 'btn-neon-sm', 'w-100', 'mt-2');
-                selectButton.innerHTML = '<i class="bi bi-check-lg"></i> SELECT';
-                selectButton.addEventListener('click', () => submitBattle(cardData.id, selectButton));
+                selectButton.classList.add('btn', 'btn-outline-neon', 'btn-neon-sm', 'w-100', 'mt-2');
+                selectButton.innerHTML = '<i class="bi bi-circle"></i> SELECT';
+                selectButton.dataset.cardId = cardData.id;
+                selectButton.addEventListener('click', () => selectCard(cardData.id, selectButton));
+                allCardButtons.push(selectButton);
                 
                 gridItemDiv.appendChild(selectButton);
                 cardSelectionGrid.appendChild(gridItemDiv);
@@ -197,14 +211,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             <img id="img_${carouselOptions.id}" src="" alt="${options.title}" style="width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 15px ${options.borderColor}40; display: block;" />
                             <canvas id="${carouselOptions.id}" width="350" height="490" style="display: none;"></canvas>
                         </div>
-                        <button type="button" class="btn btn-neon-lime btn-neon-sm w-100 mt-3 max-width-280" style="max-width: 280px;">
-                            <i class="bi bi-check-lg"></i> SELECT THIS CARD
+                        <button type="button" class="btn btn-outline-neon btn-neon-sm w-100 mt-3 max-width-280" style="max-width: 280px;" data-card-id="${cardData.id}">
+                            <i class="bi bi-circle"></i> SELECT THIS CARD
                         </button>
                     </div>
                 `;
 
                 const carouselSelectBtn = carouselItem.querySelector('button');
-                carouselSelectBtn.addEventListener('click', () => submitBattle(cardData.id, carouselSelectBtn));
+                carouselSelectBtn.addEventListener('click', () => selectCard(cardData.id, carouselSelectBtn));
+                allCardButtons.push(carouselSelectBtn);
                 
                 carouselInner.appendChild(carouselItem);
                 
@@ -219,10 +234,65 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 0);
             });
             cardSelectionSection.style.display = 'block';
+
+            // Auto-select if query parameter is present
+            const preSelectedCardId = "{{ $preSelectedCardId ?? '' }}";
+            if (preSelectedCardId) {
+                const targetBtn = allCardButtons.find(b => b.dataset.cardId == preSelectedCardId);
+                if (targetBtn) {
+                    selectCard(preSelectedCardId, targetBtn);
+                }
+            }
+
         } else {
             cardSelectionSection.style.display = 'none';
         }
     });
+
+    function selectCard(cardId, button) {
+        selectedCardIdInput.value = cardId;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="bi bi-crosshair"></i> CREATE BATTLE ROOM';
+
+        // Reset all buttons
+        allCardButtons.forEach(btn => {
+            btn.classList.remove('btn-neon-lime');
+            btn.classList.add('btn-outline-neon');
+            if (btn.innerText.includes('THIS')) {
+                btn.innerHTML = '<i class="bi bi-circle"></i> SELECT THIS CARD';
+            } else {
+                btn.innerHTML = '<i class="bi bi-circle"></i> SELECT';
+            }
+        });
+
+        // Highlight the matched buttons (both grid and carousel)
+        const matchingButtons = allCardButtons.filter(b => b.dataset.cardId == cardId);
+        matchingButtons.forEach(btn => {
+            btn.classList.remove('btn-outline-neon');
+            btn.classList.add('btn-neon-lime');
+            if (btn.innerText.includes('THIS')) {
+                btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> SELECTED';
+            } else {
+                btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> SELECTED';
+            }
+        });
+    }
+
+    form.addEventListener('submit', function() {
+        if (!selectedCardIdInput.value) {
+            alert('Please select a card first.');
+            return false;
+        }
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> CREATING...';
+        submitBtn.disabled = true;
+    });
+
+    // Handle pre-selected game title
+    const preSelectedGameId = "{{ $preSelectedGameId ?? '' }}";
+    if (preSelectedGameId) {
+        gameSelect.value = preSelectedGameId;
+        gameSelect.dispatchEvent(new Event('change'));
+    }
 
     function createModal(options) {
         const modalHtml = `
@@ -242,12 +312,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.insertAdjacentHTML('beforeend', modalHtml);
     }
 
-    function submitBattle(cardId, button) {
-        selectedCardIdInput.value = cardId;
-        button.innerHTML = '<i class="bi bi-hourglass-split"></i> CREATING...';
-        button.disabled = true;
-        form.submit();
-    }
 });
 </script>
 @endsection
