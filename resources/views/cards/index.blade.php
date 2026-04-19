@@ -1,53 +1,52 @@
 @extends('layouts.app')
 
-@section('title', 'My Cards')
+@section('title', 'My Collection')
 
 @section('content')
-<h1 class="page-title">
-    <span class="page-title-accent"><i class="bi bi-suit-diamond-fill"></i></span>INVENTORY
-</h1>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <h1 class="page-title m-0">
+        <span class="page-title-accent"><i class="bi bi-suit-diamond-fill"></i></span> MY COLLECTION
+    </h1>
 
-<!-- Own Cards Section -->
+    <div class="d-flex align-items-center gap-2">
+        <span class="text-muted small text-nowrap"><i class="bi bi-sort-down"></i> SORT BY:</span>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Sort cards">
+            <a href="{{ route('cards.index', ['sort' => 'latest']) }}" 
+               class="btn {{ $sortBy === 'latest' ? 'btn-neon' : 'btn-outline-neon' }}">
+                LATEST
+            </a>
+            <a href="{{ route('cards.index', ['sort' => 'level']) }}" 
+               class="btn {{ $sortBy === 'level' ? 'btn-neon' : 'btn-outline-neon' }}">
+                LEVEL
+            </a>
+            <a href="{{ route('cards.index', ['sort' => 'game']) }}" 
+               class="btn {{ $sortBy === 'game' ? 'btn-neon' : 'btn-outline-neon' }}">
+                GAME
+            </a>
+        </div>
+    </div>
+</div>
+
 <div class="mb-5">
     <h5 class="section-header">
-        <i class="bi bi-suit-diamond-fill section-icon"></i> MY CARDS
-        <span class="badge rounded-pill ms-2" style="background: rgba(0,240,255,0.1); color: #00f0ff; font-size: 0.7rem;">{{ $ownCards->count() }}/3</span>
+        <i class="bi bi-collection-fill section-icon"></i> ALL CARDS
+        <span class="badge rounded-pill ms-2" style="background: rgba(0,240,255,0.1); color: #00f0ff; font-size: 0.7rem;">{{ $cards->count() }}</span>
     </h5>
 
-    @if($ownCards->count() > 0)
+    @if($cards->count() > 0)
         <div class="card-grid">
-            @foreach($ownCards as $card)
+            @foreach($cards as $card)
                 @include('partials.card-mini', ['card' => $card])
             @endforeach
         </div>
     @else
         <div class="empty-state">
             <div class="empty-icon">🃏</div>
-            <div class="empty-text">No cards in your inventory</div>
-            <a href="{{ route('templates.index') }}" class="btn btn-neon btn-neon-sm">Forge from Templates</a>
-        </div>
-    @endif
-</div>
-
-<!-- Trophies Section -->
-<div>
-    <h5 class="section-header">
-        <i class="bi bi-trophy-fill section-icon" style="color: #ffdd00;"></i> TROPHY COLLECTION
-        <span class="badge rounded-pill ms-2" style="background: rgba(255,221,0,0.1); color: #ffdd00; font-size: 0.7rem;">{{ $trophies->count() }}</span>
-    </h5>
-
-    @if($trophies->count() > 0)
-        <div class="card-grid">
-            @foreach($trophies as $card)
-                @include('partials.card-mini', ['card' => $card, 'isTrophy' => true])
-            @endforeach
-        </div>
-    @else
-        <div class="empty-state">
-            <div class="empty-icon">🏆</div>
-            <div class="empty-text">No trophies collected yet</div>
-            <p style="color: #555577; font-size: 0.85rem;">Win battles to collect opponent's cards as trophies!</p>
-            <a href="{{ route('battles.index') }}" class="btn btn-neon-magenta btn-neon-sm">Find Battles</a>
+            <div class="empty-text">Your collection is empty</div>
+            <div class="d-flex gap-3 justify-content-center">
+                <a href="{{ route('templates.index') }}" class="btn btn-neon btn-neon-sm">Forge from Templates</a>
+                <a href="{{ route('battles.index') }}" class="btn btn-neon-magenta btn-neon-sm">Win Trophies</a>
+            </div>
         </div>
     @endif
 </div>

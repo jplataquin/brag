@@ -20,22 +20,28 @@ class DigitalCardController extends Controller
     /**
      * Display a listing of the user's digital cards.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
+        $sortBy = $request->query('sort', 'latest');
 
-        $ownCards = $user->digitalCards()
-            ->where('original_owner_id', $user->id)
-            ->where('is_trophy', false)
-            ->with('template.gameTitle')
-            ->get();
+        $query = $user->digitalCards()
+            ->with(['template.gameTitle', 'originalOwner']);
 
-        $trophies = $user->trophies()
-            ->with('template.gameTitle', 'originalOwner')
-            ->latest()
-            ->get();
+        if ($sortBy === 'level') {
+            $query->orderBy('wins', 'desc');
+        } elseif ($sortBy === 'game') {
+            $query->select('digital_cards.*')
+                ->join('templates', 'digital_cards.template_id', '=', 'templates.id')
+                ->join('game_titles', 'templates.game_title_id', '=', 'game_titles.id')
+                ->orderBy('game_titles.title', 'asc');
+        } else {
+            $query->latest('updated_at');
+        }
 
-        return view('cards.index', compact('ownCards', 'trophies'));
+        $cards = $query->get();
+
+        return view('cards.index', compact('cards', 'sortBy'));
     }
 
     /**
