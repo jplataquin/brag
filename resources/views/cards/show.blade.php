@@ -12,7 +12,7 @@
 <div class="row g-4">
     <!-- Card Visual -->
     <div class="col-md-5">
-        <div class="neon-card p-4 d-flex justify-content-center" style="background: rgba(0,0,0,0.5);">
+        <div class="neon-card p-4 text-center" style="background: rgba(0,0,0,0.5);">
             <x-digital-card 
                 id="digital_card_{{ $digitalCard->id }}" 
                 mode="display"
