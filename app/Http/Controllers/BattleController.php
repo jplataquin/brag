@@ -374,9 +374,20 @@ class BattleController extends Controller
 
         try {
             $this->battleService->declareWinner($battle, $winner, $user);
+            
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Winner declaration recorded.'
+                ]);
+            }
+            
             return redirect()->route('battles.room', $battle)
                 ->with('success', '🏆 Winner declared! The loser\'s card has been transferred.');
         } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+            }
             return back()->with('error', $e->getMessage())->withInput();
         }
     }

@@ -133,6 +133,19 @@ class BattleService
             if ($finalWinnerId) {
                 $this->finalizeBattle($battle, User::find($finalWinnerId), $declarer);
             } else {
+                // Notify other participants
+                $participants = collect([$battle->challenger, $battle->opponent, $battle->adjudicator])
+                    ->filter()
+                    ->reject(fn($p) => $p->id === $declarer->id);
+                    
+                foreach ($participants as $participant) {
+                    $participant->notify(new BattleNotification(
+                        $battle,
+                        "{$declarer->username} declared {$winner->username} as the winner.",
+                        'declare'
+                    ));
+                }
+
                 event(new \App\Events\BattleUpdated($battle, "{$declarer->username} declared a winner.", 'declare'));
             }
 

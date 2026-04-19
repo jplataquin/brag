@@ -557,37 +557,29 @@
                 
                 <div class="d-flex flex-column gap-3 text-start mb-2">
                     <!-- Challenger Option -->
-                    <form method="POST" action="{{ route('battles.declareWinner', $battle) }}" class="m-0">
-                        @csrf
-                        <input type="hidden" name="winner_id" value="{{ $battle->challenger_id }}">
-                        <button type="submit" class="w-100 p-3 rounded d-flex flex-column gap-2" style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.5); color: #fff; cursor: pointer; text-align: left; transition: all 0.3s ease;" data-confirm="Declare {{ $battle->challenger->username }} as winner?" onmouseover="this.style.background='rgba(0, 240, 255, 0.15)'; this.style.boxShadow='0 0 15px rgba(0, 240, 255, 0.4)';" onmouseout="this.style.background='rgba(0, 240, 255, 0.05)'; this.style.boxShadow='none';">
-                            <div class="d-flex justify-content-between align-items-center w-100">
-                                <span style="font-size: 1.1rem;"><i class="bi bi-person-fill text-info"></i> {{ $battle->challenger->username }}</span>
-                                <span class="badge text-dark" style="background-color: #00f0ff;">CHALLENGER</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center w-100 small" style="color: #8888aa;">
-                                <span>Their Declaration:</span>
-                                <strong style="color: #fff;">{{ $battle->challenger_declared_user_win ? \App\Models\User::find($battle->challenger_declared_user_win)->username : 'NONE' }}</strong>
-                            </div>
-                        </button>
-                    </form>
+                    <button type="button" onclick="declareWinnerAjax({{ $battle->challenger_id }}, this)" data-message="Declare {{ $battle->challenger->username }} as winner?" class="w-100 p-3 rounded d-flex flex-column gap-2 border-0" style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.5) !important; color: #fff; cursor: pointer; text-align: left; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(0, 240, 255, 0.15)'; this.style.boxShadow='0 0 15px rgba(0, 240, 255, 0.4)';" onmouseout="this.style.background='rgba(0, 240, 255, 0.05)'; this.style.boxShadow='none';">
+                        <div class="d-flex justify-content-between align-items-center w-100">
+                            <span style="font-size: 1.1rem;"><i class="bi bi-person-fill text-info"></i> {{ $battle->challenger->username }}</span>
+                            <span class="badge text-dark" style="background-color: #00f0ff;">CHALLENGER</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center w-100 small" style="color: #8888aa;">
+                            <span>Their Declaration:</span>
+                            <strong style="color: #fff;" id="challenger-declaration-text">{{ $battle->challenger_declared_user_win ? \App\Models\User::find($battle->challenger_declared_user_win)->username : 'NONE' }}</strong>
+                        </div>
+                    </button>
 
                     <!-- Opponent Option -->
                     @if($battle->opponent)
-                    <form method="POST" action="{{ route('battles.declareWinner', $battle) }}" class="m-0">
-                        @csrf
-                        <input type="hidden" name="winner_id" value="{{ $battle->opponent_id }}">
-                        <button type="submit" class="w-100 p-3 rounded d-flex flex-column gap-2" style="background: rgba(255, 0, 255, 0.05); border: 1px solid rgba(255, 0, 255, 0.5); color: #fff; cursor: pointer; text-align: left; transition: all 0.3s ease;" data-confirm="Declare {{ $battle->opponent->username }} as winner?" onmouseover="this.style.background='rgba(255, 0, 255, 0.15)'; this.style.boxShadow='0 0 15px rgba(255, 0, 255, 0.4)';" onmouseout="this.style.background='rgba(255, 0, 255, 0.05)'; this.style.boxShadow='none';">
-                            <div class="d-flex justify-content-between align-items-center w-100">
-                                <span style="font-size: 1.1rem;"><i class="bi bi-person-fill text-magenta" style="color: #ff00ff;"></i> {{ $battle->opponent->username }}</span>
-                                <span class="badge text-white" style="background-color: #ff00ff;">OPPONENT</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center w-100 small" style="color: #8888aa;">
-                                <span>Their Declaration:</span>
-                                <strong style="color: #fff;">{{ $battle->opponent_declared_user_win ? \App\Models\User::find($battle->opponent_declared_user_win)->username : 'NONE' }}</strong>
-                            </div>
-                        </button>
-                    </form>
+                    <button type="button" onclick="declareWinnerAjax({{ $battle->opponent_id }}, this)" data-message="Declare {{ $battle->opponent->username }} as winner?" class="w-100 p-3 rounded d-flex flex-column gap-2 border-0" style="background: rgba(255, 0, 255, 0.05); border: 1px solid rgba(255, 0, 255, 0.5) !important; color: #fff; cursor: pointer; text-align: left; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255, 0, 255, 0.15)'; this.style.boxShadow='0 0 15px rgba(255, 0, 255, 0.4)';" onmouseout="this.style.background='rgba(255, 0, 255, 0.05)'; this.style.boxShadow='none';">
+                        <div class="d-flex justify-content-between align-items-center w-100">
+                            <span style="font-size: 1.1rem;"><i class="bi bi-person-fill text-magenta" style="color: #ff00ff;"></i> {{ $battle->opponent->username }}</span>
+                            <span class="badge text-white" style="background-color: #ff00ff;">OPPONENT</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center w-100 small" style="color: #8888aa;">
+                            <span>Their Declaration:</span>
+                            <strong style="color: #fff;" id="opponent-declaration-text">{{ $battle->opponent_declared_user_win ? \App\Models\User::find($battle->opponent_declared_user_win)->username : 'NONE' }}</strong>
+                        </div>
+                    </button>
                     @endif
 
                     <!-- Adjudicator Status (Non-clickable) -->
@@ -764,7 +756,7 @@
                     }
 
                     // For major structural changes (like someone joining or the battle completing),
-                    if (['join', 'start', 'winner', 'adjudicator_accepted', 'cancel', 'cancel_agree', 'cancel_reject', 'declare', 'conflict', 'adjudicator_decision', 'consensus'].includes(e.type)) {
+                    if (['join', 'start', 'winner', 'adjudicator_accepted', 'cancel', 'cancel_agree', 'cancel_reject', 'adjudicator_decision', 'consensus'].includes(e.type)) {
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500); // Give user a moment to see the notification
@@ -792,12 +784,80 @@
                     // Exclude poke events from the activity log per requirement
                     if (!e.type.startsWith('poke') && !e.type.startsWith('cancel_request_')) {
                         appendActivity(e.message, e.type);
+
+                        // If it's a declaration and doesn't trigger a reload (no consensus yet)
+                        // update the UI text dynamically
+                        if (e.type === 'declare' || e.type === 'conflict') {
+                            // Close modal if open so they see the activity log or have to reopen it to see updated status
+                            const declareModal = bootstrap.Modal.getInstance(document.getElementById('declareWinnerModal'));
+                            if (declareModal) declareModal.hide();
+                            
+                            if (e.type === 'conflict') {
+                                // Add conflict banner dynamically
+                                const modalBody = document.querySelector('#declareWinnerModal .modal-body');
+                                if (modalBody && !modalBody.querySelector('.alert-danger')) {
+                                    const alertHtml = `
+                                    <div class="alert alert-danger mb-4" style="background: rgba(255,0,0,0.1); border-color: #ff0055; color: #ff0055; font-size: 0.85rem;">
+                                        <i class="bi bi-exclamation-octagon-fill"></i> <strong>CONFLICT DETECTED:</strong> Players have declared different winners. Please reach a consensus or wait for the adjudicator.
+                                    </div>`;
+                                    modalBody.insertAdjacentHTML('afterbegin', alertHtml);
+                                }
+                            }
+                        }
+
                     } else if (e.type.startsWith('cancel_request_')) {
                         appendActivity(e.message, 'cancel_request');
                     }
                 });
         }
     });
+
+    async function declareWinnerAjax(winnerId, btn) {
+        const message = btn.getAttribute('data-message');
+        const result = await window.neonConfirm(message);
+        
+        if (!result) return;
+        
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<div class="text-center w-100 py-2"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> DECLARING...</div>';
+        btn.disabled = true;
+
+        fetch(`{{ route('battles.declareWinner', $battle) }}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ winner_id: winnerId })
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+                return null;
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data) return;
+            if (data.success) {
+                showNeonNotification(data.message, 'declare');
+                const declareModal = bootstrap.Modal.getInstance(document.getElementById('declareWinnerModal'));
+                if (declareModal) declareModal.hide();
+                // Button reset is handled by page reload if finalized, or we just leave it disabled
+            } else {
+                showNeonNotification(data.message, 'conflict');
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
+        })
+        .catch(err => {
+            showNeonNotification('An error occurred while declaring winner.', 'conflict');
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        });
+    }
 
     async function cancelBattle(btn) {
         const message = btn.getAttribute('data-message');
