@@ -47,7 +47,7 @@ class DigitalCardController extends Controller
                 ->join('templates', 'digital_cards.template_id', '=', 'templates.id')
                 ->orderBy('templates.card_title', $direction);
         } elseif ($sortBy === 'serial') {
-            $query->orderBy('serial_number', $direction);
+            $query->orderBy('id', $direction);
         } else {
             // For 'latest', if the user asks for 'asc', it should mean "show me newest first" logically.
             // But we'll map 'asc' -> 'desc' (latest first) and 'desc' -> 'asc' (oldest first).

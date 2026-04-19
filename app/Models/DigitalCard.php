@@ -42,6 +42,14 @@ class DigitalCard extends Model
     }
 
     /**
+     * Get the serial number for the card (which is simply its ID).
+     */
+    public function getSerialNumberAttribute($value)
+    {
+        return $this->id;
+    }
+
+    /**
      * The original creator of this card.
      */
     public function originalOwner()
