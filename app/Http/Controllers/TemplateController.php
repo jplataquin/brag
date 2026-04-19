@@ -104,6 +104,7 @@ class TemplateController extends Controller
             if (Storage::disk('public')->exists($tmpPath)) {
                 $newPath = 'templates/' . basename($tmpPath);
                 Storage::disk('public')->move($tmpPath, $newPath);
+                Storage::disk('public')->setVisibility($newPath, 'public');
                 $data['photo'] = $newPath;
             } else {
                 $data['photo'] = $tmpPath; // Just in case it's already moved or formatted
@@ -222,6 +223,7 @@ class TemplateController extends Controller
             if (Storage::disk('public')->exists($tmpPath)) {
                 $newPath = 'templates/' . basename($tmpPath);
                 Storage::disk('public')->move($tmpPath, $newPath);
+                Storage::disk('public')->setVisibility($newPath, 'public');
                 $data['photo'] = $newPath;
             } else {
                 $data['photo'] = $tmpPath;

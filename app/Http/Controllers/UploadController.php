@@ -65,6 +65,9 @@ class UploadController extends Controller
             }
             fclose($outputFile);
 
+            // Ensure the file has public read permissions (fixes 403 Forbidden)
+            Storage::disk('public')->setVisibility($finalFilePath, 'public');
+
             // Cleanup chunks directory
             Storage::disk('public')->deleteDirectory($tempDirPath);
 
