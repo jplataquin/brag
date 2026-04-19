@@ -1,0 +1,29 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('templates', function (Blueprint $table) {
+            $table->string('background_color', 7)->default('#0a0a1a')->after('ai_photo');
+            $table->string('border_color', 7)->default('#00f0ff')->after('background_color');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('templates', function (Blueprint $table) {
+            $table->dropColumn(['background_color', 'border_color']);
+        });
+    }
+};

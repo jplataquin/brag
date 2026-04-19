@@ -1,0 +1,18 @@
+<x-digital-card 
+    id="mini_card_{{ $card->id }}_{{ uniqid() }}" 
+    mode="thumbnail"
+    :rarity="$card->rarity ?? 'common'"
+    :detailUrl="route('cards.show', $card)"
+    :title="$card->template->card_title" 
+    :game="$card->template->gameTitle->title ?? 'GAME'" 
+    :creator="$card->originalOwner->username ?? 'Creator'"
+    :quote="$card->template->quote"
+    :backgroundColor="$card->template->background_color"
+    :borderColor="$card->template->border_color"
+    :sectionColor="$card->template->section_color"
+    :primaryTextColor="$card->template->primary_text_color"
+    :secondaryTextColor="$card->template->secondary_text_color"
+    :image="$card->template->display_photo"
+    :statsText="'LVL ' . $card->level . ' • W: ' . $card->wins . ' • L: ' . $card->losses . ' • COPIES: ' . $card->template->cards_in_circulation"
+    :rankLevel="$card->level"
+/>

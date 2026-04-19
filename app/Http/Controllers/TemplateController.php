@@ -1,0 +1,275 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Template;
+use App\Services\NanoBananaService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+
+class TemplateController extends Controller
+{
+    /**
+     * Display a listing of the user's templates.
+     */
+    public function index()
+    {
+        $templates = Auth::user()->templates()->withCount('digitalCards')->latest()->get();
+        return view('templates.index', compact('templates'));
+    }
+
+    /**
+     * Show the form for creating a new template.
+     */
+    public function create()
+    {
+        $gameTitles = \App\Models\GameTitle::orderBy('title')->get();
+        return view('templates.create', compact('gameTitles'));
+    }
+
+    /**
+     * Generate an AI preview photo based on the prompt.
+     */
+    public function generateAiPreview(Request $request, NanoBananaService $nanoBanana)
+    {
+        $request->validate([
+            'ai_prompt' => 'required|string|max:200',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ]);
+
+        $photoPath = '';
+        if ($request->hasFile('photo')) {
+            // Save it temporarily so the service can access it
+            $photoPath = $request->file('photo')->store('templates/tmp', 'public');
+        }
+
+        try {
+            $aiPhotoPath = $nanoBanana->enhanceImage($photoPath, $request->ai_prompt);
+            return response()->json([
+                'success' => true,
+                'url' => asset('storage/' . $aiPhotoPath),
+                'path' => $aiPhotoPath
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Store a newly created template.
+     */
+    public function store(Request $request, NanoBananaService $nanoBanana)
+    {
+        $request->validate([
+            'card_title' => 'required|string|max:50|unique:templates,card_title',
+            'game_title_id' => 'required|exists:game_titles,id',
+            'quote' => 'required|string|max:500',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'enhance_photo' => 'nullable|boolean',
+            'ai_prompt' => 'nullable|string|max:200|required_if:enhance_photo,1',
+            'generated_ai_photo' => 'nullable|string',
+            'background_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'border_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'section_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'primary_text_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'secondary_text_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+        ], [
+            'game_title_id.required' => 'The game title field is required.',
+            'game_title_id.exists' => 'The selected game title is invalid.',
+            'ai_prompt.required_if' => 'An art style prompt is required when enhancing the photo.',
+            'background_color.regex' => 'The background color must be a valid hex code.',
+            'border_color.regex' => 'The border color must be a valid hex code.',
+            'section_color.regex' => 'The section color must be a valid hex code.',
+            'primary_text_color.regex' => 'The primary text color must be a valid hex code.',
+            'secondary_text_color.regex' => 'The secondary text color must be a valid hex code.',
+        ]);
+
+        $user = Auth::user();
+
+        // Check for duplicate game title
+        $gameTitleId = (int) $request->input('game_title_id');
+        
+        if ($gameTitleId > 0) {
+            
+        $exists = $user->templates()->where('game_title_id', $gameTitleId)->exists();
+
+            if ($exists) {
+                return back()->withErrors(['game_title_id' => 'You already have a template for this game title.'])->withInput();
+            }
+        }
+
+        $data = $request->only(['card_title', 'game_title_id', 'quote', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
+        $data['card_title'] = strtoupper($data['card_title']);
+        $data['user_id'] = $user->id;
+
+        if ($request->hasFile('photo')) {
+            $data['photo'] = $request->file('photo')->store('templates', 'public');
+
+            if ($request->filled('enhance_photo')) {
+                if ($request->filled('generated_ai_photo')) {
+                    $data['ai_photo'] = $request->generated_ai_photo;
+                } else {
+                    try {
+                        $data['ai_photo'] = $nanoBanana->enhanceImage($data['photo'], $request->ai_prompt);
+                    } catch (\Exception $e) {
+                        return back()->withErrors(['enhance_photo' => 'AI Enhancement failed: ' . $e->getMessage()])->withInput();
+                    }
+                }
+            }
+        } elseif ($request->filled('enhance_photo') && $request->filled('generated_ai_photo')) {
+             $data['ai_photo'] = $request->generated_ai_photo;
+        }
+
+        Template::create($data);
+
+        return redirect()->route('templates.index')
+            ->with('success', 'Template created successfully! You can now forge Digital Cards from it.');
+    }
+
+    /**
+     * Display the specified template.
+     */
+    public function show(Template $template)
+    {
+        $template->load(['digitalCards' => function($query) use ($template) {
+            $query->where('owner_id', $template->user_id);
+        }, 'digitalCards.owner', 'user', 'gameTitle']);
+
+        $canForge = false;
+        $forgeStatus = null;
+
+        if (Auth::check() && Auth::id() === $template->user_id) {
+            $forgeService = app(\App\Services\CardForgeService::class);
+            $forgeCheck = $forgeService->canForge(Auth::user(), $template);
+            $canForge = $forgeCheck['can_forge'];
+            $forgeStatus = $forgeCheck;
+        }
+
+        return view('templates.show', compact('template', 'canForge', 'forgeStatus'));
+    }
+
+    /**
+     * Show the form for editing the specified template.
+     */
+    public function edit(Template $template)
+    {
+        $this->authorize('update', $template);
+        $gameTitles = \App\Models\GameTitle::orderBy('title')->get();
+        return view('templates.edit', compact('template', 'gameTitles'));
+    }
+
+    /**
+     * Update the specified template.
+     */
+    public function update(Request $request, Template $template, NanoBananaService $nanoBanana)
+    {
+        $this->authorize('update', $template);
+
+        $request->validate([
+            'card_title' => 'required|string|max:50|unique:templates,card_title,' . $template->id,
+            'game_title_id' => 'required|exists:game_titles,id',
+            'quote' => 'required|string|max:500',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'enhance_photo' => 'nullable|boolean',
+            'ai_prompt' => 'nullable|string|max:200|required_if:enhance_photo,1',
+            'generated_ai_photo' => 'nullable|string',
+            'background_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'border_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'section_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'primary_text_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'secondary_text_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+        ], [
+            'game_title_id.required' => 'The game title field is required.',
+            'game_title_id.exists' => 'The selected game title is invalid.',
+            'ai_prompt.required_if' => 'An art style prompt is required when enhancing the photo.',
+            'background_color.regex' => 'The background color must be a valid hex code.',
+            'border_color.regex' => 'The border color must be a valid hex code.',
+            'section_color.regex' => 'The section color must be a valid hex code.',
+            'primary_text_color.regex' => 'The primary text color must be a valid hex code.',
+            'secondary_text_color.regex' => 'The secondary text color must be a valid hex code.',
+        ]);
+
+        // Check for duplicate game title (exclude current template)
+        if ($request->filled('game_title_id')) {
+            $exists = Auth::user()->templates()
+                ->where('game_title_id', $request->game_title_id)
+                ->where('id', '!=', $template->id)
+                ->exists();
+
+            if ($exists) {
+                return back()->withErrors(['game_title_id' => 'You already have a template for this game title.'])->withInput();
+            }
+        }
+
+        $data = $request->only(['card_title', 'game_title_id', 'quote', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
+        $data['card_title'] = strtoupper($data['card_title']);
+
+        if ($request->hasFile('photo')) {
+            // Delete old photos
+            if ($template->photo) {
+                Storage::disk('public')->delete($template->photo);
+            }
+            if ($template->ai_photo) {
+                Storage::disk('public')->delete($template->ai_photo);
+                $data['ai_photo'] = null;
+            }
+
+            $data['photo'] = $request->file('photo')->store('templates', 'public');
+
+            if ($request->filled('enhance_photo')) {
+                if ($request->filled('generated_ai_photo')) {
+                    $data['ai_photo'] = $request->generated_ai_photo;
+                } else {
+                    try {
+                        $data['ai_photo'] = $nanoBanana->enhanceImage($data['photo'], $request->ai_prompt);
+                    } catch (\Exception $e) {
+                        return back()->withErrors(['enhance_photo' => 'AI Enhancement failed: ' . $e->getMessage()])->withInput();
+                    }
+                }
+            }
+        } elseif ($request->filled('enhance_photo')) {
+            if ($request->filled('generated_ai_photo')) {
+                if ($template->ai_photo) {
+                    Storage::disk('public')->delete($template->ai_photo);
+                }
+                $data['ai_photo'] = $request->generated_ai_photo;
+            } elseif ($template->photo) {
+                // Did not upload a new photo, but checked enhance for the existing one without previewing
+                if ($template->ai_photo) {
+                    Storage::disk('public')->delete($template->ai_photo);
+                }
+                try {
+                    $data['ai_photo'] = $nanoBanana->enhanceImage($template->photo, $request->ai_prompt);
+                } catch (\Exception $e) {
+                    return back()->withErrors(['enhance_photo' => 'AI Enhancement failed: ' . $e->getMessage()])->withInput();
+                }
+            }
+        }
+
+        $template->update($data);
+
+        return redirect()->route('templates.show', $template)
+            ->with('success', 'Template updated successfully!');
+    }
+
+    /**
+     * Remove the specified template.
+     */
+    public function destroy(Template $template)
+    {
+        $this->authorize('delete', $template);
+
+        if ($template->photo) {
+            Storage::disk('public')->delete($template->photo);
+        }
+        if ($template->ai_photo) {
+            Storage::disk('public')->delete($template->ai_photo);
+        }
+
+        $template->delete();
+
+        return redirect()->route('templates.index')
+            ->with('success', 'Template deleted successfully.');
+    }
+}
