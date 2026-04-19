@@ -113,6 +113,7 @@ class NanoBananaService
             if ($response->successful()) {
                 $filename = 'templates/ai_' . Str::random(16) . '.jpg';
                 Storage::disk('public')->put($filename, $response->body());
+                Storage::disk('public')->setVisibility($filename, 'public');
                 return $filename;
             } else {
                 Log::error("Mock Nano Banana AI failed. Status: " . $response->status() . " Body: " . $response->body());
@@ -135,6 +136,7 @@ class NanoBananaService
                  if ($response->successful()) {
                      $filename = 'templates/ai_' . Str::random(16) . '.jpg';
                      Storage::disk('public')->put($filename, $response->body());
+                     Storage::disk('public')->setVisibility($filename, 'public');
                      return $filename;
                  }
                  throw new \Exception("Fallback mock AI generation failed.");

@@ -37,6 +37,9 @@ class FixStoragePermissions extends Command
 
         // Gather all directories and files recursively
         $directories = File::allDirectories($path);
+        // Include the root path itself
+        array_unshift($directories, $path);
+        
         $files = File::allFiles($path);
 
         $this->info('Fixing directory permissions (0775)...');
