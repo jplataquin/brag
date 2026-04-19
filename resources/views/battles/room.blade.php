@@ -80,13 +80,15 @@
                 <!-- Challenger -->
                 <div class="col-md-6">
                     <div class="text-center mb-3">
-                        <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #00f0ff;">CHALLENGER</div>
-                        <h4 style="color: #fff;">
-                            {{ $battle->challenger->username }}
-                            @if($battle->status === 'completed' && $battle->winner_id === $battle->challenger_id)
-                                <span class="badge bg-warning text-dark ms-2" style="font-size: 0.7rem;"><i class="bi bi-trophy-fill"></i> WINNER</span>
-                            @endif
-                        </h4>
+                        @if($battle->status === 'completed' && $battle->winner_id === $battle->challenger_id)
+                            <div class="mb-1">
+                                <span class="badge bg-warning text-dark" style="font-size: 0.7rem; letter-spacing: 1px; box-shadow: 0 0 10px rgba(255, 221, 0, 0.5);"><i class="bi bi-trophy-fill"></i> WINNER</span>
+                            </div>
+                        @endif
+                        <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #00f0ff;">
+                            CHALLENGER @if(Auth::id() === $battle->challenger_id) <span style="font-size: 0.7rem; opacity: 0.8;">(YOU)</span> @endif
+                        </div>
+                        <h4 style="color: #fff;">{{ $battle->challenger->username }}</h4>
                     </div>
                     @if($battle->challengerCard)
                         <div style="{{ $battle->status === 'completed' ? ($battle->winner_id === $battle->challenger_id ? 'box-shadow: 0 0 30px rgba(255, 221, 0, 0.6); border-radius: 16px; transform: scale(1.02); transition: all 0.3s ease;' : 'opacity: 0.5; filter: grayscale(80%); transition: all 0.3s ease;') : '' }}">
@@ -116,12 +118,16 @@
                 <!-- Opponent -->
                 <div class="col-md-6">
                     <div class="text-center mb-3">
-                        <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #ff00ff;">OPPONENT</div>
+                        @if($battle->status === 'completed' && $battle->winner_id === $battle->opponent_id)
+                            <div class="mb-1">
+                                <span class="badge bg-warning text-dark" style="font-size: 0.7rem; letter-spacing: 1px; box-shadow: 0 0 10px rgba(255, 221, 0, 0.5);"><i class="bi bi-trophy-fill"></i> WINNER</span>
+                            </div>
+                        @endif
+                        <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #ff00ff;">
+                            OPPONENT @if(Auth::id() === $battle->opponent_id) <span style="font-size: 0.7rem; opacity: 0.8;">(YOU)</span> @endif
+                        </div>
                         <h4 style="color: #fff;" id="opponent-name-display">
                             {{ $battle->opponent ? $battle->opponent->username : 'AWAITING...' }}
-                            @if($battle->status === 'completed' && $battle->winner_id === $battle->opponent_id)
-                                <span class="badge bg-warning text-dark ms-2" style="font-size: 0.7rem;"><i class="bi bi-trophy-fill"></i> WINNER</span>
-                            @endif
                         </h4>
                     </div>
                     @if($battle->opponentCard)
@@ -163,13 +169,15 @@
                     <!-- Challenger Slide -->
                     <div class="carousel-item active">
                         <div class="text-center mb-3">
-                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #00f0ff;">CHALLENGER</div>
-                            <h4 style="color: #fff;">
-                                {{ $battle->challenger->username }}
-                                @if($battle->status === 'completed' && $battle->winner_id === $battle->challenger_id)
-                                    <span class="badge bg-warning text-dark ms-2" style="font-size: 0.7rem;"><i class="bi bi-trophy-fill"></i> WINNER</span>
-                                @endif
-                            </h4>
+                            @if($battle->status === 'completed' && $battle->winner_id === $battle->challenger_id)
+                                <div class="mb-1">
+                                    <span class="badge bg-warning text-dark" style="font-size: 0.7rem; letter-spacing: 1px; box-shadow: 0 0 10px rgba(255, 221, 0, 0.5);"><i class="bi bi-trophy-fill"></i> WINNER</span>
+                                </div>
+                            @endif
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #00f0ff;">
+                                CHALLENGER @if(Auth::id() === $battle->challenger_id) <span style="font-size: 0.7rem; opacity: 0.8;">(YOU)</span> @endif
+                            </div>
+                            <h4 style="color: #fff;">{{ $battle->challenger->username }}</h4>
                         </div>
                         @if($battle->challengerCard)
                             <div class="mx-auto" style="{{ $battle->status === 'completed' ? ($battle->winner_id === $battle->challenger_id ? 'box-shadow: 0 0 30px rgba(255, 221, 0, 0.6); border-radius: 16px; transform: scale(1.02); transition: all 0.3s ease;' : 'opacity: 0.5; filter: grayscale(80%); transition: all 0.3s ease;') : '' }}">
@@ -198,12 +206,16 @@
                     <!-- Opponent Slide -->
                     <div class="carousel-item">
                         <div class="text-center mb-3">
-                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #ff00ff;">OPPONENT</div>
+                            @if($battle->status === 'completed' && $battle->winner_id === $battle->opponent_id)
+                                <div class="mb-1">
+                                    <span class="badge bg-warning text-dark" style="font-size: 0.7rem; letter-spacing: 1px; box-shadow: 0 0 10px rgba(255, 221, 0, 0.5);"><i class="bi bi-trophy-fill"></i> WINNER</span>
+                                </div>
+                            @endif
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #ff00ff;">
+                                OPPONENT @if(Auth::id() === $battle->opponent_id) <span style="font-size: 0.7rem; opacity: 0.8;">(YOU)</span> @endif
+                            </div>
                             <h4 style="color: #fff;" id="opponent-name-display-mob">
                                 {{ $battle->opponent ? $battle->opponent->username : 'AWAITING...' }}
-                                @if($battle->status === 'completed' && $battle->winner_id === $battle->opponent_id)
-                                    <span class="badge bg-warning text-dark ms-2" style="font-size: 0.7rem;"><i class="bi bi-trophy-fill"></i> WINNER</span>
-                                @endif
                             </h4>
                         </div>
                         @if($battle->opponentCard)
