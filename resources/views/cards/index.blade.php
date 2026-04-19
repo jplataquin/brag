@@ -24,21 +24,40 @@
         <div class="d-flex align-items-center gap-2">
             <span class="text-muted small text-nowrap"><i class="bi bi-sort-down"></i> SORT BY:</span>
             <div class="btn-group btn-group-sm" role="group" aria-label="Sort cards">
-                <a href="{{ route('cards.index', ['sort' => 'latest', 'game' => $gameId]) }}" 
+                @php
+                    $nextDirLatest = ($sortBy === 'latest' && $direction === 'asc') ? 'desc' : 'asc';
+                    $nextDirLevel = ($sortBy === 'level' && $direction === 'asc') ? 'desc' : 'asc';
+                    $nextDirName = ($sortBy === 'name' && $direction === 'asc') ? 'desc' : 'asc';
+                    $nextDirSerial = ($sortBy === 'serial' && $direction === 'asc') ? 'desc' : 'asc';
+                @endphp
+
+                <a href="{{ route('cards.index', ['sort' => 'latest', 'game' => $gameId, 'dir' => $nextDirLatest]) }}" 
                    class="btn {{ $sortBy === 'latest' ? 'btn-neon' : 'btn-outline-neon' }}">
-                    LATEST
+                    LATEST 
+                    @if($sortBy === 'latest')
+                        <i class="bi bi-caret-{{ $direction === 'asc' ? 'down-fill' : 'up-fill' }}"></i>
+                    @endif
                 </a>
-                <a href="{{ route('cards.index', ['sort' => 'level', 'game' => $gameId]) }}" 
+                <a href="{{ route('cards.index', ['sort' => 'level', 'game' => $gameId, 'dir' => $nextDirLevel]) }}" 
                    class="btn {{ $sortBy === 'level' ? 'btn-neon' : 'btn-outline-neon' }}">
                     LEVEL
+                    @if($sortBy === 'level')
+                        <i class="bi bi-caret-{{ $direction === 'asc' ? 'up-fill' : 'down-fill' }}"></i>
+                    @endif
                 </a>
-                <a href="{{ route('cards.index', ['sort' => 'name', 'game' => $gameId]) }}" 
+                <a href="{{ route('cards.index', ['sort' => 'name', 'game' => $gameId, 'dir' => $nextDirName]) }}" 
                    class="btn {{ $sortBy === 'name' ? 'btn-neon' : 'btn-outline-neon' }}">
                     NAME
+                    @if($sortBy === 'name')
+                        <i class="bi bi-caret-{{ $direction === 'asc' ? 'down-fill' : 'up-fill' }}"></i>
+                    @endif
                 </a>
-                <a href="{{ route('cards.index', ['sort' => 'serial', 'game' => $gameId]) }}" 
+                <a href="{{ route('cards.index', ['sort' => 'serial', 'game' => $gameId, 'dir' => $nextDirSerial]) }}" 
                    class="btn {{ $sortBy === 'serial' ? 'btn-neon' : 'btn-outline-neon' }}">
                     SERIAL
+                    @if($sortBy === 'serial')
+                        <i class="bi bi-caret-{{ $direction === 'asc' ? 'up-fill' : 'down-fill' }}"></i>
+                    @endif
                 </a>
             </div>
         </div>

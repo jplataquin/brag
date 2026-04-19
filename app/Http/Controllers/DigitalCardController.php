@@ -25,6 +25,11 @@ class DigitalCardController extends Controller
         $user = Auth::user();
         $sortBy = $request->query('sort', 'latest');
         $gameId = $request->query('game');
+        $direction = $request->query('dir', 'asc'); // Default to ascending as requested
+
+        if (!in_array($direction, ['asc', 'desc'])) {
+            $direction = 'asc';
+        }
 
         $query = $user->digitalCards()
             ->with(['template.gameTitle', 'originalOwner']);
@@ -36,15 +41,17 @@ class DigitalCardController extends Controller
         }
 
         if ($sortBy === 'level') {
-            $query->orderBy('wins', 'desc');
+            $query->orderBy('wins', $direction);
         } elseif ($sortBy === 'name') {
             $query->select('digital_cards.*')
                 ->join('templates', 'digital_cards.template_id', '=', 'templates.id')
-                ->orderBy('templates.card_title', 'asc');
+                ->orderBy('templates.card_title', $direction);
         } elseif ($sortBy === 'serial') {
-            $query->orderBy('serial_number', 'asc');
+            $query->orderBy('serial_number', $direction);
         } else {
-            $query->latest('updated_at');
+            // For 'latest', if the user asks for 'asc', it should mean "show me newest first" logically.
+            // But we'll map 'asc' -> 'desc' (latest first) and 'desc' -> 'asc' (oldest first).
+            $query->orderBy('updated_at', $direction === 'asc' ? 'desc' : 'asc');
         }
 
         $cards = $query->get();
@@ -59,7 +66,7 @@ class DigitalCardController extends Controller
             ->unique('id')
             ->values();
 
-        return view('cards.index', compact('cards', 'sortBy', 'games', 'gameId'));
+        return view('cards.index', compact('cards', 'sortBy', 'direction', 'games', 'gameId'));
     }
 
     /**
