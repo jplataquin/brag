@@ -567,7 +567,7 @@
                             </div>
                             <div class="d-flex justify-content-between align-items-center w-100 small" style="color: #8888aa;">
                                 <span>Their Declaration:</span>
-                                <strong style="color: #fff;">{{ $battle->challenger_declared_user_win ? \App\Models\User::find($battle->challenger_declared_user_win)->username : 'NOT DECLARED' }}</strong>
+                                <strong style="color: #fff;">{{ $battle->challenger_declared_user_win ? \App\Models\User::find($battle->challenger_declared_user_win)->username : 'NONE' }}</strong>
                             </div>
                         </button>
                     </form>
@@ -584,7 +584,7 @@
                             </div>
                             <div class="d-flex justify-content-between align-items-center w-100 small" style="color: #8888aa;">
                                 <span>Their Declaration:</span>
-                                <strong style="color: #fff;">{{ $battle->opponent_declared_user_win ? \App\Models\User::find($battle->opponent_declared_user_win)->username : 'NOT DECLARED' }}</strong>
+                                <strong style="color: #fff;">{{ $battle->opponent_declared_user_win ? \App\Models\User::find($battle->opponent_declared_user_win)->username : 'NONE' }}</strong>
                             </div>
                         </button>
                     </form>
@@ -599,7 +599,7 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center w-100 small" style="color: #8888aa;">
                             <span>Their Decision:</span>
-                            <strong style="color: #fff;">{{ $battle->adjudicator_declared_user_win ? \App\Models\User::find($battle->adjudicator_declared_user_win)->username : 'NOT DECIDED' }}</strong>
+                            <strong style="color: #fff;">{{ $battle->adjudicator_declared_user_win ? \App\Models\User::find($battle->adjudicator_declared_user_win)->username : 'NONE' }}</strong>
                         </div>
                     </div>
                     @endif
