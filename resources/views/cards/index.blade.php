@@ -5,7 +5,7 @@
 @section('content')
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
     <h1 class="page-title m-0">
-        <span class="page-title-accent"><i class="bi bi-suit-diamond-fill"></i></span> MY COLLECTION
+        <span class="page-title-accent"><i class="bi bi-suit-diamond-fill"></i></span> MY INVENTORY
     </h1>
 
     <div class="d-flex flex-wrap align-items-center justify-content-md-end gap-3">
