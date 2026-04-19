@@ -29,6 +29,17 @@
                 :statsText="'LVL ' . $digitalCard->level . ' • W: ' . $digitalCard->wins . ' • L: ' . $digitalCard->losses . ' • COPIES: ' . $digitalCard->template->cards_in_circulation"
                 :rankLevel="$digitalCard->level"
             />
+
+
+            
+            <!-- Actions -->
+            @if(Auth::check() && $digitalCard->owner_id === Auth::id())
+                <div class="mt-4">
+                    <a href="{{ route('battles.create', ['game_id' => $digitalCard->template->game_title_id, 'card_id' => $digitalCard->id]) }}" class="btn btn-neon-lime w-100 py-3" style="font-size: 1.1rem; letter-spacing: 1px; font-weight: bold; box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);">
+                        <i class="bi bi-crosshair"></i> BATTLE WITH THIS CARD
+                    </a>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -118,14 +129,6 @@
             </div>
         </div>
 
-        <!-- Actions -->
-        @if(Auth::check() && $digitalCard->owner_id === Auth::id())
-            <div class="mt-4">
-                <a href="{{ route('battles.create', ['game_id' => $digitalCard->template->game_title_id, 'card_id' => $digitalCard->id]) }}" class="btn btn-neon-lime w-100 py-3" style="font-size: 1.1rem; letter-spacing: 1px; font-weight: bold; box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);">
-                    <i class="bi bi-crosshair"></i> BATTLE WITH THIS CARD
-                </a>
-            </div>
-        @endif
     </div>
 </div>
 @endsection
