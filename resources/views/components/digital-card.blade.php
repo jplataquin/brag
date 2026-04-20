@@ -39,6 +39,7 @@ if ($mode === 'template') {
 }
 $hasFullscreen = $mode === 'thumbnail' || filter_var($fullscreen, FILTER_VALIDATE_BOOLEAN);
 if ($linkUrl) $hasFullscreen = false;
+$badgeVersion = file_exists(public_path("img/badge/lv{$rankLevel}.png")) ? filemtime(public_path("img/badge/lv{$rankLevel}.png")) : time();
 @endphp
 
 @if($mode === 'thumbnail' || $asThumbnail)
@@ -114,6 +115,7 @@ if ($linkUrl) $hasFullscreen = false;
                 secondaryTextColor: '{{ $secondaryTextColor }}',
                 statsText: `{!! addslashes($statsText) !!}`,
                 rankLevel: {{ $rankLevel }},
+                badgeVersion: '{{ $badgeVersion }}',
                 serialNumber: {{ $serialNumber !== null ? $serialNumber : 'null' }},
                 year: '{{ $year }}',
                 asThumbnail: {{ $asThumbnail ? 'true' : 'false' }}

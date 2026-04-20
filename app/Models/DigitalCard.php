@@ -129,7 +129,9 @@ class DigitalCard extends Model
     public function getLevelBadgeAttribute()
     {
         $level = min(5, max(1, $this->level));
-        return asset("img/badge/lv{$level}.png");
+        $path = "img/badge/lv{$level}.png";
+        $version = file_exists(public_path($path)) ? filemtime(public_path($path)) : time();
+        return asset($path) . "?v=" . $version;
     }
 
     /**

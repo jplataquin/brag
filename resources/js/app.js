@@ -103,7 +103,7 @@ class DigitalCardRenderer {
         let title = (options.title || 'CARD TITLE').toString().toUpperCase().trim();
 
         const imageUrl = options.image || '';
-        const rankBadgeUrl = this.getRankBadgeUrl(options.rankLevel || 1, mode);
+        const rankBadgeUrl = this.getRankBadgeUrl(options.rankLevel || 1, mode, options.badgeVersion);
 
         await Promise.all([
             this.loadImage(imageUrl),
@@ -316,7 +316,7 @@ class DigitalCardRenderer {
         this.wrapText(ctx, formattedQuote, textStartX, descY + (h * 0.02), innerW - (w * 0.08), descH - (h * 0.04), fontSizeDesc * 1.4);
         ctx.restore();
         const currentMode = options.mode || 'default';
-        const rankBadgeUrl = this.getRankBadgeUrl(options.rankLevel || 1, currentMode);
+        const rankBadgeUrl = this.getRankBadgeUrl(options.rankLevel || 1, currentMode, options.badgeVersion);
         const photoImg = this.imageCache[imageUrl];
         const badgeImg = this.imageCache[rankBadgeUrl];
         if (photoImg) {
@@ -363,7 +363,7 @@ class DigitalCardRenderer {
         });
     }
 
-    getRankBadgeUrl(level, mode) {
+    getRankBadgeUrl(level, mode, version) {
         if (mode === 'template') {
             const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
                 <circle cx="32" cy="32" r="30" fill="#1a1800" stroke="#ffdd00" stroke-width="4"/>
@@ -375,7 +375,9 @@ class DigitalCardRenderer {
                 </svg>`;
             return 'data:image/svg+xml;base64,' + btoa(svg);
         }
-        return `/img/badge/lv${level}.png`;
+        let url = `/img/badge/lv${level}.png`;
+        if (version) url += `?v=${version}`;
+        return url;
     }
 
     drawImageWithinBounds(ctx, img, x, y, w, h, borderColor, mode) {
