@@ -4,6 +4,25 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Brag — The ultimate gamer card-battling social platform. Forge digital cards, challenge opponents, collect trophies.">
+    <meta name="keywords" content="gaming, digital cards, battles, trophies, social platform, Brag, Forge Battle Brag">
+    <meta name="theme-color" content="#0a0a1a">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="{{ config('app.name', 'Brag') }} — Forge. Battle. Brag.">
+    <meta property="og:description" content="The ultimate gamer card-battling social platform. Forge unique digital cards, challenge opponents, and collect trophies.">
+    <meta property="og:image" content="{{ asset('img/og-image.png') }}">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ url()->current() }}">
+    <meta property="twitter:title" content="{{ config('app.name', 'Brag') }} — Forge. Battle. Brag.">
+    <meta property="twitter:description" content="The ultimate gamer card-battling social platform. Forge unique digital cards, challenge opponents, and collect trophies.">
+    <meta property="twitter:image" content="{{ asset('img/og-image.png') }}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -25,8 +44,8 @@
     <div id="app">
         <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
             <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}" id="brand-logo">
-                    <i class="bi bi-lightning-charge-fill"></i> BRAG
+                <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}" id="brand-logo">
+                    <img src="{{ asset('img/logo.svg') }}" alt="Brag" height="40" class="d-inline-block align-top">
                 </a>
                 
                 <div class="d-flex align-items-center gap-2 d-lg-none">
