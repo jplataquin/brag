@@ -87,22 +87,16 @@
         </div>
 
         <div class="row g-3 mb-4">
-            <div class="col-4">
+            <div class="col-6">
                 <div class="stat-box">
-                    <div class="stat-value" style="font-size: 1.2rem;">{{ strtoupper($digitalCard->level_name) }}</div>
-                    <div class="stat-label">Level {{ $digitalCard->level }}</div>
+                    <div class="stat-value" style="font-size: 1.2rem;">{{ $digitalCard->level }}</div>
+                    <div class="stat-label">Level</div>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-6">
                 <div class="stat-box">
                     <div class="stat-value" style="color: #ff00ff;">{{ $digitalCard->template->cards_in_circulation }}</div>
                     <div class="stat-label">In Circulation</div>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="stat-box">
-                    <div class="stat-value" style="color: #ff6600;">{{ $digitalCard->forged_at->format('M j') }}</div>
-                    <div class="stat-label">Forged</div>
                 </div>
             </div>
         </div>
