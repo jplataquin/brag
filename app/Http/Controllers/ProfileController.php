@@ -78,16 +78,21 @@ class ProfileController extends Controller
 
         $request->validate([
             'bio' => 'nullable|string|max:500',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         $data = $request->only(['bio']);
 
-        if ($request->hasFile('avatar')) {
-            if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
+        if ($request->filled('temporary_avatar_path')) {
+            $tmpPath = $request->input('temporary_avatar_path');
+            if (Storage::disk('public')->exists($tmpPath)) {
+                if ($user->avatar) {
+                    Storage::disk('public')->delete($user->avatar);
+                }
+                $newPath = 'avatars/' . basename($tmpPath);
+                Storage::disk('public')->move($tmpPath, $newPath);
+                Storage::disk('public')->setVisibility($newPath, 'public');
+                $data['avatar'] = $newPath;
             }
-            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
 
         $user->update($data);
