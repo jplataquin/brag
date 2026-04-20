@@ -55,7 +55,7 @@
         </div>
 
         <div class="neon-card p-3 mb-3">
-            <p style="color: #bbbbd0; font-size: 0.95rem; margin-bottom: 0;">"{{ $template->quote }}" — {{ $template->creator->username }} ({{ $template->created_at->format('Y') }})</p>
+            <p style="color: #bbbbd0; font-size: 0.95rem; margin-bottom: 0;">"{{ $template->quote }}" — {{ $template->user->username }} ({{ $template->created_at->format('Y') }})</p>
         </div>
 
         <div class="row g-3 mb-4">
