@@ -74,7 +74,13 @@
             <span style="color: #ffdd00; font-weight: 600;">{{ $invite->battle->challenger->username }}</span>
             <span class="text-muted"> invited you as {{ $invite->role }}</span>
         </div>
-        <a href="{{ route('battles.room', $invite->battle) }}" class="btn btn-neon btn-neon-sm">View</a>
+        <div class="d-flex gap-2">
+            <form action="{{ route('battles.invites.decline', $invite) }}" method="POST" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-outline-danger btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">Decline</button>
+            </form>
+            <a href="{{ route('battles.room', $invite->battle) }}" class="btn btn-neon btn-neon-sm" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">View</a>
+        </div>
     </div>
     @endforeach
 </div>

@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/battles/{battle:room_id}/cancel', [BattleController::class, 'cancel'])->name('battles.cancel');
     Route::post('/battles/{battle:room_id}/respond-to-cancellation', [BattleController::class, 'respondToCancellation'])->name('battles.respondToCancellation');
     Route::post('/battles/{battle:room_id}/poke', [BattleController::class, 'poke'])->name('battles.poke');
+    Route::post('/invites/{invite}/decline', [BattleController::class, 'declineInvite'])->name('battles.invites.decline');
     Route::get('/battles/{battle:room_id}/join', [BattleController::class, 'showJoinReadyPage'])->name('battles.join.ready');
     Route::post('/battles/{battle:room_id}/confirm-join', [BattleController::class, 'confirmJoin'])->name('battles.confirmJoin');
 

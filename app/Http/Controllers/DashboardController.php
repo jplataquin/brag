@@ -37,9 +37,9 @@ class DashboardController extends Controller
             ->get();
 
         $pendingInvites = $user->battleInvites()
-            ->where('status', 'pending')
+            ->active()
             ->with('battle.challenger')
-            ->latest()
+            ->latest('battle_invites.created_at')
             ->get();
 
         $stats = [

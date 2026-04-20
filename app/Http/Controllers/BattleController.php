@@ -34,7 +34,7 @@ class BattleController extends Controller
             ->paginate(12);
 
         $pendingInvites = $user->battleInvites()
-            ->where('status', 'pending')
+            ->active()
             ->with('battle.challenger', 'battle.challengerCard.template')
             ->get();
 
@@ -358,6 +358,20 @@ class BattleController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * Decline a pending invite.
+     */
+    public function declineInvite(\App\Models\BattleInvite $invite)
+    {
+        if ($invite->invited_user_id !== Auth::id()) {
+            return back()->with('error', 'Unauthorized to decline this invite.');
+        }
+
+        $invite->update(['status' => 'declined']);
+        
+        return back()->with('success', 'Invite declined successfully.');
     }
 
     /**
