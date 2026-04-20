@@ -160,40 +160,49 @@ class DigitalCardRenderer {
 
         if (options.rankLevel && mode !== 'template' && !options.asThumbnail && mode !== 'thumbnail') {
             const level = options.rankLevel;
-            const borderHsl = this.hexToHsl(currentBorderColor);
-            const sectionHsl = this.hexToHsl(currentSectionColor);
-            const bgHsl = this.hexToHsl(currentBgColor);
+            const borderHsl = this.hexToHsl(options.borderColor || '#00f0ff');
+            const sectionHsl = this.hexToHsl(options.sectionColor || '#111122');
+            const bgHsl = this.hexToHsl(options.backgroundColor || '#0a0a1a');
+
+            const lerp = (a, b, f) => a + (b - a) * f;
+            const phase = (Math.sin(t / 2000) + 1) / 2; // 0 to 1 over 4 seconds
 
             if (level >= 1) {
-                // Level 1: Very subtle breathing glow (slower)
                 glowBlur = 4 + 3 * Math.sin(t / 1000);
                 glowColor = `hsl(${borderHsl.h}, ${borderHsl.s * 100}%, ${borderHsl.l * 100}%)`;
             }
             if (level >= 2) {
-                // Level 2: Gentle section color lightness pulsing
-                let lShift = 3 * Math.sin(t / 1500);
+                let lShift = 4 * Math.sin(t / 1500);
                 currentSectionColor = `hsl(${sectionHsl.h}, ${sectionHsl.s * 100}%, ${Math.max(0, Math.min(100, sectionHsl.l * 100 + lShift))}%)`;
             }
             if (level >= 3) {
-                // Level 3: Slow, restricted border hue shifts
-                let hueShift = 15 * Math.sin(t / 2000);
-                currentBorderColor = `hsl(${(borderHsl.h + hueShift + 360) % 360}, ${borderHsl.s * 100}%, ${borderHsl.l * 100}%)`;
+                // Level 3: Phase border color slightly towards background color
+                let h = lerp(borderHsl.h, bgHsl.h, phase * 0.2);
+                let s = lerp(borderHsl.s, bgHsl.s, phase * 0.2);
+                let l = lerp(borderHsl.l, bgHsl.l, phase * 0.2);
+                currentBorderColor = `hsl(${h}, ${s * 100}%, ${l * 100}%)`;
                 glowColor = currentBorderColor;
                 glowBlur = 6 + 4 * Math.sin(t / 1000);
             }
             if (level >= 4) {
-                // Level 4: Slow, majestic phasing (Removed aggressive 360 loop)
-                let hueOffset = 30 * Math.sin(t / 2500);
-                currentBorderColor = `hsl(${(borderHsl.h + hueOffset + 360) % 360}, 90%, 60%)`;
-                glowColor = `hsl(${(borderHsl.h + hueOffset + 180) % 360}, 70%, 60%)`; // Complementary but less saturated
-                glowBlur = 10 + 5 * Math.sin(t / 1200);
+                // Level 4: Full color phasing between Border and Background
+                // We phase the border color towards a brighter version of itself 
+                // and the background color towards a deeper version of the border
+                let hB = lerp(borderHsl.h, bgHsl.h, phase * 0.3);
+                let sB = lerp(borderHsl.s, bgHsl.s, phase * 0.3);
+                let lB = lerp(borderHsl.l, bgHsl.l, phase * 0.3);
+                currentBorderColor = `hsl(${hB}, ${sB * 100}%, ${lB * 100}%)`;
 
-                let bgHue = (bgHsl.h + 10 * Math.sin(t / 3000)) % 360;
-                let bgLightness = bgHsl.l * 100 + 3 * Math.sin(t / 2000);
-                currentBgColor = `hsl(${bgHue}, ${bgHsl.s * 100}%, ${Math.max(0, Math.min(100, bgLightness))}%)`;
+                let hBg = lerp(bgHsl.h, borderHsl.h, phase * 0.15);
+                let sBg = lerp(bgHsl.s, borderHsl.s, phase * 0.15);
+                let lBg = lerp(bgHsl.l, borderHsl.l, phase * 0.15);
+                currentBgColor = `hsl(${hBg}, ${sBg * 100}%, ${lBg * 100}%)`;
 
-                let secHue = (sectionHsl.h + 10 * Math.sin(t / 2800)) % 360;
-                currentSectionColor = `hsl(${secHue}, ${sectionHsl.s * 100}%, ${sectionHsl.l * 100}%)`;
+                let hS = lerp(sectionHsl.h, borderHsl.h, phase * 0.2);
+                currentSectionColor = `hsl(${hS}, ${sectionHsl.s * 100}%, ${sectionHsl.l * 100}%)`;
+
+                glowBlur = 12 + 8 * Math.sin(t / 1200);
+                glowColor = `hsl(${borderHsl.h}, 100%, 70%)`;
             }
         }
 
