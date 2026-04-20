@@ -165,19 +165,19 @@ document.addEventListener('DOMContentLoaded', function() {
                         btnSubmit.disabled = false;
                         return;
                     }
-
-                    const percent = Math.round(((chunkIndex + 1) / totalChunks) * 100);
+                    
+                    chunkIndex++;
+                    const percent = Math.round((chunkIndex / totalChunks) * 100);
                     progressBar.style.width = percent + '%';
-                    statusText.innerText = `Uploading: ${percent}%`;
+                    statusText.innerText = 'Uploading: ' + percent + '%';
 
-                    if (data.done) {
+                    if (chunkIndex < totalChunks) {
+                        uploadNextChunk();
+                    } else if (data.success && data.path) {
+                        tempInput.value = data.path;
                         statusText.innerText = 'Upload complete!';
                         statusText.style.color = '#39ff14';
-                        tempInput.value = data.path;
                         btnSubmit.disabled = false;
-                    } else {
-                        chunkIndex++;
-                        uploadNextChunk();
                     }
                 })
                 .catch(error => {
