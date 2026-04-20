@@ -334,7 +334,7 @@ class DigitalCardRenderer {
 
         // Win Rate
         ctx.fillStyle = '#00f0ff'; // Cyan
-        ctx.fillText(`${winRateStr}`, startX, yCenter);
+        ctx.fillText(`R: ${winRateStr}`, startX, yCenter);
         startX += ctx.measureText(`R: ${winRateStr}`).width + fontSizeStats * 0.8;
 
         // Discontinued Badge
