@@ -300,7 +300,7 @@ class DigitalCardRenderer {
         const photoImg = this.imageCache[imageUrl];
         const badgeImg = this.imageCache[rankBadgeUrl];
         if (photoImg) {
-            this.drawImageWithinBounds(ctx, photoImg, innerX, photoY, innerW, photoH, borderColor, currentMode);
+            this.drawImageWithinBounds(ctx, photoImg, innerX, photoY, innerW, photoH, currentBorderColor, currentMode);
         }
         if (badgeImg) {
             const badgeSize = w * 0.32;
