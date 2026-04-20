@@ -43,7 +43,7 @@
 
 @if($myBattles->count() > 0)
     @foreach($myBattles as $battle)
-    <div class="neon-card p-3 mb-2">
+    <a href="{{ route('battles.room', $battle) }}" class="neon-card p-3 mb-2 text-decoration-none d-block" style="color: inherit; transition: all 0.2s ease;">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div class="d-flex align-items-center gap-3">
                 <span class="status-badge status-{{ $battle->status }}">{{ $battle->status }}</span>
@@ -68,10 +68,9 @@
                         ⚖️ {{ $battle->adjudicator->username }}
                     </span>
                 @endif
-                <a href="{{ route('battles.room', $battle) }}" class="btn btn-neon btn-neon-sm">Details</a>
             </div>
         </div>
-    </div>
+    </a>
     @endforeach
 
     <div class="mt-3">
