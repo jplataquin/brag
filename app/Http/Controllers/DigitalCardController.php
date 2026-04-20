@@ -18,6 +18,46 @@ class DigitalCardController extends Controller
     }
 
     /**
+     * Display a public gallery of all digital cards.
+     */
+    public function gallery(Request $request)
+    {
+        $sortBy = $request->query('sort', 'latest');
+        $gameId = $request->query('game');
+        $direction = $request->query('dir', 'desc');
+
+        if (!in_array($direction, ['asc', 'desc'])) {
+            $direction = 'desc';
+        }
+
+        $query = DigitalCard::with(['template.gameTitle', 'owner', 'originalOwner']);
+
+        if ($gameId) {
+            $query->whereHas('template', function ($q) use ($gameId) {
+                $q->where('game_title_id', $gameId);
+            });
+        }
+
+        if ($sortBy === 'level') {
+            $query->orderBy('level', $direction);
+        } elseif ($sortBy === 'name') {
+            $query->select('digital_cards.*')
+                ->join('templates', 'digital_cards.template_id', '=', 'templates.id')
+                ->orderBy('templates.card_title', $direction);
+        } elseif ($sortBy === 'serial') {
+            $query->orderBy('id', $direction);
+        } else {
+            $query->orderBy('updated_at', $direction);
+        }
+
+        $cards = $query->paginate(24)->appends($request->query());
+
+        $games = \App\Models\GameTitle::all();
+
+        return view('cards.gallery', compact('cards', 'sortBy', 'direction', 'games', 'gameId'));
+    }
+
+    /**
      * Display a listing of the user's digital cards.
      */
     public function index(Request $request)

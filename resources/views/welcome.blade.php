@@ -26,28 +26,21 @@
             @endguest
         </div>
 
-        <!-- Feature Cards -->
+        <!-- Welcome Cards -->
         <div class="row mt-5 g-4 justify-content-center">
-            <div class="col-md-4 col-sm-6">
-                <div class="neon-card p-4 text-center h-100">
-                    <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🎨</div>
-                    <h5 style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: #00f0ff;">CREATE</h5>
-                    <p style="font-size: 0.85rem; color: #8888aa;">Design unique card templates for your favorite games. Each one is your personal masterpiece.</p>
+            <div class="col-md-6 col-sm-12">
+                <div class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center">
+                    <div style="font-family: 'Orbitron', sans-serif; font-size: 3.5rem; font-weight: 700; color: #00f0ff; text-shadow: 0 0 20px rgba(0,240,255,0.5); line-height: 1;">
+                        {{ number_format($cardsInCirculation) }}
+                    </div>
+                    <h5 class="mt-3" style="font-family: 'Orbitron', sans-serif; font-size: 1rem; color: #8888aa; letter-spacing: 2px;">CARDS IN CIRCULATION</h5>
                 </div>
             </div>
-            <div class="col-md-4 col-sm-6">
-                <div class="neon-card p-4 text-center h-100">
-                    <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">⚔️</div>
-                    <h5 style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: #ff00ff;">BATTLE</h5>
-                    <p style="font-size: 0.85rem; color: #8888aa;">Challenge players to battles. Bet your cards and prove your dominance in the arena.</p>
-                </div>
-            </div>
-            <div class="col-md-4 col-sm-6">
-                <div class="neon-card p-4 text-center h-100">
-                    <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🏆</div>
-                    <h5 style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: #39ff14;">COLLECT</h5>
-                    <p style="font-size: 0.85rem; color: #8888aa;">Win battles and collect opponent cards as trophies. Build the ultimate collection.</p>
-                </div>
+            <div class="col-md-6 col-sm-12">
+                <a href="{{ route('gallery') }}" class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center text-decoration-none" style="transition: transform 0.2s, box-shadow 0.2s; border-color: #ff00ff; background: rgba(255,0,255,0.05);">
+                    <div style="font-size: 3.5rem; margin-bottom: 0.5rem; color: #ff00ff; text-shadow: 0 0 20px rgba(255,0,255,0.5);"><i class="bi bi-images"></i></div>
+                    <h5 style="font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: #ff00ff; letter-spacing: 2px; margin-bottom: 0;">VIEW GALLERY</h5>
+                </a>
             </div>
         </div>
     </div>

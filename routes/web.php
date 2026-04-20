@@ -15,8 +15,12 @@ use App\Http\Controllers\ProfileController;
 
 // Landing page
 Route::get('/', function () {
-    return view('welcome');
+    $cardsInCirculation = \App\Models\DigitalCard::count();
+    return view('welcome', compact('cardsInCirculation'));
 });
+
+// Gallery
+Route::get('/gallery', [DigitalCardController::class, 'gallery'])->name('gallery');
 
 Auth::routes();
 
