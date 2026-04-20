@@ -323,7 +323,7 @@ class DigitalCardRenderer {
             this.drawImageWithinBounds(ctx, photoImg, innerX, photoY, innerW, photoH, currentBorderColor, currentMode);
         }
         if (badgeImg) {
-            const badgeSize = w * 0.32;
+            const badgeSize = w * 0.25;
             const bx = (w * 0.05) - innerX + innerW - badgeSize * 0.5;
             const by = titleY - badgeSize * 0.3;
             ctx.save();

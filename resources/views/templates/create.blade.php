@@ -158,8 +158,9 @@
                 <select id="preview_rank_level" class="form-select form-select-sm" style="background-color: #0a0a1a; color: #fff; border-color: rgba(0,240,255,0.3);">
                     <option value="1">Level 1 - CASUAL</option>
                     <option value="2">Level 2 - COMPETITIVE</option>
-                    <option value="3">Level 3 - PRO</option>
-                    <option value="4">Level 4 - GOAT</option>
+                    <option value="3">Level 3 - ELITE</option>
+                    <option value="4">Level 4 - LEGENDARY</option>
+                    <option value="5">Level 5 - GOAT</option>
                 </select>
             </div>
 
