@@ -33,7 +33,10 @@ class ProfileController extends Controller
         $stats = [
             'total_cards' => $user->digitalCards()->count(),
             'total_trophies' => $user->trophies()->count(),
-            'total_templates' => $user->templates()->count(),
+            'failed_battles' => Battle::where(function ($q) use ($user) {
+                $q->where('challenger_id', $user->id)
+                  ->orWhere('opponent_id', $user->id);
+            })->where('status', 'failed')->count(),
             'total_wins' => Battle::where('winner_id', $user->id)->count(),
             'total_battles' => Battle::where(function ($q) use ($user) {
                 $q->where('challenger_id', $user->id)

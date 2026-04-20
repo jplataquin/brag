@@ -4,7 +4,7 @@
 
 @section('content')
 <!-- Quick Actions -->
-<div class="mb-4">
+<div class="mb-4 d-md-none">
     <h5 class="section-header">
         <i class="bi bi-lightning-fill section-icon" style="color: #ffdd00;"></i> QUICK ACTIONS
     </h5>

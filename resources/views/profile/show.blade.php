@@ -52,14 +52,14 @@
     </div>
     <div class="col-6 col-md">
         <div class="stat-box">
-            <div class="stat-value" style="color: #ff00ff;">{{ $stats['total_templates'] }}</div>
-            <div class="stat-label">Templates</div>
+            <div class="stat-value" style="color: #ff00ff;">{{ $stats['failed_battles'] }}</div>
+            <div class="stat-label">Failed</div>
         </div>
     </div>
     <div class="col-6 col-md">
         <div class="stat-box">
             <div class="stat-value" style="color: #ff6600;">{{ $stats['total_battles'] }}</div>
-            <div class="stat-label">Battles</div>
+            <div class="stat-label">Completed</div>
         </div>
     </div>
 </div>
