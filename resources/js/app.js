@@ -32,17 +32,57 @@ class DigitalCardRenderer {
         this.canvas.style.height = 'auto';
     }
 
+    hexToHsl(hex) {
+        hex = hex.replace(/^#/, '');
+        let r = 0, g = 0, b = 0;
+        if (hex.length === 3) {
+            r = parseInt(hex[0] + hex[0], 16);
+            g = parseInt(hex[1] + hex[1], 16);
+            b = parseInt(hex[2] + hex[2], 16);
+        } else if (hex.length === 6) {
+            r = parseInt(hex.substring(0, 2), 16);
+            g = parseInt(hex.substring(2, 4), 16);
+            b = parseInt(hex.substring(4, 6), 16);
+        } else {
+            return { h: 0, s: 0, l: 0 };
+        }
+        r /= 255; g /= 255; b /= 255;
+        let max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, l = (max + min) / 2;
+        if (max === min) {
+            h = s = 0; 
+        } else {
+            let d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+        }
+        return { h: h * 360, s, l };
+    }
+
     startAnimation() {
         if (this.isAnimating) return;
         this.isAnimating = true;
         this.lastTime = performance.now();
         const loop = (time) => {
             if (!this.isAnimating) return;
+            if (!document.body.contains(this.canvas)) {
+                this.stopAnimation();
+                return;
+            }
             const dt = time - this.lastTime;
             this.lastTime = time;
             const speed = this.baseWidth * 0.12;
-            this.titleOffset -= (speed * dt) / 1000;
-            this.drawFrame();
+            
+            if (this.currentOptions && this.currentOptions.processedTitle && this.currentOptions.processedTitle.length > 20) {
+                this.titleOffset -= (speed * dt) / 1000;
+            }
+            
+            this.drawFrame(time);
             this.animationFrameId = requestAnimationFrame(loop);
         };
         this.animationFrameId = requestAnimationFrame(loop);
@@ -70,7 +110,7 @@ class DigitalCardRenderer {
             this.loadImage(rankBadgeUrl)
         ]);
 
-        if (mode === 'thumbnail' && !isFullScreenRender) {
+        if (mode === 'thumbnail' && !isFullScreenRender && !options.asThumbnail) {
             if (title.length > 20) title = title.substring(0, 20);
             this.currentOptions.processedTitle = title;
             this.stopAnimation();
@@ -80,28 +120,81 @@ class DigitalCardRenderer {
             if (title.length > 50) title = title.substring(0, 50);
             this.currentOptions.processedTitle = title;
 
-            if (title.length > 20) {
+            let needsAnimation = false;
+            if (title.length > 20) needsAnimation = true;
+            
+            // Only animate levels if not explicitly forced to thumbnail without fullscreen
+            if (!options.asThumbnail && mode !== 'thumbnail') {
+                if (options.rankLevel >= 1 && mode !== 'template') needsAnimation = true;
+            }
+
+            if (needsAnimation) {
                 this.startAnimation();
             } else {
                 this.stopAnimation();
                 this.titleOffset = 0;
-                this.drawFrame();
+                this.drawFrame(performance.now());
             }
         }
     }
 
-    drawFrame() {
+    drawFrame(time) {
         const options = this.currentOptions;
         const ctx = this.ctx;
         const w = this.baseWidth;
         const h = this.baseHeight;
+        const mode = options.mode || 'default';
+        const t = time || performance.now();
+        
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
-        const bgColor = options.backgroundColor || '#0a0a1a';
-        const borderColor = options.borderColor || '#00f0ff';
-        const sectionColor = options.sectionColor || '#111122';
+        
+        let currentBgColor = options.backgroundColor || '#0a0a1a';
+        let currentBorderColor = options.borderColor || '#00f0ff';
+        let currentSectionColor = options.sectionColor || '#111122';
         const primaryTextColor = options.primaryTextColor || '#ffffff';
         const secondaryTextColor = options.secondaryTextColor || '#dddddd';
+        
+        let glowBlur = 0;
+        let glowColor = currentBorderColor;
+
+        if (options.rankLevel && mode !== 'template' && !options.asThumbnail && mode !== 'thumbnail') {
+            const level = options.rankLevel;
+            const borderHsl = this.hexToHsl(currentBorderColor);
+            const sectionHsl = this.hexToHsl(currentSectionColor);
+            const bgHsl = this.hexToHsl(currentBgColor);
+
+            if (level >= 1) {
+                // Level 1: Simple breathing glow
+                glowBlur = 5 + 5 * Math.sin(t / 500);
+                glowColor = `hsl(${borderHsl.h}, ${borderHsl.s * 100}%, ${borderHsl.l * 100}%)`;
+            }
+            if (level >= 2) {
+                // Level 2: Section color lightness pulsing
+                let lShift = 5 * Math.sin(t / 600);
+                currentSectionColor = `hsl(${sectionHsl.h}, ${sectionHsl.s * 100}%, ${Math.max(0, Math.min(100, sectionHsl.l * 100 + lShift))}%)`;
+            }
+            if (level >= 3) {
+                // Level 3: Border hue shifts towards complementary
+                let hueShift = 45 * Math.sin(t / 800);
+                currentBorderColor = `hsl(${(borderHsl.h + hueShift + 360) % 360}, ${borderHsl.s * 100}%, ${borderHsl.l * 100}%)`;
+                glowColor = currentBorderColor;
+                glowBlur = 8 + 8 * Math.sin(t / 400);
+            }
+            if (level >= 4) {
+                // Level 4: Elaborate complementary phasing
+                currentBorderColor = `hsl(${(borderHsl.h + (t / 15)) % 360}, 100%, 60%)`;
+                glowColor = `hsl(${(borderHsl.h + (t / 15) + 180) % 360}, 100%, 60%)`;
+                glowBlur = 15 + 10 * Math.sin(t / 200);
+
+                let bgHue = (bgHsl.h + 20 * Math.sin(t / 1000)) % 360;
+                let bgLightness = bgHsl.l * 100 + 5 * Math.sin(t / 300);
+                currentBgColor = `hsl(${bgHue}, ${bgHsl.s * 100}%, ${Math.max(0, Math.min(100, bgLightness))}%)`;
+
+                currentSectionColor = `hsl(${(sectionHsl.h + (t / 30)) % 360}, ${sectionHsl.s * 100}%, ${sectionHsl.l * 100}%)`;
+            }
+        }
+
         const title = options.processedTitle || 'CARD TITLE';
         const game = (options.game || 'GAME').toString().trim();
         const creator = (options.creator || 'Creator').toString().trim();
@@ -111,11 +204,13 @@ class DigitalCardRenderer {
         const bw = Math.max(8, w * 0.02);
         const pad = Math.max(12, w * 0.04);
         const spacing = Math.max(10, h * 0.03);
+        
         ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = borderColor;
+        ctx.fillStyle = currentBorderColor;
         ctx.fillRect(0, 0, w, h);
-        ctx.fillStyle = bgColor;
+        ctx.fillStyle = currentBgColor;
         ctx.fillRect(bw, bw, w - bw * 2, h - bw * 2);
+        
         const innerX = bw + pad;
         const innerW = w - (bw + pad) * 2;
         const titleY = bw + pad;
@@ -128,13 +223,21 @@ class DigitalCardRenderer {
         const descH = h - descY - bw - pad;
         const sectionRadius = Math.floor(w * 0.02);
         ctx.lineWidth = 2;
+        
         const sections = [{ y: titleY, h: titleH }, { y: photoY, h: photoH }, { y: statsY, h: statsH }, { y: descY, h: descH }];
         sections.forEach(sec => {
             this.createRoundRectPath(ctx, innerX, sec.y, innerW, sec.h, sectionRadius);
-            ctx.fillStyle = sectionColor;
+            ctx.fillStyle = currentSectionColor;
             ctx.fill();
-            ctx.strokeStyle = borderColor;
+            
+            ctx.save();
+            if (glowBlur > 0) {
+                ctx.shadowColor = glowColor;
+                ctx.shadowBlur = glowBlur;
+            }
+            ctx.strokeStyle = currentBorderColor;
             ctx.stroke();
+            ctx.restore();
         });
         const fontSizeTitle = Math.floor(h * 0.035);
         const fontSizeGame = Math.floor(h * 0.025);
@@ -164,7 +267,9 @@ class DigitalCardRenderer {
         const fontSizeSerial = Math.floor(fontSizeGame * 0.85);
         ctx.fillStyle = primaryTextColor;
         ctx.font = `bold ${fontSizeSerial}px 'Orbitron', sans-serif`;
-        if (options.serialNumber !== null && options.serialNumber !== undefined) {
+        if (options.mode === 'template') {
+            ctx.fillText('#00000', textStartX, titleY + titleH * 0.52);
+        } else if (options.serialNumber !== null && options.serialNumber !== undefined) {
             const paddedSerial = '#' + String(options.serialNumber).padStart(5, '0');
             ctx.fillText(paddedSerial, textStartX, titleY + titleH * 0.52);
         }
@@ -173,10 +278,6 @@ class DigitalCardRenderer {
         ctx.font = `italic ${fontSizeGame}px sans-serif`;
         ctx.fillText(game, textStartX, titleY + titleH * 0.72);
 
-        const fontSizeCreator = Math.floor(fontSizeGame * 0.85);
-        ctx.fillStyle = secondaryTextColor;
-        ctx.font = `${fontSizeCreator}px sans-serif`;
-        ctx.fillText(`By ${creator}`, textStartX, titleY + titleH * 0.88);
         ctx.restore();
         ctx.save();
         ctx.fillStyle = primaryTextColor;
@@ -190,7 +291,9 @@ class DigitalCardRenderer {
         ctx.font = `${fontSizeDesc}px sans-serif`;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
-        this.wrapText(ctx, quote, textStartX, descY + (h * 0.02), innerW - (w * 0.08), descH - (h * 0.04), fontSizeDesc * 1.4);
+        const year = options.year || new Date().getFullYear();
+        const formattedQuote = `"${quote}" — ${creator} (${year})`;
+        this.wrapText(ctx, formattedQuote, textStartX, descY + (h * 0.02), innerW - (w * 0.08), descH - (h * 0.04), fontSizeDesc * 1.4);
         ctx.restore();
         const currentMode = options.mode || 'default';
         const rankBadgeUrl = this.getRankBadgeUrl(options.rankLevel || 1, currentMode);
@@ -217,7 +320,7 @@ class DigitalCardRenderer {
             ctx.drawImage(badgeImg, bx, by, badgeSize, badgeSize);
             ctx.restore();
         }
-        if (currentMode === 'thumbnail') {
+        if (options.asThumbnail || currentMode === 'thumbnail') {
             const imgEl = document.getElementById('img_' + this.canvas.id);
             if (imgEl) {
                 imgEl.src = this.canvas.toDataURL('image/png');

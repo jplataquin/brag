@@ -69,6 +69,7 @@
                 :statsText="'LVL ' . $challengerCard->level . ' • W: ' . $challengerCard->wins . ' • L: ' . $challengerCard->losses"
                 :rankLevel="$challengerCard->level"
                 :serialNumber="$challengerCard->serial_number"
+                :year="$challengerCard->forged_at->format('Y')"
             />        </div>
     </div>
 
@@ -111,8 +112,8 @@
                             :statsText="'LVL ' . $card->level . ' • W: ' . $card->wins . ' • L: ' . $card->losses"
                             :rankLevel="$card->level"
                             :serialNumber="$card->serial_number"
-                        />
-                        <button type="button" class="btn btn-neon-lime btn-neon-sm w-100 mt-2 select-bet-card" data-card-id="{{ $card->id }}" data-card-name="{{ $card->template->card_title }}">
+                            :year="$card->forged_at->format('Y')"
+                            />                        <button type="button" class="btn btn-neon-lime btn-neon-sm w-100 mt-2 select-bet-card" data-card-id="{{ $card->id }}" data-card-name="{{ $card->template->card_title }}">
                             <i class="bi bi-check-lg"></i> SELECT CARD
                         </button>
                     </div>
@@ -144,8 +145,8 @@
                                         :statsText="'LVL ' . $card->level . ' • W: ' . $card->wins . ' • L: ' . $card->losses"
                                         :rankLevel="$card->level"
                                         :serialNumber="$card->serial_number"
-                                    />
-                                    <button type="button" class="btn btn-neon-lime w-100 mt-3 select-bet-card" data-card-id="{{ $card->id }}" data-card-name="{{ $card->template->card_title }}">
+                                        :year="$card->forged_at->format('Y')"
+                                        />                                    <button type="button" class="btn btn-neon-lime w-100 mt-3 select-bet-card" data-card-id="{{ $card->id }}" data-card-name="{{ $card->template->card_title }}">
                                         <i class="bi bi-check-lg"></i> SELECT THIS CARD
                                     </button>
                                 </div>

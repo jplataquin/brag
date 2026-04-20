@@ -18,10 +18,17 @@
     'secondaryTextColor' => '#dddddd',
     'statsText' => 'LVL 1 • W: 0 • L: 0 • COPIES: 1',
     'rankLevel' => 1,
-    'serialNumber' => null
+    'serialNumber' => null,
+    'year' => null,
+    'asThumbnail' => false,
+    'linkUrl' => null
 ])
 
 @php
+$asThumbnail = filter_var($asThumbnail, FILTER_VALIDATE_BOOLEAN);
+if (!$year) {
+    $year = date('Y');
+}
 if ($mode === 'template') {
     $backgroundColor = '#1a1800';
     $borderColor = '#ffdd00';
@@ -31,13 +38,21 @@ if ($mode === 'template') {
     $statsText = 'TEMPLATE';
 }
 $hasFullscreen = $mode === 'thumbnail' || filter_var($fullscreen, FILTER_VALIDATE_BOOLEAN);
+if ($linkUrl) $hasFullscreen = false;
 @endphp
 
-@if($mode === 'thumbnail')
-<div id="wrapper_{{ $id }}" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" data-bs-toggle="modal" data-bs-target="#modal_{{ $id }}">
-    <img id="img_{{ $id }}" src="" alt="{{ $title }}" style="width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 15px {{ $borderColor }}40; display: block;" />
-    <canvas id="{{ $id }}" width="{{ $width }}" height="{{ $height }}" style="display: none;"></canvas>
-</div>
+@if($mode === 'thumbnail' || $asThumbnail)
+    @if($linkUrl)
+    <a href="{{ $linkUrl }}" id="wrapper_{{ $id }}" style="cursor: pointer; transition: transform 0.2s; display: block; text-decoration: none;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+        <img id="img_{{ $id }}" src="" alt="{{ $title }}" style="width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 15px {{ $borderColor }}40; display: block;" />
+        <canvas id="{{ $id }}" width="{{ $width }}" height="{{ $height }}" style="display: none;"></canvas>
+    </a>
+    @else
+    <div id="wrapper_{{ $id }}" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" data-bs-toggle="modal" data-bs-target="#modal_{{ $id }}">
+        <img id="img_{{ $id }}" src="" alt="{{ $title }}" style="width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 15px {{ $borderColor }}40; display: block;" />
+        <canvas id="{{ $id }}" width="{{ $width }}" height="{{ $height }}" style="display: none;"></canvas>
+    </div>
+    @endif
 @elseif($mode === 'display')
 <div id="wrapper_{{ $id }}" class="digital-card rarity-{{ $rarity }}" style="padding: 4px; border-radius: 16px; display: inline-block; max-width: 100%; {{ $hasFullscreen ? 'cursor: pointer; transition: transform 0.2s;' : '' }}" 
     @if($hasFullscreen) 
@@ -99,7 +114,9 @@ $hasFullscreen = $mode === 'thumbnail' || filter_var($fullscreen, FILTER_VALIDAT
                 secondaryTextColor: '{{ $secondaryTextColor }}',
                 statsText: `{!! addslashes($statsText) !!}`,
                 rankLevel: {{ $rankLevel }},
-                serialNumber: {{ $serialNumber !== null ? $serialNumber : 'null' }}
+                serialNumber: {{ $serialNumber !== null ? $serialNumber : 'null' }},
+                year: '{{ $year }}',
+                asThumbnail: {{ $asThumbnail ? 'true' : 'false' }}
             };
 
             window.digitalCardRenderers[canvasId].draw(initialOptions_{{ $id }});

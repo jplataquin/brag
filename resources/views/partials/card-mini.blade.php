@@ -16,4 +16,5 @@
     :statsText="'LVL ' . $card->level . ' • W: ' . $card->wins . ' • L: ' . $card->losses . ' • COPIES: ' . $card->template->cards_in_circulation"
     :rankLevel="$card->level"
     :serialNumber="$card->serial_number"
+    :year="$card->forged_at->format('Y')"
 />

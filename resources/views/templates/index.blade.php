@@ -15,31 +15,39 @@
 @if($templates->count() > 0)
     <div class="card-grid">
         @foreach($templates as $template)
-        <div class="neon-card" style="animation-delay: {{ $loop->index * 0.1 }}s;">
-            <a href="{{ route('templates.show', $template) }}" style="text-decoration: none; color: inherit; display: block;">
-                @if($template->ai_photo || $template->photo)
-                    <img src="{{ $template->display_photo }}" alt="{{ $template->card_title }}" style="width: 100%; height: 180px; object-fit: cover; border-bottom: 1px solid rgba(0,240,255,0.1);">
-                @else
-                    <div style="width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(0,240,255,0.03), rgba(255,0,255,0.03)); border-bottom: 1px solid rgba(0,240,255,0.1);">
-                        <i class="bi bi-image" style="font-size: 2.5rem; color: #333355;"></i>
-                    </div>
-                @endif
-
-                <div class="p-3">
-                    <h6 style="font-family: 'Orbitron', sans-serif; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ $template->card_title }}</h6>
-                    <div style="font-size: 0.75rem; color: #00f0ff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
-                        🎮 {{ $template->gameTitle->title }}
-                    </div>
-                    <div class="d-flex align-items-center justify-content-between">
-                        <span style="font-size: 0.75rem; color: #8888aa;">
-                            <i class="bi bi-suit-diamond"></i> {{ $template->digital_cards_count }} cards forged
-                        </span>
-                        <span style="font-size: 0.7rem; color: #555577;">
-                            {{ $template->created_at->diffForHumans() }}
-                        </span>
-                    </div>
+        <div class="d-flex flex-column align-items-center mb-4" style="animation: fadeInUp 0.5s ease backwards; animation-delay: {{ $loop->index * 0.05 }}s;">
+            <x-digital-card 
+                id="template_index_{{ $template->id }}" 
+                mode="template"
+                asThumbnail="true"
+                linkUrl="{{ route('templates.show', $template) }}"
+                :title="$template->card_title" 
+                :game="$template->gameTitle->title ?? 'GAME'" 
+                :creator="$template->user->username ?? 'Creator'"
+                :quote="$template->quote"
+                :backgroundColor="$template->background_color"
+                :borderColor="$template->border_color"
+                :sectionColor="$template->section_color"
+                :primaryTextColor="$template->primary_text_color"
+                :secondaryTextColor="$template->secondary_text_color"
+                :image="$template->display_photo"
+                :year="$template->created_at->format('Y')"
+            />
+            
+            <div class="mt-3 text-center">
+                <h6 class="mb-1" style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: #fff; letter-spacing: 1px;">{{ strtoupper($template->card_title) }}</h6>
+                <div style="font-size: 0.75rem; color: #00f0ff; text-transform: uppercase; letter-spacing: 1px;">
+                    🎮 {{ $template->gameTitle->title }}
                 </div>
-            </a>
+                <div class="mt-2 d-flex justify-content-center gap-2 align-items-center">
+                    <span class="badge bg-dark border" style="border-color: rgba(0, 240, 255, 0.2) !important; color: #8888aa; font-size: 0.7rem;">
+                        <i class="bi bi-layers"></i> {{ $template->digital_cards_count }} CARDS
+                    </span>
+                    <span style="font-size: 0.65rem; color: #555577;">
+                        {{ $template->created_at->diffForHumans() }}
+                    </span>
+                </div>
+            </div>
         </div>
         @endforeach
     </div>

@@ -28,6 +28,7 @@
                 :primaryTextColor="$template->primary_text_color"
                 :secondaryTextColor="$template->secondary_text_color"
                 :image="$template->display_photo"
+                :year="$template->created_at->format('Y')"
             />
         </div>
 

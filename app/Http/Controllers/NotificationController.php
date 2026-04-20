@@ -9,7 +9,13 @@ class NotificationController extends Controller
 {
     public function index()
     {
-        $notifications = Auth::user()->notifications()->paginate(20);
+        $user = Auth::user();
+        
+        // Fetch notifications for the view
+        $notifications = $user->notifications()->paginate(20);
+        
+        // Mark all as read so the bubble disappears
+        $user->unreadNotifications->markAsRead();
         
         return view('notifications.index', compact('notifications'));
     }

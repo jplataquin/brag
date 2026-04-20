@@ -90,7 +90,7 @@
                             </div>
                         @endif
                         <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #00f0ff;">
-                            CHALLENGER @if(Auth::id() === $battle->challenger_id) - (YOU) @endif
+                            @if(Auth::id() === $battle->challenger_id) YOU @else CHALLENGER @endif
                         </div>
                         <h4 style="color: #fff;">{{ $battle->challenger->username }}</h4>
                     </div>
@@ -115,6 +115,7 @@
                             :statsText="'LVL ' . $battle->challengerCard->level . ' • W: ' . $battle->challengerCard->wins . ' • L: ' . $battle->challengerCard->losses"
                             :rankLevel="$battle->challengerCard->level"
                             :serialNumber="$battle->challengerCard->serial_number"
+                            :year="$battle->challengerCard->forged_at->format('Y')"
                         />
                         </div>
                     @endif
@@ -133,7 +134,7 @@
                             </div>
                         @endif
                         <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #ff00ff;">
-                            OPPONENT @if(Auth::id() === $battle->opponent_id) - (YOU) @endif
+                            @if(Auth::id() === $battle->opponent_id) YOU @else OPPONENT @endif
                         </div>
                         <h4 style="color: #fff;" id="opponent-name-display">
                             {{ $battle->opponent ? $battle->opponent->username : 'AWAITING...' }}
@@ -160,6 +161,7 @@
                             :statsText="'LVL ' . $battle->opponentCard->level . ' • W: ' . $battle->opponentCard->wins . ' • L: ' . $battle->opponentCard->losses"
                             :rankLevel="$battle->opponentCard->level"
                             :serialNumber="$battle->opponentCard->serial_number"
+                            :year="$battle->opponentCard->forged_at->format('Y')"
                         />
                         </div>
                     @else
@@ -189,7 +191,7 @@
                                 </div>
                             @endif
                             <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #00f0ff;">
-                                CHALLENGER @if(Auth::id() === $battle->challenger_id) - (YOU) @endif
+                                @if(Auth::id() === $battle->challenger_id) YOU @else CHALLENGER @endif
                             </div>
                             <h4 style="color: #fff;">{{ $battle->challenger->username }}</h4>
                         </div>
@@ -214,6 +216,7 @@
                                 :statsText="'LVL ' . $battle->challengerCard->level . ' • W: ' . $battle->challengerCard->wins . ' • L: ' . $battle->challengerCard->losses"
                                 :rankLevel="$battle->challengerCard->level"
                                 :serialNumber="$battle->challengerCard->serial_number"
+                                :year="$battle->challengerCard->forged_at->format('Y')"
                                 />                            </div>
                         @endif
                     </div>
@@ -230,7 +233,7 @@
                                 </div>
                             @endif
                             <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #ff00ff;">
-                                OPPONENT @if(Auth::id() === $battle->opponent_id) - (YOU) @endif
+                                @if(Auth::id() === $battle->opponent_id) YOU @else OPPONENT @endif
                             </div>
                             <h4 style="color: #fff;" id="opponent-name-display-mob">
                                 {{ $battle->opponent ? $battle->opponent->username : 'AWAITING...' }}
@@ -257,6 +260,7 @@
                                 :statsText="'LVL ' . $battle->opponentCard->level . ' • W: ' . $battle->opponentCard->wins . ' • L: ' . $battle->opponentCard->losses"
                                 :rankLevel="$battle->opponentCard->level"
                                 :serialNumber="$battle->opponentCard->serial_number"
+                                :year="$battle->opponentCard->forged_at->format('Y')"
                                 />                            </div>
                         @else
                             <div class="empty-stake-slot d-flex flex-column align-items-center justify-content-center" style="height: 350px; background: rgba(255,0,255,0.02); border: 2px dashed rgba(255,0,255,0.15); border-radius: 16px;">
@@ -617,14 +621,13 @@
                         <div class="d-flex flex-column gap-2 small">
                             <div class="d-flex justify-content-between">
                                 <span style="color: #00f0ff;">CHALLENGER:</span>
-                                <strong id="status-text-challenger" style="color: #fff;">{{ $battle->challenger_declared_user_win ? 'DECLARED WINNER' : 'PENDING...' }}</strong>
+                                <strong id="status-text-challenger" style="color: #fff;">{{ $battle->challenger_declared_user_win ? \App\Models\User::find($battle->challenger_declared_user_win)->username : 'PENDING...' }}</strong>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <span style="color: #ff00ff;">OPPONENT:</span>
-                                <strong id="status-text-opponent" style="color: #fff;">{{ $battle->opponent_declared_user_win ? 'DECLARED WINNER' : 'PENDING...' }}</strong>
+                                <strong id="status-text-opponent" style="color: #fff;">{{ $battle->opponent_declared_user_win ? \App\Models\User::find($battle->opponent_declared_user_win)->username : 'PENDING...' }}</strong>
                             </div>
-                        </div>
-                    </div>
+                        </div>                    </div>
                 @endif
             </div>
         </div>
@@ -752,6 +755,9 @@
             });
         }
 
+        // Scroll activity log to bottom on load
+        scrollLogToBottom();
+
         // Websocket Listener via Laravel Echo
         if (window.Echo) {
             window.Echo.channel('battle.{{ $battle->room_id }}')
@@ -822,11 +828,11 @@
                             const challengerStatusText = document.getElementById('status-text-challenger');
                             const opponentStatusText = document.getElementById('status-text-opponent');
                             
-                            if (challengerStatusText && e.challenger_declared_user_win) {
-                                challengerStatusText.innerText = 'DECLARED WINNER';
+                            if (challengerStatusText && e.challenger_declared_name) {
+                                challengerStatusText.innerText = e.challenger_declared_name;
                             }
-                            if (opponentStatusText && e.opponent_declared_user_win) {
-                                opponentStatusText.innerText = 'DECLARED WINNER';
+                            if (opponentStatusText && e.opponent_declared_name) {
+                                opponentStatusText.innerText = e.opponent_declared_name;
                             }
 
                             // Update declaration names in adjudicator modal if it exists
@@ -891,9 +897,27 @@
             if (!data) return;
             if (data.success) {
                 showNeonNotification(data.message, 'declare');
+                
+                // Reset button text and state
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+
+                // Update styling to add yellow highlight
+                const btnLost = document.getElementById('btn-declare-lost');
+                const btnWon = document.getElementById('btn-declare-won');
+                
+                if (btnLost && btnWon) {
+                    btnLost.style.boxShadow = 'none';
+                    btnLost.style.setProperty('border-color', '', 'important');
+                    btnWon.style.boxShadow = 'none';
+                    btnWon.style.setProperty('border-color', '', 'important');
+                    
+                    btn.style.boxShadow = '0 0 20px #ffdd00';
+                    btn.style.setProperty('border-color', '#ffdd00', 'important');
+                }
+
                 const declareModal = bootstrap.Modal.getInstance(document.getElementById('declareWinnerModal'));
                 if (declareModal) declareModal.hide();
-                // Button reset is handled by page reload if finalized, or we just leave it disabled
             } else {
                 showNeonNotification(data.message, 'conflict');
                 btn.innerHTML = originalHtml;
@@ -1039,7 +1063,15 @@
                 </div>
             </div>
         `;
-        list.prepend(item);
+        list.appendChild(item);
+        scrollLogToBottom();
+    }
+
+    function scrollLogToBottom() {
+        const container = document.querySelector('.activity-log-container');
+        if (container) {
+            container.scrollTop = container.scrollHeight;
+        }
     }
 
     function showNeonNotification(message, type) {

@@ -110,7 +110,7 @@ class Battle extends Model
      */
     public function activities()
     {
-        return $this->hasMany(BattleActivity::class)->latest();
+        return $this->hasMany(BattleActivity::class)->orderBy('id', 'asc');
     }
 
     /**
