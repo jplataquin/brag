@@ -109,7 +109,7 @@
 
         <!-- Description -->
         <div class="neon-card p-3 mb-3">
-            <p style="color: #bbbbd0; font-size: 0.9rem; margin-bottom: 0;">{{ $digitalCard->template->quote }}</p>
+            <p style="color: #bbbbd0; font-size: 0.9rem; margin-bottom: 0;">"{{ $digitalCard->template->quote }}" — {{ $digitalCard->template->creator->username }} ({{ $digitalCard->template->created_at->format('Y') }})</p>
         </div>
 
         <!-- Ownership Info -->

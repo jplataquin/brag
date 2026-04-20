@@ -3,23 +3,35 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<!-- Quick Actions (Mobile Only) -->
-<div class="d-md-none mb-4">
+<!-- Quick Actions -->
+<div class="mb-4">
     <h5 class="section-header">
         <i class="bi bi-lightning-fill section-icon" style="color: #ffdd00;"></i> QUICK ACTIONS
     </h5>
     <div class="row g-3">
-        <div class="col-6">
+        <div class="col-6 col-md-3">
             <a href="{{ route('battles.create') }}" class="quick-action-card">
                 <i class="bi bi-plus-lg" style="color: #ff00ff;"></i>
                 <span>New Battle</span>
             </a>
         </div>
-        <div class="col-6">
+        <div class="col-6 col-md-3">
             <button type="button" class="quick-action-card border-0" id="btn-scan-qr">
                 <i class="bi bi-qr-code-scan"></i>
                 <span>Scan</span>
             </button>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{{ route('cards.index') }}" class="quick-action-card">
+                <i class="bi bi-collection-fill" style="color: #00f0ff;"></i>
+                <span>Inventory</span>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{{ route('templates.index') }}" class="quick-action-card">
+                <i class="bi bi-palette-fill" style="color: #39ff14;"></i>
+                <span>Template</span>
+            </a>
         </div>
     </div>
 </div>
@@ -86,56 +98,7 @@
 </div>
 @endif
 
-<div class="row g-4">
-    <!-- My Cards -->
-    <div class="col-lg-6">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <h5 class="section-header mb-0">
-                <i class="bi bi-suit-diamond-fill section-icon"></i> My Cards
-                <span class="badge rounded-pill ms-2" style="background: rgba(0,240,255,0.1); color: #00f0ff; font-size: 0.7rem;">{{ $ownCards->count() }}/3</span>
-            </h5>
-            <a href="{{ route('cards.index') }}" class="btn btn-neon btn-neon-sm">View All</a>
-        </div>
 
-        @if($ownCards->count() > 0)
-            <div class="card-grid">
-                @foreach($ownCards as $card)
-                    @include('partials.card-mini', ['card' => $card])
-                @endforeach
-            </div>
-        @else
-            <div class="empty-state">
-                <div class="empty-icon">🃏</div>
-                <div class="empty-text">No cards yet</div>
-                <a href="{{ route('templates.index') }}" class="btn btn-neon btn-neon-sm">Create a Template</a>
-            </div>
-        @endif
-    </div>
-
-    <!-- Trophies -->
-    <div class="col-lg-6">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <h5 class="section-header mb-0">
-                <i class="bi bi-trophy-fill section-icon" style="color: #ffdd00;"></i> Recent Trophies
-            </h5>
-            <a href="{{ route('cards.index') }}" class="btn btn-neon btn-neon-sm">View All</a>
-        </div>
-
-        @if($trophies->count() > 0)
-            <div class="card-grid">
-                @foreach($trophies as $card)
-                    @include('partials.card-mini', ['card' => $card, 'isTrophy' => true])
-                @endforeach
-            </div>
-        @else
-            <div class="empty-state">
-                <div class="empty-icon">🏆</div>
-                <div class="empty-text">No trophies yet</div>
-                <a href="{{ route('battles.index') }}" class="btn btn-neon-magenta btn-neon-sm">Find a Battle</a>
-            </div>
-        @endif
-    </div>
-</div>
 
 <!-- Recent Battles -->
 <div class="mt-4">

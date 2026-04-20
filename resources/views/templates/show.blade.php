@@ -55,11 +55,11 @@
         </div>
 
         <div class="neon-card p-3 mb-3">
-            <p style="color: #bbbbd0; font-size: 0.95rem; margin-bottom: 0;">"{{ $template->quote }}" —  </p>
+            <p style="color: #bbbbd0; font-size: 0.95rem; margin-bottom: 0;">"{{ $template->quote }}" — {{ $template->creator->username }} ({{ $template->created_at->format('Y') }})</p>
         </div>
 
         <div class="row g-3 mb-4">
-            <div class="col-6">
+            <div class="col-12">
                 <div class="stat-box">
                     <div class="stat-value">{{ $template->cards_in_circulation }}</div>
                     <div class="stat-label">In Circulation</div>
@@ -75,7 +75,7 @@
             </h5>
 
             @if($canForge)
-                <p style="font-size: 0.85rem; color: #8888aa;">Forge a new Digital Card from this template. You'll receive serial #{{ $template->next_serial_number }}.</p>
+                <p style="font-size: 0.85rem; color: #8888aa;">Forge a new Digital Card from this template.</p>
                 <form action="{{ route('cards.forge', $template) }}" method="POST">
                     @csrf
                     <button type="submit" class="btn btn-neon-lime" id="btn-forge-card" data-confirm="Forge a new Digital Card? This has a 3-day cooldown.">

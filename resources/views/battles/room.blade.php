@@ -463,9 +463,23 @@
                 @csrf
                 <input type="hidden" name="role" value="opponent">
                 <div class="modal-body py-4">
-                    <div class="mb-3">
+                    <div class="mb-3 position-relative">
                         <label class="form-label">PLAYER USERNAME</label>
-                        <input type="text" name="username" class="form-control" placeholder="Enter username..." required>
+                        <div id="invite-input-wrapper" class="form-control d-flex align-items-center p-1" style="min-height: 42px; cursor: text;">
+                            <!-- Hidden input for form submission -->
+                            <input type="hidden" name="username" id="invite-hidden-username" required>
+
+                            <!-- Selected User Chip -->
+                            <span id="invite-selected-chip" class="badge d-flex align-items-center gap-2 p-2 d-none" style="background: rgba(0,240,255,0.2); border: 1px solid #00f0ff; color: #00f0ff; font-size: 0.9rem;">
+                                <i class="bi bi-person-fill"></i> <span id="invite-chip-text"></span>
+                                <i class="bi bi-x-circle-fill ms-2" style="cursor: pointer;" onclick="clearInviteSelection()"></i>
+                            </span>
+
+                            <!-- Search Input -->
+                            <input type="text" id="invite-player-input" class="border-0 bg-transparent text-white flex-grow-1 px-2" placeholder="Search username..." autocomplete="off" style="outline: none; box-shadow: none;">
+                        </div>
+
+                        <div id="invite-player-results" class="position-absolute w-100 mt-1 d-none" style="z-index: 1050; max-height: 200px; overflow-y: auto; background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"></div>
                     </div>
                     <p class="text-muted small">The player must have a card of the same level to accept.</p>
                 </div>
@@ -1177,14 +1191,97 @@
         adjChipText.innerText = username;
         adjChip.classList.remove('d-none');
         adjResults.classList.add('d-none');
-    };
+    }
 
     window.clearAdjudicatorSelection = function() {
         adjHidden.value = '';
         adjChip.classList.add('d-none');
         adjInput.classList.remove('d-none');
         adjInput.focus();
-    };
+    }
+
+    // Invite Player Auto-Suggest
+    const inviteWrapper = document.getElementById('invite-input-wrapper');
+    const inviteInput = document.getElementById('invite-player-input');
+    const inviteHidden = document.getElementById('invite-hidden-username');
+    const inviteChip = document.getElementById('invite-selected-chip');
+    const inviteChipText = document.getElementById('invite-chip-text');
+    const inviteResults = document.getElementById('invite-player-results');
+    let inviteDebounce = null;
+
+    if (inviteInput && inviteResults) {
+        if (inviteWrapper) {
+            inviteWrapper.addEventListener('click', () => {
+                if (!inviteHidden.value) inviteInput.focus();
+            });
+        }
+
+        inviteInput.addEventListener('input', function() {
+            clearTimeout(inviteDebounce);
+            const q = this.value.trim();
+
+            if (q.length < 2) {
+                inviteResults.classList.add('d-none');
+                inviteResults.innerHTML = '';
+                return;
+            }
+
+            inviteDebounce = setTimeout(() => {
+                fetch(`/search?q=${encodeURIComponent(q)}&battle_id={{$battle->room_id }}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(r => r.json())
+                .then(users => {
+                    if (users.length === 0) {
+                        inviteInput.value = '';
+                        inviteResults.innerHTML = '<div class="p-2 text-center text-muted small">No players found</div>';
+                    } else {
+                        inviteResults.innerHTML = users.map(u => `
+                            <div class="adj-search-item p-2 d-flex align-items-center gap-2" onmousedown="selectInvitePlayer('${u.username}')" style="cursor: pointer; border-bottom: 1px solid rgba(0, 240, 255, 0.1);">
+                                <img src="${u.avatar_url}" alt="${u.username}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #00f0ff;">
+                                <span class="text-white">@${u.username}</span>
+                            </div>
+                        `).join('');
+                    }
+                    inviteResults.classList.remove('d-none');
+                });
+            }, 300);
+        });
+
+        // Clear input on blur if no user is selected
+        inviteInput.addEventListener('blur', function() {
+            setTimeout(() => {
+                if (!inviteHidden.value) {
+                    inviteInput.value = '';
+                    inviteResults.classList.add('d-none');
+                }
+            }, 150); // Delay to allow onmousedown selection to trigger first
+        });
+
+        // Hide results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!inviteWrapper.contains(e.target) && !inviteResults.contains(e.target)) {
+                inviteResults.classList.add('d-none');
+            }
+        });
+    }
+
+    window.selectInvitePlayer = function(username) {
+        inviteHidden.value = username;
+        inviteInput.value = '';
+        inviteInput.classList.add('d-none');
+        inviteChipText.innerText = username;
+        inviteChip.classList.remove('d-none');
+        inviteResults.classList.add('d-none');
+    }
+
+    window.clearInviteSelection = function() {
+        inviteHidden.value = '';
+        inviteChip.classList.add('d-none');
+        inviteInput.classList.remove('d-none');
+        inviteInput.focus();
+    }
+
 </script>
 
 <style>

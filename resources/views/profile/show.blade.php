@@ -106,21 +106,5 @@
     </div>
 </div>
 
-<!-- Templates -->
-@if($templates->count() > 0)
-<div class="mt-4">
-    <h5 class="section-header">
-        <i class="bi bi-layers-fill section-icon" style="color: #ff00ff;"></i> TEMPLATES
-    </h5>
-    <div class="card-grid">
-        @foreach($templates as $template)
-        <a href="{{ route('templates.show', $template) }}" class="neon-card p-3" style="text-decoration: none; color: inherit;">
-            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ $template->card_title }}</div>
-            <div style="font-size: 0.75rem; color: #00f0ff; margin-bottom: 0.25rem;">🎮 {{ $template->gameTitle->title }}</div>
-            <div style="font-size: 0.7rem; color: #555577;">{{ $template->digital_cards_count }} cards forged</div>
-        </a>
-        @endforeach
-    </div>
-</div>
-@endif
+
 @endsection
