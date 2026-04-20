@@ -21,12 +21,18 @@ class ProfileController extends Controller
             ->where('original_owner_id', $user->id)
             ->where('is_trophy', false)
             ->with('template.gameTitle')
+            ->orderBy('level', 'desc')
+            ->orderBy('wins', 'desc')
             ->get();
 
         $trophies = $user->trophies()
             ->with('template.gameTitle', 'originalOwner')
-            ->latest()
+            ->orderBy('level', 'desc')
+            ->orderBy('wins', 'desc')
             ->get();
+
+        $availableGames = \App\Models\GameTitle::whereIn('id', $ownCards->pluck('template.gameTitle.id')->merge($trophies->pluck('template.gameTitle.id'))->unique())->get();
+        $availableLevels = $ownCards->pluck('level')->merge($trophies->pluck('level'))->unique()->sort()->values();
 
         $templates = $user->templates()->with('gameTitle')->withCount('digitalCards')->get();
 
@@ -51,7 +57,7 @@ class ProfileController extends Controller
 
         $isOwner = Auth::check() && Auth::id() === $user->id;
 
-        return view('profile.show', compact('user', 'ownCards', 'trophies', 'templates', 'stats', 'isOwner'));
+        return view('profile.show', compact('user', 'ownCards', 'trophies', 'templates', 'stats', 'isOwner', 'availableGames', 'availableLevels'));
     }
 
     /**
