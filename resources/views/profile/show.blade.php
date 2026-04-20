@@ -32,33 +32,27 @@
 
 <!-- Stats -->
 <div class="row g-3 mb-4">
-    <div class="col-4 col-md">
+    <div class="col-6 col-md">
         <div class="stat-box">
             <div class="stat-value">{{ $stats['total_cards'] }}</div>
             <div class="stat-label">Cards</div>
         </div>
     </div>
-    <div class="col-4 col-md">
+    <div class="col-6 col-md">
         <div class="stat-box">
             <div class="stat-value" style="color: #ffdd00;">{{ $stats['total_trophies'] }}</div>
             <div class="stat-label">Trophies</div>
         </div>
     </div>
-    <div class="col-4 col-md">
-        <div class="stat-box">
-            <div class="stat-value" style="color: #39ff14;">{{ $stats['total_wins'] }}</div>
-            <div class="stat-label">Wins</div>
-        </div>
-    </div>
     <div class="col-6 col-md">
         <div class="stat-box">
-            <div class="stat-value" style="color: #ff00ff;">{{ $stats['failed_battles'] }}</div>
+            <div class="stat-value" style="color: #ff00ff;">{{ $stats['failed_battles_pct'] }}%</div>
             <div class="stat-label">Failed</div>
         </div>
     </div>
     <div class="col-6 col-md">
         <div class="stat-box">
-            <div class="stat-value" style="color: #ff6600;">{{ $stats['total_battles'] }}</div>
+            <div class="stat-value" style="color: #ff6600;">{{ $stats['completed_battles_pct'] }}%</div>
             <div class="stat-label">Completed</div>
         </div>
     </div>

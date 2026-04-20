@@ -30,18 +30,23 @@ class ProfileController extends Controller
 
         $templates = $user->templates()->with('gameTitle')->withCount('digitalCards')->get();
 
+        $failed_count = Battle::where(function ($q) use ($user) {
+            $q->where('challenger_id', $user->id)
+              ->orWhere('opponent_id', $user->id);
+        })->where('status', 'failed')->count();
+
+        $completed_count = Battle::where(function ($q) use ($user) {
+            $q->where('challenger_id', $user->id)
+              ->orWhere('opponent_id', $user->id);
+        })->where('status', 'completed')->count();
+
+        $total_resolved = $failed_count + $completed_count;
+
         $stats = [
             'total_cards' => $user->digitalCards()->count(),
             'total_trophies' => $user->trophies()->count(),
-            'failed_battles' => Battle::where(function ($q) use ($user) {
-                $q->where('challenger_id', $user->id)
-                  ->orWhere('opponent_id', $user->id);
-            })->where('status', 'failed')->count(),
-            'total_wins' => Battle::where('winner_id', $user->id)->count(),
-            'total_battles' => Battle::where(function ($q) use ($user) {
-                $q->where('challenger_id', $user->id)
-                  ->orWhere('opponent_id', $user->id);
-            })->where('status', 'completed')->count(),
+            'failed_battles_pct' => $total_resolved > 0 ? round(($failed_count / $total_resolved) * 100) : 0,
+            'completed_battles_pct' => $total_resolved > 0 ? round(($completed_count / $total_resolved) * 100) : 0,
         ];
 
         $isOwner = Auth::check() && Auth::id() === $user->id;
