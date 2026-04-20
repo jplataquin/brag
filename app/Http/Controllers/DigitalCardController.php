@@ -79,6 +79,43 @@ class DigitalCardController extends Controller
     }
 
     /**
+     * Get the battle history for the card.
+     */
+    public function history(DigitalCard $digitalCard, Request $request)
+    {
+        $limit = 10;
+        $offset = $request->query('offset', 0);
+
+        $battles = \App\Models\Battle::with(['challenger', 'opponent', 'winner'])
+            ->where(function ($query) use ($digitalCard) {
+                $query->where('challenger_card_id', $digitalCard->id)
+                      ->orWhere('opponent_card_id', $digitalCard->id);
+            })
+            ->whereNotNull('winner_id') // Only show completed battles
+            ->orderBy('updated_at', 'desc')
+            ->skip($offset)
+            ->take($limit)
+            ->get();
+
+        return response()->json([
+            'battles' => $battles->map(function ($battle) use ($digitalCard) {
+                $isWin = $battle->winner_id == $digitalCard->owner_id;
+                return [
+                    'id' => $battle->id,
+                    'room_id' => $battle->room_id,
+                    'date' => $battle->updated_at->format('M j, Y H:i'),
+                    'opponent_name' => $battle->challenger_id == $digitalCard->owner_id 
+                        ? ($battle->opponent ? $battle->opponent->username : 'Unknown') 
+                        : $battle->challenger->username,
+                    'result' => $isWin ? 'WIN' : 'LOSS',
+                    'result_color' => $isWin ? '#39ff14' : '#ff0000',
+                ];
+            }),
+            'has_more' => $battles->count() == $limit
+        ]);
+    }
+
+    /**
      * Forge a new digital card from a template.
      */
     public function forge(Template $template)

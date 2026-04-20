@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/cards', [DigitalCardController::class, 'index'])->name('cards.index');
     Route::get('/cards/{digitalCard}', [DigitalCardController::class, 'show'])->name('cards.show');
+    Route::get('/cards/{digitalCard}/history', [DigitalCardController::class, 'history'])->name('cards.history');
     Route::post('/cards/forge/{template}', [DigitalCardController::class, 'forge'])->name('cards.forge');
 });
 

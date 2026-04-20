@@ -132,6 +132,86 @@
             </div>
         </div>
 
+        <!-- Battle History -->
+        <div class="mt-4">
+            <h5 class="section-header">
+                <i class="bi bi-clock-history section-icon" style="color: #00f0ff;"></i> BATTLE HISTORY
+            </h5>
+            <div id="battle-history-container" class="neon-card p-0" style="overflow: hidden;">
+                <!-- Battles will be injected here via JS -->
+            </div>
+            <div class="text-center mt-3">
+                <button id="load-more-battles" class="btn btn-neon btn-neon-sm d-none">SHOW MORE</button>
+            </div>
+            <div id="battle-history-empty" class="empty-state d-none">
+                <div class="empty-icon">⚔️</div>
+                <div class="empty-text">No battles recorded yet</div>
+            </div>
+        </div>
+
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('battle-history-container');
+    const loadMoreBtn = document.getElementById('load-more-battles');
+    const emptyState = document.getElementById('battle-history-empty');
+    let offset = 0;
+    const cardId = {{ $digitalCard->id }};
+
+    function loadBattles() {
+        fetch(`/cards/${cardId}/history?offset=${offset}`)
+            .then(response => response.json())
+            .then(data => {
+                if (offset === 0 && data.battles.length === 0) {
+                    emptyState.classList.remove('d-none');
+                    container.classList.add('d-none');
+                    return;
+                }
+
+                data.battles.forEach((battle, index) => {
+                    const isLast = (index === data.battles.length - 1) && !data.has_more;
+                    const borderStyle = isLast ? '' : 'border-bottom: 1px solid rgba(0, 240, 255, 0.1);';
+                    
+                    const battleEl = document.createElement('div');
+                    battleEl.className = 'p-3 d-flex align-items-center justify-content-between';
+                    battleEl.style = borderStyle + ' transition: background-color 0.2s;';
+                    battleEl.innerHTML = `
+                        <div>
+                            <div style="font-size: 0.8rem; color: #8888aa; margin-bottom: 0.25rem;">${battle.date}</div>
+                            <div style="font-size: 0.95rem; font-weight: 600; color: #fff;">
+                                vs <span style="color: #ff00ff;">@${battle.opponent_name}</span>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div style="font-family: 'Orbitron', sans-serif; font-weight: 700; color: ${battle.result_color}; font-size: 1.1rem; letter-spacing: 1px;">
+                                ${battle.result}
+                            </div>
+                            <a href="/battles/room/${battle.room_id}" class="btn btn-outline-neon btn-sm mt-1" style="font-size: 0.7rem; padding: 0.1rem 0.4rem;">View Match</a>
+                        </div>
+                    `;
+                    container.appendChild(battleEl);
+                });
+
+                if (data.has_more) {
+                    loadMoreBtn.classList.remove('d-none');
+                    offset += data.battles.length;
+                } else {
+                    loadMoreBtn.classList.add('d-none');
+                }
+            })
+            .catch(error => {
+                console.error("Error loading battle history:", error);
+            });
+    }
+
+    loadMoreBtn.addEventListener('click', loadBattles);
+
+    // Initial load
+    loadBattles();
+});
+</script>
 @endsection
