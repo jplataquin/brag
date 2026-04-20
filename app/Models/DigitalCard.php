@@ -85,7 +85,7 @@ class DigitalCard extends Model
         if ($copies >= 5) {
             return 'Rare';
         }
-        return 'Super Rare';
+        return 'Ultra Rare';
     }
 
     /**
@@ -102,7 +102,7 @@ class DigitalCard extends Model
     public function getRarityColorAttribute()
     {
         return match($this->rarity) {
-            'Super Rare' => '#ff0000', // Red (Legendary)
+            'Ultra Rare' => '#ff0000', // Red (Legendary)
             'Rare' => '#ff00ff',       // Magenta
             'Common' => '#39ff14',     // Lime Green
         };

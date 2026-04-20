@@ -311,20 +311,15 @@ class DigitalCardRenderer {
         let winRateStr = totalGames > 0 ? Math.round((wins / totalGames) * 100) + '%' : '0%';
         if (options.mode === 'template') winRateStr = '0%';
         const status = options.status || 'Maintained';
-        const rarityColor = options.rarityColor || '#ffffff';
+        const rarityIcon = options.rarityIcon || '🪵';
         
         let startX = innerX + (w * 0.04);
         const yCenter = statsY + statsH / 2;
 
-        // Rarity Badge (colored circle)
-        ctx.beginPath();
-        ctx.arc(startX + fontSizeStats / 2, yCenter, fontSizeStats * 0.4, 0, 2 * Math.PI);
-        ctx.fillStyle = rarityColor;
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        startX += fontSizeStats * 1.5;
+        // Rarity Badge (emoji icon)
+        ctx.font = `${fontSizeStats}px sans-serif`;
+        ctx.fillText(rarityIcon, startX, yCenter);
+        startX += ctx.measureText(rarityIcon).width + fontSizeStats * 0.5;
 
         // Wins
         ctx.fillStyle = '#39ff14'; // Lime Green
@@ -340,7 +335,7 @@ class DigitalCardRenderer {
         // Win Rate
         ctx.fillStyle = '#00f0ff'; // Cyan
         ctx.fillText(`${winRateStr}`, startX, yCenter);
-        startX += ctx.measureText(`${winRateStr}`).width + fontSizeStats * 0.8;
+        startX += ctx.measureText(`R: ${winRateStr}`).width + fontSizeStats * 0.8;
 
         // Discontinued Badge
         if (status === 'Discontinued') {

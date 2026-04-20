@@ -42,14 +42,21 @@ $hasFullscreen = $mode === 'thumbnail' || filter_var($fullscreen, FILTER_VALIDAT
 if ($linkUrl) $hasFullscreen = false;
 $badgeVersion = file_exists(public_path("img/badge/lv{$rankLevel}.png")) ? filemtime(public_path("img/badge/lv{$rankLevel}.png")) : time();
 
-// Rarity Color
+// Rarity Color & Icon
 $rarityColors = [
-    'super-rare' => '#ff0000',
+    'ultra-rare' => '#ff0000',
     'rare' => '#ff00ff',
     'common' => '#39ff14',
     'template' => '#ffdd00',
 ];
+$rarityIcons = [
+    'ultra-rare' => '🐦‍🔥',
+    'rare' => '🦄',
+    'common' => '🪵',
+    'template' => '📜',
+];
 $computedRarityColor = $rarityColors[$mode === 'template' ? 'template' : $rarity] ?? '#ffffff';
+$computedRarityIcon = $rarityIcons[$mode === 'template' ? 'template' : $rarity] ?? '🪵';
 $winRate = ($wins + $losses > 0) ? round(($wins / ($wins + $losses)) * 100) : 0;
 @endphp
 
@@ -129,6 +136,7 @@ $winRate = ($wins + $losses > 0) ? round(($wins / ($wins + $losses)) * 100) : 0;
                 winRate: {{ $winRate }},
                 status: '{{ $status }}',
                 rarityColor: '{{ $computedRarityColor }}',
+                rarityIcon: '{{ $computedRarityIcon }}',
                 rankLevel: {{ $rankLevel }},
                 badgeVersion: '{{ $badgeVersion }}',
                 serialNumber: {{ $serialNumber !== null ? $serialNumber : 'null' }},
