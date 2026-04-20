@@ -78,7 +78,7 @@
                 <p style="font-size: 0.85rem; color: #8888aa;">Forge a new Digital Card from this template.</p>
                 <form action="{{ route('cards.forge', $template) }}" method="POST">
                     @csrf
-                    <button type="submit" class="btn btn-neon-lime" id="btn-forge-card" data-confirm="Forge a new Digital Card? This has a 3-day cooldown.">
+                    <button type="submit" class="btn btn-neon-lime" id="btn-forge-card" data-confirm="Forge a new Digital Card? You can forge up to 3 cards per day from this template.">
                         <i class="bi bi-lightning-charge-fill"></i> FORGE NOW
                     </button>
                 </form>

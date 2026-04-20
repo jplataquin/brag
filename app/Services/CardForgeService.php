@@ -38,21 +38,21 @@ class CardForgeService
             ];
         }
 
-        // Check cooldown (1 day from last forge of this template)
-        $lastForge = DigitalCard::where('template_id', $template->id)
+        // Check cooldown (3 forges per day from this template)
+        $forgesLast24h = DigitalCard::where('template_id', $template->id)
             ->where('original_owner_id', $user->id)
+            ->where('forged_at', '>=', now()->subDay())
             ->orderBy('forged_at', 'desc')
-            ->first();
+            ->get();
 
-        if ($lastForge) {
-            $cooldownEnds = $lastForge->forged_at->addDay();
-            if (now()->lt($cooldownEnds)) {
-                return [
-                    'can_forge' => false,
-                    'reason' => 'Forge cooldown active. You can forge again after ' . $cooldownEnds->diffForHumans(),
-                    'cooldown_ends' => $cooldownEnds,
-                ];
-            }
+        if ($forgesLast24h->count() >= 3) {
+            $cooldownEnds = clone $forgesLast24h->last()->forged_at;
+            $cooldownEnds->addDay();
+            return [
+                'can_forge' => false,
+                'reason' => 'Daily forge limit reached for this template. You can forge again after ' . $cooldownEnds->diffForHumans(),
+                'cooldown_ends' => $cooldownEnds,
+            ];
         }
 
         return [
