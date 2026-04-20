@@ -63,7 +63,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="photo" class="form-label">PLAYER PHOTO</label>
+                    <label class="form-label">PLAYER PHOTO</label>
                     @if($template->photo)
                         <div class="mb-2">
                             <img src="{{ asset('storage/' . $template->photo) }}" alt="Current" style="max-width: 150px; border-radius: 8px; border: 1px solid rgba(0,240,255,0.2);">
@@ -76,11 +76,19 @@
                             <small class="d-block mt-1" style="color: #ff00ff; font-size: 0.75rem; font-weight: bold;">Current AI Enhanced Photo</small>
                         </div>
                     @endif
-                    <input type="file" class="form-control @error('photo') is-invalid @enderror"
-                           id="photo" accept="image/*">
+                    <div class="position-relative" id="photo-upload-wrapper">
+                        <input type="file" class="position-absolute w-100 h-100 opacity-0"
+                               style="z-index: 2; cursor: pointer; top: 0; left: 0;"
+                               id="photo" accept="image/*">
+                        <div id="photo-dropzone" class="d-flex flex-column align-items-center justify-content-center p-4 text-center neon-card @error('photo') border-danger @enderror" style="border: 2px dashed rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.02); transition: all 0.3s ease;">
+                            <i class="bi bi-cloud-arrow-up-fill mb-2" style="font-size: 2.5rem; color: #00f0ff; text-shadow: 0 0 10px rgba(0,240,255,0.4);"></i>
+                            <span style="font-family: 'Orbitron', sans-serif; color: #00f0ff; font-weight: 600; letter-spacing: 1px;">CLICK OR DRAG TO REPLACE PHOTO</span>
+                            <small class="mt-2" style="color: #8888aa; font-size: 0.75rem;">Supports JPEG, PNG, GIF, WebP</small>
+                        </div>
+                    </div>
                     <input type="hidden" name="temporary_photo_path" id="temporary_photo_path" value="{{ old('temporary_photo_path') }}">
                     @error('photo')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="text-danger mt-1 small" style="text-shadow: 0 0 5px rgba(255,0,0,0.5);">{{ $message }}</div>
                     @enderror
 
                     <!-- Upload Progress -->
@@ -284,10 +292,51 @@
         }
     });
 
-    document.getElementById('photo').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
+    const photoInput = document.getElementById('photo');
+    const dropzone = document.getElementById('photo-dropzone');
+    
+    if (photoInput && dropzone) {
+        photoInput.addEventListener('dragenter', () => {
+            dropzone.style.borderColor = '#00f0ff';
+            dropzone.style.background = 'rgba(0, 240, 255, 0.1)';
+            dropzone.style.boxShadow = '0 0 20px rgba(0, 240, 255, 0.3)';
+        });
+        
+        photoInput.addEventListener('dragleave', () => {
+            dropzone.style.borderColor = 'rgba(0, 240, 255, 0.4)';
+            dropzone.style.background = 'rgba(0, 240, 255, 0.02)';
+            dropzone.style.boxShadow = 'none';
+        });
+        
+        photoInput.addEventListener('drop', () => {
+            dropzone.style.borderColor = 'rgba(0, 240, 255, 0.4)';
+            dropzone.style.background = 'rgba(0, 240, 255, 0.02)';
+            dropzone.style.boxShadow = 'none';
+        });
+        
+        photoInput.addEventListener('mouseenter', () => {
+            dropzone.style.borderColor = '#00f0ff';
+            dropzone.style.background = 'rgba(0, 240, 255, 0.05)';
+            dropzone.style.transform = 'translateY(-2px)';
+        });
+        
+        photoInput.addEventListener('mouseleave', () => {
+            dropzone.style.borderColor = 'rgba(0, 240, 255, 0.4)';
+            dropzone.style.background = 'rgba(0, 240, 255, 0.02)';
+            dropzone.style.transform = 'translateY(0)';
+        });
+
+        photoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0] || this.files[0];
+            if (file) {
+                dropzone.innerHTML = `
+                    <i class="bi bi-file-earmark-image-fill mb-2" style="font-size: 2.5rem; color: #39ff14; text-shadow: 0 0 10px rgba(57,255,20,0.4);"></i>
+                    <span style="font-family: 'Orbitron', sans-serif; color: #39ff14; font-weight: 600; letter-spacing: 1px;">${file.name}</span>
+                    <small class="mt-2" style="color: #8888aa; font-size: 0.75rem;">Click or drag to change</small>
+                `;
+                dropzone.style.borderColor = '#39ff14';
+
+                const reader = new FileReader();
             reader.onload = function(e) {
                 updateLivePreview({ image: e.target.result });
             };
@@ -361,6 +410,7 @@
             uploadNextChunk();
         }
     });
+    }
 
     document.getElementById('enhance_photo').addEventListener('change', function() {
         document.getElementById('ai_prompt_container').style.display = this.checked ? 'block' : 'none';

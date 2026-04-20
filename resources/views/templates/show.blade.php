@@ -55,26 +55,14 @@
         </div>
 
         <div class="neon-card p-3 mb-3">
-            <p style="color: #bbbbd0; font-size: 0.95rem; margin-bottom: 0;">{{ $template->quote }}</p>
+            <p style="color: #bbbbd0; font-size: 0.95rem; margin-bottom: 0;">"{{ $template->quote }}" —  </p>
         </div>
 
         <div class="row g-3 mb-4">
-            <div class="col-4">
+            <div class="col-6">
                 <div class="stat-box">
                     <div class="stat-value">{{ $template->cards_in_circulation }}</div>
                     <div class="stat-label">In Circulation</div>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="stat-box">
-                    <div class="stat-value" style="color: #ff00ff;">{{ $template->user->username }}</div>
-                    <div class="stat-label">Creator</div>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="stat-box">
-                    <div class="stat-value" style="color: #39ff14;">#{{ $template->next_serial_number - 1 }}</div>
-                    <div class="stat-label">Last Serial</div>
                 </div>
             </div>
         </div>
