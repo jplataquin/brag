@@ -165,33 +165,35 @@ class DigitalCardRenderer {
             const bgHsl = this.hexToHsl(currentBgColor);
 
             if (level >= 1) {
-                // Level 1: Simple breathing glow
-                glowBlur = 5 + 5 * Math.sin(t / 500);
+                // Level 1: Very subtle breathing glow (slower)
+                glowBlur = 4 + 3 * Math.sin(t / 1000);
                 glowColor = `hsl(${borderHsl.h}, ${borderHsl.s * 100}%, ${borderHsl.l * 100}%)`;
             }
             if (level >= 2) {
-                // Level 2: Section color lightness pulsing
-                let lShift = 5 * Math.sin(t / 600);
+                // Level 2: Gentle section color lightness pulsing
+                let lShift = 3 * Math.sin(t / 1500);
                 currentSectionColor = `hsl(${sectionHsl.h}, ${sectionHsl.s * 100}%, ${Math.max(0, Math.min(100, sectionHsl.l * 100 + lShift))}%)`;
             }
             if (level >= 3) {
-                // Level 3: Border hue shifts towards complementary
-                let hueShift = 45 * Math.sin(t / 800);
+                // Level 3: Slow, restricted border hue shifts
+                let hueShift = 15 * Math.sin(t / 2000);
                 currentBorderColor = `hsl(${(borderHsl.h + hueShift + 360) % 360}, ${borderHsl.s * 100}%, ${borderHsl.l * 100}%)`;
                 glowColor = currentBorderColor;
-                glowBlur = 8 + 8 * Math.sin(t / 400);
+                glowBlur = 6 + 4 * Math.sin(t / 1000);
             }
             if (level >= 4) {
-                // Level 4: Elaborate complementary phasing
-                currentBorderColor = `hsl(${(borderHsl.h + (t / 15)) % 360}, 100%, 60%)`;
-                glowColor = `hsl(${(borderHsl.h + (t / 15) + 180) % 360}, 100%, 60%)`;
-                glowBlur = 15 + 10 * Math.sin(t / 200);
+                // Level 4: Slow, majestic phasing (Removed aggressive 360 loop)
+                let hueOffset = 30 * Math.sin(t / 2500);
+                currentBorderColor = `hsl(${(borderHsl.h + hueOffset + 360) % 360}, 90%, 60%)`;
+                glowColor = `hsl(${(borderHsl.h + hueOffset + 180) % 360}, 70%, 60%)`; // Complementary but less saturated
+                glowBlur = 10 + 5 * Math.sin(t / 1200);
 
-                let bgHue = (bgHsl.h + 20 * Math.sin(t / 1000)) % 360;
-                let bgLightness = bgHsl.l * 100 + 5 * Math.sin(t / 300);
+                let bgHue = (bgHsl.h + 10 * Math.sin(t / 3000)) % 360;
+                let bgLightness = bgHsl.l * 100 + 3 * Math.sin(t / 2000);
                 currentBgColor = `hsl(${bgHue}, ${bgHsl.s * 100}%, ${Math.max(0, Math.min(100, bgLightness))}%)`;
 
-                currentSectionColor = `hsl(${(sectionHsl.h + (t / 30)) % 360}, ${sectionHsl.s * 100}%, ${sectionHsl.l * 100}%)`;
+                let secHue = (sectionHsl.h + 10 * Math.sin(t / 2800)) % 360;
+                currentSectionColor = `hsl(${secHue}, ${sectionHsl.s * 100}%, ${sectionHsl.l * 100}%)`;
             }
         }
 
@@ -252,7 +254,7 @@ class DigitalCardRenderer {
         const textStartX = innerX + (w * 0.04);
         ctx.fillStyle = primaryTextColor;
         ctx.font = `bold ${fontSizeTitle}px sans-serif`;
-        if (this.isAnimating) {
+        if (this.isAnimating && title.length > 20) {
             const textWidth = ctx.measureText(title).width;
             const gap = w * 0.2;
             ctx.fillText(title, textStartX + this.titleOffset, titleY + titleH * 0.28);
