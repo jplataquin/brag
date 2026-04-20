@@ -41,7 +41,7 @@ class DigitalCardController extends Controller
         }
 
         if ($sortBy === 'level') {
-            $query->orderBy('wins', $direction);
+            $query->orderBy('level', $direction);
         } elseif ($sortBy === 'name') {
             $query->select('digital_cards.*')
                 ->join('templates', 'digital_cards.template_id', '=', 'templates.id')

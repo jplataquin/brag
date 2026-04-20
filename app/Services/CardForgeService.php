@@ -25,28 +25,27 @@ class CardForgeService
             ];
         }
 
-        // Check max 3 own cards
-        $ownCardCount = $user->digitalCards()
-            ->where('original_owner_id', $user->id)
-            ->where('is_trophy', false)
+        // Check if the user has 3 or more cards in their inventory from the same template
+        $templateCardCount = $user->digitalCards()
+            ->where('template_id', $template->id)
             ->count();
 
-        if ($ownCardCount >= 3) {
+        if ($templateCardCount >= 3) {
             return [
                 'can_forge' => false,
-                'reason' => 'You already have 3 of your own Digital Cards in your inventory. Surrender or trade some first.',
+                'reason' => 'You already have 3 Digital Cards from this template in your inventory. You must lose or transfer some first.',
                 'cooldown_ends' => null,
             ];
         }
 
-        // Check cooldown (3 days from last forge of this template)
+        // Check cooldown (1 day from last forge of this template)
         $lastForge = DigitalCard::where('template_id', $template->id)
             ->where('original_owner_id', $user->id)
             ->orderBy('forged_at', 'desc')
             ->first();
 
         if ($lastForge) {
-            $cooldownEnds = $lastForge->forged_at->addDays(3);
+            $cooldownEnds = $lastForge->forged_at->addDay();
             if (now()->lt($cooldownEnds)) {
                 return [
                     'can_forge' => false,

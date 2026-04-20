@@ -186,8 +186,6 @@ class DigitalCardRenderer {
             }
             if (level >= 4) {
                 // Level 4: Full color phasing between Border and Background
-                // We phase the border color towards a brighter version of itself 
-                // and the background color towards a deeper version of the border
                 let hB = lerp(borderHsl.h, bgHsl.h, phase * 0.3);
                 let sB = lerp(borderHsl.s, bgHsl.s, phase * 0.3);
                 let lB = lerp(borderHsl.l, bgHsl.l, phase * 0.3);
@@ -203,6 +201,17 @@ class DigitalCardRenderer {
 
                 glowBlur = 12 + 8 * Math.sin(t / 1200);
                 glowColor = `hsl(${borderHsl.h}, 100%, 70%)`;
+            }
+            if (level >= 5) {
+                // Level 5: GOAT - Rainbow shifting and intense glow
+                const rainbowH = (t / 20) % 360;
+                currentBorderColor = `hsl(${rainbowH}, 100%, 50%)`;
+                glowColor = `hsl(${rainbowH}, 100%, 60%)`;
+                glowBlur = 20 + 10 * Math.sin(t / 800);
+                
+                // Pulsing background
+                const bgPulse = 5 + 5 * Math.sin(t / 1000);
+                currentBgColor = `hsl(${bgHsl.h}, ${bgHsl.s * 100}%, ${Math.min(100, bgHsl.l * 100 + bgPulse)}%)`;
             }
         }
 
@@ -366,13 +375,7 @@ class DigitalCardRenderer {
                 </svg>`;
             return 'data:image/svg+xml;base64,' + btoa(svg);
         }
-        const badges = {
-            1: '/build/assets/lv1-nXVxY6jR.png',
-            2: '/build/assets/lv2-CbCEwos4.png',
-            3: '/build/assets/lv3-DKLQZVa4.png',
-            4: '/build/assets/lv4-BXpA1DTa.png'
-        };
-        return badges[level] || badges[1];
+        return `/img/badge/lv${level}.png`;
     }
 
     drawImageWithinBounds(ctx, img, x, y, w, h, borderColor, mode) {

@@ -30,7 +30,7 @@
                             <i class="bi bi-person-circle"></i> CHALLENGER: <strong>{{ $battle->challenger->username }}</strong>
                         </span>
                         <span style="color: #8888aa; font-size: 0.9rem;">
-                            <i class="bi bi-bar-chart-fill"></i> CARD LEVEL: <strong>{{ $challengerCard->level }}</strong>
+                            <i class="bi bi-bar-chart-fill"></i> CARD LEVEL: <strong>{{ strtoupper($challengerCard->level_name) }} (LEVEL {{ $challengerCard->level }})</strong>
                         </span>
                     </div>
                 </div>
@@ -55,7 +55,7 @@
                 id="challenger_card_display_{{ $challengerCard->id }}" 
                 mode="display"
                 fullscreen="true"
-                :rarity="$challengerCard->rarity ?? 'common'"
+                :rarity="$challengerCard->rarity_slug"
                 :title="$challengerCard->template->card_title" 
                 :game="$challengerCard->template->gameTitle->title ?? 'GAME'" 
                 :creator="$challengerCard->originalOwner->username ?? 'Creator'"
@@ -66,7 +66,7 @@
                 :primaryTextColor="$challengerCard->template->primary_text_color"
                 :secondaryTextColor="$challengerCard->template->secondary_text_color"
                 :image="$challengerCard->template->display_photo"
-                :statsText="'LVL ' . $challengerCard->level . ' • W: ' . $challengerCard->wins . ' • L: ' . $challengerCard->losses"
+                :statsText="strtoupper($challengerCard->level_name) . ' • W: ' . $challengerCard->wins . ' • L: ' . $challengerCard->losses . ' • ' . strtoupper($challengerCard->status)"
                 :rankLevel="$challengerCard->level"
                 :serialNumber="$challengerCard->serial_number"
                 :year="$challengerCard->forged_at->format('Y')"
@@ -97,7 +97,7 @@
                         <x-digital-card 
                             :id="'join_card_grid_' . $card->id"
                             mode="thumbnail"
-                            :rarity="$card->rarity ?? 'common'"
+                            :rarity="$card->rarity_slug"
                             :detailUrl="route('cards.show', $card)"
                             :title="$card->template->card_title" 
                             :game="$card->template->gameTitle->title ?? 'GAME'" 
@@ -109,7 +109,7 @@
                             :primaryTextColor="$card->template->primary_text_color"
                             :secondaryTextColor="$card->template->secondary_text_color"
                             :image="$card->template->display_photo"
-                            :statsText="'LVL ' . $card->level . ' • W: ' . $card->wins . ' • L: ' . $card->losses"
+                            :statsText="strtoupper($card->level_name) . ' • W: ' . $card->wins . ' • L: ' . $card->losses . ' • ' . strtoupper($card->status)"
                             :rankLevel="$card->level"
                             :serialNumber="$card->serial_number"
                             :year="$card->forged_at->format('Y')"
@@ -130,7 +130,7 @@
                                     <x-digital-card 
                                         :id="'join_card_carousel_' . $card->id"
                                         mode="thumbnail"
-                                        :rarity="$card->rarity ?? 'common'"
+                                        :rarity="$card->rarity_slug"
                                         :detailUrl="route('cards.show', $card)"
                                         :title="$card->template->card_title" 
                                         :game="$card->template->gameTitle->title ?? 'GAME'" 
@@ -142,7 +142,7 @@
                                         :primaryTextColor="$card->template->primary_text_color"
                                         :secondaryTextColor="$card->template->secondary_text_color"
                                         :image="$card->template->display_photo"
-                                        :statsText="'LVL ' . $card->level . ' • W: ' . $card->wins . ' • L: ' . $card->losses"
+                                        :statsText="strtoupper($card->level_name) . ' • W: ' . $card->wins . ' • L: ' . $card->losses . ' • ' . strtoupper($card->status)"
                                         :rankLevel="$card->level"
                                         :serialNumber="$card->serial_number"
                                         :year="$card->forged_at->format('Y')"

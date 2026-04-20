@@ -16,17 +16,18 @@
             <x-digital-card 
                 id="digital_card_{{ $digitalCard->id }}" 
                 mode="display"
-                :rarity="$digitalCard->rarity ?? 'common'"
+                :rarity="$digitalCard->rarity_slug"
                 :title="$digitalCard->template->card_title" 
                 :game="$digitalCard->template->gameTitle->title ?? 'GAME'" 
                 :creator="$digitalCard->originalOwner->username ?? 'Creator'"
-                :quote="$digitalCard->template->quote"                :backgroundColor="$digitalCard->template->background_color"
+                :quote="$digitalCard->template->quote"
+                :backgroundColor="$digitalCard->template->background_color"
                 :borderColor="$digitalCard->template->border_color"
                 :sectionColor="$digitalCard->template->section_color"
                 :primaryTextColor="$digitalCard->template->primary_text_color"
                 :secondaryTextColor="$digitalCard->template->secondary_text_color"
                 :image="$digitalCard->template->display_photo"
-                :statsText="'LVL ' . $digitalCard->level . ' • W: ' . $digitalCard->wins . ' • L: ' . $digitalCard->losses . ' • COPIES: ' . $digitalCard->template->cards_in_circulation"
+                :statsText="strtoupper($digitalCard->level_name) . ' • W: ' . $digitalCard->wins . ' • L: ' . $digitalCard->losses . ' • ' . strtoupper($digitalCard->status)"
                 :rankLevel="$digitalCard->level"
                 :serialNumber="$digitalCard->serial_number"
                 :year="$digitalCard->forged_at->format('Y')"
@@ -53,8 +54,8 @@
         </h1>
 
         <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
-            <span class="rarity-badge rarity-{{ $digitalCard->rarity }}">
-                {{ $digitalCard->rarity_icon }} {{ strtoupper($digitalCard->rarity) }}
+            <span class="rarity-badge rarity-{{ $digitalCard->rarity_slug }}">
+                {{ strtoupper($digitalCard->rarity) }}
             </span>
             @if($digitalCard->is_trophy)
                 <span class="rarity-badge" style="color: #ffdd00; border-color: rgba(255,221,0,0.3); background: rgba(255,221,0,0.05);">
@@ -88,8 +89,8 @@
         <div class="row g-3 mb-4">
             <div class="col-4">
                 <div class="stat-box">
-                    <div class="stat-value">LV.{{ $digitalCard->level }}</div>
-                    <div class="stat-label">Level</div>
+                    <div class="stat-value" style="font-size: 1.2rem;">{{ strtoupper($digitalCard->level_name) }}</div>
+                    <div class="stat-label">Level {{ $digitalCard->level }}</div>
                 </div>
             </div>
             <div class="col-4">

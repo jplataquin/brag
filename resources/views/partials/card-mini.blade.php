@@ -1,7 +1,7 @@
 <x-digital-card
     id="mini_card_{{ $card->id }}_{{ uniqid() }}"
     mode="thumbnail"
-    :rarity="$card->rarity ?? 'common'"
+    :rarity="$card->rarity_slug"
     :detailUrl="route('cards.show', $card)"
     :title="$card->template->card_title"
     :game="$card->template->gameTitle->title ?? 'GAME'"
@@ -13,7 +13,7 @@
     :primaryTextColor="$card->template->primary_text_color"
     :secondaryTextColor="$card->template->secondary_text_color"
     :image="$card->template->display_photo"
-    :statsText="'LVL ' . $card->level . ' • W: ' . $card->wins . ' • L: ' . $card->losses . ' • COPIES: ' . $card->template->cards_in_circulation"
+    :statsText="strtoupper($card->level_name) . ' • W: ' . $card->wins . ' • L: ' . $card->losses . ' • ' . strtoupper($card->status)"
     :rankLevel="$card->level"
     :serialNumber="$card->serial_number"
     :year="$card->forged_at->format('Y')"

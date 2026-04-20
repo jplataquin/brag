@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Template extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -22,6 +23,19 @@ class Template extends Model
         'primary_text_color',
         'secondary_text_color',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function ($template) {
+            $template->digitalCards()->update(['status' => 'Discontinued']);
+        });
+
+        static::restored(function ($template) {
+            $template->digitalCards()->update(['status' => 'Maintained']);
+        });
+    }
 
     /**
      * The user who created this template.

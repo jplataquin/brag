@@ -9,11 +9,22 @@ class DigitalCard extends Model
 {
     use HasFactory;
 
+    const STATUS_MAINTAINED = 'Maintained';
+    const STATUS_DISCONTINUED = 'Discontinued';
+
+    const LEVEL_1 = 1; // Casual
+    const LEVEL_2 = 2; // Competitive
+    const LEVEL_3 = 3; // Elite
+    const LEVEL_4 = 4; // Legendary
+    const LEVEL_5 = 5; // GOAT
+
     protected $fillable = [
         'template_id',
         'owner_id',
         'original_owner_id',
         'serial_number',
+        'level',
+        'status',
         'wins',
         'losses',
         'is_trophy',
@@ -21,6 +32,7 @@ class DigitalCard extends Model
     ];
 
     protected $casts = [
+        'level' => 'integer',
         'is_trophy' => 'boolean',
         'forged_at' => 'datetime',
     ];
@@ -30,7 +42,7 @@ class DigitalCard extends Model
      */
     public function template()
     {
-        return $this->belongsTo(Template::class);
+        return $this->belongsTo(Template::class)->withTrashed();
     }
 
     /**
@@ -58,26 +70,30 @@ class DigitalCard extends Model
     }
 
     /**
-     * Get the rarity tier based on stats.
+     * Get the rarity tier based on circulation.
      */
     public function getRarityAttribute()
     {
-        $copies = $this->template->cards_in_circulation;
-        $wins = $this->wins;
+        // Circulation of same template AND same level
+        $copies = self::where('template_id', $this->template_id)
+            ->where('level', $this->level)
+            ->count();
 
-        if ($wins >= 50 && $copies <= 1) {
-            return 'legendary';
+        if ($copies >= 10) {
+            return 'Common';
         }
-        if ($wins >= 30 && $copies <= 3) {
-            return 'epic';
+        if ($copies >= 5) {
+            return 'Rare';
         }
-        if ($wins >= 15 || $copies <= 3) {
-            return 'rare';
-        }
-        if ($wins >= 5) {
-            return 'uncommon';
-        }
-        return 'common';
+        return 'Super Rare';
+    }
+
+    /**
+     * Get rarity slug for CSS.
+     */
+    public function getRaritySlugAttribute()
+    {
+        return str_replace(' ', '-', strtolower($this->rarity));
     }
 
     /**
@@ -86,34 +102,34 @@ class DigitalCard extends Model
     public function getRarityColorAttribute()
     {
         return match($this->rarity) {
-            'legendary' => '#ff4444',
-            'epic' => '#ffdd00',
-            'rare' => '#cc44ff',
-            'uncommon' => '#4488ff',
-            'common' => '#44ff88',
+            'Super Rare' => '#ff0000', // Red (Legendary)
+            'Rare' => '#ff00ff',       // Magenta
+            'Common' => '#39ff14',     // Lime Green
         };
     }
 
     /**
-     * Get rarity icon/emoji for display.
+     * Get level name.
      */
-    public function getRarityIconAttribute()
+    public function getLevelNameAttribute()
     {
-        return match($this->rarity) {
-            'legendary' => '🔴',
-            'epic' => '🟡',
-            'rare' => '🟣',
-            'uncommon' => '🔵',
-            'common' => '🟢',
+        return match($this->level) {
+            self::LEVEL_1 => 'Casual',
+            self::LEVEL_2 => 'Competitive',
+            self::LEVEL_3 => 'Elite',
+            self::LEVEL_4 => 'Legendary',
+            self::LEVEL_5 => 'GOAT',
+            default => 'Unknown',
         };
     }
 
     /**
-     * Get level (based on wins).
+     * Get level badge icon.
      */
-    public function getLevelAttribute()
+    public function getLevelBadgeAttribute()
     {
-        return min(100, intdiv($this->wins, 5) + 1);
+        $level = min(5, max(1, $this->level));
+        return asset("img/badge/lv{$level}.png");
     }
 
     /**
@@ -123,6 +139,42 @@ class DigitalCard extends Model
     {
         $total = $this->wins + $this->losses;
         if ($total === 0) return 0;
-        return round(($this->wins / $total) * 100, 1);
+        return ($this->wins / $total) * 100;
+    }
+
+    /**
+     * Check and perform promotion if criteria met.
+     */
+    public function checkPromotion()
+    {
+        $currentLevel = $this->level;
+        $wins = $this->wins;
+        $winRate = $this->win_rate;
+
+        $newLevel = $currentLevel;
+
+        // Level 2 - Competitive: >= 5 wins, >= 51% win rate
+        if ($currentLevel < 2 && $wins >= 5 && $winRate >= 51) {
+            $newLevel = 2;
+        }
+        // Level 3 - Elite: >= 10 wins, >= 60% win rate
+        if ($currentLevel < 3 && $wins >= 10 && $winRate >= 60) {
+            $newLevel = 3;
+        }
+        // Level 4 - Legendary: >= 15 wins, >= 80% win rate
+        if ($currentLevel < 4 && $wins >= 15 && $winRate >= 80) {
+            $newLevel = 4;
+        }
+        // Level 5 - GOAT: >= 25 wins, >= 95% win rate
+        if ($currentLevel < 5 && $wins >= 25 && $winRate >= 95) {
+            $newLevel = 5;
+        }
+
+        if ($newLevel > $currentLevel) {
+            $this->update(['level' => $newLevel]);
+            return true;
+        }
+
+        return false;
     }
 }

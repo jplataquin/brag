@@ -407,7 +407,7 @@ h1, h2, h3, h4, h5, h6,
         &:hover { border-color: $neon-yellow; box-shadow: 0 0 40px rgba($neon-yellow, 0.3); }
         .card-level { color: $neon-yellow; border-color: rgba($neon-yellow, 0.3); }
     }
-    &.rarity-legendary {
+    &.rarity-legendary, &.rarity-super-rare {
         border-color: rgba($neon-red, 0.5);
         animation: neonGlow 1.5s ease-in-out infinite;
         &:hover { border-color: $neon-red; box-shadow: 0 0 50px rgba($neon-red, 0.4); }
@@ -453,7 +453,7 @@ h1, h2, h3, h4, h5, h6,
     &.rarity-uncommon { color: #4488ff; border-color: rgba(#4488ff, 0.3); background: rgba(#4488ff, 0.05); }
     &.rarity-rare { color: $neon-magenta; border-color: rgba($neon-magenta, 0.3); background: rgba($neon-magenta, 0.05); }
     &.rarity-epic { color: $neon-yellow; border-color: rgba($neon-yellow, 0.3); background: rgba($neon-yellow, 0.05); }
-    &.rarity-legendary { color: $neon-red; border-color: rgba($neon-red, 0.3); background: rgba($neon-red, 0.05); animation: neonPulse 2s ease-in-out infinite; }
+    &.rarity-legendary, &.rarity-super-rare { color: $neon-red; border-color: rgba($neon-red, 0.3); background: rgba($neon-red, 0.05); animation: neonPulse 2s ease-in-out infinite; }
 }
 
 // -- Buttons --

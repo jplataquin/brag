@@ -51,6 +51,16 @@ class BattleService
             throw new \Exception('You do not own this card.');
         }
 
+        // Verify same level and same game title
+        $challengerCard = $battle->challengerCard;
+        if ($card->level !== $challengerCard->level) {
+            throw new \Exception("Only cards of equal level can be put into battle. (Challenger: Level {$challengerCard->levelName}, Yours: Level {$card->levelName})");
+        }
+
+        if ($card->template->game_title_id !== $challengerCard->template->game_title_id) {
+            throw new \Exception("Only cards of the same game title can be put into battle.");
+        }
+
         $battle->update([
             'opponent_id' => $opponent->id,
             'opponent_card_id' => $card->id,
@@ -174,6 +184,8 @@ class BattleService
         // Update winner card stats
         $winnerCard = DigitalCard::find($winnerCardId);
         $winnerCard->increment('wins');
+        $winnerCard->refresh();
+        $winnerCard->checkPromotion();
 
         // Update loser card stats and transfer to winner
         $loserCard = DigitalCard::find($loserCardId);
