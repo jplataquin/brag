@@ -5,8 +5,8 @@
 @section('content')
 <div class="hero-section">
     <div class="hero-content">
-        <img src="{{ asset('img/logo.svg') }}" alt="Brag - Forge. Battle. Brag." class="img-fluid mb-3" style="max-width: 500px; width: 100%;">
-        <p class="hero-subtitle mt-2">FORGE DIGITAL CARDS • BATTLE OPPONENTS • COLLECT TROPHIES</p>
+        <h1 class="hero-title">BRAG</h1>
+        <p class="hero-subtitle">FORGE DIGITAL CARDS • BATTLE OPPONENTS • COLLECT TROPHIES</p>
         <p style="color: #8888aa; max-width: 600px; margin: 0 auto 2rem; font-size: 1rem;">
             Create unique templates, forge Digital Cards, challenge other players in epic battles,
             and collect their cards as trophies. How many can you collect?

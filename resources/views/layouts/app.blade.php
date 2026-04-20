@@ -44,8 +44,8 @@
     <div id="app">
         <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}" id="brand-logo">
-                    <img src="{{ asset('img/logo.svg') }}" alt="Brag" height="40" class="d-inline-block align-top">
+                <a class="navbar-brand" href="{{ url('/') }}" id="brand-logo">
+                    <i class="bi bi-lightning-charge-fill"></i> BRAG
                 </a>
                 
                 <div class="d-flex align-items-center gap-2 d-lg-none">
