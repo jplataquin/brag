@@ -16,7 +16,9 @@
     'sectionColor' => '#111122',
     'primaryTextColor' => '#ffffff',
     'secondaryTextColor' => '#dddddd',
-    'statsText' => 'LVL 1 • W: 0 • L: 0 • COPIES: 1',
+    'wins' => 0,
+    'losses' => 0,
+    'status' => 'Maintained',
     'rankLevel' => 1,
     'serialNumber' => null,
     'year' => null,
@@ -35,11 +37,20 @@ if ($mode === 'template') {
     $sectionColor = '#2b2400';
     $primaryTextColor = '#ffdd00';
     $secondaryTextColor = '#cca800';
-    $statsText = 'TEMPLATE';
 }
 $hasFullscreen = $mode === 'thumbnail' || filter_var($fullscreen, FILTER_VALIDATE_BOOLEAN);
 if ($linkUrl) $hasFullscreen = false;
 $badgeVersion = file_exists(public_path("img/badge/lv{$rankLevel}.png")) ? filemtime(public_path("img/badge/lv{$rankLevel}.png")) : time();
+
+// Rarity Color
+$rarityColors = [
+    'super-rare' => '#ff0000',
+    'rare' => '#ff00ff',
+    'common' => '#39ff14',
+    'template' => '#ffdd00',
+];
+$computedRarityColor = $rarityColors[$mode === 'template' ? 'template' : $rarity] ?? '#ffffff';
+$winRate = ($wins + $losses > 0) ? round(($wins / ($wins + $losses)) * 100) : 0;
 @endphp
 
 @if($mode === 'thumbnail' || $asThumbnail)
@@ -113,7 +124,11 @@ $badgeVersion = file_exists(public_path("img/badge/lv{$rankLevel}.png")) ? filem
                 sectionColor: '{{ $sectionColor }}',
                 primaryTextColor: '{{ $primaryTextColor }}',
                 secondaryTextColor: '{{ $secondaryTextColor }}',
-                statsText: `{!! addslashes($statsText) !!}`,
+                wins: {{ $wins }},
+                losses: {{ $losses }},
+                winRate: {{ $winRate }},
+                status: '{{ $status }}',
+                rarityColor: '{{ $computedRarityColor }}',
                 rankLevel: {{ $rankLevel }},
                 badgeVersion: '{{ $badgeVersion }}',
                 serialNumber: {{ $serialNumber !== null ? $serialNumber : 'null' }},

@@ -220,7 +220,6 @@ class DigitalCardRenderer {
         const creator = (options.creator || 'Creator').toString().trim();
         const quote = options.quote || 'No quote available.';
         const imageUrl = options.image || '';
-        const statsText = (options.statsText || 'LVL 1 • W: 0 • L: 0 • COPIES: 1').toString().trim();
         const bw = Math.max(8, w * 0.02);
         const pad = Math.max(12, w * 0.04);
         const spacing = Math.max(10, h * 0.03);
@@ -299,13 +298,59 @@ class DigitalCardRenderer {
         ctx.fillText(game, textStartX, titleY + titleH * 0.72);
 
         ctx.restore();
+        
+        // --- Custom Stats Section ---
         ctx.save();
-        ctx.fillStyle = primaryTextColor;
-        ctx.font = `bold ${fontSizeStats}px sans-serif`;
-        ctx.textAlign = 'center';
+        ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
-        ctx.fillText(statsText, innerX + innerW / 2, statsY + statsH / 2);
+        
+        // Setup stats values
+        const wins = options.wins || 0;
+        const losses = options.losses || 0;
+        const totalGames = wins + losses;
+        let winRateStr = totalGames > 0 ? Math.round((wins / totalGames) * 100) + '%' : '0%';
+        if (options.mode === 'template') winRateStr = '0%';
+        const status = options.status || 'Maintained';
+        const rarityColor = options.rarityColor || '#ffffff';
+        
+        let startX = innerX + (w * 0.04);
+        const yCenter = statsY + statsH / 2;
+
+        // Rarity Badge (colored circle)
+        ctx.beginPath();
+        ctx.arc(startX + fontSizeStats / 2, yCenter, fontSizeStats * 0.4, 0, 2 * Math.PI);
+        ctx.fillStyle = rarityColor;
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        startX += fontSizeStats * 1.5;
+
+        // Wins
+        ctx.fillStyle = '#39ff14'; // Lime Green
+        ctx.font = `bold ${fontSizeStats}px sans-serif`;
+        ctx.fillText(`W: ${wins}`, startX, yCenter);
+        startX += ctx.measureText(`W: ${wins}`).width + fontSizeStats * 0.8;
+
+        // Losses
+        ctx.fillStyle = '#ff0000'; // Red
+        ctx.fillText(`L: ${losses}`, startX, yCenter);
+        startX += ctx.measureText(`L: ${losses}`).width + fontSizeStats * 0.8;
+
+        // Win Rate
+        ctx.fillStyle = '#00f0ff'; // Cyan
+        ctx.fillText(`${winRateStr}`, startX, yCenter);
+        startX += ctx.measureText(`${winRateStr}`).width + fontSizeStats * 0.8;
+
+        // Discontinued Badge
+        if (status === 'Discontinued') {
+            ctx.fillStyle = '#ff00ff'; // Magenta
+            ctx.font = `bold ${fontSizeStats * 1.1}px sans-serif`;
+            ctx.fillText('⚠️', startX, yCenter);
+        }
         ctx.restore();
+        // ----------------------------
+
         ctx.save();
         ctx.fillStyle = secondaryTextColor;
         ctx.font = `${fontSizeDesc}px sans-serif`;

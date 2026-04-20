@@ -101,7 +101,9 @@
                     'primaryTextColor' => (string)$card->template->primary_text_color,
                     'secondaryTextColor' => (string)$card->template->secondary_text_color,
                     'image' => (string)$card->template->display_photo,
-                    'statsText' => (string)('LVL ' . $card->level . ' • W: ' . $card->wins . ' • L: ' . $card->losses . ' • COPIES: ' . $card->template->cards_in_circulation),
+                    'wins' => (int)$card->wins,
+                    'losses' => (int)$card->losses,
+                    'status' => (string)$card->status,
                     'rankLevel' => (int)$card->level,
                     'serialNumber' => (int)$card->serial_number,
                 ]
