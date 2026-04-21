@@ -1,12 +1,19 @@
 <div x-data="{
     redrawCards() {
-        Object.keys(window).forEach(key => {
-            if (key.startsWith('initCard_') && typeof window[key] === 'function') {
-                try { window[key](); } catch(e) {}
-            }
+        document.querySelectorAll('canvas[data-card-options]').forEach(canvas => {
+            try {
+                if (typeof DigitalCardRenderer !== 'undefined' && canvas.id) {
+                    const options = JSON.parse(canvas.getAttribute('data-card-options'));
+                    if (!window.digitalCardRenderers) window.digitalCardRenderers = {};
+                    if (!window.digitalCardRenderers[canvas.id]) {
+                        window.digitalCardRenderers[canvas.id] = new DigitalCardRenderer(canvas.id);
+                    }
+                    window.digitalCardRenderers[canvas.id].draw(options);
+                }
+            } catch(e) { console.error('Error redrawing canvas:', canvas.id, e); }
         });
     }
-}" @battle-cards-updated.window="setTimeout(() => redrawCards(), 100)">
+}" @battle-cards-updated.window="setTimeout(() => redrawCards(), 100)" x-init="setTimeout(() => redrawCards(), 200)">
 
 @php
     $isFinal = in_array($battle->status, ['completed', 'failed', 'cancelled']);
