@@ -456,7 +456,7 @@
 </div>
 
 <!-- Invite Opponent Modal -->
-<div class="modal fade" wire:ignore.self id="inviteOpponentModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" wire:ignore.self id="inviteOpponentModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; backdrop-filter: blur(20px);">
             <div class="modal-header border-0 pb-0">
@@ -496,7 +496,7 @@
 </div>
 
 <!-- Elect Marshall Modal -->
-<div class="modal fade" wire:ignore.self id="electMarshallModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" wire:ignore.self id="electMarshallModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #ffdd00; backdrop-filter: blur(20px);">
             <div class="modal-header border-0 pb-0">
@@ -563,7 +563,7 @@
 @endif
 
 <!-- Declare Result Modal -->
-<div class="modal fade" wire:ignore.self id="declareWinnerModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" wire:ignore.self id="declareWinnerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #ff00ff; backdrop-filter: blur(20px);">
             <div class="modal-header border-0 pb-0">
@@ -653,7 +653,7 @@
 </div>
 
 <!-- Share QR Modal -->
-<div class="modal fade" wire:ignore.self id="shareQRModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" wire:ignore.self id="shareQRModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #39ff14; backdrop-filter: blur(20px);">
             <div class="modal-header border-0 pb-0">
@@ -676,7 +676,7 @@
     </div>
 </div>
 <!-- Rejected Opponent Modal -->
-<div class="modal fade" wire:ignore.self id="rejectedOpponentModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+<div class="modal fade" wire:ignore.self id="rejectedOpponentModal" data-bs-backdrop="false" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" style="background: rgba(0, 0, 0, 0.8);">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #ff4444; backdrop-filter: blur(20px);">
             <div class="modal-header border-0 pb-0">
@@ -710,7 +710,7 @@
     }
 @endphp
 
-<div class="modal fade" wire:ignore.self id="cancellationRequestModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+<div class="modal fade" wire:ignore.self id="cancellationRequestModal" data-bs-backdrop="false" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" style="background: rgba(0, 0, 0, 0.8);">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #ff00ff; backdrop-filter: blur(20px); box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);">
             <div class="modal-header border-0 pb-0">
