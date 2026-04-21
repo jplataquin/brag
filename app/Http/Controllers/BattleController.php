@@ -47,6 +47,7 @@ class BattleController extends Controller
     public function create(Request $request)
     {
         $cards = Auth::user()->digitalCards()
+            ->where('life_points', '>', 0)
             ->with('template.gameTitle')
             ->get();
 
@@ -171,6 +172,7 @@ class BattleController extends Controller
 
         $eligibleCards = $user->digitalCards()
             ->where('id', '!=', $challengerCard->id) // Cannot bet the exact same card
+            ->where('life_points', '>', 0)
             ->whereHas('template', function ($query) use ($challengerCard) {
                 $query->where('game_title_id', $challengerCard->template->game_title_id);
             })

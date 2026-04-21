@@ -21,6 +21,10 @@ class BattleService
             throw new \Exception('You do not own this card.');
         }
 
+        if ($card->life_points <= 0) {
+            throw new \Exception('This card has no life points and cannot be bet in a battle.');
+        }
+
         $battle = Battle::create([
             'room_id' => \Illuminate\Support\Str::random(12),
             'terms' => $terms,
@@ -49,6 +53,10 @@ class BattleService
 
         if ($card->owner_id !== $opponent->id) {
             throw new \Exception('You do not own this card.');
+        }
+
+        if ($card->life_points <= 0) {
+            throw new \Exception('This card has no life points and cannot be bet in a battle.');
         }
 
         // Verify same level and same game title
@@ -187,13 +195,25 @@ class BattleService
         $winnerCard->refresh();
         $winnerCard->checkPromotion();
 
-        // Update loser card stats and transfer to winner
+        // Update loser card stats
         $loserCard = DigitalCard::find($loserCardId);
         $loserCard->increment('losses');
-        $loserCard->update([
-            'owner_id' => $winner->id,
-            'is_trophy' => true,
-        ]);
+        
+        $cardTransferred = false;
+
+        if ($loserCard->life_points > 0) {
+            $loserCard->decrement('life_points');
+            $loserCard->refresh();
+        }
+
+        if ($loserCard->life_points <= 0) {
+            $loserCard->update([
+                'owner_id' => $winner->id,
+                'is_trophy' => true,
+                'life_points' => 3,
+            ]);
+            $cardTransferred = true;
+        }
 
         // Mark battle as completed
         $battle->update([
@@ -202,22 +222,28 @@ class BattleService
         ]);
 
         $this->logActivity($battle->id, $declarer->id, 'winner', "Battle finalized. {$winner->username} is the official winner.");
+
+        if ($cardTransferred) {
+            $this->logActivity($battle->id, null, 'transfer', "{$loserCard->template->card_title} ran out of life points and was transferred to {$winner->username} as a trophy.");
+        } else {
+            $this->logActivity($battle->id, null, 'damage', "{$loserCard->template->card_title} lost 1 life point. Remaining: {$loserCard->life_points}");
+        }
         
         // Notify Winner
-        $winner->notify(new BattleNotification(
-            $battle,
-            "Victory! You won the battle against {$loserCard->originalOwner->username}!",
-            'victory'
-        ));
+        $winnerMsg = $cardTransferred 
+            ? "Victory! You won the battle against {$loserCard->originalOwner->username} and claimed their card as a trophy!"
+            : "Victory! You won the battle against {$loserCard->originalOwner->username}!";
+            
+        $winner->notify(new BattleNotification($battle, $winnerMsg, 'victory'));
 
         // Notify Loser
         $loser = User::find($loserId);
         if ($loser) {
-            $loser->notify(new BattleNotification(
-                $battle,
-                "Defeat! {$winner->username} won the battle and claimed your card.",
-                'defeat'
-            ));
+            $loserMsg = $cardTransferred
+                ? "Defeat! {$winner->username} won the battle and claimed your card because it ran out of life points."
+                : "Defeat! {$winner->username} won the battle. Your card lost 1 life point.";
+                
+            $loser->notify(new BattleNotification($battle, $loserMsg, 'defeat'));
         }
 
         // Notify Adjudicator if present
