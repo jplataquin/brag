@@ -103,6 +103,7 @@
                     'image' => (string)$card->template->display_photo,
                     'wins' => (int)$card->wins,
                     'losses' => (int)$card->losses,
+                    'lifePoints' => (int)$card->life_points,
                     'status' => (string)$card->status,
                     'rankLevel' => (int)$card->level,
                     'serialNumber' => (int)$card->serial_number,
