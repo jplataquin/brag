@@ -24,6 +24,8 @@ class BattleRoomCards extends Component
             'challengerCard.template.gameTitle', 
             'opponentCard.template.gameTitle'
         ]);
+
+        $this->dispatch('battle-cards-updated');
     }
 
     public function getListeners()

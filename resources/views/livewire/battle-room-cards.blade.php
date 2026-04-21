@@ -1,4 +1,12 @@
-<div>
+<div x-data="{
+    redrawCards() {
+        Object.keys(window).forEach(key => {
+            if (key.startsWith('initCard_') && typeof window[key] === 'function') {
+                try { window[key](); } catch(e) {}
+            }
+        });
+    }
+}" @battle-cards-updated.window="setTimeout(() => redrawCards(), 100)">
     <h5 class="section-header">
         <i class="bi bi-suit-diamond-fill section-icon"></i> CARDS AT STAKE
     </h5>
