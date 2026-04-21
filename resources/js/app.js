@@ -337,6 +337,13 @@ class DigitalCardRenderer {
         ctx.fillText(`R: ${winRateStr}`, startX, yCenter);
         startX += ctx.measureText(`R: ${winRateStr}`).width + fontSizeStats * 0.8;
 
+        // Distinct
+        let distinctStatStr = (options.distinctStat || 0) + '%';
+        if (options.mode === 'template') distinctStatStr = '0%';
+        ctx.fillStyle = '#ffdd00'; // Yellow
+        ctx.fillText(`D: ${distinctStatStr}`, startX, yCenter);
+        startX += ctx.measureText(`D: ${distinctStatStr}`).width + fontSizeStats * 0.8;
+
         // Discontinued Badge
         if (status === 'Discontinued') {
             ctx.fillStyle = '#ff00ff'; // Magenta

@@ -155,15 +155,6 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <label for="image_position_y" class="form-label">IMAGE VERTICAL POSITION (Y-AXIS CROP)</label>
-                    <input type="range" class="form-range" id="image_position_y" name="image_position_y" min="0" max="100" value="{{ old('image_position_y', $template->image_position_y ?? 50) }}">
-                    <div class="d-flex justify-content-between">
-                        <small style="color: #8888aa; font-size: 0.75rem;">Top</small>
-                        <small style="color: #8888aa; font-size: 0.75rem;">Center</small>
-                        <small style="color: #8888aa; font-size: 0.75rem;">Bottom</small>
-                    </div>
-                </div>
             </form>
         </div>
     </div>
@@ -208,6 +199,17 @@
             <p class="text-center mt-3 mb-4" style="color: #555577; font-size: 0.8rem;">
                 This is a preview of how digital cards forged from this template will look.
             </p>
+
+            <div class="mb-4">
+                <label for="image_position_y" class="form-label" style="font-size: 0.75rem; color: #bbbbd0;">IMAGE VERTICAL POSITION (Y-AXIS CROP)</label>
+                <input type="range" class="form-range" id="image_position_y" name="image_position_y" form="template-edit-form" min="0" max="100" value="{{ old('image_position_y', $template->image_position_y ?? 50) }}">
+                <div class="d-flex justify-content-between">
+                    <small style="color: #8888aa; font-size: 0.75rem;">Top</small>
+                    <small style="color: #8888aa; font-size: 0.75rem;">Center</small>
+                    <small style="color: #8888aa; font-size: 0.75rem;">Bottom</small>
+                </div>
+            </div>
+
             <div class="d-flex gap-2 justify-content-center">
                 <button type="submit" form="template-edit-form" class="btn btn-neon" id="btn-update-template">
                     <i class="bi bi-check-lg"></i> UPDATE

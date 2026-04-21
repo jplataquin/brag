@@ -29,6 +29,7 @@
                 :image="$digitalCard->template->display_photo"
                 :wins="$digitalCard->wins"
                 :losses="$digitalCard->losses"
+                :distinctStat="$digitalCard->distinct_stat"
                 :status="$digitalCard->status"
                 :rankLevel="$digitalCard->level"
                 :serialNumber="$digitalCard->serial_number"
@@ -68,22 +69,28 @@
 
         <!-- Stats Grid -->
         <div class="row g-3 mb-4">
-            <div class="col-4">
+            <div class="col-6 col-md-3">
                 <div class="stat-box h-100">
                     <div class="stat-value" style="color: #39ff14;">{{ $digitalCard->wins }}</div>
                     <div class="stat-label">Wins</div>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-6 col-md-3">
                 <div class="stat-box h-100">
                     <div class="stat-value" style="color: #ff4444;">{{ $digitalCard->losses }}</div>
                     <div class="stat-label">Losses</div>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-6 col-md-3">
                 <div class="stat-box h-100">
-                    <div class="stat-value" style="color: #ffdd00;">{{ $digitalCard->win_rate }}%</div>
+                    <div class="stat-value" style="color: #00f0ff;">{{ $digitalCard->win_rate }}%</div>
                     <div class="stat-label">Win Rate</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-box h-100">
+                    <div class="stat-value" style="color: #ffdd00;">{{ $digitalCard->distinct_stat }}%</div>
+                    <div class="stat-label">Distinct</div>
                 </div>
             </div>
         </div>

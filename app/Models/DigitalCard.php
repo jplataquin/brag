@@ -145,6 +145,38 @@ class DigitalCard extends Model
     }
 
     /**
+     * Get distinct stat metric.
+     * (Unique Users / Total Matches) * 100 rounded to 2 decimal places.
+     */
+    public function getDistinctStatAttribute()
+    {
+        $battlesAsChallenger = \App\Models\Battle::where('challenger_card_id', $this->id)
+                                ->whereNotNull('opponent_id')->get();
+        $battlesAsOpponent = \App\Models\Battle::where('opponent_card_id', $this->id)
+                                ->whereNotNull('challenger_id')->get();
+
+        $totalMatches = $battlesAsChallenger->count() + $battlesAsOpponent->count();
+
+        if ($totalMatches === 0) {
+            return 0;
+        }
+
+        $uniqueUsers = collect();
+
+        foreach ($battlesAsChallenger as $battle) {
+            $uniqueUsers->push($battle->opponent_id);
+        }
+
+        foreach ($battlesAsOpponent as $battle) {
+            $uniqueUsers->push($battle->challenger_id);
+        }
+
+        $distinctCount = $uniqueUsers->unique()->count();
+
+        return round(($distinctCount / $totalMatches) * 100, 2);
+    }
+
+    /**
      * Check and perform promotion if criteria met.
      */
     public function checkPromotion()
