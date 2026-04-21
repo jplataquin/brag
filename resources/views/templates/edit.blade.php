@@ -154,6 +154,16 @@
                         @enderror
                     </div>
                 </div>
+
+                <div class="mb-4">
+                    <label for="image_position_y" class="form-label">IMAGE VERTICAL POSITION (Y-AXIS CROP)</label>
+                    <input type="range" class="form-range" id="image_position_y" name="image_position_y" min="0" max="100" value="{{ old('image_position_y', $template->image_position_y ?? 50) }}">
+                    <div class="d-flex justify-content-between">
+                        <small style="color: #8888aa; font-size: 0.75rem;">Top</small>
+                        <small style="color: #8888aa; font-size: 0.75rem;">Center</small>
+                        <small style="color: #8888aa; font-size: 0.75rem;">Bottom</small>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
@@ -191,6 +201,7 @@
                     :primaryTextColor="$template->primary_text_color"
                     :secondaryTextColor="$template->secondary_text_color"
                     :image="$template->display_photo"
+                    :imagePositionY="$template->image_position_y ?? 50"
                     :year="$template->created_at->format('Y')"
                 />
             </div>
@@ -306,6 +317,10 @@
                 updateLivePreview(opt);
             });
         }
+    });
+
+    document.getElementById('image_position_y').addEventListener('input', function() {
+        updateLivePreview({ imagePositionY: parseInt(this.value) });
     });
 
     const photoInput = document.getElementById('photo');

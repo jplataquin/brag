@@ -65,6 +65,7 @@ class TemplateController extends Controller
             'temporary_photo_path' => 'nullable|string|required_if:image_mode,upload',
             'ai_prompt' => 'nullable|string|max:200|required_if:image_mode,ai',
             'generated_ai_photo' => 'nullable|string|required_if:image_mode,ai',
+            'image_position_y' => 'nullable|integer|min:0|max:100',
             'background_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'border_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'section_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
@@ -95,7 +96,7 @@ class TemplateController extends Controller
             }
         }
 
-        $data = $request->only(['card_title', 'game_title_id', 'quote', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
+        $data = $request->only(['card_title', 'game_title_id', 'quote', 'image_position_y', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
         $data['card_title'] = strtoupper($data['card_title']);
         $data['user_id'] = $user->id;
 
@@ -167,6 +168,7 @@ class TemplateController extends Controller
             'temporary_photo_path' => 'nullable|string',
             'ai_prompt' => 'nullable|string|max:200|required_if:image_mode,ai',
             'generated_ai_photo' => 'nullable|string',
+            'image_position_y' => 'nullable|integer|min:0|max:100',
             'background_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'border_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'section_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
@@ -195,7 +197,7 @@ class TemplateController extends Controller
             }
         }
 
-        $data = $request->only(['card_title', 'game_title_id', 'quote', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
+        $data = $request->only(['card_title', 'game_title_id', 'quote', 'image_position_y', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
         $data['card_title'] = strtoupper($data['card_title']);
 
         if ($request->image_mode === 'upload') {

@@ -162,6 +162,16 @@
                         @enderror
                     </div>
                 </div>
+
+                <div class="mb-4">
+                    <label for="image_position_y" class="form-label">IMAGE VERTICAL POSITION (Y-AXIS CROP)</label>
+                    <input type="range" class="form-range" id="image_position_y" name="image_position_y" min="0" max="100" value="{{ old('image_position_y', 50) }}">
+                    <div class="d-flex justify-content-between">
+                        <small style="color: #8888aa; font-size: 0.75rem;">Top</small>
+                        <small style="color: #8888aa; font-size: 0.75rem;">Center</small>
+                        <small style="color: #8888aa; font-size: 0.75rem;">Bottom</small>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
@@ -197,7 +207,8 @@
                                :borderColor="old('border_color', '#00f0ff')"
                                :sectionColor="old('section_color', '#111122')"
                                :primaryTextColor="old('primary_text_color', '#ffffff')"
-                               :secondaryTextColor="old('secondary_text_color', '#dddddd')" />
+                               :secondaryTextColor="old('secondary_text_color', '#dddddd')"
+                               :imagePositionY="old('image_position_y', 50)" />
             </div>
             <p class="text-center mt-3 mb-4" style="color: #555577; font-size: 0.8rem;">
                 This is a preview of how digital cards forged from this template will look.
@@ -311,6 +322,10 @@
                 updateLivePreview(opt);
             });
         }
+    });
+
+    document.getElementById('image_position_y').addEventListener('input', function() {
+        updateLivePreview({ imagePositionY: parseInt(this.value) });
     });
 
     const photoInput = document.getElementById('photo');
