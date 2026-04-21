@@ -207,7 +207,10 @@ class DigitalCard extends Model
         }
 
         if ($newLevel > $currentLevel) {
-            $this->update(['level' => $newLevel]);
+            $this->update([
+                'level' => $newLevel,
+                'life_points' => 3
+            ]);
             return true;
         }
 

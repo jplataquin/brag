@@ -53,6 +53,12 @@ class NotificationDropdown extends Component
         $this->loadNotifications();
     }
 
+    public function markAllAsReadAndRedirect()
+    {
+        Auth::user()->unreadNotifications->markAsRead();
+        return redirect()->route('notifications.index');
+    }
+
     public function render()
     {
         return view('livewire.notification-dropdown');

@@ -17,7 +17,18 @@ class BattleRoomCards extends Component
 
     public function refreshBattle()
     {
+        // Cache the previous structural state
+        $oldStatus = $this->battle->status;
+        $oldOpponentId = $this->battle->opponent_id;
+
         $this->battle->refresh();
+
+        // If the status is identical and the opponent hasn't changed, the cards UI 
+        // does not need to brutally re-render or trigger canvas reconstructions!
+        if ($oldStatus === $this->battle->status && $oldOpponentId === $this->battle->opponent_id) {
+            return;
+        }
+
         $this->battle->load([
             'challenger', 
             'opponent', 

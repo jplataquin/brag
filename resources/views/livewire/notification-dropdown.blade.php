@@ -1,7 +1,7 @@
 <div>
     @if($isMobile)
     <div class="nav-item notification-dropdown">
-        <a href="{{ route('notifications.index') }}" class="nav-link d-flex align-items-center position-relative" onclick="hideNotificationBubble()">
+        <a href="#" class="nav-link d-flex align-items-center position-relative" wire:click.prevent="markAllAsReadAndRedirect">
             <i class="bi bi-bell-fill fs-5"></i>
             @if($unreadCount > 0)
                 <span id="notification-bubble-mobile" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; border: 1px solid #000; transition: opacity 0.2s;">
@@ -12,7 +12,7 @@
     </div>
     @else
     <div class="nav-item dropdown notification-dropdown">
-        <a id="navbarNotificationDropdown" class="nav-link d-flex align-items-center position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="hideNotificationBubble()">
+        <a id="navbarNotificationDropdown" class="nav-link d-flex align-items-center position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" wire:click="markAllAsRead" onclick="hideNotificationBubble()">
             <i class="bi bi-bell-fill fs-5"></i>
             @if($unreadCount > 0)
                 <span id="notification-bubble-desktop" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; border: 1px solid #000; transition: opacity 0.2s;">

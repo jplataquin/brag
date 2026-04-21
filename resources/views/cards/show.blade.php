@@ -46,6 +46,37 @@
                         <i class="bi bi-crosshair"></i> BATTLE WITH THIS CARD
                     </a>
                 </div>
+
+                @php
+                    $nextLevel = $digitalCard->level + 1;
+                    $reqWins = 0;
+                    $reqWinRate = 0;
+                    
+                    if ($nextLevel == 2) { $reqWins = 5; $reqWinRate = 51; }
+                    elseif ($nextLevel == 3) { $reqWins = 10; $reqWinRate = 60; }
+                    elseif ($nextLevel == 4) { $reqWins = 15; $reqWinRate = 80; }
+                    elseif ($nextLevel == 5) { $reqWins = 25; $reqWinRate = 95; }
+                @endphp
+
+                @if($nextLevel <= 5)
+                    <div class="mt-3 p-3 rounded text-start" style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2);">
+                        <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #00f0ff; margin-bottom: 0.5rem; letter-spacing: 1px;">
+                            <i class="bi bi-arrow-up-circle-fill"></i> NEXT PROMOTION: LEVEL {{ $nextLevel }}
+                        </div>
+                        <p style="font-size: 0.85rem; color: #bbbbd0; margin-bottom: 0;">
+                            Keep battling! To level up to <strong>Level {{ $nextLevel }}</strong>, this card needs to achieve at least <strong style="color: #39ff14;">{{ $reqWins }} wins</strong> while maintaining a win rate of <strong style="color: #00f0ff;">{{ $reqWinRate }}%</strong> or higher.
+                        </p>
+                    </div>
+                @else
+                    <div class="mt-3 p-3 rounded text-start" style="background: rgba(255, 221, 0, 0.05); border: 1px solid rgba(255, 221, 0, 0.3);">
+                        <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #ffdd00; margin-bottom: 0.5rem; letter-spacing: 1px;">
+                            <i class="bi bi-star-fill"></i> MAX LEVEL REACHED
+                        </div>
+                        <p style="font-size: 0.85rem; color: #bbbbd0; margin-bottom: 0;">
+                            Incredible! Your card has attained the ultimate GOAT status. Continue dominating the arena to cement its legendary legacy!
+                        </p>
+                    </div>
+                @endif
             @endif
         </div>
     </div>

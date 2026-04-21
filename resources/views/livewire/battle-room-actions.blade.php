@@ -214,6 +214,26 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body py-4">
+                    @php
+                        $cDecl = 'PENDING...';
+                        if ($battle->challenger_declared_user_win) {
+                            if ($battle->challenger_declared_user_win == $battle->challenger_id) {
+                                $cDecl = '<span class="text-success"><i class="bi bi-trophy-fill"></i> DECLARED WIN</span>';
+                            } else {
+                                $cDecl = '<span class="text-danger"><i class="bi bi-x-circle-fill"></i> DECLARED LOSS</span>';
+                            }
+                        }
+
+                        $oDecl = 'PENDING...';
+                        if ($battle->opponent_declared_user_win) {
+                            if ($battle->opponent_declared_user_win == $battle->opponent_id) {
+                                $oDecl = '<span class="text-success"><i class="bi bi-trophy-fill"></i> DECLARED WIN</span>';
+                            } else {
+                                $oDecl = '<span class="text-danger"><i class="bi bi-x-circle-fill"></i> DECLARED LOSS</span>';
+                            }
+                        }
+                    @endphp
+
                     @if($battle->status === 'failed')
                         <div class="alert alert-danger mb-4" style="background: rgba(255,0,0,0.1); border-color: #ff0055; color: #ff0055; font-size: 0.85rem;">
                             <i class="bi bi-exclamation-octagon-fill"></i> <strong>CONFLICT DETECTED:</strong> Players have declared different winners. Please reach a consensus or wait for the marshall.
@@ -230,7 +250,7 @@
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center w-100 small" style="color: #8888aa;">
                                     <span>Their Declaration:</span>
-                                    <strong style="color: #fff;" id="challenger-declaration-text">{{ $battle->challenger_declared_user_win ? \App\Models\User::find($battle->challenger_declared_user_win)->username : 'NONE' }}</strong>
+                                    <strong style="color: #fff;" id="challenger-declaration-text">{!! $cDecl !!}</strong>
                                 </div>
                             </button>
 
@@ -242,7 +262,7 @@
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center w-100 small" style="color: #8888aa;">
                                     <span>Their Declaration:</span>
-                                    <strong style="color: #fff;" id="opponent-declaration-text">{{ $battle->opponent_declared_user_win ? \App\Models\User::find($battle->opponent_declared_user_win)->username : 'NONE' }}</strong>
+                                    <strong style="color: #fff;" id="opponent-declaration-text">{!! $oDecl !!}</strong>
                                 </div>
                             </button>
                             @endif
@@ -274,13 +294,13 @@
                                 <span>CURRENT STATUS:</span>
                             </div>
                             <div class="d-flex flex-column gap-2 small">
-                                <div class="d-flex justify-content-between">
-                                    <span style="color: #00f0ff;">CHALLENGER:</span>
-                                    <strong id="status-text-challenger" style="color: #fff;">{{ $battle->challenger_declared_user_win ? \App\Models\User::find($battle->challenger_declared_user_win)->username : 'PENDING...' }}</strong>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span style="color: #00f0ff;">{{ mb_strtoupper($battle->challenger->username) }}:</span>
+                                    <strong id="status-text-challenger" style="color: #fff; font-size: 0.95rem;">{!! $cDecl !!}</strong>
                                 </div>
-                                <div class="d-flex justify-content-between">
-                                    <span style="color: #ff00ff;">OPPONENT:</span>
-                                    <strong id="status-text-opponent" style="color: #fff;">{{ $battle->opponent_declared_user_win ? \App\Models\User::find($battle->opponent_declared_user_win)->username : 'PENDING...' }}</strong>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span style="color: #ff00ff;">{{ $battle->opponent ? mb_strtoupper($battle->opponent->username) : 'OPPONENT' }}:</span>
+                                    <strong id="status-text-opponent" style="color: #fff; font-size: 0.95rem;">{!! $oDecl !!}</strong>
                                 </div>
                             </div>
                         </div>

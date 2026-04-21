@@ -42,6 +42,31 @@
                 </div>
 
                 <div class="mb-3">
+                    <label for="birthdate" class="form-label">BIRTHDATE</label>
+                    <input id="birthdate" type="date" class="form-control @error('birthdate') is-invalid @enderror"
+                           name="birthdate" value="{{ old('birthdate') }}">
+                    @error('birthdate')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="gender" class="form-label">GENDER</label>
+                    <select id="gender" class="form-select @error('gender') is-invalid @enderror" name="gender">
+                        <option value="None" {{ old('gender') === 'None' ? 'selected' : '' }}>None</option>
+                        <option value="Male" {{ old('gender') === 'Male' ? 'selected' : '' }}>Male</option>
+                        <option value="Female" {{ old('gender') === 'Female' ? 'selected' : '' }}>Female</option>
+                    </select>
+                    @error('gender')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
                     <label for="password" class="form-label">{{ __('Password') }}</label>
                     <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
                            name="password" required autocomplete="new-password"

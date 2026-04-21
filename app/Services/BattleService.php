@@ -193,7 +193,17 @@ class BattleService
         $winnerCard = DigitalCard::find($winnerCardId);
         $winnerCard->increment('wins');
         $winnerCard->refresh();
-        $winnerCard->checkPromotion();
+        $promoted = $winnerCard->checkPromotion();
+
+        if ($promoted) {
+            $winnerCard->refresh();
+            $winner->notify(new BattleNotification(
+                $battle, 
+                "Congratulations! Your combat card leveled up to Level {$winnerCard->level} and restored all its Life Points! 🥳", 
+                'promotion'
+            ));
+            $this->logActivity($battle->id, null, 'promotion', "{$winner->username}'s card reached Level {$winnerCard->level}!");
+        }
 
         // Update loser card stats
         $loserCard = DigitalCard::find($loserCardId);
