@@ -115,13 +115,13 @@
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-box h-100">
-                    <div class="stat-value" style="color: #00f0ff;">{{ $digitalCard->win_rate }}%</div>
+                    <div class="stat-value" style="color: #00f0ff;">{{ round($digitalCard->win_rate) }}%</div>
                     <div class="stat-label">Win Rate</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-box h-100">
-                    <div class="stat-value" style="color: #ffdd00;">{{ $digitalCard->distinct_stat }}%</div>
+                    <div class="stat-value" style="color: #ffdd00;">{{ round($digitalCard->distinct_stat) }}%</div>
                     <div class="stat-label">Distinct</div>
                 </div>
             </div>

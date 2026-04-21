@@ -315,8 +315,8 @@ class DigitalCardRenderer {
         const rarityIcon = options.rarityIcon || '🪵';
         
         let startX = innerX + (w * 0.04);
-        const yCenterTopLine = statsY + statsH * 0.35;
-        const yCenterBottomLine = statsY + statsH * 0.75;
+        const yCenterTopLine = statsY + statsH * 0.32;
+        const yCenterBottomLine = statsY + statsH * 0.83;
 
         // --- TOP LINE ---
         // Rarity Badge (emoji icon)
