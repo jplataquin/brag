@@ -16,6 +16,7 @@
     :imagePositionY="$card->template->image_position_y ?? 50"
     :wins="$card->wins"
     :losses="$card->losses"
+    :lifePoints="$card->life_points"
     :distinctStat="$card->distinct_stat"
     :status="$card->status"
     :rankLevel="$card->level"

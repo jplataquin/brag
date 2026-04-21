@@ -235,9 +235,9 @@ class DigitalCardRenderer {
         const titleY = bw + pad;
         const titleH = h * 0.16;
         const photoY = titleY + titleH + spacing;
-        const photoH = h * 0.42;
+        const photoH = h * 0.40; // Reduced photo height slightly to fit taller stats
         const statsY = photoY + photoH + spacing;
-        const statsH = h * 0.06;
+        const statsH = h * 0.08; // Increased stats height
         const descY = statsY + statsH + spacing;
         const descH = h - descY - bw - pad;
         const sectionRadius = Math.floor(w * 0.02);
@@ -307,6 +307,7 @@ class DigitalCardRenderer {
         // Setup stats values
         const wins = options.wins || 0;
         const losses = options.losses || 0;
+        const lifePoints = options.lifePoints !== undefined ? options.lifePoints : 3;
         const totalGames = wins + losses;
         let winRateStr = totalGames > 0 ? Math.round((wins / totalGames) * 100) + '%' : '0%';
         if (options.mode === 'template') winRateStr = '0%';
@@ -314,42 +315,59 @@ class DigitalCardRenderer {
         const rarityIcon = options.rarityIcon || '🪵';
         
         let startX = innerX + (w * 0.04);
-        const yCenter = statsY + statsH / 2;
+        const yCenterTopLine = statsY + statsH * 0.35;
+        const yCenterBottomLine = statsY + statsH * 0.75;
 
+        // --- TOP LINE ---
         // Rarity Badge (emoji icon)
         ctx.font = `${fontSizeStats}px sans-serif`;
-        ctx.fillText(rarityIcon, startX, yCenter);
+        ctx.fillText(rarityIcon, startX, yCenterTopLine);
         startX += ctx.measureText(rarityIcon).width + fontSizeStats * 0.5;
 
         // Wins
         ctx.fillStyle = '#39ff14'; // Lime Green
         ctx.font = `bold ${fontSizeStats}px sans-serif`;
-        ctx.fillText(`W: ${wins}`, startX, yCenter);
+        ctx.fillText(`W: ${wins}`, startX, yCenterTopLine);
         startX += ctx.measureText(`W: ${wins}`).width + fontSizeStats * 0.8;
 
         // Losses
         ctx.fillStyle = '#ff0000'; // Red
-        ctx.fillText(`L: ${losses}`, startX, yCenter);
+        ctx.fillText(`L: ${losses}`, startX, yCenterTopLine);
         startX += ctx.measureText(`L: ${losses}`).width + fontSizeStats * 0.8;
 
         // Win Rate
         ctx.fillStyle = '#00f0ff'; // Cyan
-        ctx.fillText(`R: ${winRateStr}`, startX, yCenter);
+        ctx.fillText(`R: ${winRateStr}`, startX, yCenterTopLine);
         startX += ctx.measureText(`R: ${winRateStr}`).width + fontSizeStats * 0.8;
 
         // Distinct
         let distinctStatStr = (options.distinctStat || 0) + '%';
         if (options.mode === 'template') distinctStatStr = '0%';
         ctx.fillStyle = '#ffdd00'; // Yellow
-        ctx.fillText(`D: ${distinctStatStr}`, startX, yCenter);
+        ctx.fillText(`D: ${distinctStatStr}`, startX, yCenterTopLine);
         startX += ctx.measureText(`D: ${distinctStatStr}`).width + fontSizeStats * 0.8;
 
         // Discontinued Badge
         if (status === 'Discontinued') {
             ctx.fillStyle = '#ff00ff'; // Magenta
             ctx.font = `bold ${fontSizeStats * 1.1}px sans-serif`;
-            ctx.fillText('⚠️', startX, yCenter);
+            ctx.fillText('⚠️', startX, yCenterTopLine);
         }
+        
+        // --- BOTTOM LINE ---
+        startX = innerX + (w * 0.04);
+        
+        // Life Points
+        ctx.fillStyle = '#ffffff';
+        ctx.font = `${fontSizeStats * 0.8}px sans-serif`;
+        let lifePointsStr = '';
+        for(let i = 0; i < lifePoints; i++) {
+            lifePointsStr += '❤️';
+        }
+        // If template, just show default 3
+        if (options.mode === 'template') lifePointsStr = '❤️❤️❤️';
+        ctx.fillText(lifePointsStr, startX, yCenterBottomLine);
+
         ctx.restore();
         // ----------------------------
 

@@ -29,6 +29,7 @@
                 :image="$digitalCard->template->display_photo"
                 :wins="$digitalCard->wins"
                 :losses="$digitalCard->losses"
+                :lifePoints="$digitalCard->life_points"
                 :distinctStat="$digitalCard->distinct_stat"
                 :status="$digitalCard->status"
                 :rankLevel="$digitalCard->level"
@@ -91,6 +92,12 @@
                 <div class="stat-box h-100">
                     <div class="stat-value" style="color: #ffdd00;">{{ $digitalCard->distinct_stat }}%</div>
                     <div class="stat-label">Distinct</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mt-3 mt-md-0">
+                <div class="stat-box h-100">
+                    <div class="stat-value" style="color: #ff00ff;">{{ str_repeat('❤️', $digitalCard->life_points) }}</div>
+                    <div class="stat-label">Life Points</div>
                 </div>
             </div>
         </div>

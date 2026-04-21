@@ -27,12 +27,14 @@ class DigitalCard extends Model
         'status',
         'wins',
         'losses',
+        'life_points',
         'is_trophy',
         'forged_at',
     ];
 
     protected $casts = [
         'level' => 'integer',
+        'life_points' => 'integer',
         'is_trophy' => 'boolean',
         'forged_at' => 'datetime',
     ];
