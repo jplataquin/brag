@@ -115,7 +115,14 @@ class BattleController extends Controller
             $battle->marshall_id,
         ]);
 
-        return view('battles.room', compact('battle', 'availableCards', 'isParticipant'));
+        $showCancelModal = false;
+        if ($battle->challenger_cancel && $user->id === $battle->opponent_id) {
+            $showCancelModal = true;
+        } elseif ($battle->opponent_cancel && $user->id === $battle->challenger_id) {
+            $showCancelModal = true;
+        }
+
+        return view('battles.room', compact('battle', 'availableCards', 'isParticipant', 'showCancelModal'));
     }
 
     /**
