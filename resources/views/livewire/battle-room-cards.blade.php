@@ -7,6 +7,31 @@
         });
     }
 }" @battle-cards-updated.window="setTimeout(() => redrawCards(), 100)">
+
+@php
+    $isFinal = in_array($battle->status, ['completed', 'failed', 'cancelled']);
+    
+    $cCard = $battle->challengerCard;
+    $cSnapshot = $battle->challenger_card_data;
+    $cRarity = ($isFinal && isset($cSnapshot['rarity'])) ? $cSnapshot['rarity'] : ($cCard ? $cCard->rarity_slug : 'common');
+    $cWins = ($isFinal && isset($cSnapshot['wins'])) ? $cSnapshot['wins'] : ($cCard ? $cCard->wins : 0);
+    $cLosses = ($isFinal && isset($cSnapshot['losses'])) ? $cSnapshot['losses'] : ($cCard ? $cCard->losses : 0);
+    $cLifePoints = ($isFinal && isset($cSnapshot['life_points'])) ? $cSnapshot['life_points'] : ($cCard ? $cCard->life_points : 3);
+    $cDistinctStat = ($isFinal && isset($cSnapshot['distinct_stat'])) ? $cSnapshot['distinct_stat'] : ($cCard ? $cCard->distinct_stat : 0);
+    $cStatus = ($isFinal && isset($cSnapshot['status'])) ? $cSnapshot['status'] : ($cCard ? $cCard->status : 'Maintained');
+    $cRankLevel = ($isFinal && isset($cSnapshot['level'])) ? $cSnapshot['level'] : ($cCard ? $cCard->level : 1);
+    
+    $oCard = $battle->opponentCard;
+    $oSnapshot = $battle->opponent_card_data;
+    $oRarity = ($isFinal && isset($oSnapshot['rarity'])) ? $oSnapshot['rarity'] : ($oCard ? $oCard->rarity_slug : 'common');
+    $oWins = ($isFinal && isset($oSnapshot['wins'])) ? $oSnapshot['wins'] : ($oCard ? $oCard->wins : 0);
+    $oLosses = ($isFinal && isset($oSnapshot['losses'])) ? $oSnapshot['losses'] : ($oCard ? $oCard->losses : 0);
+    $oLifePoints = ($isFinal && isset($oSnapshot['life_points'])) ? $oSnapshot['life_points'] : ($oCard ? $oCard->life_points : 3);
+    $oDistinctStat = ($isFinal && isset($oSnapshot['distinct_stat'])) ? $oSnapshot['distinct_stat'] : ($oCard ? $oCard->distinct_stat : 0);
+    $oStatus = ($isFinal && isset($oSnapshot['status'])) ? $oSnapshot['status'] : ($oCard ? $oCard->status : 'Maintained');
+    $oRankLevel = ($isFinal && isset($oSnapshot['level'])) ? $oSnapshot['level'] : ($oCard ? $oCard->level : 1);
+@endphp
+
     <h5 class="section-header">
         <i class="bi bi-suit-diamond-fill section-icon"></i> CARDS AT STAKE
     </h5>
@@ -37,7 +62,7 @@
                         :id="'card_stake_challenger_' . $battle->challengerCard->id"
                         mode="thumbnail"
                         fullscreen="true"
-                        :rarity="$battle->challengerCard->rarity_slug"
+                        :rarity="$cRarity"
                         :detailUrl="route('cards.show', $battle->challengerCard)"
                         :title="$battle->challengerCard->template->card_title" 
                         :game="$battle->challengerCard->template->gameTitle->title ?? 'GAME'" 
@@ -49,12 +74,12 @@
                         :primaryTextColor="$battle->challengerCard->template->primary_text_color"
                         :secondaryTextColor="$battle->challengerCard->template->secondary_text_color"
                         :image="$battle->challengerCard->template->display_photo"
-                        :wins="$battle->challengerCard->wins"
-                        :losses="$battle->challengerCard->losses"
-                        :lifePoints="$battle->challengerCard->life_points"
-                        :distinctStat="$battle->challengerCard->distinct_stat"
-                        :status="$battle->challengerCard->status"
-                        :rankLevel="$battle->challengerCard->level"
+                        :wins="$cWins"
+                        :losses="$cLosses"
+                        :lifePoints="$cLifePoints"
+                        :distinctStat="$cDistinctStat"
+                        :status="$cStatus"
+                        :rankLevel="$cRankLevel"
                         :serialNumber="$battle->challengerCard->serial_number"
                         :year="$battle->challengerCard->forged_at->format('Y')"
                     />
@@ -87,7 +112,7 @@
                         :id="'card_stake_opponent_' . $battle->opponentCard->id"
                         mode="thumbnail"
                         fullscreen="true"
-                        :rarity="$battle->opponentCard->rarity_slug"
+                        :rarity="$oRarity"
                         :detailUrl="route('cards.show', $battle->opponentCard)"
                         :title="$battle->opponentCard->template->card_title" 
                         :game="$battle->opponentCard->template->gameTitle->title ?? 'GAME'" 
@@ -99,12 +124,12 @@
                         :primaryTextColor="$battle->opponentCard->template->primary_text_color"
                         :secondaryTextColor="$battle->opponentCard->template->secondary_text_color"
                         :image="$battle->opponentCard->template->display_photo"
-                        :wins="$battle->opponentCard->wins"
-                        :losses="$battle->opponentCard->losses"
-                        :lifePoints="$battle->opponentCard->life_points"
-                        :distinctStat="$battle->opponentCard->distinct_stat"
-                        :status="$battle->opponentCard->status"
-                        :rankLevel="$battle->opponentCard->level"
+                        :wins="$oWins"
+                        :losses="$oLosses"
+                        :lifePoints="$oLifePoints"
+                        :distinctStat="$oDistinctStat"
+                        :status="$oStatus"
+                        :rankLevel="$oRankLevel"
                         :serialNumber="$battle->opponentCard->serial_number"
                         :year="$battle->opponentCard->forged_at->format('Y')"
                     />
@@ -146,7 +171,7 @@
                             :id="'card_stake_challenger_mob_' . $battle->challengerCard->id"
                             mode="thumbnail"
                             fullscreen="true"
-                            :rarity="$battle->challengerCard->rarity_slug"
+                            :rarity="$cRarity"
                             :detailUrl="route('cards.show', $battle->challengerCard)"
                             :title="$battle->challengerCard->template->card_title" 
                             :game="$battle->challengerCard->template->gameTitle->title ?? 'GAME'" 
@@ -158,12 +183,12 @@
                             :primaryTextColor="$battle->challengerCard->template->primary_text_color"
                             :secondaryTextColor="$battle->challengerCard->template->secondary_text_color"
                             :image="$battle->challengerCard->template->display_photo"
-                            :wins="$battle->challengerCard->wins"
-                        :losses="$battle->challengerCard->losses"
-                        :lifePoints="$battle->challengerCard->life_points"
-                        :distinctStat="$battle->challengerCard->distinct_stat"
-                        :status="$battle->challengerCard->status"
-                            :rankLevel="$battle->challengerCard->level"
+                            :wins="$cWins"
+                        :losses="$cLosses"
+                        :lifePoints="$cLifePoints"
+                        :distinctStat="$cDistinctStat"
+                        :status="$cStatus"
+                            :rankLevel="$cRankLevel"
                             :serialNumber="$battle->challengerCard->serial_number"
                             :year="$battle->challengerCard->forged_at->format('Y')"
                             />                            </div>
@@ -194,7 +219,7 @@
                             :id="'card_stake_opponent_mob_' . $battle->opponentCard->id"
                             mode="thumbnail"
                             fullscreen="true"
-                            :rarity="$battle->opponentCard->rarity_slug"
+                            :rarity="$oRarity"
                             :detailUrl="route('cards.show', $battle->opponentCard)"
                             :title="$battle->opponentCard->template->card_title" 
                             :game="$battle->opponentCard->template->gameTitle->title ?? 'GAME'" 
@@ -206,12 +231,12 @@
                             :primaryTextColor="$battle->opponentCard->template->primary_text_color"
                             :secondaryTextColor="$battle->opponentCard->template->secondary_text_color"
                             :image="$battle->opponentCard->template->display_photo"
-                            :wins="$battle->opponentCard->wins"
-                        :losses="$battle->opponentCard->losses"
-                        :lifePoints="$battle->opponentCard->life_points"
-                        :distinctStat="$battle->opponentCard->distinct_stat"
-                        :status="$battle->opponentCard->status"
-                            :rankLevel="$battle->opponentCard->level"
+                            :wins="$oWins"
+                        :losses="$oLosses"
+                        :lifePoints="$oLifePoints"
+                        :distinctStat="$oDistinctStat"
+                        :status="$oStatus"
+                            :rankLevel="$oRankLevel"
                             :serialNumber="$battle->opponentCard->serial_number"
                             :year="$battle->opponentCard->forged_at->format('Y')"
                             />                            </div>

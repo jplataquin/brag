@@ -141,7 +141,7 @@ class BattleService
                         $this->logActivity($battle->id, null, 'consensus', "Consensus reached! Both players agree on the winner.");
                     } else {
                         // Conflict
-                        $battle->update(['status' => 'failed']);
+                        $battle->update(array_merge(['status' => 'failed'], $this->generateCardSnapshots($battle)));
                         $this->logActivity($battle->id, null, 'conflict', "Conflict! Players declared different winners. Battle status set to FAILED.");
                         event(new \App\Events\BattleUpdated($battle, "Conflict in winner declaration! Waiting for consensus or marshall.", 'conflict'));
                     }
@@ -215,11 +215,11 @@ class BattleService
             $cardTransferred = true;
         }
 
-        // Mark battle as completed
-        $battle->update([
+        // Mark battle as completed and snapshot stats
+        $battle->update(array_merge([
             'winner_id' => $winner->id,
             'status' => 'completed',
-        ]);
+        ], $this->generateCardSnapshots($battle)));
 
         $this->logActivity($battle->id, $declarer->id, 'winner', "Battle finalized. {$winner->username} is the official winner.");
 
@@ -270,7 +270,7 @@ class BattleService
                     throw new \Exception('Only the challenger can cancel this battle.');
                 }
 
-                $battle->update(['status' => 'cancelled']);
+                $battle->update(array_merge(['status' => 'cancelled'], $this->generateCardSnapshots($battle)));
                 $this->logActivity($battle->id, $user->id, 'cancel', "Battle room cancelled by {$user->username}.");
                 
                 event(new \App\Events\BattleUpdated($battle, "Battle room cancelled by {$user->username}.", 'cancel'));
@@ -280,11 +280,11 @@ class BattleService
 
             // Case 2: Marshall cancels an active battle
             if ($battle->status === 'active' && $battle->marshall_id === $user->id) {
-                $battle->update([
+                $battle->update(array_merge([
                     'status' => 'cancelled',
                     'challenger_cancel' => false,
                     'opponent_cancel' => false,
-                ]);
+                ], $this->generateCardSnapshots($battle)));
                 
                 $this->logActivity($battle->id, $user->id, 'cancel', "Battle was cancelled by the Marshall ({$user->username}).");
                 
@@ -328,7 +328,7 @@ class BattleService
 
                 // If both agreed, cancel the room
                 if ($battle->challenger_cancel && $battle->opponent_cancel) {
-                    $battle->update(['status' => 'cancelled']);
+                    $battle->update(array_merge(['status' => 'cancelled'], $this->generateCardSnapshots($battle)));
                     $this->logActivity($battle->id, null, 'cancel', "Battle cancelled by mutual agreement.");
                     event(new \App\Events\BattleUpdated($battle, "Battle cancelled by mutual agreement.", 'cancel'));
                 } else {
@@ -371,7 +371,7 @@ class BattleService
                 $this->logActivity($battle->id, $user->id, 'cancel_agree', "{$user->username} agreed to cancel the battle.");
 
                 if ($battle->challenger_cancel && $battle->opponent_cancel) {
-                    $battle->update(['status' => 'cancelled']);
+                    $battle->update(array_merge(['status' => 'cancelled'], $this->generateCardSnapshots($battle)));
                     $this->logActivity($battle->id, null, 'cancel', "Battle cancelled by mutual agreement.");
                     event(new \App\Events\BattleUpdated($battle, "Battle cancelled by mutual agreement.", 'cancel'));
                 } else {
@@ -691,5 +691,47 @@ class BattleService
             'type' => $type,
             'message' => $message,
         ]);
+    }
+
+    /**
+     * Generate snapshot of card metadata.
+     */
+    private function generateCardSnapshots(Battle $battle): array
+    {
+        $snapshots = [];
+        
+        if ($battle->challenger_card_id) {
+            $cCard = DigitalCard::find($battle->challenger_card_id);
+            if ($cCard) {
+                $snapshots['challenger_card_data'] = [
+                    'wins' => $cCard->wins,
+                    'losses' => $cCard->losses,
+                    'win_rate' => ($cCard->wins + $cCard->losses > 0) ? round(($cCard->wins / ($cCard->wins + $cCard->losses)) * 100) : 0,
+                    'distinct_stat' => $cCard->distinct_stat,
+                    'life_points' => $cCard->life_points,
+                    'rarity' => $cCard->rarity_slug,
+                    'status' => $cCard->status,
+                    'level' => $cCard->level,
+                ];
+            }
+        }
+        
+        if ($battle->opponent_card_id) {
+            $oCard = DigitalCard::find($battle->opponent_card_id);
+            if ($oCard) {
+                $snapshots['opponent_card_data'] = [
+                    'wins' => $oCard->wins,
+                    'losses' => $oCard->losses,
+                    'win_rate' => ($oCard->wins + $oCard->losses > 0) ? round(($oCard->wins / ($oCard->wins + $oCard->losses)) * 100) : 0,
+                    'distinct_stat' => $oCard->distinct_stat,
+                    'life_points' => $oCard->life_points,
+                    'rarity' => $oCard->rarity_slug,
+                    'status' => $oCard->status,
+                    'level' => $oCard->level,
+                ];
+            }
+        }
+        
+        return $snapshots;
     }
 }

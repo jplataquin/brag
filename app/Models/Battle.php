@@ -30,6 +30,8 @@ class Battle extends Model
         'marshall_declared_user_win',
         'challenger_marshall_id',
         'opponent_marshall_id',
+        'challenger_card_data',
+        'opponent_card_data',
     ];
 
     protected $casts = [
@@ -37,6 +39,8 @@ class Battle extends Model
         'opponent_cancel' => 'boolean',
         'challenger_cancel_timestamp' => 'datetime',
         'opponent_cancel_timestamp' => 'datetime',
+        'challenger_card_data' => 'array',
+        'opponent_card_data' => 'array',
     ];
 
     /**

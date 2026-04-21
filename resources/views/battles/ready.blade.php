@@ -121,7 +121,7 @@
                             :rankLevel="$card->level"
                             :serialNumber="$card->serial_number"
                             :year="$card->forged_at->format('Y')"
-                            />                        <button type="button" class="btn btn-neon-lime btn-neon-sm w-100 mt-2 select-bet-card" data-card-id="{{ $card->id }}" data-card-name="{{ $card->template->card_title }}">
+                            />                        <button type="button" class="btn btn-neon-lime btn-neon-sm w-100 mt-2 select-bet-card" data-card-id="{{ $card->id }}" data-card-name="{{ $card->template->card_title }}" data-card-lf="{{ $card->life_points }}">
                             <i class="bi bi-check-lg"></i> SELECT CARD
                         </button>
                     </div>
@@ -158,7 +158,7 @@
                                         :rankLevel="$card->level"
                                         :serialNumber="$card->serial_number"
                                         :year="$card->forged_at->format('Y')"
-                                        />                                    <button type="button" class="btn btn-neon-lime w-100 mt-3 select-bet-card" data-card-id="{{ $card->id }}" data-card-name="{{ $card->template->card_title }}">
+                                        />                                    <button type="button" class="btn btn-neon-lime w-100 mt-3 select-bet-card" data-card-id="{{ $card->id }}" data-card-name="{{ $card->template->card_title }}" data-card-lf="{{ $card->life_points }}">
                                         <i class="bi bi-check-lg"></i> SELECT THIS CARD
                                     </button>
                                 </div>
@@ -196,8 +196,8 @@
             <div class="modal-body py-4 text-center">
                 <p>Are you sure you want to join this battle and bet your card?</p>
                 <div class="p-3 mb-3 rounded" style="background: rgba(255, 0, 255, 0.05); border: 1px solid rgba(255, 0, 255, 0.2);">
-                    <div style="font-family: 'Orbitron', sans-serif; color: #ff00ff;" id="confirm-card-name">CARD NAME</div>
-                    <div class="text-muted small">If you lose, this card will be transferred to the winner.</div>
+                    <div style="font-family: 'Orbitron', sans-serif; color: #ff00ff; font-weight: bold; letter-spacing: 1px;" id="confirm-card-name">CARD NAME</div>
+                    <div class="text-muted small mt-2" id="confirm-card-warning" style="line-height: 1.4;">If you lose, this card will be transferred to the winner.</div>
                 </div>
                 <div class="d-flex gap-3">
                     <button type="button" class="btn btn-neon flex-fill" data-bs-dismiss="modal">CANCEL</button>
@@ -222,9 +222,17 @@
             btn.addEventListener('click', function() {
                 const cardId = this.dataset.cardId;
                 const cardName = this.dataset.cardName;
+                const cardLF = parseInt(this.dataset.cardLf, 10);
 
                 cardIdInput.value = cardId;
                 cardNameDisplay.innerText = cardName;
+                
+                if (cardLF === 1) {
+                    document.getElementById('confirm-card-warning').innerHTML = '<strong class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> WARNING: This card has 1 Life Point left!</strong><br>If you lose, this card will be irrevocably transferred to the winner as a trophy.';
+                } else {
+                    document.getElementById('confirm-card-warning').innerHTML = `If you lose, this card will lose 1 Life Point (Remaining: <strong>${cardLF - 1}</strong>).`;
+                }
+
                 confirmModal.show();
             });
         });
