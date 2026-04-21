@@ -204,7 +204,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Add to Mobile Carousel
                 const carouselItem = document.createElement('div');
                 carouselItem.classList.add('carousel-item');
-                if (index === 0) carouselItem.classList.add('active');
+                
+                // Determine active carousel item
+                const preSelectedCheck = "{{ $preSelectedCardId ?? '' }}";
+                if (preSelectedCheck && cardData.id == preSelectedCheck) {
+                    carouselItem.classList.add('active');
+                } else if (!preSelectedCheck && index === 0) {
+                    carouselItem.classList.add('active');
+                }
 
                 const carouselOptions = JSON.parse(JSON.stringify(options));
                 carouselOptions.id = options.id + '_carousel';
@@ -222,6 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
 
                 const carouselSelectBtn = carouselItem.querySelector('button');
+                carouselSelectBtn.dataset.isCarousel = "true";
                 carouselSelectBtn.addEventListener('click', () => selectCard(cardData.id, carouselSelectBtn));
                 allCardButtons.push(carouselSelectBtn);
                 
@@ -239,13 +247,20 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             cardSelectionSection.style.display = 'block';
 
+            // Fallback for active item if none matched
+            if (!carouselInner.querySelector('.active') && carouselInner.firstElementChild) {
+                carouselInner.firstElementChild.classList.add('active');
+            }
+
             // Auto-select if query parameter is present
             const preSelectedCardId = "{{ $preSelectedCardId ?? '' }}";
             if (preSelectedCardId) {
-                const targetBtn = allCardButtons.find(b => b.dataset.cardId == preSelectedCardId);
-                if (targetBtn) {
-                    selectCard(preSelectedCardId, targetBtn);
-                }
+                setTimeout(() => {
+                    const targetBtn = allCardButtons.find(b => b.dataset.cardId == preSelectedCardId);
+                    if (targetBtn) {
+                        selectCard(preSelectedCardId, targetBtn);
+                    }
+                }, 50); // slight delay to ensure UI reflow allows elements to exist correctly
             }
 
         } else {
@@ -262,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
         allCardButtons.forEach(btn => {
             btn.classList.remove('btn-neon-lime');
             btn.classList.add('btn-outline-neon');
-            if (btn.innerText.includes('THIS')) {
+            if (btn.dataset.isCarousel) {
                 btn.innerHTML = '<i class="bi bi-circle"></i> SELECT THIS CARD';
             } else {
                 btn.innerHTML = '<i class="bi bi-circle"></i> SELECT';
@@ -274,11 +289,7 @@ document.addEventListener('DOMContentLoaded', function() {
         matchingButtons.forEach(btn => {
             btn.classList.remove('btn-outline-neon');
             btn.classList.add('btn-neon-lime');
-            if (btn.innerText.includes('THIS')) {
-                btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> SELECTED';
-            } else {
-                btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> SELECTED';
-            }
+            btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> SELECTED';
         });
     }
 
