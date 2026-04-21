@@ -50,10 +50,10 @@ class RevertBattleRoom extends Command
             'opponent_cancel_timestamp' => null,
             'challenger_declared_user_win' => null,
             'opponent_declared_user_win' => null,
-            'adjudicator_declared_user_win' => null,
-            'adjudicator_id' => null,
-            'challenger_adjudicator_id' => null,
-            'opponent_adjudicator_id' => null,
+            'marshall_declared_user_win' => null,
+            'marshall_id' => null,
+            'challenger_marshall_id' => null,
+            'opponent_marshall_id' => null,
             'winner_id' => null,
         ]);
 

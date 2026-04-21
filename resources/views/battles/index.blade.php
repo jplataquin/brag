@@ -63,9 +63,9 @@
                         🏆 {{ $battle->winner->username }}
                     </span>
                 @endif
-                @if($battle->adjudicator)
+                @if($battle->marshall)
                     <span style="color: #8888aa; font-size: 0.75rem;">
-                        ⚖️ {{ $battle->adjudicator->username }}
+                        ⚖️ {{ $battle->marshall->username }}
                     </span>
                 @endif
             </div>

@@ -30,7 +30,7 @@
                                                 <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: rgba(0, 240, 255, 0.1); border: 2px solid rgba(0, 240, 255, 0.4);">
                                                     <i class="bi bi-envelope-fill fs-5" style="color: #00f0ff;"></i>
                                                 </div>
-                                            @elseif(($notification->data['type'] ?? '') === 'adjudicator_election')
+                                            @elseif(($notification->data['type'] ?? '') === 'marshall_election')
                                                 <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: rgba(255, 221, 0, 0.1); border: 2px solid rgba(255, 221, 0, 0.4);">
                                                     <i class="bi bi-shield-fill-check fs-5" style="color: #ffdd00;"></i>
                                                 </div>

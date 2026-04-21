@@ -62,11 +62,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/battles/{battle:room_id}/start', [BattleController::class, 'start'])->name('battles.start');
     Route::post('/battles/{battle:room_id}/reject-opponent', [BattleController::class, 'rejectOpponent'])->name('battles.rejectOpponent');
     
-    // Adjudicators
-    Route::post('/battles/{battle:room_id}/elect-adjudicator', [BattleController::class, 'electAdjudicator'])->name('battles.electAdjudicator');
-    Route::post('/battles/{battle:room_id}/accept-adjudicator', [BattleController::class, 'acceptAdjudicator'])->name('battles.acceptAdjudicator');
-    Route::post('/battles/{battle:room_id}/reject-adjudicator', [BattleController::class, 'rejectAdjudicator'])->name('battles.rejectAdjudicator');
-    Route::post('/battles/{battle:room_id}/leave-adjudicator', [BattleController::class, 'leaveAdjudicator'])->name('battles.leaveAdjudicator');
+    // Marshalls
+    Route::post('/battles/{battle:room_id}/elect-marshall', [BattleController::class, 'electMarshall'])->name('battles.electMarshall');
+    Route::post('/battles/{battle:room_id}/accept-marshall', [BattleController::class, 'acceptMarshall'])->name('battles.acceptMarshall');
+    Route::post('/battles/{battle:room_id}/reject-marshall', [BattleController::class, 'rejectMarshall'])->name('battles.rejectMarshall');
+    Route::post('/battles/{battle:room_id}/leave-marshall', [BattleController::class, 'leaveMarshall'])->name('battles.leaveMarshall');
     
     Route::post('/battles/{battle:room_id}/invite', [BattleController::class, 'invite'])->name('battles.invite');
     Route::post('/battles/{battle:room_id}/declare-winner', [BattleController::class, 'declareWinner'])->name('battles.declareWinner');

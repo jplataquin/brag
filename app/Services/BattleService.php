@@ -108,9 +108,9 @@ class BattleService
 
             $isChallenger = $declarer->id === $battle->challenger_id;
             $isOpponent = $declarer->id === $battle->opponent_id;
-            $isAdjudicator = $declarer->id === $battle->adjudicator_id;
+            $isMarshall = $declarer->id === $battle->marshall_id;
 
-            if (!$isChallenger && !$isOpponent && !$isAdjudicator) {
+            if (!$isChallenger && !$isOpponent && !$isMarshall) {
                 throw new \Exception('You are not authorized to declare a winner for this battle.');
             }
 
@@ -119,8 +119,8 @@ class BattleService
                 $battle->update(['challenger_declared_user_win' => $winner->id]);
             } elseif ($isOpponent) {
                 $battle->update(['opponent_declared_user_win' => $winner->id]);
-            } elseif ($isAdjudicator) {
-                $battle->update(['adjudicator_declared_user_win' => $winner->id]);
+            } elseif ($isMarshall) {
+                $battle->update(['marshall_declared_user_win' => $winner->id]);
             }
 
             $this->logActivity($battle->id, $declarer->id, 'declare', "{$declarer->username} declared {$winner->username} as the winner.");
@@ -128,10 +128,10 @@ class BattleService
             // Determine if we can finalize the battle
             $finalWinnerId = null;
 
-            if ($isAdjudicator) {
-                // Adjudicator decision is final
+            if ($isMarshall) {
+                // Marshall decision is final
                 $finalWinnerId = $winner->id;
-                $this->logActivity($battle->id, $declarer->id, 'adjudicator_decision', "Adjudicator {$declarer->username} has made the final decision.");
+                $this->logActivity($battle->id, $declarer->id, 'marshall_decision', "Marshall {$declarer->username} has made the final decision.");
             } else {
                 // Check for consensus between players
                 if ($battle->challenger_declared_user_win && $battle->opponent_declared_user_win) {
@@ -143,7 +143,7 @@ class BattleService
                         // Conflict
                         $battle->update(['status' => 'failed']);
                         $this->logActivity($battle->id, null, 'conflict', "Conflict! Players declared different winners. Battle status set to FAILED.");
-                        event(new \App\Events\BattleUpdated($battle, "Conflict in winner declaration! Waiting for consensus or adjudicator.", 'conflict'));
+                        event(new \App\Events\BattleUpdated($battle, "Conflict in winner declaration! Waiting for consensus or marshall.", 'conflict'));
                     }
                 }
             }
@@ -152,7 +152,7 @@ class BattleService
                 $this->finalizeBattle($battle, User::find($finalWinnerId), $declarer);
             } else {
                 // Notify other participants
-                $participants = collect([$battle->challenger, $battle->opponent, $battle->adjudicator])
+                $participants = collect([$battle->challenger, $battle->opponent, $battle->marshall])
                     ->filter()
                     ->reject(fn($p) => $p->id === $declarer->id);
                     
@@ -246,9 +246,9 @@ class BattleService
             $loser->notify(new BattleNotification($battle, $loserMsg, 'defeat'));
         }
 
-        // Notify Adjudicator if present
-        if ($battle->adjudicator_id && $declarer->id !== $battle->adjudicator_id) {
-            $battle->adjudicator->notify(new BattleNotification(
+        // Notify Marshall if present
+        if ($battle->marshall_id && $declarer->id !== $battle->marshall_id) {
+            $battle->marshall->notify(new BattleNotification(
                 $battle,
                 "Battle finalized. {$winner->username} won.",
                 'finalized'
@@ -278,17 +278,17 @@ class BattleService
                 return $battle;
             }
 
-            // Case 2: Adjudicator cancels an active battle
-            if ($battle->status === 'active' && $battle->adjudicator_id === $user->id) {
+            // Case 2: Marshall cancels an active battle
+            if ($battle->status === 'active' && $battle->marshall_id === $user->id) {
                 $battle->update([
                     'status' => 'cancelled',
                     'challenger_cancel' => false,
                     'opponent_cancel' => false,
                 ]);
                 
-                $this->logActivity($battle->id, $user->id, 'cancel', "Battle was cancelled by the Adjudicator ({$user->username}).");
+                $this->logActivity($battle->id, $user->id, 'cancel', "Battle was cancelled by the Marshall ({$user->username}).");
                 
-                event(new \App\Events\BattleUpdated($battle, "The adjudicator has cancelled the battle.", 'cancel'));
+                event(new \App\Events\BattleUpdated($battle, "The marshall has cancelled the battle.", 'cancel'));
                 
                 return $battle;
             }
@@ -299,7 +299,7 @@ class BattleService
                 $isOpponent = $battle->opponent_id === $user->id;
 
                 if (!$isChallenger && !$isOpponent) {
-                    throw new \Exception('Only players or adjudicators can cancel this battle.');
+                    throw new \Exception('Only players or marshalls can cancel this battle.');
                 }
 
                 if ($isChallenger) {
@@ -451,10 +451,10 @@ class BattleService
             'opponent_cancel_timestamp' => null,
             'challenger_declared_user_win' => null,
             'opponent_declared_user_win' => null,
-            'adjudicator_declared_user_win' => null,
-            'adjudicator_id' => null,
-            'challenger_adjudicator_id' => null,
-            'opponent_adjudicator_id' => null,
+            'marshall_declared_user_win' => null,
+            'marshall_id' => null,
+            'challenger_marshall_id' => null,
+            'opponent_marshall_id' => null,
         ]);
 
         $this->logActivity($battle->id, $user->id, 'reject', "{$opponentName}'s bet was rejected by the challenger.");
@@ -523,133 +523,133 @@ class BattleService
     }
 
     /**
-     * Elect an adjudicator.
+     * Elect an marshall.
      */
-    public function electAdjudicator(Battle $battle, User $elector, User $nominee): Battle
+    public function electMarshall(Battle $battle, User $elector, User $nominee): Battle
     {
         if (in_array($battle->status, ['completed', 'cancelled'])) {
-            throw new \Exception('Cannot elect an adjudicator for a completed or cancelled battle.');
+            throw new \Exception('Cannot elect an marshall for a completed or cancelled battle.');
         }
 
-        // Players in the battle room cannot be an adjudicator
+        // Players in the battle room cannot be an marshall
         if (in_array($nominee->id, [$battle->challenger_id, $battle->opponent_id])) {
-            throw new \Exception('Battle participants cannot be elected as adjudicators.');
+            throw new \Exception('Battle participants cannot be elected as marshalls.');
         }
 
         $isChallenger = $elector->id === $battle->challenger_id;
         $isOpponent = $elector->id === $battle->opponent_id;
 
         if (!$isChallenger && !$isOpponent) {
-            throw new \Exception('Only battle participants can elect an adjudicator.');
+            throw new \Exception('Only battle participants can elect an marshall.');
         }
 
         if ($isChallenger) {
-            $battle->update(['challenger_adjudicator_id' => $nominee->id]);
+            $battle->update(['challenger_marshall_id' => $nominee->id]);
         } else {
-            $battle->update(['opponent_adjudicator_id' => $nominee->id]);
+            $battle->update(['opponent_marshall_id' => $nominee->id]);
         }
 
         $battle->refresh();
 
-        $this->logActivity($battle->id, $elector->id, 'elect_adjudicator', "{$elector->username} elected @{$nominee->username} as adjudicator.");
+        $this->logActivity($battle->id, $elector->id, 'elect_marshall', "{$elector->username} elected @{$nominee->username} as marshall.");
 
         // Check for consensus
-        if ($battle->challenger_adjudicator_id && $battle->opponent_adjudicator_id) {
-            if ($battle->challenger_adjudicator_id === $battle->opponent_adjudicator_id) {
+        if ($battle->challenger_marshall_id && $battle->opponent_marshall_id) {
+            if ($battle->challenger_marshall_id === $battle->opponent_marshall_id) {
                 // Same person elected by both!
                 $nominee->notify(new BattleNotification(
                     $battle,
-                    "Both players have elected you as an ADJUDICATOR. Will you accept?",
-                    'adjudicator_election'
+                    "Both players have elected you as an MARSHALL. Will you accept?",
+                    'marshall_election'
                 ));
                 
-                $this->logActivity($battle->id, null, 'adjudicator_election', "Consensus reached! Both players elected @{$nominee->username}. Waiting for response.");
+                $this->logActivity($battle->id, null, 'marshall_election', "Consensus reached! Both players elected @{$nominee->username}. Waiting for response.");
             }
         }
 
         $battle->refresh();
 
-        event(new \App\Events\BattleUpdated($battle, "{$elector->username} elected @{$nominee->username} as adjudicator.", 'elect_adjudicator'));
+        event(new \App\Events\BattleUpdated($battle, "{$elector->username} elected @{$nominee->username} as marshall.", 'elect_marshall'));
 
         return $battle->fresh();
     }
 
     /**
-     * Respond to adjudicator election.
+     * Respond to marshall election.
      */
-    public function respondToAdjudicatorElection(Battle $battle, User $adjudicator, bool $accept): Battle
+    public function respondToMarshallElection(Battle $battle, User $marshall, bool $accept): Battle
     {
         if (in_array($battle->status, ['completed', 'cancelled'])) {
-            throw new \Exception('Cannot respond to an adjudicator election for a completed or cancelled battle.');
+            throw new \Exception('Cannot respond to an marshall election for a completed or cancelled battle.');
         }
 
-        // Race condition check: Ensure both still match this adjudicator
-        if ($battle->challenger_adjudicator_id !== $adjudicator->id || $battle->opponent_adjudicator_id !== $adjudicator->id) {
-            throw new \Exception('The adjudicator election is no longer valid or has changed.');
+        // Race condition check: Ensure both still match this marshall
+        if ($battle->challenger_marshall_id !== $marshall->id || $battle->opponent_marshall_id !== $marshall->id) {
+            throw new \Exception('The marshall election is no longer valid or has changed.');
         }
 
         if ($accept) {
             $battle->update([
-                'adjudicator_id' => $adjudicator->id,
-                'challenger_adjudicator_id' => null,
-                'opponent_adjudicator_id' => null,
+                'marshall_id' => $marshall->id,
+                'challenger_marshall_id' => null,
+                'opponent_marshall_id' => null,
             ]);
 
-            $this->logActivity($battle->id, $adjudicator->id, 'adjudicator_accepted', "{$adjudicator->username} accepted the ADJUDICATOR role.");
+            $this->logActivity($battle->id, $marshall->id, 'marshall_accepted', "{$marshall->username} accepted the MARSHALL role.");
             
             // Notify players
-            $battle->challenger->notify(new BattleNotification($battle, "{$adjudicator->username} is now the adjudicator.", 'adjudicator_accepted'));
+            $battle->challenger->notify(new BattleNotification($battle, "{$marshall->username} is now the marshall.", 'marshall_accepted'));
             if ($battle->opponent) {
-                $battle->opponent->notify(new BattleNotification($battle, "{$adjudicator->username} is now the adjudicator.", 'adjudicator_accepted'));
+                $battle->opponent->notify(new BattleNotification($battle, "{$marshall->username} is now the marshall.", 'marshall_accepted'));
             }
 
-            event(new \App\Events\BattleUpdated($battle, "{$adjudicator->username} joined as Adjudicator.", 'adjudicator_accepted'));
+            event(new \App\Events\BattleUpdated($battle, "{$marshall->username} joined as Marshall.", 'marshall_accepted'));
         } else {
             // Rejected, reset election for this nominee
             $battle->update([
-                'challenger_adjudicator_id' => null,
-                'opponent_adjudicator_id' => null,
+                'challenger_marshall_id' => null,
+                'opponent_marshall_id' => null,
             ]);
 
-            $this->logActivity($battle->id, $adjudicator->id, 'adjudicator_rejected', "{$adjudicator->username} rejected the ADJUDICATOR role.");
+            $this->logActivity($battle->id, $marshall->id, 'marshall_rejected', "{$marshall->username} rejected the MARSHALL role.");
             
             // Notify players
-            $battle->challenger->notify(new BattleNotification($battle, "{$adjudicator->username} rejected the adjudicator role.", 'adjudicator_rejected'));
+            $battle->challenger->notify(new BattleNotification($battle, "{$marshall->username} rejected the marshall role.", 'marshall_rejected'));
             if ($battle->opponent) {
-                $battle->opponent->notify(new BattleNotification($battle, "{$adjudicator->username} rejected the adjudicator role.", 'adjudicator_rejected'));
+                $battle->opponent->notify(new BattleNotification($battle, "{$marshall->username} rejected the marshall role.", 'marshall_rejected'));
             }
 
-            event(new \App\Events\BattleUpdated($battle, "Adjudicator nominee rejected the role.", 'adjudicator_rejected'));
+            event(new \App\Events\BattleUpdated($battle, "Marshall nominee rejected the role.", 'marshall_rejected'));
         }
 
         return $battle->fresh();
     }
 
     /**
-     * Adjudicator leaves the battle.
+     * Marshall leaves the battle.
      */
-    public function adjudicatorLeave(Battle $battle, User $adjudicator): Battle
+    public function marshallLeave(Battle $battle, User $marshall): Battle
     {
-        if ($battle->adjudicator_id !== $adjudicator->id) {
-            throw new \Exception('You are not the adjudicator of this battle.');
+        if ($battle->marshall_id !== $marshall->id) {
+            throw new \Exception('You are not the marshall of this battle.');
         }
 
         $battle->update([
-            'adjudicator_id' => null,
-            'challenger_adjudicator_id' => null,
-            'opponent_adjudicator_id' => null,
-            'adjudicator_declared_user_win' => null,
+            'marshall_id' => null,
+            'challenger_marshall_id' => null,
+            'opponent_marshall_id' => null,
+            'marshall_declared_user_win' => null,
         ]);
 
-        $this->logActivity($battle->id, $adjudicator->id, 'adjudicator_leave', "{$adjudicator->username} has left the battle room.");
+        $this->logActivity($battle->id, $marshall->id, 'marshall_leave', "{$marshall->username} has left the battle room.");
 
         // Notify players
-        $battle->challenger->notify(new BattleNotification($battle, "The adjudicator ({$adjudicator->username}) has left the battle.", 'adjudicator_leave'));
+        $battle->challenger->notify(new BattleNotification($battle, "The marshall ({$marshall->username}) has left the battle.", 'marshall_leave'));
         if ($battle->opponent) {
-            $battle->opponent->notify(new BattleNotification($battle, "The adjudicator ({$adjudicator->username}) has left the battle.", 'adjudicator_leave'));
+            $battle->opponent->notify(new BattleNotification($battle, "The marshall ({$marshall->username}) has left the battle.", 'marshall_leave'));
         }
 
-        event(new \App\Events\BattleUpdated($battle, "The adjudicator has left.", 'adjudicator_leave'));
+        event(new \App\Events\BattleUpdated($battle, "The marshall has left.", 'marshall_leave'));
 
         return $battle->fresh();
     }

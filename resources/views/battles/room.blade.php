@@ -27,28 +27,28 @@
                     </div>
                     <div class="d-flex gap-3 align-items-center flex-wrap">
                         <span id="battle-status-badge" class="status-badge status-{{ $battle->status }}">{{ strtoupper($battle->status) }}</span>
-                        @if($battle->adjudicator)
+                        @if($battle->marshall)
                             <span style="color: #ffdd00; font-size: 0.9rem;">
-                                <i class="bi bi-shield-shaded"></i> ADJUDICATOR: <strong>{{ $battle->adjudicator->username }}</strong>
+                                <i class="bi bi-shield-shaded"></i> MARSHALL: <strong>{{ $battle->marshall->username }}</strong>
                             </span>
                         @else
                             <span class="text-muted" style="font-size: 0.9rem;">
-                                <i class="bi bi-shield"></i> NO ADJUDICATOR ELECTED
+                                <i class="bi bi-shield"></i> NO MARSHALL ELECTED
                             </span>
                         @endif
                     </div>
                     
-                    @if(!$battle->adjudicator_id && ($battle->challenger_adjudicator_id || $battle->opponent_adjudicator_id))
+                    @if(!$battle->marshall_id && ($battle->challenger_marshall_id || $battle->opponent_marshall_id))
                         <div class="mt-3 p-2 rounded" style="background: rgba(255, 221, 0, 0.05); border: 1px solid rgba(255, 221, 0, 0.1); display: inline-block;">
                             <div class="d-flex gap-3 align-items-center" style="font-size: 0.8rem;">
                                 <div style="color: #8888aa;">ELECTION STATUS:</div>
                                 <div style="color: #00f0ff;">
-                                    CHALLENGER: <strong>{{ $battle->challengerAdjudicator ? $battle->challengerAdjudicator->username : 'NONE' }}</strong>
+                                    CHALLENGER: <strong>{{ $battle->challengerMarshall ? $battle->challengerMarshall->username : 'NONE' }}</strong>
                                 </div>
                                 <div style="color: #ff00ff;">
-                                    OPPONENT: <strong>{{ $battle->opponentAdjudicator ? $battle->opponentAdjudicator->username : 'NONE' }}</strong>
+                                    OPPONENT: <strong>{{ $battle->opponentMarshall ? $battle->opponentMarshall->username : 'NONE' }}</strong>
                                 </div>
-                                @if($battle->challenger_adjudicator_id && $battle->opponent_adjudicator_id && $battle->challenger_adjudicator_id === $battle->opponent_adjudicator_id)
+                                @if($battle->challenger_marshall_id && $battle->opponent_marshall_id && $battle->challenger_marshall_id === $battle->opponent_marshall_id)
                                     <div class="neon-text-yellow px-2" style="animation: pulse-yellow 2s infinite;">
                                         <i class="bi bi-hourglass-split"></i> AWAITING ACCEPTANCE
                                     </div>
@@ -339,17 +339,17 @@
                     </button>
                 @endif
 
-                <!-- Elect Adjudicator (Visible if not elected yet) -->
-                @if(!$battle->adjudicator_id && in_array(Auth::id(), [$battle->challenger_id, $battle->opponent_id]))
-                    <button type="button" class="btn btn-neon" style="border-color: #ffdd00; color: #ffdd00;" data-bs-toggle="modal" data-bs-target="#electAdjudicatorModal">
+                <!-- Elect Marshall (Visible if not elected yet) -->
+                @if(!$battle->marshall_id && in_array(Auth::id(), [$battle->challenger_id, $battle->opponent_id]))
+                    <button type="button" class="btn btn-neon" style="border-color: #ffdd00; color: #ffdd00;" data-bs-toggle="modal" data-bs-target="#electMarshallModal">
                         <i class="bi bi-shield-fill-check"></i> 
-                        {{ (Auth::id() === $battle->challenger_id ? $battle->challenger_adjudicator_id : $battle->opponent_adjudicator_id) ? 'CHANGE ELECTION' : 'ELECT ADJUDICATOR' }}
+                        {{ (Auth::id() === $battle->challenger_id ? $battle->challenger_marshall_id : $battle->opponent_marshall_id) ? 'CHANGE ELECTION' : 'ELECT MARSHALL' }}
                     </button>
                 @endif
 
-                <!-- Adjudicator Leave -->
-                @if($battle->adjudicator_id === Auth::id())
-                    <form method="POST" action="{{ route('battles.leaveAdjudicator', $battle) }}" class="d-inline">
+                <!-- Marshall Leave -->
+                @if($battle->marshall_id === Auth::id())
+                    <form method="POST" action="{{ route('battles.leaveMarshall', $battle) }}" class="d-inline">
                         @csrf
                         <button type="submit" class="btn btn-neon-danger" data-confirm="Are you sure you want to leave this battle room?">
                             <i class="bi bi-box-arrow-right"></i> LEAVE BATTLE
@@ -361,12 +361,12 @@
                 @if(in_array($battle->status, ['active', 'failed']) && $battle->can_be_decided)
                     @php
                         $canDeclare = false;
-                        if ($battle->adjudicator_id && Auth::id() === $battle->adjudicator_id) {
+                        if ($battle->marshall_id && Auth::id() === $battle->marshall_id) {
                             $canDeclare = true;
-                        } elseif (!$battle->adjudicator_id && in_array(Auth::id(), [$battle->challenger_id, $battle->opponent_id])) {
+                        } elseif (!$battle->marshall_id && in_array(Auth::id(), [$battle->challenger_id, $battle->opponent_id])) {
                             $canDeclare = true;
-                        } elseif ($battle->adjudicator_id && in_array(Auth::id(), [$battle->challenger_id, $battle->opponent_id])) {
-                            // Players can still declare even if there is an adjudicator (for consensus)
+                        } elseif ($battle->marshall_id && in_array(Auth::id(), [$battle->challenger_id, $battle->opponent_id])) {
+                            // Players can still declare even if there is an marshall (for consensus)
                             $canDeclare = true;
                         }
                     @endphp
@@ -385,7 +385,7 @@
                         $canCancel = true;
                     } elseif (in_array($battle->status, ['ready', 'active', 'failed']) && in_array(Auth::id(), [$battle->challenger_id, $battle->opponent_id])) {
                         $canCancel = true;
-                    } elseif (in_array($battle->status, ['active', 'failed']) && Auth::id() === $battle->adjudicator_id) {
+                    } elseif (in_array($battle->status, ['active', 'failed']) && Auth::id() === $battle->marshall_id) {
                         $canCancel = true;
                     }
                     
@@ -395,8 +395,8 @@
                 @endphp
 
                 @if($canCancel)
-                    <button type="button" class="btn btn-neon-danger" onclick="cancelBattle(this)" data-message="{{ in_array($battle->status, ['active', 'failed']) && Auth::id() !== $battle->adjudicator_id ? 'Request cancellation of this battle? The other player must agree.' : 'Cancel this battle?' }}">
-                        <i class="bi bi-x-circle"></i> <span class="btn-text">{{ in_array($battle->status, ['ready', 'active', 'failed']) && Auth::id() !== $battle->adjudicator_id ? 'REQUEST CANCEL' : 'CANCEL BATTLE' }}</span>
+                    <button type="button" class="btn btn-neon-danger" onclick="cancelBattle(this)" data-message="{{ in_array($battle->status, ['active', 'failed']) && Auth::id() !== $battle->marshall_id ? 'Request cancellation of this battle? The other player must agree.' : 'Cancel this battle?' }}">
+                        <i class="bi bi-x-circle"></i> <span class="btn-text">{{ in_array($battle->status, ['ready', 'active', 'failed']) && Auth::id() !== $battle->marshall_id ? 'REQUEST CANCEL' : 'CANCEL BATTLE' }}</span>
                     </button>
                 @endif
 
@@ -424,14 +424,14 @@
                                         @case('create') <i class="bi bi-plus-circle-fill text-info"></i> @break
                                         @case('join') <i class="bi bi-person-check-fill text-success"></i> @break
                                         @case('invite') <i class="bi bi-envelope-fill text-warning"></i> @break
-                                        @case('elect_adjudicator') <i class="bi bi-shield-fill text-warning"></i> @break
-                                        @case('adjudicator_election') <i class="bi bi-shield-check text-warning"></i> @break
-                                        @case('adjudicator_accepted') <i class="bi bi-shield-lock-fill text-warning"></i> @break
-                                        @case('adjudicator_rejected') <i class="bi bi-shield-x text-danger"></i> @break
-                                        @case('adjudicator_leave') <i class="bi bi-box-arrow-right text-danger"></i> @break
+                                        @case('elect_marshall') <i class="bi bi-shield-fill text-warning"></i> @break
+                                        @case('marshall_election') <i class="bi bi-shield-check text-warning"></i> @break
+                                        @case('marshall_accepted') <i class="bi bi-shield-lock-fill text-warning"></i> @break
+                                        @case('marshall_rejected') <i class="bi bi-shield-x text-danger"></i> @break
+                                        @case('marshall_leave') <i class="bi bi-box-arrow-right text-danger"></i> @break
                                         @case('declare') <i class="bi bi-megaphone-fill text-info"></i> @break
                                         @case('conflict') <i class="bi bi-exclamation-triangle-fill text-danger"></i> @break
-                                        @case('adjudicator_decision') <i class="bi bi-shield-lock-fill text-warning"></i> @break
+                                        @case('marshall_decision') <i class="bi bi-shield-lock-fill text-warning"></i> @break
                                         @case('consensus') <i class="bi bi-people-fill text-success"></i> @break
                                         @case('winner') <i class="bi bi-trophy-fill text-success"></i> @break
                                         @case('cancel') <i class="bi bi-x-circle-fill text-danger"></i> @break
@@ -507,22 +507,22 @@
     </div>
 </div>
 
-<!-- Elect Adjudicator Modal -->
-<div class="modal fade" id="electAdjudicatorModal" tabindex="-1" aria-hidden="true">
+<!-- Elect Marshall Modal -->
+<div class="modal fade" id="electMarshallModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #ffdd00; backdrop-filter: blur(20px);">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title" style="color: #ffdd00; font-family: 'Orbitron', sans-serif;">ELECT ADJUDICATOR</h5>
+                <h5 class="modal-title" style="color: #ffdd00; font-family: 'Orbitron', sans-serif;">ELECT MARSHALL</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('battles.electAdjudicator', $battle) }}" method="POST">
+            <form action="{{ route('battles.electMarshall', $battle) }}" method="POST">
                 @csrf
                 <div class="modal-body py-4">
                     <div class="mb-3 position-relative">
-                        <label class="form-label">ADJUDICATOR USERNAME</label>
+                        <label class="form-label">MARSHALL USERNAME</label>
                         @php
-                            $existingUsername = Auth::id() === $battle->challenger_id ? $battle->challengerAdjudicator?->username : $battle->opponentAdjudicator?->username;
-                            $existingUserId = Auth::id() === $battle->challenger_id ? $battle->challenger_adjudicator_id : $battle->opponent_adjudicator_id;
+                            $existingUsername = Auth::id() === $battle->challenger_id ? $battle->challengerMarshall?->username : $battle->opponentMarshall?->username;
+                            $existingUserId = Auth::id() === $battle->challenger_id ? $battle->challenger_marshall_id : $battle->opponent_marshall_id;
                         @endphp
                         <div id="adj-input-wrapper" class="form-control d-flex align-items-center p-1" style="min-height: 42px; cursor: text;">
                             <!-- Hidden input for form submission -->
@@ -531,16 +531,16 @@
                             <!-- Selected User Chip -->
                             <span id="adj-selected-chip" class="badge d-flex align-items-center gap-2 p-2 {{ $existingUsername ? '' : 'd-none' }}" style="background: rgba(255,221,0,0.2); border: 1px solid #ffdd00; color: #ffdd00; font-size: 0.9rem;">
                                 <i class="bi bi-person-fill"></i> <span id="adj-chip-text">{{ $existingUsername }}</span>
-                                <i class="bi bi-x-circle-fill ms-2" style="cursor: pointer;" onclick="clearAdjudicatorSelection()"></i>
+                                <i class="bi bi-x-circle-fill ms-2" style="cursor: pointer;" onclick="clearMarshallSelection()"></i>
                             </span>
                             
                             <!-- Search Input -->
-                            <input type="text" id="elect-adjudicator-input" class="border-0 bg-transparent text-white flex-grow-1 px-2 {{ $existingUsername ? 'd-none' : '' }}" placeholder="Search username..." autocomplete="off" style="outline: none; box-shadow: none;">
+                            <input type="text" id="elect-marshall-input" class="border-0 bg-transparent text-white flex-grow-1 px-2 {{ $existingUsername ? 'd-none' : '' }}" placeholder="Search username..." autocomplete="off" style="outline: none; box-shadow: none;">
                         </div>
 
-                        <div id="elect-adjudicator-results" class="position-absolute w-100 mt-1 d-none" style="z-index: 1050; max-height: 200px; overflow-y: auto; background: rgba(10, 10, 30, 0.95); border: 1px solid #ffdd00; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"></div>
+                        <div id="elect-marshall-results" class="position-absolute w-100 mt-1 d-none" style="z-index: 1050; max-height: 200px; overflow-y: auto; background: rgba(10, 10, 30, 0.95); border: 1px solid #ffdd00; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"></div>
                     </div>
-                    <p class="text-muted small">Both players must elect the same user for them to be invited as an adjudicator. Participants cannot be elected.</p>
+                    <p class="text-muted small">Both players must elect the same user for them to be invited as an marshall. Participants cannot be elected.</p>
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="submit" class="btn btn-neon w-100" style="border-color: #ffdd00; color: #ffdd00;">ELECT USER</button>
@@ -550,20 +550,20 @@
     </div>
 </div>
 
-<!-- Adjudicator Response Options -->
-@if(!$battle->adjudicator_id && $battle->challenger_adjudicator_id === Auth::id() && $battle->opponent_adjudicator_id === Auth::id())
+<!-- Marshall Response Options -->
+@if(!$battle->marshall_id && $battle->challenger_marshall_id === Auth::id() && $battle->opponent_marshall_id === Auth::id())
 <div class="col-lg-12 mt-3">
     <div class="neon-card p-4 border-warning text-center" style="background: rgba(255, 221, 0, 0.05);">
-        <h4 class="neon-text-yellow mb-3">⚖️ ADJUDICATOR ELECTION</h4>
+        <h4 class="neon-text-yellow mb-3">⚖️ MARSHALL ELECTION</h4>
         <p>Both players have elected you to adjudicate this battle. Do you accept this responsibility?</p>
         <div class="d-flex gap-3 justify-content-center mt-4">
-            <form method="POST" action="{{ route('battles.acceptAdjudicator', $battle) }}">
+            <form method="POST" action="{{ route('battles.acceptMarshall', $battle) }}">
                 @csrf
                 <button type="submit" class="btn btn-neon" style="background: rgba(255, 221, 0, 0.1); border-color: #ffdd00; color: #ffdd00;">
                     <i class="bi bi-check-lg"></i> ACCEPT ROLE
                 </button>
             </form>
-            <form method="POST" action="{{ route('battles.rejectAdjudicator', $battle) }}">
+            <form method="POST" action="{{ route('battles.rejectMarshall', $battle) }}">
                 @csrf
                 <button type="submit" class="btn btn-outline-danger">
                     <i class="bi bi-x-lg"></i> REJECT
@@ -585,13 +585,13 @@
             <div class="modal-body py-4">
                 @if($battle->status === 'failed')
                     <div class="alert alert-danger mb-4" style="background: rgba(255,0,0,0.1); border-color: #ff0055; color: #ff0055; font-size: 0.85rem;">
-                        <i class="bi bi-exclamation-octagon-fill"></i> <strong>CONFLICT DETECTED:</strong> Players have declared different winners. Please reach a consensus or wait for the adjudicator.
+                        <i class="bi bi-exclamation-octagon-fill"></i> <strong>CONFLICT DETECTED:</strong> Players have declared different winners. Please reach a consensus or wait for the marshall.
                     </div>
                 @endif
 
-                @if($battle->adjudicator_id === Auth::id())
-                    {{-- ADJUDICATOR VIEW: Full selection --}}
-                    <p class="text-center mb-4">Click on a player below to declare them as the winner of this match. As an adjudicator, your decision will finalize the battle immediately.</p>
+                @if($battle->marshall_id === Auth::id())
+                    {{-- MARSHALL VIEW: Full selection --}}
+                    <p class="text-center mb-4">Click on a player below to declare them as the winner of this match. As an marshall, your decision will finalize the battle immediately.</p>
                     
                     <div class="d-flex flex-column gap-3 text-start mb-2">
                         <!-- Challenger Option -->
@@ -822,7 +822,7 @@
                     }
 
                     // For major structural changes (like someone joining or the battle completing),
-                    if (['join', 'start', 'winner', 'adjudicator_accepted', 'cancel', 'cancel_agree', 'cancel_reject', 'adjudicator_decision', 'consensus'].includes(e.type)) {
+                    if (['join', 'start', 'winner', 'marshall_accepted', 'cancel', 'cancel_agree', 'cancel_reject', 'marshall_decision', 'consensus'].includes(e.type)) {
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500); // Give user a moment to see the notification
@@ -865,7 +865,7 @@
                                 opponentStatusText.innerText = e.opponent_declared_name;
                             }
 
-                            // Update declaration names in adjudicator modal if it exists
+                            // Update declaration names in marshall modal if it exists
                             const challengerDeclName = document.getElementById('challenger-declaration-text');
                             const opponentDeclName = document.getElementById('opponent-declaration-text');
 
@@ -882,7 +882,7 @@
                                 if (modalBody && !modalBody.querySelector('.alert-danger')) {
                                     const alertHtml = `
                                     <div class="alert alert-danger mb-4" style="background: rgba(255,0,0,0.1); border-color: #ff0055; color: #ff0055; font-size: 0.85rem;">
-                                        <i class="bi bi-exclamation-octagon-fill"></i> <strong>CONFLICT DETECTED:</strong> Players have declared different winners. Please reach a consensus or wait for the adjudicator.
+                                        <i class="bi bi-exclamation-octagon-fill"></i> <strong>CONFLICT DETECTED:</strong> Players have declared different winners. Please reach a consensus or wait for the marshall.
                                     </div>`;
                                     modalBody.insertAdjacentHTML('afterbegin', alertHtml);
                                 }
@@ -1051,14 +1051,14 @@
             case 'create': return '<i class="bi bi-plus-circle-fill text-info"></i>';
             case 'join': return '<i class="bi bi-person-check-fill text-success"></i>';
             case 'invite': return '<i class="bi bi-envelope-fill text-warning"></i>';
-            case 'elect_adjudicator': return '<i class="bi bi-shield-fill text-warning"></i>';
-            case 'adjudicator_election': return '<i class="bi bi-shield-check text-warning"></i>';
-            case 'adjudicator_accepted': return '<i class="bi bi-shield-lock-fill text-warning"></i>';
-            case 'adjudicator_rejected': return '<i class="bi bi-shield-x text-danger"></i>';
-            case 'adjudicator_leave': return '<i class="bi bi-box-arrow-right text-danger"></i>';
+            case 'elect_marshall': return '<i class="bi bi-shield-fill text-warning"></i>';
+            case 'marshall_election': return '<i class="bi bi-shield-check text-warning"></i>';
+            case 'marshall_accepted': return '<i class="bi bi-shield-lock-fill text-warning"></i>';
+            case 'marshall_rejected': return '<i class="bi bi-shield-x text-danger"></i>';
+            case 'marshall_leave': return '<i class="bi bi-box-arrow-right text-danger"></i>';
             case 'declare': return '<i class="bi bi-megaphone-fill text-info"></i>';
             case 'conflict': return '<i class="bi bi-exclamation-triangle-fill text-danger"></i>';
-            case 'adjudicator_decision': return '<i class="bi bi-shield-lock-fill text-warning"></i>';
+            case 'marshall_decision': return '<i class="bi bi-shield-lock-fill text-warning"></i>';
             case 'consensus': return '<i class="bi bi-people-fill text-success"></i>';
             case 'winner': return '<i class="bi bi-trophy-fill text-success"></i>';
             case 'cancel': return '<i class="bi bi-x-circle-fill text-danger"></i>';
@@ -1134,13 +1134,13 @@
         setTimeout(() => { btn.innerText = originalText; }, 2000);
     }
 
-    // Elect Adjudicator Auto-Suggest
+    // Elect Marshall Auto-Suggest
     const adjWrapper = document.getElementById('adj-input-wrapper');
-    const adjInput = document.getElementById('elect-adjudicator-input');
+    const adjInput = document.getElementById('elect-marshall-input');
     const adjHidden = document.getElementById('adj-hidden-user-id');
     const adjChip = document.getElementById('adj-selected-chip');
     const adjChipText = document.getElementById('adj-chip-text');
-    const adjResults = document.getElementById('elect-adjudicator-results');
+    const adjResults = document.getElementById('elect-marshall-results');
     let adjDebounce = null;
 
     if (adjInput && adjResults) {
@@ -1171,7 +1171,7 @@
                         adjResults.innerHTML = '<div class="p-2 text-center text-muted small">No players found</div>';
                     } else {
                         adjResults.innerHTML = users.map(u => `
-                            <div class="adj-search-item p-2 d-flex align-items-center gap-2" onmousedown="selectAdjudicator(${u.id}, '${u.username}')" style="cursor: pointer; border-bottom: 1px solid rgba(255, 221, 0, 0.1);">
+                            <div class="adj-search-item p-2 d-flex align-items-center gap-2" onmousedown="selectMarshall(${u.id}, '${u.username}')" style="cursor: pointer; border-bottom: 1px solid rgba(255, 221, 0, 0.1);">
                                 <img src="${u.avatar_url}" alt="${u.username}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ffdd00;">
                                 <span class="text-white">@${u.username}</span>
                             </div>
@@ -1200,7 +1200,7 @@
         });
     }
 
-    window.selectAdjudicator = function(userId, username) {
+    window.selectMarshall = function(userId, username) {
         adjHidden.value = userId;
         adjInput.value = '';
         adjInput.classList.add('d-none');
@@ -1209,7 +1209,7 @@
         adjResults.classList.add('d-none');
     }
 
-    window.clearAdjudicatorSelection = function() {
+    window.clearMarshallSelection = function() {
         adjHidden.value = '';
         adjChip.classList.add('d-none');
         adjInput.classList.remove('d-none');
@@ -1329,7 +1329,7 @@
     .neon-notification-cancel_reject { border-color: #ff0055; box-shadow: 0 0 20px rgba(255, 0, 85, 0.3); }
     .neon-notification-declare { border-color: #00f0ff; box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); }
     .neon-notification-conflict { border-color: #ff0055; box-shadow: 0 0 20px rgba(255, 0, 85, 0.3); }
-    .neon-notification-adjudicator_decision { border-color: #ffdd00; box-shadow: 0 0 20px rgba(255, 221, 0, 0.3); }
+    .neon-notification-marshall_decision { border-color: #ffdd00; box-shadow: 0 0 20px rgba(255, 221, 0, 0.3); }
     .neon-notification-consensus { border-color: #39ff14; box-shadow: 0 0 20px rgba(57, 255, 20, 0.3); }
     .neon-notification-poke { border-color: #00f0ff; box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); }
 

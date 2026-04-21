@@ -31,9 +31,9 @@ class BattleInvite extends Model
                        ->where('battles.status', 'pending')
                        ->whereNull('battles.opponent_id');
                 })->orWhere(function ($q2) {
-                    $q2->where('battle_invites.role', 'adjudicator')
+                    $q2->where('battle_invites.role', 'marshall')
                        ->whereIn('battles.status', ['pending', 'ready', 'active', 'failed'])
-                       ->whereNull('battles.adjudicator_id');
+                       ->whereNull('battles.marshall_id');
                 });
             })
             ->select('battle_invites.*');

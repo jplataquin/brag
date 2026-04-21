@@ -16,7 +16,7 @@ class Battle extends Model
         'terms',
         'challenger_id',
         'opponent_id',
-        'adjudicator_id',
+        'marshall_id',
         'challenger_card_id',
         'opponent_card_id',
         'winner_id',
@@ -27,9 +27,9 @@ class Battle extends Model
         'opponent_cancel_timestamp',
         'challenger_declared_user_win',
         'opponent_declared_user_win',
-        'adjudicator_declared_user_win',
-        'challenger_adjudicator_id',
-        'opponent_adjudicator_id',
+        'marshall_declared_user_win',
+        'challenger_marshall_id',
+        'opponent_marshall_id',
     ];
 
     protected $casts = [
@@ -56,21 +56,21 @@ class Battle extends Model
     }
 
     /**
-     * The adjudicator of the battle.
+     * The marshall of the battle.
      */
-    public function adjudicator()
+    public function marshall()
     {
-        return $this->belongsTo(User::class, 'adjudicator_id');
+        return $this->belongsTo(User::class, 'marshall_id');
     }
 
-    public function challengerAdjudicator()
+    public function challengerMarshall()
     {
-        return $this->belongsTo(User::class, 'challenger_adjudicator_id');
+        return $this->belongsTo(User::class, 'challenger_marshall_id');
     }
 
-    public function opponentAdjudicator()
+    public function opponentMarshall()
     {
-        return $this->belongsTo(User::class, 'opponent_adjudicator_id');
+        return $this->belongsTo(User::class, 'opponent_marshall_id');
     }
 
     /**

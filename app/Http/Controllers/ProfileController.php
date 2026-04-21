@@ -127,8 +127,8 @@ class ProfileController extends Controller
                     $except[] = $battle->opponent_id;
                 }
 
-                if($battle->adjudicator_id){
-                    $except[] = $battle->adjudicator_id;
+                if($battle->marshall_id){
+                    $except[] = $battle->marshall_id;
                 }
             }
         }

@@ -53,7 +53,7 @@ class BattleUpdated implements ShouldBroadcastNow
             'type' => $this->type,
             'challenger_declared_user_win' => $this->battle->challenger_declared_user_win,
             'opponent_declared_user_win' => $this->battle->opponent_declared_user_win,
-            'adjudicator_declared_user_win' => $this->battle->adjudicator_declared_user_win,
+            'marshall_declared_user_win' => $this->battle->marshall_declared_user_win,
             'challenger_declared_name' => $this->battle->challenger_declared_user_win ? \App\Models\User::find($this->battle->challenger_declared_user_win)->username : null,
             'opponent_declared_name' => $this->battle->opponent_declared_user_win ? \App\Models\User::find($this->battle->opponent_declared_user_win)->username : null,
         ];

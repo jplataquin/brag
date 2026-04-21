@@ -105,11 +105,11 @@ class User extends Authenticatable
     }
 
     /**
-     * Battles where the user is the adjudicator.
+     * Battles where the user is the marshall.
      */
     public function adjudicatedBattles()
     {
-        return $this->hasMany(Battle::class, 'adjudicator_id');
+        return $this->hasMany(Battle::class, 'marshall_id');
     }
 
     /**

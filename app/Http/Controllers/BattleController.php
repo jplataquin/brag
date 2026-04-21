@@ -28,8 +28,8 @@ class BattleController extends Controller
 
         $myBattles = Battle::where('challenger_id', $user->id)
             ->orWhere('opponent_id', $user->id)
-            ->orWhere('adjudicator_id', $user->id)
-            ->with(['challenger', 'opponent', 'adjudicator', 'challengerCard.template', 'opponentCard.template'])
+            ->orWhere('marshall_id', $user->id)
+            ->with(['challenger', 'opponent', 'marshall', 'challengerCard.template', 'opponentCard.template'])
             ->latest()
             ->paginate(12);
 
@@ -97,7 +97,7 @@ class BattleController extends Controller
         }
 
         $battle->load([
-            'challenger', 'opponent', 'adjudicator',
+            'challenger', 'opponent', 'marshall',
             'challengerCard.template.gameTitle', 'opponentCard.template.gameTitle',
             'invites.invitedUser',
             'activities.user',
@@ -112,7 +112,7 @@ class BattleController extends Controller
         $isParticipant = in_array($user->id, [
             $battle->challenger_id,
             $battle->opponent_id,
-            $battle->adjudicator_id,
+            $battle->marshall_id,
         ]);
 
         return view('battles.room', compact('battle', 'availableCards', 'isParticipant'));
@@ -124,7 +124,7 @@ class BattleController extends Controller
     public function json(Battle $battle)
     {
         $battle->load([
-            'challenger', 'opponent', 'adjudicator',
+            'challenger', 'opponent', 'marshall',
             'challengerCard.template.gameTitle', 'opponentCard.template.gameTitle',
             'activities.user',
         ]);
@@ -134,7 +134,7 @@ class BattleController extends Controller
             'isParticipant' => in_array(Auth::id(), [
                 $battle->challenger_id,
                 $battle->opponent_id,
-                $battle->adjudicator_id,
+                $battle->marshall_id,
             ]),
             'authId' => Auth::id()
         ]);
@@ -277,9 +277,9 @@ class BattleController extends Controller
     }
 
     /**
-     * Elect an adjudicator.
+     * Elect an marshall.
      */
-    public function electAdjudicator(Request $request, Battle $battle)
+    public function electMarshall(Request $request, Battle $battle)
     {
         $request->validate([
             'user_id' => [
@@ -288,54 +288,54 @@ class BattleController extends Controller
                 \Illuminate\Validation\Rule::notIn([$battle->challenger_id, $battle->opponent_id])
             ],
         ], [
-            'user_id.not_in' => 'Battle participants cannot be elected as adjudicators.',
+            'user_id.not_in' => 'Battle participants cannot be elected as marshalls.',
             'user_id.exists' => 'The selected user is invalid.',
         ]);
 
         $nominee = User::findOrFail($request->user_id);
 
         try {
-            $this->battleService->electAdjudicator($battle, Auth::user(), $nominee);
-            return back()->with('success', "⚖️ You have elected {$nominee->username} as adjudicator.");
+            $this->battleService->electMarshall($battle, Auth::user(), $nominee);
+            return back()->with('success', "⚖️ You have elected {$nominee->username} as marshall.");
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
 
     /**
-     * Accept an adjudicator election.
+     * Accept an marshall election.
      */
-    public function acceptAdjudicator(Battle $battle)
+    public function acceptMarshall(Battle $battle)
     {
         try {
-            $this->battleService->respondToAdjudicatorElection($battle, Auth::user(), true);
+            $this->battleService->respondToMarshallElection($battle, Auth::user(), true);
             return redirect()->route('battles.room', $battle)
-                ->with('success', '⚖️ You are now the adjudicator of this battle.');
+                ->with('success', '⚖️ You are now the marshall of this battle.');
         } catch (\Exception $e) {
             return redirect()->route('dashboard')->with('error', $e->getMessage());
         }
     }
 
     /**
-     * Reject an adjudicator election.
+     * Reject an marshall election.
      */
-    public function rejectAdjudicator(Battle $battle)
+    public function rejectMarshall(Battle $battle)
     {
         try {
-            $this->battleService->respondToAdjudicatorElection($battle, Auth::user(), false);
-            return redirect()->route('dashboard')->with('success', 'You have rejected the adjudicator role.');
+            $this->battleService->respondToMarshallElection($battle, Auth::user(), false);
+            return redirect()->route('dashboard')->with('success', 'You have rejected the marshall role.');
         } catch (\Exception $e) {
             return redirect()->route('dashboard')->with('error', $e->getMessage());
         }
     }
 
     /**
-     * Adjudicator leaves the battle.
+     * Marshall leaves the battle.
      */
-    public function leaveAdjudicator(Battle $battle)
+    public function leaveMarshall(Battle $battle)
     {
         try {
-            $this->battleService->adjudicatorLeave($battle, Auth::user());
+            $this->battleService->marshallLeave($battle, Auth::user());
             return redirect()->route('dashboard')->with('success', 'You have left the battle room.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -349,7 +349,7 @@ class BattleController extends Controller
     {
         $request->validate([
             'username' => 'required|exists:users,username',
-            'role' => 'required|in:opponent,adjudicator',
+            'role' => 'required|in:opponent,marshall',
         ]);
 
         $invitedUser = User::where('username', $request->username)->firstOrFail();
