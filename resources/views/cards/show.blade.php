@@ -125,7 +125,10 @@
                     <div class="stat-label">Distinct</div>
                 </div>
             </div>
-            <div class="col-6 col-md-3 mt-3 mt-md-0">
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-12">
                 <div class="stat-box h-100">
                     <div class="stat-value" style="color: #ff00ff;">{{ $digitalCard->life_points > 0 ? str_repeat('❤️', $digitalCard->life_points) : '💀' }}</div>
                     <div class="stat-label">Life Points</div>
