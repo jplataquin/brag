@@ -9,7 +9,23 @@
     </a>
 </div>
 
-    <livewire:battle-room :battle="$battle" />
+<div class="row g-4">
+    <!-- 1.) Battle Details -->
+    <div class="col-lg-12">
+        <livewire:battle-room-details :battle="$battle" />
+    </div>
+
+    <!-- 2.) Cards at Stake -->
+    <div class="col-lg-8">
+        <livewire:battle-room-cards :battle="$battle" />
+        <livewire:battle-room-actions :battle="$battle" />
+    </div>
+
+    <!-- 3.) Activity Logs -->
+    <div class="col-lg-4">
+        <livewire:battle-room-logs :battle="$battle" />
+    </div>
+</div>
 @endsection
 
 @section('scripts')
