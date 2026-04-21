@@ -63,60 +63,73 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label">PLAYER PHOTO</label>
-                    @if($template->photo)
-                        <div class="mb-2">
-                            <img src="{{ asset('storage/' . $template->photo) }}" alt="Current" style="max-width: 150px; border-radius: 8px; border: 1px solid rgba(0,240,255,0.2);">
-                            <small class="d-block mt-1" style="color: #555577; font-size: 0.75rem;">Current raw photo</small>
+                    <label class="form-label">CARD IMAGE SOURCE</label>
+                    
+                    <div class="d-flex gap-3 mb-3">
+                        <div class="flex-fill">
+                            <input type="radio" class="btn-check" name="image_mode" id="mode_upload" value="upload" {{ old('image_mode', $template->ai_photo ? 'ai' : 'upload') == 'upload' ? 'checked' : '' }} autocomplete="off">
+                            <label class="btn btn-outline-neon w-100" for="mode_upload">
+                                <i class="bi bi-cloud-upload"></i> UPLOAD PHOTO
+                            </label>
                         </div>
-                    @endif
-                    @if($template->ai_photo)
-                        <div class="mb-3">
-                            <img src="{{ asset('storage/' . $template->ai_photo) }}" alt="AI Enhanced" style="max-width: 150px; border-radius: 8px; border: 2px solid #ff00ff; box-shadow: 0 0 10px rgba(255,0,255,0.4);">
-                            <small class="d-block mt-1" style="color: #ff00ff; font-size: 0.75rem; font-weight: bold;">Current AI Enhanced Photo</small>
-                        </div>
-                    @endif
-                    <div class="position-relative" id="photo-upload-wrapper">
-                        <input type="file" class="position-absolute w-100 h-100 opacity-0"
-                               style="z-index: 2; cursor: pointer; top: 0; left: 0;"
-                               id="photo" accept="image/*">
-                        <div id="photo-dropzone" class="d-flex flex-column align-items-center justify-content-center p-4 text-center neon-card @error('photo') border-danger @enderror" style="border: 2px dashed rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.02); transition: all 0.3s ease;">
-                            <i class="bi bi-cloud-arrow-up-fill mb-2" style="font-size: 2.5rem; color: #00f0ff; text-shadow: 0 0 10px rgba(0,240,255,0.4);"></i>
-                            <span style="font-family: 'Orbitron', sans-serif; color: #00f0ff; font-weight: 600; letter-spacing: 1px;">CLICK OR DRAG TO REPLACE PHOTO</span>
-                            <small class="mt-2" style="color: #8888aa; font-size: 0.75rem;">Supports JPEG, PNG, GIF, WebP</small>
+                        <div class="flex-fill">
+                            <input type="radio" class="btn-check" name="image_mode" id="mode_ai" value="ai" {{ old('image_mode', $template->ai_photo ? 'ai' : 'upload') == 'ai' ? 'checked' : '' }} autocomplete="off">
+                            <label class="btn btn-outline-neon-magenta w-100" for="mode_ai">
+                                <i class="bi bi-magic"></i> AI GENERATE
+                            </label>
                         </div>
                     </div>
-                    <input type="hidden" name="temporary_photo_path" id="temporary_photo_path" value="{{ old('temporary_photo_path') }}">
-                    @error('photo')
-                        <div class="text-danger mt-1 small" style="text-shadow: 0 0 5px rgba(255,0,0,0.5);">{{ $message }}</div>
-                    @enderror
 
-                    <!-- Upload Progress -->
-                    <div id="upload-progress-container" class="mt-2" style="display: none;">
-                        <div class="progress" style="height: 10px; background-color: #111122;">
-                            <div id="upload-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; background-color: #00f0ff;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    <!-- Upload Section -->
+                    <div id="section_upload" style="display: {{ old('image_mode', $template->ai_photo ? 'ai' : 'upload') == 'upload' ? 'block' : 'none' }};">
+                        @if($template->photo && !$template->ai_photo)
+                            <div class="mb-3">
+                                <label class="d-block mb-2" style="font-size: 0.75rem; color: #8888aa;">CURRENT PHOTO</label>
+                                <img src="{{ asset('storage/' . $template->photo) }}" alt="Current" style="max-width: 150px; border-radius: 12px; border: 1px solid rgba(0,240,255,0.2);">
+                            </div>
+                        @endif
+                        <div class="position-relative" id="photo-upload-wrapper">
+                            <input type="file" class="position-absolute w-100 h-100 opacity-0"
+                                   style="z-index: 2; cursor: pointer; top: 0; left: 0;"
+                                   id="photo" accept="image/*">
+                            <div id="photo-dropzone" class="d-flex flex-column align-items-center justify-content-center p-4 text-center neon-card @error('temporary_photo_path') border-danger @enderror" style="border: 2px dashed rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.02); transition: all 0.3s ease;">
+                                <i class="bi bi-cloud-arrow-up-fill mb-2" style="font-size: 2.5rem; color: #00f0ff; text-shadow: 0 0 10px rgba(0,240,255,0.4);"></i>
+                                <span style="font-family: 'Orbitron', sans-serif; color: #00f0ff; font-weight: 600; letter-spacing: 1px;">CLICK OR DRAG TO REPLACE PHOTO</span>
+                                <small class="mt-2" style="color: #8888aa; font-size: 0.75rem;">Supports JPEG, PNG, GIF, WebP</small>
+                            </div>
                         </div>
-                        <small id="upload-status" style="color: #00f0ff; font-size: 0.75rem;">Uploading: 0%</small>
-                    </div>
-                </div>
-
-                <!-- Nano Banana Enhancement -->
-                <div class="mb-4 neon-card p-3" style="border-color: #ff00ff; background: rgba(255,0,255,0.05);">
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input @error('enhance_photo') is-invalid @enderror" type="checkbox" id="enhance_photo" name="enhance_photo" value="1" {{ old('enhance_photo') ? 'checked' : '' }}>
-                        <label class="form-check-label" for="enhance_photo" style="color: #ff00ff; font-weight: bold; text-shadow: 0 0 5px rgba(255,0,255,0.5);">
-                            <i class="bi bi-magic"></i> Enhance with Nano Banana AI
-                        </label>
-                        @error('enhance_photo')
-                            <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
+                        <input type="hidden" name="temporary_photo_path" id="temporary_photo_path" value="{{ old('temporary_photo_path') }}">
+                        @error('temporary_photo_path')
+                            <div class="text-danger mt-1 small" style="text-shadow: 0 0 5px rgba(255,0,0,0.5);">{{ $message }}</div>
                         @enderror
+
+                        <!-- Upload Progress -->
+                        <div id="upload-progress-container" class="mt-2" style="display: none;">
+                            <div class="progress" style="height: 10px; background-color: #111122;">
+                                <div id="upload-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; background-color: #00f0ff;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <small id="upload-status" style="color: #00f0ff; font-size: 0.75rem;">Uploading: 0%</small>
+                        </div>
+
+                        <!-- Photo Preview -->
+                        <div id="photo-preview" class="mt-3" style="display: {{ old('temporary_photo_path') ? 'block' : 'none' }};">
+                            <img id="preview-img" src="{{ old('temporary_photo_path') ? asset('storage/' . old('temporary_photo_path')) : '' }}" alt="Preview" style="max-width: 200px; border-radius: 12px; border: 2px solid rgba(0,240,255,0.2);">
+                        </div>
                     </div>
-                    <div id="ai_prompt_container" style="display: {{ old('enhance_photo') ? 'block' : 'none' }};">
+
+                    <!-- AI Section -->
+                    <div id="section_ai" class="neon-card p-3" style="display: {{ old('image_mode', $template->ai_photo ? 'ai' : 'upload') == 'ai' ? 'block' : 'none' }}; border-color: #ff00ff; background: rgba(255,0,255,0.05);">
+                        @if($template->ai_photo)
+                            <div class="mb-3">
+                                <label class="d-block mb-2" style="font-size: 0.75rem; color: #ff00ff;">CURRENT AI IMAGE</label>
+                                <img src="{{ asset('storage/' . $template->ai_photo) }}" alt="Current AI" style="max-width: 150px; border-radius: 12px; border: 2px solid #ff00ff; box-shadow: 0 0 10px rgba(255,0,255,0.4);">
+                            </div>
+                        @endif
                         <label for="ai_prompt" class="form-label" style="font-size: 0.85rem; color: #bbbbd0;">ART STYLE PROMPT</label>
-                        <input type="text" class="form-control @error('ai_prompt') is-invalid @enderror"
-                               id="ai_prompt" name="ai_prompt" value="{{ old('ai_prompt') }}"
-                               placeholder="e.g. Cyberpunk hacker, Neon glowing eyes, Fantasy warrior...">
-                        <small style="color: #555577; font-size: 0.75rem;">Describe the artistic game art style you want. (Required for AI)</small>
+                        <textarea class="form-control @error('ai_prompt') is-invalid @enderror"
+                               id="ai_prompt" name="ai_prompt" rows="2"
+                               placeholder="e.g. Cyberpunk hacker, Neon glowing eyes, Fantasy warrior...">{{ old('ai_prompt') }}</textarea>
+                        <small style="color: #555577; font-size: 0.75rem;">Describe the character or art style you want. Nano Banana will generate it from scratch.</small>
                         @error('ai_prompt')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -125,17 +138,20 @@
                         
                         <div class="mt-3">
                             <button type="button" class="btn btn-neon-magenta btn-sm" id="btn-preview-ai">
-                                <i class="bi bi-eye"></i> Generate Preview
+                                <i class="bi bi-magic"></i> Generate AI Image
                             </button>
                             <span id="ai-loading" style="display: none; color: #00f0ff; margin-left: 10px; font-size: 0.85rem;">
                                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...
                             </span>
                         </div>
 
-                        <div id="ai-result-container" class="mt-3" style="display: none;">
+                        <div id="ai-result-container" class="mt-3" style="display: {{ old('generated_ai_photo') ? 'block' : 'none' }};">
                             <label style="font-size: 0.75rem; color: #ff00ff; display: block; margin-bottom: 5px;">AI PREVIEW</label>
-                            <img id="ai-preview-img" src="" alt="AI Preview" style="max-width: 200px; border-radius: 12px; border: 2px solid #ff00ff; box-shadow: 0 0 10px rgba(255,0,255,0.4);">
+                            <img id="ai-preview-img" src="{{ old('generated_ai_photo') ? asset('storage/' . old('generated_ai_photo')) : '' }}" alt="AI Preview" style="max-width: 200px; border-radius: 12px; border: 2px solid #ff00ff; box-shadow: 0 0 10px rgba(255,0,255,0.4);">
                         </div>
+                        @error('generated_ai_photo')
+                            <div class="text-danger mt-1 small">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </form>
@@ -337,88 +353,115 @@
                 dropzone.style.borderColor = '#39ff14';
 
                 const reader = new FileReader();
-            reader.onload = function(e) {
-                updateLivePreview({ image: e.target.result });
-            };
-            reader.readAsDataURL(file);
+                reader.onload = function(e) {
+                    document.getElementById('preview-img').src = e.target.result;
+                    document.getElementById('photo-preview').style.display = 'block';
+                    if (document.getElementById('mode_upload').checked) {
+                        updateLivePreview({ image: e.target.result });
+                    }
+                };
+                reader.readAsDataURL(file);
 
-            // Chunk Upload
-            const btnSubmit = document.getElementById('btn-submit-template');
-            const progressContainer = document.getElementById('upload-progress-container');
-            const progressBar = document.getElementById('upload-progress-bar');
-            const statusText = document.getElementById('upload-status');
-            const tempInput = document.getElementById('temporary_photo_path');
+                // Chunk Upload
+                const btnSubmit = document.getElementById('btn-update-template');
+                const progressContainer = document.getElementById('upload-progress-container');
+                const progressBar = document.getElementById('upload-progress-bar');
+                const statusText = document.getElementById('upload-status');
+                const tempInput = document.getElementById('temporary_photo_path');
 
-            btnSubmit.disabled = true;
-            progressContainer.style.display = 'block';
-            progressBar.style.width = '0%';
-            statusText.innerText = 'Uploading: 0%';
+                btnSubmit.disabled = true;
+                progressContainer.style.display = 'block';
+                progressBar.style.width = '0%';
+                statusText.innerText = 'Uploading: 0%';
 
-            const CHUNK_SIZE = 256 * 1024; // 256KB
-            const fileId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-            const extension = file.name.split('.').pop();
-            let chunkIndex = 0;
+                const CHUNK_SIZE = 256 * 1024; // 256KB
+                const fileId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+                const extension = file.name.split('.').pop();
+                let chunkIndex = 0;
 
-            function uploadNextChunk() {
-                const start = chunkIndex * CHUNK_SIZE;
-                const end = Math.min(start + CHUNK_SIZE, file.size);
-                const chunk = file.slice(start, end);
+                function uploadNextChunk() {
+                    const start = chunkIndex * CHUNK_SIZE;
+                    const end = Math.min(start + CHUNK_SIZE, file.size);
+                    const chunk = file.slice(start, end);
 
-                const formData = new FormData();
-                formData.append('file', chunk);
-                formData.append('file_id', fileId);
-                formData.append('chunk_index', chunkIndex);
-                formData.append('total_chunks', totalChunks);
-                formData.append('extension', extension);
-                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                    const formData = new FormData();
+                    formData.append('file', chunk);
+                    formData.append('file_id', fileId);
+                    formData.append('chunk_index', chunkIndex);
+                    formData.append('total_chunks', totalChunks);
+                    formData.append('extension', extension);
+                    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
 
-                fetch('{{ route("upload.chunk") }}', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        statusText.innerText = 'Upload failed!';
+                    fetch('{{ route("upload.chunk") }}', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            statusText.innerText = 'Upload failed!';
+                            statusText.style.color = 'red';
+                            btnSubmit.disabled = false;
+                            return;
+                        }
+                        
+                        chunkIndex++;
+                        const percent = Math.round((chunkIndex / totalChunks) * 100);
+                        progressBar.style.width = percent + '%';
+                        statusText.innerText = 'Uploading: ' + percent + '%';
+
+                        if (chunkIndex < totalChunks) {
+                            uploadNextChunk();
+                        } else if (data.success && data.path) {
+                            tempInput.value = data.path;
+                            statusText.innerText = 'Upload complete!';
+                            statusText.style.color = '#39ff14';
+                            btnSubmit.disabled = false;
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Upload Error:', err);
+                        statusText.innerText = 'Upload error!';
                         statusText.style.color = 'red';
                         btnSubmit.disabled = false;
-                        return;
-                    }
-                    
-                    chunkIndex++;
-                    const percent = Math.round((chunkIndex / totalChunks) * 100);
-                    progressBar.style.width = percent + '%';
-                    statusText.innerText = 'Uploading: ' + percent + '%';
-
-                    if (chunkIndex < totalChunks) {
-                        uploadNextChunk();
-                    } else if (data.success && data.path) {
-                        tempInput.value = data.path;
-                        statusText.innerText = 'Upload complete!';
-                        statusText.style.color = '#39ff14';
-                        btnSubmit.disabled = false;
-                    }
-                })
-                .catch(err => {
-                    console.error('Upload Error:', err);
-                    statusText.innerText = 'Upload error!';
-                    statusText.style.color = 'red';
-                    btnSubmit.disabled = false;
-                });
+                    });
+                }
+                uploadNextChunk();
             }
-            uploadNextChunk();
-        }
-    });
+        });
     }
 
-    document.getElementById('enhance_photo').addEventListener('change', function() {
-        document.getElementById('ai_prompt_container').style.display = this.checked ? 'block' : 'none';
-        if(this.checked) {
-            document.getElementById('ai_prompt').setAttribute('required', 'required');
-        } else {
-            document.getElementById('ai_prompt').removeAttribute('required');
-        }
+    // Image Mode Toggle Logic
+    document.querySelectorAll('input[name="image_mode"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'upload') {
+                document.getElementById('section_upload').style.display = 'block';
+                document.getElementById('section_ai').style.display = 'none';
+                
+                // Update live preview
+                const uploadPreview = document.getElementById('preview-img').src;
+                if (uploadPreview && !uploadPreview.endsWith('/edit')) {
+                    updateLivePreview({ image: uploadPreview });
+                } else {
+                    // Fallback to original template photo
+                    updateLivePreview({ image: "{{ asset('storage/' . $template->photo) }}" });
+                }
+            } else {
+                document.getElementById('section_upload').style.display = 'none';
+                document.getElementById('section_ai').style.display = 'block';
+                
+                // Update live preview
+                const aiPreview = document.getElementById('ai-preview-img').src;
+                if (aiPreview && !aiPreview.endsWith('/edit')) {
+                    updateLivePreview({ image: aiPreview });
+                } else if ("{{ $template->ai_photo }}") {
+                    updateLivePreview({ image: "{{ asset('storage/' . $template->ai_photo) }}" });
+                } else {
+                    updateLivePreview({ image: '' });
+                }
+            }
+        });
     });
 
     document.getElementById('btn-preview-ai').addEventListener('click', function() {
@@ -433,7 +476,6 @@
         const resultContainer = document.getElementById('ai-result-container');
         const img = document.getElementById('ai-preview-img');
         const hiddenInput = document.getElementById('generated_ai_photo');
-        const tempPhotoInput = document.getElementById('temporary_photo_path');
 
         btn.disabled = true;
         loading.style.display = 'inline-block';
@@ -441,14 +483,7 @@
 
         const formData = new FormData();
         formData.append('ai_prompt', prompt);
-        if (tempPhotoInput.value) {
-            formData.append('temporary_photo_path', tempPhotoInput.value);
-        } else if ("{{ $template->photo }}") {
-            // Include existing photo logic if needed? We will just pass nothing and backend uses default if applicable?
-            // Actually TemplateController requires temporary_photo_path or it fails?
-            // Let's pass the existing photo path if we don't have a new one.
-            formData.append('temporary_photo_path', "{{ $template->photo }}");
-        }
+        // Note: We do NOT send temporary_photo_path here because the user wants purely text-to-image
         
         // Add CSRF token
         formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
@@ -469,6 +504,7 @@
                 img.src = data.url;
                 hiddenInput.value = data.path;
                 resultContainer.style.display = 'block';
+                updateLivePreview({ image: data.url });
             } else {
                 window.neonAlert('Failed to generate preview: ' + (data.message || 'Unknown error'));
             }

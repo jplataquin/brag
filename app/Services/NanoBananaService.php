@@ -10,16 +10,15 @@ use Illuminate\Support\Facades\Log;
 class NanoBananaService
 {
     /**
-     * Enhance the given photo into an artistic game art.
-     * Note: Mocks the Nano Banana AI API.
+     * Generate an artistic game art image.
      *
-     * @param string $originalPhotoPath
      * @param string $prompt
+     * @param string|null $originalPhotoPath
      * @return string The path to the generated AI photo
      */
-    public function enhanceImage(string $originalPhotoPath, string $prompt): string
+    public function generateImage(string $prompt, ?string $originalPhotoPath = null): string
     {
-        Log::info("Nano Banana AI enhancement requested", ['prompt' => $prompt, 'original' => $originalPhotoPath]);
+        Log::info("Nano Banana AI generation requested", ['prompt' => $prompt, 'original' => $originalPhotoPath]);
 
         $apiKey = config('services.nano_banana.key');
         $apiUrl = config('services.nano_banana.url');
@@ -28,30 +27,29 @@ class NanoBananaService
         $fullPrompt = "highly detailed video game character portrait, " . $prompt . ", digital art, vibrant neon colors, masterpiece 8k";
 
         try {
-            // If the user has configured their real API key in the .env file, we process the real Image-to-Image request
+            // If the user has configured their real API key in the .env file, we process the real request
             if (!empty($apiKey)) {
-                $photoContents = Storage::disk('public')->get($originalPhotoPath);
                 
-                if (!$photoContents) {
-                    throw new \Exception("Could not read the original photo file.");
-                }
+                $parts = [['text' => $fullPrompt]];
 
-                $mimeType = Storage::disk('public')->mimeType($originalPhotoPath) ?: 'image/jpeg';
-                $base64Image = base64_encode($photoContents);
+                if ($originalPhotoPath && Storage::disk('public')->exists($originalPhotoPath)) {
+                    $photoContents = Storage::disk('public')->get($originalPhotoPath);
+                    $mimeType = Storage::disk('public')->mimeType($originalPhotoPath) ?: 'image/jpeg';
+                    $base64Image = base64_encode($photoContents);
+                    
+                    $parts[] = [
+                        'inline_data' => [
+                            'mime_type' => $mimeType,
+                            'data' => $base64Image
+                        ]
+                    ];
+                }
 
                 // Constructing the payload specifically for Gemini Vision / Nano Banana
                 $payload = [
                     'contents' => [
                         [
-                            'parts' => [
-                                ['text' => $fullPrompt],
-                                [
-                                    'inline_data' => [
-                                        'mime_type' => $mimeType,
-                                        'data' => $base64Image
-                                    ]
-                                ]
-                            ]
+                            'parts' => $parts
                         ]
                     ],
                     'generationConfig' => [
@@ -70,33 +68,21 @@ class NanoBananaService
                     ->post($requestUrl, $payload);
 
                 if ($response->successful()) {
-                    // Extracting the generated text/URL or handling the JSON response properly.
-                    // NOTE: Gemini Flash models return generated text describing the image transformation 
-                    // or base64 generated images depending on the specific endpoint (e.g. imagen-3).
-                    // We will parse the standard Gemini text response and log it, then fallback to mock for visuals
-                    // until an exact image generation endpoint (Imagen) is finalized in the env.
-                    
                     $data = $response->json();
                     Log::debug("Gemini raw response:", ['data' => $data]);
                     
-                    // Gemini 2.5 Flash and newer models might return a successful 'STOP' finishReason even if 
-                    // the text parts are empty or nested differently depending on prompt settings.
-                    // If candidates exist and it successfully finished, we consider the prompt validated.
                     if (isset($data['candidates'][0]) && 
                         (isset($data['candidates'][0]['finishReason']) && $data['candidates'][0]['finishReason'] === 'STOP')) {
-                        // The model understood the prompt and image. For this template, we'll log it.
-                        Log::info("Gemini processed the image prompt successfully.");
+                        Log::info("Gemini processed the prompt successfully.");
                         
-                        // Because standard Gemini 2.0/2.5 returns text (not raw image bytes like our previous mock),
-                        // We will forcefully use the fallback mock to generate the *actual* visual image for the user 
-                        // so the UI remains unbroken while utilizing the prompt.
+                        // Fallback to Pollinations for visual as Gemini Text models don't return images
                         throw new \Exception("GEMINI_SUCCESS_FALLBACK");
                     }
                     
                     throw new \Exception("Unexpected API response format: " . json_encode($data));
                 } else {
                     Log::error("Real Nano Banana API failed. Status: " . $response->status() . " Body: " . $response->body());
-                    throw new \Exception("Real AI service returned an error status: " . $response->status() . " " . $response->body());
+                    throw new \Exception("Real AI service returned an error status: " . $response->status());
                 }
             }
 

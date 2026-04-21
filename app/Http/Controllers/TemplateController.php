@@ -38,10 +38,10 @@ class TemplateController extends Controller
             'temporary_photo_path' => 'nullable|string',
         ]);
 
-        $photoPath = $request->input('temporary_photo_path', '');
+        $photoPath = $request->input('temporary_photo_path');
 
         try {
-            $aiPhotoPath = $nanoBanana->enhanceImage($photoPath, $request->ai_prompt);
+            $aiPhotoPath = $nanoBanana->generateImage($request->ai_prompt, $photoPath);
             return response()->json([
                 'success' => true,
                 'url' => asset('storage/' . $aiPhotoPath),
@@ -61,10 +61,10 @@ class TemplateController extends Controller
             'card_title' => 'required|string|max:50|unique:templates,card_title',
             'game_title_id' => 'required|exists:game_titles,id',
             'quote' => 'required|string|max:500',
-            'temporary_photo_path' => 'nullable|string',
-            'enhance_photo' => 'nullable|boolean',
-            'ai_prompt' => 'nullable|string|max:200|required_if:enhance_photo,1',
-            'generated_ai_photo' => 'nullable|string',
+            'image_mode' => 'required|in:upload,ai',
+            'temporary_photo_path' => 'nullable|string|required_if:image_mode,upload',
+            'ai_prompt' => 'nullable|string|max:200|required_if:image_mode,ai',
+            'generated_ai_photo' => 'nullable|string|required_if:image_mode,ai',
             'background_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'border_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'section_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
@@ -73,7 +73,9 @@ class TemplateController extends Controller
         ], [
             'game_title_id.required' => 'The game title field is required.',
             'game_title_id.exists' => 'The selected game title is invalid.',
-            'ai_prompt.required_if' => 'An art style prompt is required when enhancing the photo.',
+            'ai_prompt.required_if' => 'An art style prompt is required for AI generation.',
+            'generated_ai_photo.required_if' => 'Please generate an AI preview before saving.',
+            'temporary_photo_path.required_if' => 'Please upload a photo.',
             'background_color.regex' => 'The background color must be a valid hex code.',
             'border_color.regex' => 'The border color must be a valid hex code.',
             'section_color.regex' => 'The section color must be a valid hex code.',
@@ -87,9 +89,7 @@ class TemplateController extends Controller
         $gameTitleId = (int) $request->input('game_title_id');
         
         if ($gameTitleId > 0) {
-            
-        $exists = $user->templates()->where('game_title_id', $gameTitleId)->exists();
-
+            $exists = $user->templates()->where('game_title_id', $gameTitleId)->exists();
             if ($exists) {
                 return back()->withErrors(['game_title_id' => 'You already have a template for this game title.'])->withInput();
             }
@@ -99,7 +99,7 @@ class TemplateController extends Controller
         $data['card_title'] = strtoupper($data['card_title']);
         $data['user_id'] = $user->id;
 
-        if ($request->filled('temporary_photo_path')) {
+        if ($request->image_mode === 'upload' && $request->filled('temporary_photo_path')) {
             $tmpPath = $request->input('temporary_photo_path');
             if (Storage::disk('public')->exists($tmpPath)) {
                 $newPath = 'templates/' . basename($tmpPath);
@@ -107,22 +107,11 @@ class TemplateController extends Controller
                 Storage::disk('public')->setVisibility($newPath, 'public');
                 $data['photo'] = $newPath;
             } else {
-                $data['photo'] = $tmpPath; // Just in case it's already moved or formatted
+                $data['photo'] = $tmpPath;
             }
-
-            if ($request->filled('enhance_photo')) {
-                if ($request->filled('generated_ai_photo')) {
-                    $data['ai_photo'] = $request->generated_ai_photo;
-                } else {
-                    try {
-                        $data['ai_photo'] = $nanoBanana->enhanceImage($data['photo'], $request->ai_prompt);
-                    } catch (\Exception $e) {
-                        return back()->withErrors(['enhance_photo' => 'AI Enhancement failed: ' . $e->getMessage()])->withInput();
-                    }
-                }
-            }
-        } elseif ($request->filled('enhance_photo') && $request->filled('generated_ai_photo')) {
+        } elseif ($request->image_mode === 'ai' && $request->filled('generated_ai_photo')) {
              $data['ai_photo'] = $request->generated_ai_photo;
+             $data['photo'] = $request->generated_ai_photo; // Set as main photo as well
         }
 
         Template::create($data);
@@ -174,9 +163,9 @@ class TemplateController extends Controller
             'card_title' => 'required|string|max:50|unique:templates,card_title,' . $template->id,
             'game_title_id' => 'required|exists:game_titles,id',
             'quote' => 'required|string|max:500',
+            'image_mode' => 'required|in:upload,ai',
             'temporary_photo_path' => 'nullable|string',
-            'enhance_photo' => 'nullable|boolean',
-            'ai_prompt' => 'nullable|string|max:200|required_if:enhance_photo,1',
+            'ai_prompt' => 'nullable|string|max:200|required_if:image_mode,ai',
             'generated_ai_photo' => 'nullable|string',
             'background_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'border_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
@@ -186,7 +175,7 @@ class TemplateController extends Controller
         ], [
             'game_title_id.required' => 'The game title field is required.',
             'game_title_id.exists' => 'The selected game title is invalid.',
-            'ai_prompt.required_if' => 'An art style prompt is required when enhancing the photo.',
+            'ai_prompt.required_if' => 'An art style prompt is required for AI generation.',
             'background_color.regex' => 'The background color must be a valid hex code.',
             'border_color.regex' => 'The border color must be a valid hex code.',
             'section_color.regex' => 'The section color must be a valid hex code.',
@@ -209,53 +198,37 @@ class TemplateController extends Controller
         $data = $request->only(['card_title', 'game_title_id', 'quote', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
         $data['card_title'] = strtoupper($data['card_title']);
 
-        if ($request->filled('temporary_photo_path')) {
-            // Delete old photos
-            if ($template->photo) {
-                Storage::disk('public')->delete($template->photo);
-            }
-            if ($template->ai_photo) {
-                Storage::disk('public')->delete($template->ai_photo);
-                $data['ai_photo'] = null;
-            }
+        if ($request->image_mode === 'upload') {
+            if ($request->filled('temporary_photo_path')) {
+                // Delete old photos
+                if ($template->photo) {
+                    Storage::disk('public')->delete($template->photo);
+                }
+                if ($template->ai_photo) {
+                    Storage::disk('public')->delete($template->ai_photo);
+                    $data['ai_photo'] = null;
+                }
 
-            $tmpPath = $request->input('temporary_photo_path');
-            if (Storage::disk('public')->exists($tmpPath)) {
-                $newPath = 'templates/' . basename($tmpPath);
-                Storage::disk('public')->move($tmpPath, $newPath);
-                Storage::disk('public')->setVisibility($newPath, 'public');
-                $data['photo'] = $newPath;
-            } else {
-                $data['photo'] = $tmpPath;
-            }
-
-            if ($request->filled('enhance_photo')) {
-                if ($request->filled('generated_ai_photo')) {
-                    $data['ai_photo'] = $request->generated_ai_photo;
+                $tmpPath = $request->input('temporary_photo_path');
+                if (Storage::disk('public')->exists($tmpPath)) {
+                    $newPath = 'templates/' . basename($tmpPath);
+                    Storage::disk('public')->move($tmpPath, $newPath);
+                    Storage::disk('public')->setVisibility($newPath, 'public');
+                    $data['photo'] = $newPath;
                 } else {
-                    try {
-                        $data['ai_photo'] = $nanoBanana->enhanceImage($data['photo'], $request->ai_prompt);
-                    } catch (\Exception $e) {
-                        return back()->withErrors(['enhance_photo' => 'AI Enhancement failed: ' . $e->getMessage()])->withInput();
-                    }
+                    $data['photo'] = $tmpPath;
                 }
             }
-        } elseif ($request->filled('enhance_photo')) {
+        } elseif ($request->image_mode === 'ai') {
             if ($request->filled('generated_ai_photo')) {
+                if ($template->photo && $template->photo !== $template->ai_photo) {
+                    Storage::disk('public')->delete($template->photo);
+                }
                 if ($template->ai_photo) {
                     Storage::disk('public')->delete($template->ai_photo);
                 }
                 $data['ai_photo'] = $request->generated_ai_photo;
-            } elseif ($template->photo) {
-                // Did not upload a new photo, but checked enhance for the existing one without previewing
-                if ($template->ai_photo) {
-                    Storage::disk('public')->delete($template->ai_photo);
-                }
-                try {
-                    $data['ai_photo'] = $nanoBanana->enhanceImage($template->photo, $request->ai_prompt);
-                } catch (\Exception $e) {
-                    return back()->withErrors(['enhance_photo' => 'AI Enhancement failed: ' . $e->getMessage()])->withInput();
-                }
+                $data['photo'] = $request->generated_ai_photo;
             }
         }
 
