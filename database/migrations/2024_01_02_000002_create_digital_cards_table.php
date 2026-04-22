@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('digital_cards', function (Blueprint $table) {
             $table->id();
             $table->foreignId('template_id')->constrained()->onDelete('cascade');
-            $table->foreignId('owner_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('owner_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('original_owner_id')->constrained('users')->onDelete('cascade');
             $table->unsignedInteger('serial_number')->default(1);
             $table->unsignedInteger('wins')->default(0);
