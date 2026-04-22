@@ -186,9 +186,13 @@
                 <div>
                     <span style="font-size: 0.75rem; color: #555577; text-transform: uppercase; letter-spacing: 1px;">Current Owner</span>
                     <br>
-                    <a href="{{ route('profile.show', $digitalCard->owner->username) }}" class="neon-text" style="font-weight: 600; text-decoration: none;">
-                        @<span>{{ $digitalCard->owner->username }}</span>
-                    </a>
+                    @if($digitalCard->owner)
+                        <a href="{{ route('profile.show', $digitalCard->owner->username) }}" class="neon-text" style="font-weight: 600; text-decoration: none;">
+                            @<span>{{ $digitalCard->owner->username }}</span>
+                        </a>
+                    @else
+                        <span class="text-danger" style="font-weight: 600; font-family: 'Orbitron', sans-serif;"><i class="bi bi-fire"></i> BURNED</span>
+                    @endif
                 </div>
                 <div>
                     <span style="font-size: 0.75rem; color: #555577; text-transform: uppercase; letter-spacing: 1px;">Original Creator</span>

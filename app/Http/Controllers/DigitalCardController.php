@@ -152,15 +152,19 @@ class DigitalCardController extends Controller
 
         // Give shards based on level
         $shards = $card->level;
-        auth()->user()->addShards($shards, 'system', "Burned card #{$card->serial_number} ({$card->template->card_title} - Level {$card->level})");
+        $user = auth()->user();
 
-        // Burn it
-        $card->update([
-            'burned_at' => now(), 
-            'burned_by' => auth()->id(),
-            'owner_id' => null
-        ]);
-        $card->delete();
+        \Illuminate\Support\Facades\DB::transaction(function () use ($card, $shards, $user) {
+            $user->addShards($shards, 'system', "Burned card #{$card->serial_number} ({$card->template->card_title} - Level {$card->level})");
+
+            // Burn it
+            $card->update([
+                'burned_at' => now(), 
+                'burned_by' => $user->id,
+                'owner_id' => null
+            ]);
+            $card->delete();
+        });
 
         return redirect()->route('cards.index')->with('success', "Card successfully burned! You received {$shards} Shard(s).");
     }
