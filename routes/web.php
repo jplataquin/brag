@@ -87,5 +87,8 @@ Route::get('/search', [ProfileController::class, 'search'])->name('search');
 Route::middleware('auth')->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    
+    // Wallet
+    Route::get('/wallet', [\App\Http\Controllers\WalletController::class, 'index'])->name('wallet.index');
 });
 Route::get('/user/{username}', [ProfileController::class, 'show'])->name('profile.show');

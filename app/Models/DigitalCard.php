@@ -180,12 +180,14 @@ class DigitalCard extends Model
         $currentLevel = $this->level;
         $wins = $this->wins;
         $winRate = $this->win_rate;
+        $distinct = $this->distinct_stat;
 
         $newLevel = $currentLevel;
         $levelConditions = config('leveling.conditions', []);
 
         foreach ($levelConditions as $level => $conditions) {
-            if ($currentLevel < $level && $wins >= $conditions['min_wins'] && $winRate >= $conditions['min_win_rate']) {
+            $minDistinct = $conditions['min_distinct'] ?? 0;
+            if ($currentLevel < $level && $wins >= $conditions['min_wins'] && $winRate >= $conditions['min_win_rate'] && $distinct >= $minDistinct) {
                 $newLevel = max($newLevel, $level);
             }
         }

@@ -94,7 +94,7 @@
                     </div>
 
                     <!-- Right Side -->
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav ms-auto align-items-center">
                         @guest
                             @if (Route::has('login'))
                                 <li class="nav-item">
@@ -111,7 +111,15 @@
                                 </li>
                             @endif
                         @else
-                            <div class="d-none d-lg-block">
+                            <!-- Wallet Shards Balance -->
+                            <li class="nav-item me-3">
+                                <a href="{{ route('wallet.index') }}" class="text-decoration-none d-flex align-items-center" style="background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 20px; padding: 4px 12px; transition: all 0.2s;" id="nav-wallet">
+                                    <i class="bi bi-gem me-2" style="color: #00f0ff; font-size: 1.1rem; text-shadow: 0 0 5px #00f0ff;"></i>
+                                    <span class="fw-bold" style="color: #fff; font-family: 'Orbitron', sans-serif;">{{ number_format(Auth::user()->shards_balance, 0) }}</span>
+                                </a>
+                            </li>
+
+                            <div class="d-none d-lg-block me-2">
                                 <livewire:notification-dropdown />
                             </div>
                             
@@ -123,6 +131,9 @@
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarUserDropdown">
                                     <a class="dropdown-item" href="{{ route('profile.show', Auth::user()->username) }}" id="nav-profile">
                                         <i class="bi bi-person-fill"></i> My Profile
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('wallet.index') }}" id="nav-wallet-menu">
+                                        <i class="bi bi-wallet2"></i> My Wallet
                                     </a>
                                     <a class="dropdown-item" href="{{ route('profile.edit') }}" id="nav-edit-profile">
                                         <i class="bi bi-gear-fill"></i> Edit Profile

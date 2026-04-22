@@ -25,6 +25,7 @@ class DigitalCardController extends Controller
         $sortBy = $request->query('sort', 'latest');
         $gameId = $request->query('game');
         $direction = $request->query('dir', 'desc');
+        $search = $request->query('search');
 
         if (!in_array($direction, ['asc', 'desc'])) {
             $direction = 'desc';
@@ -35,6 +36,12 @@ class DigitalCardController extends Controller
         if ($gameId) {
             $query->whereHas('template', function ($q) use ($gameId) {
                 $q->where('game_title_id', $gameId);
+            });
+        }
+
+        if ($search) {
+            $query->whereHas('template', function ($q) use ($search) {
+                $q->where('card_title', 'like', '%' . $search . '%');
             });
         }
 
@@ -54,7 +61,7 @@ class DigitalCardController extends Controller
 
         $games = \App\Models\GameTitle::all();
 
-        return view('cards.gallery', compact('cards', 'sortBy', 'direction', 'games', 'gameId'));
+        return view('cards.gallery', compact('cards', 'sortBy', 'direction', 'games', 'gameId', 'search'));
     }
 
     /**

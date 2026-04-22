@@ -116,3 +116,18 @@ php artisan queue:work --queue=default --timeout=60
 
 ## 11. Final Web Server Configuration
 Point your Nginx or Apache server block's `DocumentRoot` to the `/var/www/brag/public` directory. Restart your web server, and the application will be live.
+
+---
+
+## 12. Task Scheduling (CRON Job)
+Brag uses Laravel's task scheduler to handle automated tasks (like auto-canceling stale battles). To keep these tasks running, add the following entry to your server's crontab:
+
+1. Open the crontab for the `www-data` user (or your current user):
+   ```bash
+   crontab -e
+   ```
+
+2. Add this line at the bottom of the file (ensure the path matches your deployment directory):
+   ```bash
+   * * * * * cd /var/www/brag && php artisan schedule:run >> /dev/null 2>&1
+   ```

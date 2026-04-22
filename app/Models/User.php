@@ -92,6 +92,55 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's shard ledger entries.
+     */
+    public function shardTransactions()
+    {
+        return $this->hasMany(ShardLedger::class);
+    }
+
+    /**
+     * Calculate and return the user's current shards balance.
+     */
+    public function getShardsBalanceAttribute()
+    {
+        $credits = $this->shardTransactions()->sum('credit');
+        $debits = $this->shardTransactions()->sum('debit');
+        
+        return $credits - $debits;
+    }
+
+    /**
+     * Helper to add shards to the user's wallet.
+     */
+    public function addShards($amount, $type, $remarks, $fromId = null, $transferId = null)
+    {
+        return $this->shardTransactions()->create([
+            'credit' => $amount,
+            'debit' => 0,
+            'type' => $type,
+            'remarks' => $remarks,
+            'from_id' => $fromId,
+            'transfer_id' => $transferId,
+        ]);
+    }
+
+    /**
+     * Helper to deduct shards from the user's wallet.
+     */
+    public function deductShards($amount, $type, $remarks, $fromId = null, $transferId = null)
+    {
+        return $this->shardTransactions()->create([
+            'credit' => 0,
+            'debit' => $amount,
+            'type' => $type,
+            'remarks' => $remarks,
+            'from_id' => $fromId,
+            'transfer_id' => $transferId,
+        ]);
+    }
+
+    /**
      * Battles where the user is the challenger.
      */
     public function challengedBattles()
