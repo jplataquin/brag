@@ -32,6 +32,7 @@ class DigitalCard extends Model
         'is_trophy',
         'forged_at',
         'burned_at',
+        'burned_by',
     ];
 
     protected $casts = [
@@ -67,11 +68,19 @@ class DigitalCard extends Model
     }
 
     /**
-     * The original creator of this card.
+     * The user who originally forged the card.
      */
     public function originalOwner()
     {
         return $this->belongsTo(User::class, 'original_owner_id');
+    }
+
+    /**
+     * The user who burned the card.
+     */
+    public function burnedBy()
+    {
+        return $this->belongsTo(User::class, 'burned_by');
     }
 
     /**

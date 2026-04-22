@@ -155,7 +155,11 @@ class DigitalCardController extends Controller
         auth()->user()->addShards($shards, 'system', "Burned card #{$card->serial_number} ({$card->template->card_title} - Level {$card->level})");
 
         // Burn it
-        $card->update(['burned_at' => now(), 'owner_id' => null]);
+        $card->update([
+            'burned_at' => now(), 
+            'burned_by' => auth()->id(),
+            'owner_id' => null
+        ]);
         $card->delete();
 
         return redirect()->route('cards.index')->with('success', "Card successfully burned! You received {$shards} Shard(s).");
