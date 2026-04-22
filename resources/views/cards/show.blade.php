@@ -46,13 +46,6 @@
                     <a href="{{ route('battles.create', ['game_id' => $digitalCard->template->game_title_id, 'card_id' => $digitalCard->id]) }}" class="btn btn-neon-lime w-100 py-3 mb-2" style="font-size: 1.1rem; letter-spacing: 1px; font-weight: bold; box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);">
                         <i class="bi bi-crosshair"></i> BATTLE WITH THIS CARD
                     </a>
-
-                    <form id="burn-form-{{ $digitalCard->id }}" action="{{ route('cards.burn', $digitalCard->id) }}" method="POST" style="display: none;">
-                        @csrf
-                    </form>
-                    <button type="button" class="btn btn-outline-danger w-100 py-2" style="border-color: #ff4444; color: #ff4444;" onclick="window.neonConfirm('Are you sure you want to BURN this card? It will be permanently removed from your inventory and circulation, but you will receive {{ $digitalCard->level }} Shard(s).', function() { document.getElementById('burn-form-{{ $digitalCard->id }}').submit(); });">
-                        <i class="bi bi-fire"></i> BURN THIS CARD
-                    </button>
                 </div>
 
                 @php
@@ -164,6 +157,28 @@
         <div class="neon-card p-3 mb-3">
             <p style="color: #bbbbd0; font-size: 0.9rem; margin-bottom: 0;">"{{ $digitalCard->template->quote }}" — {{ $digitalCard->template->user->username }} ({{ $digitalCard->template->created_at->format('Y') }})</p>
         </div>
+
+        @if(Auth::check() && $digitalCard->owner_id === Auth::id() && !$digitalCard->trashed())
+        <!-- Burn Card Action -->
+        <div class="neon-card p-3 mb-3" style="border-color: rgba(255, 68, 68, 0.3); background: rgba(255, 68, 68, 0.05);">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div>
+                    <span style="font-size: 0.85rem; color: #ff4444; font-family: 'Orbitron', sans-serif; letter-spacing: 1px;"><i class="bi bi-fire"></i> BURN CARD</span>
+                    <p style="color: #bbbbd0; font-size: 0.75rem; margin-bottom: 0; max-width: 300px;">
+                        Permanently destroy this card to receive <strong>{{ $digitalCard->level }} Shard(s)</strong>. This action cannot be undone.
+                    </p>
+                </div>
+                <div>
+                    <form id="burn-form-{{ $digitalCard->id }}" action="{{ route('cards.burn', $digitalCard->id) }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                    <button type="button" class="btn btn-outline-danger btn-sm px-4" style="border-color: #ff4444; color: #ff4444; font-family: 'Orbitron', sans-serif;" onclick="window.neonConfirm('Are you sure you want to BURN this card? It will be permanently removed from your inventory and circulation, but you will receive {{ $digitalCard->level }} Shard(s).').then(confirmed => { if(confirmed) { document.getElementById('burn-form-{{ $digitalCard->id }}').submit(); } });">
+                        BURN
+                    </button>
+                </div>
+            </div>
+        </div>
+        @endif
 
         <!-- Ownership Info -->
         <div class="neon-card p-3">
