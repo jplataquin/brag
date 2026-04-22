@@ -361,9 +361,16 @@ class DigitalCardRenderer {
         ctx.fillStyle = '#ffffff';
         ctx.font = `${fontSizeStats * 0.8}px sans-serif`;
         let lifePointsStr = '';
-        for(let i = 0; i < lifePoints; i++) {
-            lifePointsStr += '❤️';
+        
+        if (lifePoints === 0) {
+            lifePointsStr = '💀';
+            ctx.font = `${fontSizeStats}px sans-serif`;
+        } else {
+            for(let i = 0; i < lifePoints; i++) {
+                lifePointsStr += '❤️';
+            }
         }
+        
         // If template, just show default 3
         if (options.mode === 'template') lifePointsStr = '❤️❤️❤️';
         ctx.fillText(lifePointsStr, startX, yCenterBottomLine);
@@ -380,6 +387,26 @@ class DigitalCardRenderer {
         const formattedQuote = `"${quote}" — ${creator} (${year})`;
         this.wrapText(ctx, formattedQuote, textStartX, descY + (h * 0.02), innerW - (w * 0.08), descH - (h * 0.04), fontSizeDesc * 1.4);
         ctx.restore();
+
+        if (options.burned) {
+            ctx.save();
+            ctx.fillStyle = 'rgba(255, 50, 0, 0.4)'; // Reddish tint
+            ctx.fillRect(0, 0, w, h);
+            ctx.translate(w / 2, h / 2);
+            ctx.rotate(-Math.PI / 6);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = `bold ${h * 0.15}px 'Orbitron', sans-serif`;
+            ctx.fillStyle = 'rgba(255, 50, 0, 0.9)';
+            ctx.shadowColor = '#000';
+            ctx.shadowBlur = 10;
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#000';
+            ctx.strokeText("BURNED", 0, 0);
+            ctx.fillText("BURNED", 0, 0);
+            ctx.restore();
+        }
+
         const currentMode = options.mode || 'default';
         const rankBadgeUrl = this.getRankBadgeUrl(options.rankLevel || 1, currentMode, options.badgeVersion);
         const photoImg = this.imageCache[imageUrl];

@@ -26,11 +26,13 @@
     'serialNumber' => null,
     'year' => null,
     'asThumbnail' => false,
-    'linkUrl' => null
+    'linkUrl' => null,
+    'burned' => false
 ])
 
 @php
 $asThumbnail = filter_var($asThumbnail, FILTER_VALIDATE_BOOLEAN);
+$burned = filter_var($burned, FILTER_VALIDATE_BOOLEAN);
 if (!$year) {
     $year = date('Y');
 }
@@ -87,7 +89,8 @@ $cardOptionsJson = json_encode([
     'badgeVersion' => $badgeVersion,
     'serialNumber' => $serialNumber !== null ? $serialNumber : null,
     'year' => $year,
-    'asThumbnail' => $asThumbnail ? true : false
+    'asThumbnail' => $asThumbnail ? true : false,
+    'burned' => $burned
 ]);
 @endphp
 

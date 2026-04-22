@@ -225,11 +225,16 @@ class BattleService
             $cardTransferred = true;
         }
 
+        $overrides = [];
+        if ($cardTransferred) {
+            $overrides[$loserCardId]['life_points'] = 0;
+        }
+
         // Mark battle as completed and snapshot stats
         $battle->update(array_merge([
             'winner_id' => $winner->id,
             'status' => 'completed',
-        ], $this->generateCardSnapshots($battle)));
+        ], $this->generateCardSnapshots($battle, $overrides)));
 
         $this->logActivity($battle->id, $declarer->id, 'winner', "Battle finalized. {$winner->username} is the official winner.");
 
@@ -706,10 +711,10 @@ class BattleService
     /**
      * Generate snapshot of card metadata.
      */
-    private function generateCardSnapshots(Battle $battle): array
+    private function generateCardSnapshots(Battle $battle, array $overrides = []): array
     {
         $snapshots = [];
-        
+
         if ($battle->challenger_card_id) {
             $cCard = DigitalCard::find($battle->challenger_card_id);
             if ($cCard) {
@@ -718,14 +723,14 @@ class BattleService
                     'losses' => $cCard->losses,
                     'win_rate' => ($cCard->wins + $cCard->losses > 0) ? round(($cCard->wins / ($cCard->wins + $cCard->losses)) * 100) : 0,
                     'distinct_stat' => $cCard->distinct_stat,
-                    'life_points' => $cCard->life_points,
+                    'life_points' => isset($overrides[$cCard->id]['life_points']) ? $overrides[$cCard->id]['life_points'] : $cCard->life_points,
                     'rarity' => $cCard->rarity_slug,
                     'status' => $cCard->status,
                     'level' => $cCard->level,
                 ];
             }
         }
-        
+
         if ($battle->opponent_card_id) {
             $oCard = DigitalCard::find($battle->opponent_card_id);
             if ($oCard) {
@@ -734,14 +739,13 @@ class BattleService
                     'losses' => $oCard->losses,
                     'win_rate' => ($oCard->wins + $oCard->losses > 0) ? round(($oCard->wins / ($oCard->wins + $oCard->losses)) * 100) : 0,
                     'distinct_stat' => $oCard->distinct_stat,
-                    'life_points' => $oCard->life_points,
+                    'life_points' => isset($overrides[$oCard->id]['life_points']) ? $overrides[$oCard->id]['life_points'] : $oCard->life_points,
                     'rarity' => $oCard->rarity_slug,
                     'status' => $oCard->status,
                     'level' => $oCard->level,
                 ];
             }
         }
-        
+
         return $snapshots;
-    }
-}
+    }}

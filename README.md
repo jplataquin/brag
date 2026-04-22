@@ -131,3 +131,39 @@ Brag uses Laravel's task scheduler to handle automated tasks (like auto-cancelin
    ```bash
    * * * * * cd /var/www/brag && php artisan schedule:run >> /dev/null 2>&1
    ```
+
+   ---
+
+   ## 13. Custom Artisan Commands
+   Brag includes several custom Artisan commands to help with system maintenance and administration:
+
+- **Auto-Cancel Stale Battles:** Automatically cancels battles where a cancellation request has been ignored for 5+ minutes.
+  ```bash
+  php artisan app:auto-cancel-battles
+  ```
+
+- **Convert Images to WebP:** Optimizes existing user avatars and template photos by converting them to WebP format.
+  ```bash
+  php artisan app:convert-images-to-webp
+  ```
+
+- **Fix Storage Permissions:** Automatically fixes directory and file permissions in the public storage folder.
+  ```bash
+  php artisan storage:fix-permissions
+  ```
+
+- **Grant Shards:** Grant a specific amount of shards to a user ID or to everyone (using `*`).
+  ```bash
+  php artisan app:grant-shards {amount} {user_id|*}
+  ```
+
+- **Reset Forge Cooldown:** Manually resets the 3-day forging cooldown for a specific template ID.
+  ```bash
+  php artisan forge:reset {template_id}
+  ```
+
+- **Revert Battle Room:** Resets a battle room back to its initial pending state (removing opponents and marshalls).
+  ```bash
+  php artisan battle:revert {room_id}
+  ```
+

@@ -119,17 +119,54 @@ class DigitalCardController extends Controller
     /**
      * Display the specified digital card.
      */
-    public function show(DigitalCard $digitalCard)
+    public function show($id)
     {
-        $digitalCard->load('template.gameTitle', 'owner', 'originalOwner');
+        $digitalCard = DigitalCard::withTrashed()
+            ->with(['template.gameTitle', 'template.user', 'owner', 'originalOwner'])
+            ->findOrFail($id);
+
         return view('cards.show', compact('digitalCard'));
+    }
+
+    /**
+     * Burn a digital card.
+     */
+    public function burn($id)
+    {
+        $card = DigitalCard::findOrFail($id);
+
+        if ($card->owner_id !== auth()->id()) {
+            return back()->with('error', 'You do not own this card.');
+        }
+
+        // Check if card is in an active battle
+        $inBattle = \App\Models\Battle::whereIn('status', ['pending', 'active', 'ready'])
+            ->where(function ($q) use ($card) {
+                $q->where('challenger_card_id', $card->id)
+                  ->orWhere('opponent_card_id', $card->id);
+            })->exists();
+
+        if ($inBattle) {
+            return back()->with('error', 'You cannot burn a card that is currently in a battle.');
+        }
+
+        // Give shards based on level
+        $shards = $card->level;
+        auth()->user()->addShards($shards, 'system', "Burned card #{$card->serial_number} ({$card->template->card_title} - Level {$card->level})");
+
+        // Burn it
+        $card->update(['burned_at' => now(), 'owner_id' => null]);
+        $card->delete();
+
+        return redirect()->route('cards.index')->with('success', "Card successfully burned! You received {$shards} Shard(s).");
     }
 
     /**
      * Get the battle history for the card.
      */
-    public function history(DigitalCard $digitalCard, Request $request)
+    public function history($id, Request $request)
     {
+        $digitalCard = DigitalCard::withTrashed()->findOrFail($id);
         $limit = 10;
         $offset = $request->query('offset', 0);
 

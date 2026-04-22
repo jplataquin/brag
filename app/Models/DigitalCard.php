@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DigitalCard extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     const STATUS_MAINTAINED = 'Maintained';
     const STATUS_DISCONTINUED = 'Discontinued';
@@ -30,6 +31,7 @@ class DigitalCard extends Model
         'life_points',
         'is_trophy',
         'forged_at',
+        'burned_at',
     ];
 
     protected $casts = [
@@ -37,6 +39,7 @@ class DigitalCard extends Model
         'life_points' => 'integer',
         'is_trophy' => 'boolean',
         'forged_at' => 'datetime',
+        'burned_at' => 'datetime',
     ];
 
     /**

@@ -35,16 +35,24 @@
                 :rankLevel="$digitalCard->level"
                 :serialNumber="$digitalCard->serial_number"
                 :year="$digitalCard->forged_at->format('Y')"
+                :burned="$digitalCard->trashed()"
             />
 
 
             
             <!-- Actions -->
-            @if(Auth::check() && $digitalCard->owner_id === Auth::id())
+            @if(Auth::check() && $digitalCard->owner_id === Auth::id() && !$digitalCard->trashed())
                 <div class="mt-4">
-                    <a href="{{ route('battles.create', ['game_id' => $digitalCard->template->game_title_id, 'card_id' => $digitalCard->id]) }}" class="btn btn-neon-lime w-100 py-3" style="font-size: 1.1rem; letter-spacing: 1px; font-weight: bold; box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);">
+                    <a href="{{ route('battles.create', ['game_id' => $digitalCard->template->game_title_id, 'card_id' => $digitalCard->id]) }}" class="btn btn-neon-lime w-100 py-3 mb-2" style="font-size: 1.1rem; letter-spacing: 1px; font-weight: bold; box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);">
                         <i class="bi bi-crosshair"></i> BATTLE WITH THIS CARD
                     </a>
+
+                    <form id="burn-form-{{ $digitalCard->id }}" action="{{ route('cards.burn', $digitalCard->id) }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                    <button type="button" class="btn btn-outline-danger w-100 py-2" style="border-color: #ff4444; color: #ff4444;" onclick="window.neonConfirm('Are you sure you want to BURN this card? It will be permanently removed from your inventory and circulation, but you will receive {{ $digitalCard->level }} Shard(s).', function() { document.getElementById('burn-form-{{ $digitalCard->id }}').submit(); });">
+                        <i class="bi bi-fire"></i> BURN THIS CARD
+                    </button>
                 </div>
 
                 @php
@@ -57,6 +65,7 @@
                     elseif ($nextLevel == 4) { $reqWins = 15; $reqWinRate = 80; }
                     elseif ($nextLevel == 5) { $reqWins = 25; $reqWinRate = 95; }
                 @endphp
+
 
                 @if($nextLevel <= 5)
                     <div class="mt-3 p-3 rounded text-start" style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2);">
