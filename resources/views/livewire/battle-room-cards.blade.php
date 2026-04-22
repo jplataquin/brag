@@ -61,7 +61,11 @@
                     <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #00f0ff;">
                         @if(Auth::id() === $battle->challenger_id) YOU @else CHALLENGER @endif
                     </div>
-                    <h4 style="color: #fff;">{{ $battle->challenger->username }}</h4>
+                    <h4 style="color: #fff;">
+                        <a href="{{ route('profile.show', $battle->challenger->username) }}" style="color: inherit; text-decoration: none; transition: all 0.3s;" onmouseover="this.style.color='#00f0ff'; this.style.textShadow='0 0 10px #00f0ff';" onmouseout="this.style.color='inherit'; this.style.textShadow='none';">
+                            {{ $battle->challenger->username }}
+                        </a>
+                    </h4>
                 </div>
                 @if($battle->challengerCard)
                     <div style="{{ $battle->status === 'completed' ? ($battle->winner_id === $battle->challenger_id ? 'box-shadow: 0 0 30px rgba(255, 221, 0, 0.6); border-radius: 16px; transform: scale(1.02); transition: all 0.3s ease;' : 'opacity: 0.5; filter: grayscale(80%); transition: all 0.3s ease;') : '' }}">
@@ -110,7 +114,13 @@
                         @if(Auth::id() === $battle->opponent_id) YOU @else OPPONENT @endif
                     </div>
                     <h4 style="color: #fff;" id="opponent-name-display">
-                        {{ $battle->opponent ? $battle->opponent->username : 'AWAITING...' }}
+                        @if($battle->opponent)
+                            <a href="{{ route('profile.show', $battle->opponent->username) }}" style="color: inherit; text-decoration: none; transition: all 0.3s;" onmouseover="this.style.color='#ff00ff'; this.style.textShadow='0 0 10px #ff00ff';" onmouseout="this.style.color='inherit'; this.style.textShadow='none';">
+                                {{ $battle->opponent->username }}
+                            </a>
+                        @else
+                            AWAITING...
+                        @endif
                     </h4>
                 </div>
                 @if($battle->opponentCard)
@@ -170,7 +180,11 @@
                         <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #00f0ff;">
                             @if(Auth::id() === $battle->challenger_id) YOU @else CHALLENGER @endif
                         </div>
-                        <h4 style="color: #fff;">{{ $battle->challenger->username }}</h4>
+                        <h4 style="color: #fff;">
+                        <a href="{{ route('profile.show', $battle->challenger->username) }}" style="color: inherit; text-decoration: none; transition: all 0.3s;" onmouseover="this.style.color='#00f0ff'; this.style.textShadow='0 0 10px #00f0ff';" onmouseout="this.style.color='inherit'; this.style.textShadow='none';">
+                            {{ $battle->challenger->username }}
+                        </a>
+                    </h4>
                     </div>
                     @if($battle->challengerCard)
                         <div class="mx-auto" style="{{ $battle->status === 'completed' ? ($battle->winner_id === $battle->challenger_id ? 'box-shadow: 0 0 30px rgba(255, 221, 0, 0.6); border-radius: 16px; transform: scale(1.02); transition: all 0.3s ease;' : 'opacity: 0.5; filter: grayscale(80%); transition: all 0.3s ease;') : '' }}">
@@ -217,7 +231,13 @@
                             @if(Auth::id() === $battle->opponent_id) YOU @else OPPONENT @endif
                         </div>
                         <h4 style="color: #fff;" id="opponent-name-display-mob">
-                            {{ $battle->opponent ? $battle->opponent->username : 'AWAITING...' }}
+                            @if($battle->opponent)
+                                <a href="{{ route('profile.show', $battle->opponent->username) }}" style="color: inherit; text-decoration: none; transition: all 0.3s;" onmouseover="this.style.color='#ff00ff'; this.style.textShadow='0 0 10px #ff00ff';" onmouseout="this.style.color='inherit'; this.style.textShadow='none';">
+                                    {{ $battle->opponent->username }}
+                                </a>
+                            @else
+                                AWAITING...
+                            @endif
                         </h4>
                     </div>
                     @if($battle->opponentCard)

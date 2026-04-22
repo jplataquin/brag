@@ -115,14 +115,8 @@ class DigitalCard extends Model
      */
     public function getLevelNameAttribute()
     {
-        return match($this->level) {
-            self::LEVEL_1 => 'Casual',
-            self::LEVEL_2 => 'Competitive',
-            self::LEVEL_3 => 'Elite',
-            self::LEVEL_4 => 'Legendary',
-            self::LEVEL_5 => 'GOAT',
-            default => 'Unknown',
-        };
+        $levelConfig = config("leveling.conditions.{$this->level}");
+        return $levelConfig['name'] ?? 'Unknown Level';
     }
 
     /**
@@ -188,22 +182,12 @@ class DigitalCard extends Model
         $winRate = $this->win_rate;
 
         $newLevel = $currentLevel;
+        $levelConditions = config('leveling.conditions', []);
 
-        // Level 2 - Competitive: >= 5 wins, >= 51% win rate
-        if ($currentLevel < 2 && $wins >= 5 && $winRate >= 51) {
-            $newLevel = 2;
-        }
-        // Level 3 - Elite: >= 10 wins, >= 60% win rate
-        if ($currentLevel < 3 && $wins >= 10 && $winRate >= 60) {
-            $newLevel = 3;
-        }
-        // Level 4 - Legendary: >= 15 wins, >= 80% win rate
-        if ($currentLevel < 4 && $wins >= 15 && $winRate >= 80) {
-            $newLevel = 4;
-        }
-        // Level 5 - GOAT: >= 25 wins, >= 95% win rate
-        if ($currentLevel < 5 && $wins >= 25 && $winRate >= 95) {
-            $newLevel = 5;
+        foreach ($levelConditions as $level => $conditions) {
+            if ($currentLevel < $level && $wins >= $conditions['min_wins'] && $winRate >= $conditions['min_win_rate']) {
+                $newLevel = max($newLevel, $level);
+            }
         }
 
         if ($newLevel > $currentLevel) {

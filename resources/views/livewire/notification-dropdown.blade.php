@@ -11,8 +11,8 @@
         </a>
     </div>
     @else
-    <div class="nav-item dropdown notification-dropdown">
-        <a id="navbarNotificationDropdown" class="nav-link d-flex align-items-center position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" wire:click="markAllAsRead" onclick="hideNotificationBubble()">
+    <div class="nav-item dropdown notification-dropdown" wire:key="notification-dropdown-desktop" wire:ignore.self>
+        <a id="navbarNotificationDropdown" class="nav-link d-flex align-items-center position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="hideNotificationBubble()">
             <i class="bi bi-bell-fill fs-5"></i>
             @if($unreadCount > 0)
                 <span id="notification-bubble-desktop" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; border: 1px solid #000; transition: opacity 0.2s;">
@@ -20,7 +20,7 @@
                 </span>
             @endif
         </a>
-        <div class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="navbarNotificationDropdown" style="width: 320px; background: rgba(10, 10, 30, 0.95); border: 1px solid rgba(0, 240, 255, 0.3); backdrop-filter: blur(20px);">
+        <div class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="navbarNotificationDropdown" data-bs-auto-close="outside" wire:ignore.self style="width: 320px; background: rgba(10, 10, 30, 0.95); border: 1px solid rgba(0, 240, 255, 0.3); backdrop-filter: blur(20px);">
             <div class="d-flex justify-content-between align-items-center p-3 border-bottom" style="border-color: rgba(0, 240, 255, 0.1) !important;">
                 <h6 class="m-0 neon-text" style="font-size: 0.85rem; letter-spacing: 1px;">NOTIFICATIONS</h6>
                 @if($unreadCount > 0)
@@ -104,6 +104,21 @@
             const desktopBubble = document.getElementById('notification-bubble-desktop');
             if (mobileBubble) mobileBubble.style.opacity = '0';
             if (desktopBubble) desktopBubble.style.opacity = '0';
+
+            // Remove unread visual state locally
+            document.querySelectorAll('.notification-item.unread').forEach(item => {
+                item.classList.remove('unread');
+            });
+
+            // Fire an AJAX request to mark all as read in the backend silently
+            fetch('/notifications/mark-all-as-read', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }).catch(error => console.error('Error marking notifications as read:', error));
         }
 
         // Livewire hook to restore opacity when component updates (i.e. a new notification comes in and Livewire re-renders)

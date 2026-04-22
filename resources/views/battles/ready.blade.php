@@ -230,7 +230,7 @@
                 if (cardLF === 1) {
                     document.getElementById('confirm-card-warning').innerHTML = '<strong class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> WARNING: This card has 1 Life Point left!</strong><br>If you lose, this card will be irrevocably transferred to the winner as a trophy.';
                 } else {
-                    document.getElementById('confirm-card-warning').innerHTML = `If you lose, this card will lose 1 Life Point (Remaining: <strong>${cardLF - 1}</strong>).`;
+                    document.getElementById('confirm-card-warning').innerHTML = `If you lose, this card will lose 1 Life Point.`;
                 }
 
                 confirmModal.show();
