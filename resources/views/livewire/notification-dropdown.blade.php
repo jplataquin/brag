@@ -1,7 +1,7 @@
 <div>
     @if($isMobile)
     <div class="nav-item notification-dropdown">
-        <a href="#" class="nav-link d-flex align-items-center position-relative" wire:click.prevent="markAllAsReadAndRedirect">
+        <a href="#" class="nav-link d-flex align-items-center position-relative" wire:click.prevent="markAllAsReadAndRedirect" onclick="requestNotificationPermission()">
             <i class="bi bi-bell-fill fs-5"></i>
             @if($unreadCount > 0)
                 <span id="notification-bubble-mobile" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; border: 1px solid #000; transition: opacity 0.2s;">
@@ -12,7 +12,7 @@
     </div>
     @else
     <div class="nav-item dropdown notification-dropdown" wire:key="notification-dropdown-desktop" wire:ignore.self>
-        <a id="navbarNotificationDropdown" class="nav-link d-flex align-items-center position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="hideNotificationBubble()">
+        <a id="navbarNotificationDropdown" class="nav-link d-flex align-items-center position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="requestNotificationPermission(); hideNotificationBubble()">
             <i class="bi bi-bell-fill fs-5"></i>
             @if($unreadCount > 0)
                 <span id="notification-bubble-desktop" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; border: 1px solid #000; transition: opacity 0.2s;">
@@ -99,6 +99,12 @@
         }
     </style>
     <script>
+        function requestNotificationPermission() {
+            if ("Notification" in window && Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+        }
+
         function hideNotificationBubble() {
             const mobileBubble = document.getElementById('notification-bubble-mobile');
             const desktopBubble = document.getElementById('notification-bubble-desktop');
@@ -128,6 +134,24 @@
                 const desktopBubble = document.getElementById('notification-bubble-desktop');
                 if (mobileBubble) mobileBubble.style.opacity = '1';
                 if (desktopBubble) desktopBubble.style.opacity = '1';
+            });
+
+            Livewire.on('show-browser-notification', (data) => {
+                let options = Array.isArray(data) ? data[0] : data;
+                if ("Notification" in window && Notification.permission === "granted") {
+                    const notification = new Notification(options.title || 'Brag', {
+                        body: options.message,
+                        icon: '/favicon.svg'
+                    });
+                    
+                    if (options.url && options.url !== '#') {
+                        notification.onclick = function(event) {
+                            event.preventDefault();
+                            window.location.href = options.url;
+                            notification.close();
+                        };
+                    }
+                }
             });
         });
     </script>

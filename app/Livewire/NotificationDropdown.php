@@ -27,7 +27,15 @@ class NotificationDropdown extends Component
     public function notificationReceived($event)
     {
         $this->loadNotifications();
-        $this->dispatch('play-notification-sound');
+        
+        if (!$this->isMobile) {
+            $this->dispatch('play-notification-sound');
+            $this->dispatch('show-browser-notification', [
+                'title' => 'Brag',
+                'message' => $event['message'] ?? 'You have a new notification.',
+                'url' => $event['action_url'] ?? '#'
+            ]);
+        }
     }
 
     public function loadNotifications()

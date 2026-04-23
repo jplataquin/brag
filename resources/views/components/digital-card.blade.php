@@ -94,15 +94,19 @@ $cardOptionsJson = json_encode([
 ]);
 @endphp
 
+@php
+$placeholderSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='{$width}' height='{$height}'%3E%3Crect width='100%25' height='100%25' fill='" . urlencode($backgroundColor) . "' rx='10' ry='10' /%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='20' fill='" . urlencode($secondaryTextColor) . "' text-anchor='middle' dominant-baseline='middle'%3ELOADING...%3C/text%3E%3C/svg%3E";
+@endphp
+
 @if($mode === 'thumbnail' || $asThumbnail)
     @if($linkUrl)
     <a href="{{ $linkUrl }}" id="wrapper_{{ $id }}" style="cursor: pointer; transition: transform 0.2s; display: block; text-decoration: none;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-        <img id="img_{{ $id }}" src="" alt="{{ $title }}" style="width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 15px {{ $borderColor }}40; display: block;" />
+        <img id="img_{{ $id }}" src="{{ $placeholderSvg }}" alt="{{ $title }}" style="width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 15px {{ $borderColor }}40; display: block;" />
         <canvas id="{{ $id }}" width="{{ $width }}" height="{{ $height }}" style="display: none;" data-card-options="{{ $cardOptionsJson }}"></canvas>
     </a>
     @else
     <div id="wrapper_{{ $id }}" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" data-bs-toggle="modal" data-bs-target="#modal_{{ $id }}">
-        <img id="img_{{ $id }}" src="" alt="{{ $title }}" style="width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 15px {{ $borderColor }}40; display: block;" />
+        <img id="img_{{ $id }}" src="{{ $placeholderSvg }}" alt="{{ $title }}" style="width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 15px {{ $borderColor }}40; display: block;" />
         <canvas id="{{ $id }}" width="{{ $width }}" height="{{ $height }}" style="display: none;" data-card-options="{{ $cardOptionsJson }}"></canvas>
     </div>
     @endif
