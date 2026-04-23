@@ -22,7 +22,9 @@ class WalletController extends Controller
             
         // Get the computed shards balance from the model accessor
         $balance = $user->shards_balance;
+        
+        $packages = config('shards.packages', []);
 
-        return view('wallet.index', compact('transactions', 'balance'));
+        return view('wallet.index', compact('transactions', 'balance', 'packages'));
     }
 }

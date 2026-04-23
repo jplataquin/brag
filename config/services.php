@@ -40,4 +40,10 @@ return [
         'url' => env('NANO_BANANA_API_URL', 'https://api.nanobanana.com/v1/enhance'),
     ],
 
+    'hitpay' => [
+        'api_key' => env('HITPAY_API_KEY'),
+        'salt' => env('HITPAY_SALT'),
+        'env' => env('HITPAY_ENV', 'sandbox'),
+    ],
+
 ];

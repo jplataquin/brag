@@ -91,5 +91,13 @@ Route::middleware('auth')->group(function () {
     
     // Wallet
     Route::get('/wallet', [\App\Http\Controllers\WalletController::class, 'index'])->name('wallet.index');
+    
+    // Payments / HitPay
+    Route::post('/payments/checkout', [\App\Http\Controllers\PaymentController::class, 'checkout'])->name('payments.checkout');
+    Route::get('/payments/callback', [\App\Http\Controllers\PaymentController::class, 'callback'])->name('payments.callback');
 });
+
+// HitPay Webhook (Must be outside auth middleware and should exclude CSRF)
+Route::post('/payments/webhook', [\App\Http\Controllers\PaymentController::class, 'webhook'])->name('payments.webhook')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class]);
+
 Route::get('/user/{username}', [ProfileController::class, 'show'])->name('profile.show');

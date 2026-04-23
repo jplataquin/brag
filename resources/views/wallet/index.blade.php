@@ -35,10 +35,41 @@
                     <button class="btn btn-outline-secondary disabled" title="Coming Soon">
                         <i class="bi bi-arrow-left-right me-1"></i> TRANSFER SHARDS
                     </button>
-                    <button class="btn btn-outline-secondary disabled ms-2" title="Coming Soon">
-                        <i class="bi bi-cart me-1"></i> PURCHASE SHARDS
-                    </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <h5 class="section-header mb-4">
+                <i class="bi bi-cart section-icon"></i> PURCHASE SHARDS
+            </h5>
+            <div class="row g-3">
+                @if(isset($packages) && count($packages) > 0)
+                    @foreach($packages as $package)
+                        <div class="col-md-3">
+                            <div class="neon-card text-center p-3 h-100" style="border-color: rgba(0, 240, 255, 0.3);">
+                                <h6 style="color: #00f0ff; letter-spacing: 1px;">{{ $package['name'] }}</h6>
+                                <div class="my-3">
+                                    <i class="bi bi-gem" style="font-size: 2rem; color: #00f0ff; text-shadow: 0 0 10px rgba(0,240,255,0.5);"></i>
+                                    <div class="fw-bold fs-4 mt-2">{{ $package['shards'] }} <small class="text-muted" style="font-size: 0.5em;">SHARDS</small></div>
+                                </div>
+                                <form method="POST" action="{{ route('payments.checkout') }}">
+                                    @csrf
+                                    <input type="hidden" name="package_id" value="{{ $package['id'] }}">
+                                    <button type="submit" class="btn btn-outline-neon w-100" style="border-color: #39ff14; color: #39ff14;">
+                                        Buy for {{ $package['currency'] }} {{ number_format($package['price'], 0) }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="col-12 text-center text-muted">
+                        No shard packages are currently available for purchase.
+                    </div>
+                @endif
             </div>
         </div>
     </div>
