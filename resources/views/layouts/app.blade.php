@@ -175,10 +175,8 @@
 
                 @if(session('error'))
                     @if(str_contains(session('error'), 'Shard'))
-                        <script>
-                            document.addEventListener('DOMContentLoaded', () => {
-                                window.neonAlert("{{ session('error') }}", "INSUFFICIENT SHARDS");
-                            });
+                        <script type="module">
+                            window.neonAlert("{!! addslashes(session('error')) !!}", "INSUFFICIENT SHARDS");
                         </script>
                     @else
                         <div class="alert alert-danger alert-dismissible fade show" role="alert" id="alert-error">

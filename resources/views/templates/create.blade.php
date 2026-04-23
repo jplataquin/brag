@@ -22,6 +22,12 @@
 
 <div class="row justify-content-center">
     <div class="col-lg-7">
+        @if(Auth::user()->shards_balance < 1)
+            <div class="alert alert-danger mb-4" style="background: rgba(255, 0, 0, 0.1); border: 1px solid #ff0000; color: #ff0000;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>INSUFFICIENT SHARDS:</strong> You need at least 1 Shard to create a template. Please acquire more Shards before proceeding.
+            </div>
+        @endif
+        
         <div class="neon-card p-4">
             <form method="POST" action="{{ route('templates.store') }}" enctype="multipart/form-data" id="template-form">
                 @csrf
@@ -219,9 +225,15 @@
                 <i class="bi bi-gem"></i> Cost: 1 Shard
             </p>
             <div class="d-flex gap-2 justify-content-center">
-                <button type="submit" form="template-form" class="btn btn-neon" id="btn-submit-template" data-confirm="Create a new template for 1 Shard?">
-                    <i class="bi bi-check-lg"></i> CREATE TEMPLATE
-                </button>
+                @if(Auth::user()->shards_balance < 1)
+                    <button type="button" class="btn btn-secondary" disabled>
+                        <i class="bi bi-x-circle"></i> INSUFFICIENT SHARDS
+                    </button>
+                @else
+                    <button type="submit" form="template-form" class="btn btn-neon" id="btn-submit-template" data-confirm="Create a new template for 1 Shard?">
+                        <i class="bi bi-check-lg"></i> CREATE TEMPLATE
+                    </button>
+                @endif
                 <a href="{{ route('templates.index') }}" class="btn btn-neon-danger">Cancel</a>
             </div>
         </div>
