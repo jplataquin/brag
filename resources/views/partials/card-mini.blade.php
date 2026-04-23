@@ -17,7 +17,7 @@
     :wins="$card->wins"
     :losses="$card->losses"
     :lifePoints="$card->life_points"
-    :distinctStat="$card->distinct_stat"
+    :integrityStat="$card->integrity_stat"
     :status="$card->status"
     :rankLevel="$card->level"
     :serialNumber="$card->serial_number"

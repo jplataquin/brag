@@ -153,10 +153,10 @@ class DigitalCard extends Model
     }
 
     /**
-     * Get distinct stat metric.
+     * Get integrity stat metric.
      * (Unique Users / Total Matches) * 100 rounded to 2 decimal places.
      */
-    public function getDistinctStatAttribute()
+    public function getIntegrityStatAttribute()
     {
         $battlesAsChallenger = \App\Models\Battle::where('challenger_card_id', $this->id)
                                 ->whereNotNull('opponent_id')->get();
@@ -179,9 +179,9 @@ class DigitalCard extends Model
             $uniqueUsers->push($battle->challenger_id);
         }
 
-        $distinctCount = $uniqueUsers->unique()->count();
+        $integrityCount = $uniqueUsers->unique()->count();
 
-        return round(($distinctCount / $totalMatches) * 100, 2);
+        return round(($integrityCount / $totalMatches) * 100, 2);
     }
 
     /**
@@ -192,14 +192,14 @@ class DigitalCard extends Model
         $currentLevel = $this->level;
         $wins = $this->wins;
         $winRate = $this->win_rate;
-        $distinct = $this->distinct_stat;
+        $integrity = $this->integrity_stat;
 
         $newLevel = $currentLevel;
         $levelConditions = config('leveling.conditions', []);
 
         foreach ($levelConditions as $level => $conditions) {
-            $minDistinct = $conditions['min_distinct'] ?? 0;
-            if ($currentLevel < $level && $wins >= $conditions['min_wins'] && $winRate >= $conditions['min_win_rate'] && $distinct >= $minDistinct) {
+            $minIntegrity = $conditions['min_integrity'] ?? 0;
+            if ($currentLevel < $level && $wins >= $conditions['min_wins'] && $winRate >= $conditions['min_win_rate'] && $integrity >= $minIntegrity) {
                 $newLevel = max($newLevel, $level);
             }
         }

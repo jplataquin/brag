@@ -24,7 +24,7 @@
     $cWins = ($isFinal && isset($cSnapshot['wins'])) ? $cSnapshot['wins'] : ($cCard ? $cCard->wins : 0);
     $cLosses = ($isFinal && isset($cSnapshot['losses'])) ? $cSnapshot['losses'] : ($cCard ? $cCard->losses : 0);
     $cLifePoints = ($isFinal && isset($cSnapshot['life_points'])) ? $cSnapshot['life_points'] : ($cCard ? $cCard->life_points : 3);
-    $cDistinctStat = ($isFinal && isset($cSnapshot['distinct_stat'])) ? $cSnapshot['distinct_stat'] : ($cCard ? $cCard->distinct_stat : 0);
+    $cIntegrityStat = ($isFinal && isset($cSnapshot['integrity_stat'])) ? $cSnapshot['integrity_stat'] : (($isFinal && isset($cSnapshot['distinct_stat'])) ? $cSnapshot['distinct_stat'] : ($cCard ? $cCard->integrity_stat : 0));
     $cStatus = ($isFinal && isset($cSnapshot['status'])) ? $cSnapshot['status'] : ($cCard ? $cCard->status : 'Maintained');
     $cRankLevel = ($isFinal && isset($cSnapshot['level'])) ? $cSnapshot['level'] : ($cCard ? $cCard->level : 1);
     
@@ -34,7 +34,7 @@
     $oWins = ($isFinal && isset($oSnapshot['wins'])) ? $oSnapshot['wins'] : ($oCard ? $oCard->wins : 0);
     $oLosses = ($isFinal && isset($oSnapshot['losses'])) ? $oSnapshot['losses'] : ($oCard ? $oCard->losses : 0);
     $oLifePoints = ($isFinal && isset($oSnapshot['life_points'])) ? $oSnapshot['life_points'] : ($oCard ? $oCard->life_points : 3);
-    $oDistinctStat = ($isFinal && isset($oSnapshot['distinct_stat'])) ? $oSnapshot['distinct_stat'] : ($oCard ? $oCard->distinct_stat : 0);
+    $oIntegrityStat = ($isFinal && isset($oSnapshot['integrity_stat'])) ? $oSnapshot['integrity_stat'] : (($isFinal && isset($oSnapshot['distinct_stat'])) ? $oSnapshot['distinct_stat'] : ($oCard ? $oCard->integrity_stat : 0));
     $oStatus = ($isFinal && isset($oSnapshot['status'])) ? $oSnapshot['status'] : ($oCard ? $oCard->status : 'Maintained');
     $oRankLevel = ($isFinal && isset($oSnapshot['level'])) ? $oSnapshot['level'] : ($oCard ? $oCard->level : 1);
 @endphp
@@ -88,7 +88,7 @@
                         :wins="$cWins"
                         :losses="$cLosses"
                         :lifePoints="$cLifePoints"
-                        :distinctStat="$cDistinctStat"
+                        :integrityStat="$cIntegrityStat"
                         :status="$cStatus"
                         :rankLevel="$cRankLevel"
                         :serialNumber="$battle->challengerCard->serial_number"
@@ -144,7 +144,7 @@
                         :wins="$oWins"
                         :losses="$oLosses"
                         :lifePoints="$oLifePoints"
-                        :distinctStat="$oDistinctStat"
+                        :integrityStat="$oIntegrityStat"
                         :status="$oStatus"
                         :rankLevel="$oRankLevel"
                         :serialNumber="$battle->opponentCard->serial_number"
@@ -207,7 +207,7 @@
                             :wins="$cWins"
                         :losses="$cLosses"
                         :lifePoints="$cLifePoints"
-                        :distinctStat="$cDistinctStat"
+                        :integrityStat="$cIntegrityStat"
                         :status="$cStatus"
                             :rankLevel="$cRankLevel"
                             :serialNumber="$battle->challengerCard->serial_number"
@@ -261,7 +261,7 @@
                             :wins="$oWins"
                         :losses="$oLosses"
                         :lifePoints="$oLifePoints"
-                        :distinctStat="$oDistinctStat"
+                        :integrityStat="$oIntegrityStat"
                         :status="$oStatus"
                             :rankLevel="$oRankLevel"
                             :serialNumber="$battle->opponentCard->serial_number"

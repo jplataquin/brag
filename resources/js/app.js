@@ -340,12 +340,12 @@ class DigitalCardRenderer {
         ctx.fillText(`R: ${winRateStr}`, startX, yCenterTopLine);
         startX += ctx.measureText(`R: ${winRateStr}`).width + fontSizeStats * 0.8;
 
-        // Distinct
-        let distinctStatStr = (options.distinctStat || 0) + '%';
-        if (options.mode === 'template') distinctStatStr = '0%';
+        // Integrity
+        let integrityStatStr = (options.integrityStat || 0) + '%';
+        if (options.mode === 'template') integrityStatStr = '0%';
         ctx.fillStyle = '#ffdd00'; // Yellow
-        ctx.fillText(`D: ${distinctStatStr}`, startX, yCenterTopLine);
-        startX += ctx.measureText(`D: ${distinctStatStr}`).width + fontSizeStats * 0.8;
+        ctx.fillText(`I: ${integrityStatStr}`, startX, yCenterTopLine);
+        startX += ctx.measureText(`I: ${integrityStatStr}`).width + fontSizeStats * 0.8;
 
         // Discontinued Badge
         if (status === 'Discontinued') {

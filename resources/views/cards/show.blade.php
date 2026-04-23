@@ -30,7 +30,7 @@
                 :wins="$digitalCard->wins"
                 :losses="$digitalCard->losses"
                 :lifePoints="$digitalCard->life_points"
-                :distinctStat="$digitalCard->distinct_stat"
+                :integrityStat="$digitalCard->integrity_stat"
                 :status="$digitalCard->status"
                 :rankLevel="$digitalCard->level"
                 :serialNumber="$digitalCard->serial_number"
@@ -52,11 +52,12 @@
                     $nextLevel = $digitalCard->level + 1;
                     $reqWins = 0;
                     $reqWinRate = 0;
+                    $reqIntegrity = 0;
                     
-                    if ($nextLevel == 2) { $reqWins = 5; $reqWinRate = 51; }
-                    elseif ($nextLevel == 3) { $reqWins = 10; $reqWinRate = 60; }
-                    elseif ($nextLevel == 4) { $reqWins = 15; $reqWinRate = 80; }
-                    elseif ($nextLevel == 5) { $reqWins = 25; $reqWinRate = 95; }
+                    if ($nextLevel == 2) { $reqWins = 5; $reqWinRate = 51; $reqIntegrity = 40; }
+                    elseif ($nextLevel == 3) { $reqWins = 10; $reqWinRate = 60; $reqIntegrity = 50; }
+                    elseif ($nextLevel == 4) { $reqWins = 15; $reqWinRate = 80; $reqIntegrity = 80; }
+                    elseif ($nextLevel == 5) { $reqWins = 25; $reqWinRate = 95; $reqIntegrity = 90; }
                 @endphp
 
 
@@ -66,7 +67,7 @@
                             <i class="bi bi-arrow-up-circle-fill"></i> NEXT PROMOTION: LEVEL {{ $nextLevel }}
                         </div>
                         <p style="font-size: 0.85rem; color: #bbbbd0; margin-bottom: 0;">
-                            Keep battling! To level up to <strong>Level {{ $nextLevel }}</strong>, this card needs to achieve at least <strong style="color: #39ff14;">{{ $reqWins }} wins</strong> while maintaining a win rate of <strong style="color: #00f0ff;">{{ $reqWinRate }}%</strong> or higher.
+                            Keep battling! To level up to <strong>Level {{ $nextLevel }}</strong>, this card needs to achieve at least <strong style="color: #39ff14;">{{ $reqWins }} wins</strong> while maintaining a win rate of <strong style="color: #00f0ff;">{{ $reqWinRate }}%</strong> or higher, and an integrity of <strong style="color: #ffdd00;">{{ $reqIntegrity }}%</strong> or higher.
                         </p>
                     </div>
                 @else
@@ -123,8 +124,8 @@
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-box h-100">
-                    <div class="stat-value" style="color: #ffdd00;">{{ round($digitalCard->distinct_stat) }}%</div>
-                    <div class="stat-label">Distinct</div>
+                    <div class="stat-value" style="color: #ffdd00;">{{ round($digitalCard->integrity_stat) }}%</div>
+                    <div class="stat-label">Integrity</div>
                 </div>
             </div>
         </div>
