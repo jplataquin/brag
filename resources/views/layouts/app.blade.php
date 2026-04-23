@@ -174,10 +174,18 @@
                 @endif
 
                 @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="alert-error">
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                    @if(str_contains(session('error'), 'Shard'))
+                        <script>
+                            document.addEventListener('DOMContentLoaded', () => {
+                                window.neonAlert("{{ session('error') }}", "INSUFFICIENT SHARDS");
+                            });
+                        </script>
+                    @else
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert" id="alert-error">
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
                 @endif
 
                 @if(session('info'))
