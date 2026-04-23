@@ -60,6 +60,26 @@
                 </div>
 
                 <div class="collapse navbar-collapse" id="navbarMain">
+                    @auth
+                        <!-- Mobile User Info Row -->
+                        <div class="d-lg-none py-3 border-bottom border-secondary mb-2" style="border-bottom-color: rgba(0,240,255,0.1) !important;">
+                            <div class="row align-items-center g-0">
+                                <div class="col-6 text-start">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="{{ Auth::user()->avatar_url }}" alt="Avatar" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(0,240,255,0.3);">
+                                        <span class="text-white fw-bold" style="font-family: 'Orbitron', sans-serif; font-size: 0.85rem;">{{ Auth::user()->username }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <a href="{{ route('wallet.index') }}" class="text-decoration-none d-inline-flex align-items-center" style="background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 20px; padding: 4px 12px;">
+                                        <i class="bi bi-gem me-2" style="color: #00f0ff; font-size: 0.9rem;"></i>
+                                        <span class="fw-bold" style="color: #fff; font-family: 'Orbitron', sans-serif; font-size: 0.9rem;">{{ number_format(Auth::user()->shards_balance, 0) }}</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @endauth
+
                     <!-- Left Side -->
                     <ul class="navbar-nav me-auto">
                         @auth
@@ -82,6 +102,31 @@
                                 <a class="nav-link {{ request()->routeIs('battles.*') ? 'active' : '' }}" href="{{ route('battles.index') }}" id="nav-battles">
                                     <i class="bi bi-crosshair"></i> Arena
                                 </a>
+                            </li>
+
+                            <!-- Mobile Only Links -->
+                            <li class="nav-item d-lg-none">
+                                <a class="nav-link {{ request()->routeIs('profile.show') && request()->route('username') == Auth::user()->username ? 'active' : '' }}" href="{{ route('profile.show', Auth::user()->username) }}" id="nav-profile-mob">
+                                    <i class="bi bi-person-fill"></i> My Profile
+                                </a>
+                            </li>
+                            <li class="nav-item d-lg-none">
+                                <a class="nav-link {{ request()->routeIs('wallet.index') ? 'active' : '' }}" href="{{ route('wallet.index') }}" id="nav-wallet-mob">
+                                    <i class="bi bi-wallet2"></i> My Wallet
+                                </a>
+                            </li>
+                            <li class="nav-item d-lg-none">
+                                <a class="nav-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}" href="{{ route('profile.edit') }}" id="nav-edit-profile-mob">
+                                    <i class="bi bi-gear-fill"></i> Edit Profile
+                                </a>
+                            </li>
+                            <li class="nav-item d-lg-none">
+                                <form action="{{ route('logout') }}" method="POST" class="m-0 p-0">
+                                    @csrf
+                                    <button type="submit" class="nav-link border-0 bg-transparent w-100 text-start">
+                                        <i class="bi bi-box-arrow-right"></i> Logout
+                                    </button>
+                                </form>
                             </li>
                         @endauth
                     </ul>
@@ -112,7 +157,7 @@
                             @endif
                         @else
                             <!-- Wallet Shards Balance -->
-                            <li class="nav-item me-3">
+                            <li class="nav-item me-3 d-none d-lg-block">
                                 <a href="{{ route('wallet.index') }}" class="text-decoration-none d-flex align-items-center" style="background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 20px; padding: 4px 12px; transition: all 0.2s;" id="nav-wallet">
                                     <i class="bi bi-gem me-2" style="color: #00f0ff; font-size: 1.1rem; text-shadow: 0 0 5px #00f0ff;"></i>
                                     <span class="fw-bold" style="color: #fff; font-family: 'Orbitron', sans-serif;">{{ number_format(Auth::user()->shards_balance, 0) }}</span>
@@ -123,7 +168,7 @@
                                 <livewire:notification-dropdown />
                             </div>
                             
-                            <li class="nav-item dropdown">
+                            <li class="nav-item dropdown d-none d-lg-block">
                                 <a id="navbarUserDropdown" class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <img src="{{ Auth::user()->avatar_url }}" alt="Avatar" style="width:28px;height:28px;border-radius:50%;border:1px solid rgba(0,240,255,0.3);">
                                     {{ Auth::user()->username }}
