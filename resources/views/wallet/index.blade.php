@@ -45,8 +45,9 @@
             <h5 class="section-header mb-4">
                 <i class="bi bi-cart section-icon"></i> PURCHASE SHARDS
             </h5>
-            <div class="row g-3">
-                @if(isset($packages) && count($packages) > 0)
+            @if(isset($packages) && count($packages) > 0)
+                <!-- Desktop View -->
+                <div class="row g-3 d-none d-md-flex">
                     @foreach($packages as $package)
                         <div class="col-md-3">
                             <div class="neon-card text-center p-3 h-100" style="border-color: rgba(0, 240, 255, 0.3);">
@@ -65,12 +66,48 @@
                             </div>
                         </div>
                     @endforeach
-                @else
-                    <div class="col-12 text-center text-muted">
-                        No shard packages are currently available for purchase.
+                </div>
+
+                <!-- Mobile View (Carousel) -->
+                <div class="d-block d-md-none position-relative px-4">
+                    <div id="shardsCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner pb-2">
+                            @php $isFirst = true; @endphp
+                            @foreach($packages as $index => $package)
+                                <div class="carousel-item {{ $isFirst ? 'active' : '' }}">
+                                    @php $isFirst = false; @endphp
+                                    <div class="neon-card text-center p-3 h-100 mx-auto" style="border-color: rgba(0, 240, 255, 0.3); max-width: 250px;">
+                                        <h6 style="color: #00f0ff; letter-spacing: 1px;">{{ $package['name'] }}</h6>
+                                        <div class="my-3">
+                                            <i class="bi bi-gem" style="font-size: 2rem; color: #00f0ff; text-shadow: 0 0 10px rgba(0,240,255,0.5);"></i>
+                                            <div class="fw-bold fs-4 mt-2">{{ $package['shards'] }} <small class="text-muted" style="font-size: 0.5em;">SHARDS</small></div>
+                                        </div>
+                                        <form method="POST" action="{{ route('payments.checkout') }}">
+                                            @csrf
+                                            <input type="hidden" name="package_id" value="{{ $package['id'] }}">
+                                            <button type="submit" class="btn btn-outline-neon w-100" style="border-color: #39ff14; color: #39ff14;">
+                                                Buy for {{ $package['currency'] }} {{ number_format($package['price'], 0) }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#shardsCarousel" data-bs-slide="prev" style="width: 10%; justify-content: flex-start; margin-left: -15px;">
+                            <span class="carousel-control-prev-icon" aria-hidden="true" style="filter: invert(1) sepia(1) saturate(5) hue-rotate(135deg);"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#shardsCarousel" data-bs-slide="next" style="width: 10%; justify-content: flex-end; margin-right: -15px;">
+                            <span class="carousel-control-next-icon" aria-hidden="true" style="filter: invert(1) sepia(1) saturate(5) hue-rotate(135deg);"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
                     </div>
-                @endif
-            </div>
+                </div>
+            @else
+                <div class="text-center text-muted">
+                    No shard packages are currently available for purchase.
+                </div>
+            @endif
         </div>
     </div>
 
