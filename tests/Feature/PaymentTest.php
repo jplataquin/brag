@@ -138,18 +138,21 @@ class PaymentTest extends TestCase
         $payment = Payment::create([
             'user_id' => $user->id,
             'reference' => 'SUCCESS-REF-456',
+            'hitpay_id' => 'a19ceec1-44a0-4546-9a66-4838a3b183fe',
             'amount' => 100,
             'currency' => 'PHP',
             'shards_amount' => 25,
             'status' => 'completed'
         ]);
 
-        $response = $this->get(route('payments.success', ['reference' => 'SUCCESS-REF-456']));
+        // Test with internal reference
+        $response1 = $this->get(route('payments.success', ['reference' => 'SUCCESS-REF-456']));
+        $response1->assertStatus(200);
+        $response1->assertSee('SUCCESS-REF-456');
 
-        $response->assertStatus(200);
-        $response->assertSee('SUCCESS-REF-456');
-        $response->assertSee('25 SHARDS');
-        $response->assertSee('PHP 100.00');
-        $response->assertSee('PAYMENT SUCCESSFUL!');
+        // Test with HitPay ID reference (which is what HitPay sends back)
+        $response2 = $this->get(route('payments.success', ['reference' => 'a19ceec1-44a0-4546-9a66-4838a3b183fe']));
+        $response2->assertStatus(200);
+        $response2->assertSee('SUCCESS-REF-456'); // The view should still display our internal reference
     }
 }

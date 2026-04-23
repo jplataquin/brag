@@ -108,7 +108,10 @@ class PaymentController extends Controller
     {
         $reference = $request->query('reference');
         
-        $payment = Payment::where('reference', $reference)
+        $payment = Payment::where(function ($query) use ($reference) {
+                $query->where('reference', $reference)
+                      ->orWhere('hitpay_id', $reference);
+            })
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
