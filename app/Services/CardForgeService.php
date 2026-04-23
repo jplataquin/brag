@@ -25,6 +25,15 @@ class CardForgeService
             ];
         }
 
+        // Check if user has enough shards (requires 2)
+        if ($user->shards_balance < 2) {
+            return [
+                'can_forge' => false,
+                'reason' => 'You need at least 2 Shards to forge a new card. You currently have ' . $user->shards_balance . '.',
+                'cooldown_ends' => null,
+            ];
+        }
+
         // Check if the user has 3 or more cards in their inventory from the same template
         $templateCardCount = $user->digitalCards()
             ->where('template_id', $template->id)
@@ -72,15 +81,20 @@ class CardForgeService
             throw new \Exception($forgeCheck['reason']);
         }
 
-        return DigitalCard::create([
-            'template_id' => $template->id,
-            'owner_id' => $user->id,
-            'original_owner_id' => $user->id,
-            'serial_number' => $template->next_serial_number,
-            'wins' => 0,
-            'losses' => 0,
-            'is_trophy' => false,
-            'forged_at' => now(),
-        ]);
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($user, $template) {
+            // Deduct shards
+            $user->deductShards(2, 'system', "Forged new card from template: {$template->card_title}");
+
+            return DigitalCard::create([
+                'template_id' => $template->id,
+                'owner_id' => $user->id,
+                'original_owner_id' => $user->id,
+                'serial_number' => $template->next_serial_number,
+                'wins' => 0,
+                'losses' => 0,
+                'is_trophy' => false,
+                'forged_at' => now(),
+            ]);
+        });
     }
 }

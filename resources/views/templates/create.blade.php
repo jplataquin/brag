@@ -215,8 +215,11 @@
                 </div>
             </div>
 
+            <p class="text-center mt-3 mb-2" style="color: #00f0ff; font-size: 0.85rem;">
+                <i class="bi bi-gem"></i> Cost: 1 Shard
+            </p>
             <div class="d-flex gap-2 justify-content-center">
-                <button type="submit" form="template-form" class="btn btn-neon" id="btn-submit-template">
+                <button type="submit" form="template-form" class="btn btn-neon" id="btn-submit-template" data-confirm="Create a new template for 1 Shard?">
                     <i class="bi bi-check-lg"></i> CREATE TEMPLATE
                 </button>
                 <a href="{{ route('templates.index') }}" class="btn btn-neon-danger">Cancel</a>

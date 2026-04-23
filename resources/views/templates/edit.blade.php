@@ -25,19 +25,9 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="game_title_id" class="form-label">GAME TITLE</label>
-                    <select class="form-select @error('game_title_id') is-invalid @enderror"
-                           id="game_title_id" name="game_title_id" required>
-                        <option value="">Select a Game...</option>
-                        @foreach($gameTitles as $game)
-                            <option value="{{ $game->id }}" {{ old('game_title_id', $template->game_title_id) == $game->id ? 'selected' : '' }}>
-                                {{ $game->title }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('game_title_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    <label class="form-label">GAME TITLE</label>
+                    <input type="text" class="form-control" value="{{ $template->gameTitle->title ?? 'Unknown Game' }}" disabled style="background-color: rgba(255,255,255,0.05); color: #8888aa; border-color: rgba(255,255,255,0.1);">
+                    <small style="color: #555577; font-size: 0.75rem;"><i class="bi bi-lock-fill"></i> Game title is permanent and cannot be changed.</small>
                 </div>
 
                 <div class="mb-3">
@@ -256,26 +246,6 @@
             window.updateDigitalCard_live_preview_card(updates);
         }
     }
-
-    const ts = new TomSelect("#game_title_id",{
-        create: false,
-        sortField: {
-            field: "text",
-            direction: "asc"
-        },
-        onChange: function(value) {
-            // Clear validation error on change
-            const selectEl = this.control.closest('.ts-wrapper');
-            if (selectEl) {
-                selectEl.classList.remove('is-invalid');
-                const feedback = selectEl.parentNode.querySelector('.invalid-feedback');
-                if (feedback) feedback.style.display = 'none';
-            }
-
-            const opt = this.options[value];
-            updateLivePreview({ game: opt ? opt.text.trim() : 'GAME' });
-        }
-    });
 
     // Clear validation errors on input for all standard fields
     document.querySelectorAll('.form-control').forEach(function(input) {

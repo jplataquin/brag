@@ -86,6 +86,10 @@ class TemplateController extends Controller
 
         $user = Auth::user();
 
+        if ($user->shards_balance < 1) {
+            return back()->with('error', 'You need at least 1 Shard to create a template. You currently have ' . $user->shards_balance . '.')->withInput();
+        }
+
         // Check for duplicate game title
         $gameTitleId = (int) $request->input('game_title_id');
         
@@ -115,7 +119,10 @@ class TemplateController extends Controller
              $data['photo'] = $request->generated_ai_photo; // Set as main photo as well
         }
 
-        Template::create($data);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($user, $data) {
+            $user->deductShards(1, 'system', "Created new template: {$data['card_title']}");
+            Template::create($data);
+        });
 
         return redirect()->route('templates.index')
             ->with('success', 'Template created successfully! You can now forge Digital Cards from it.');
@@ -162,7 +169,6 @@ class TemplateController extends Controller
 
         $request->validate([
             'card_title' => 'required|string|max:50|unique:templates,card_title,' . $template->id,
-            'game_title_id' => 'required|exists:game_titles,id',
             'quote' => 'required|string|max:500',
             'image_mode' => 'required|in:upload,ai',
             'temporary_photo_path' => 'nullable|string',
@@ -175,8 +181,6 @@ class TemplateController extends Controller
             'primary_text_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'secondary_text_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
         ], [
-            'game_title_id.required' => 'The game title field is required.',
-            'game_title_id.exists' => 'The selected game title is invalid.',
             'ai_prompt.required_if' => 'An art style prompt is required for AI generation.',
             'background_color.regex' => 'The background color must be a valid hex code.',
             'border_color.regex' => 'The border color must be a valid hex code.',
@@ -185,19 +189,7 @@ class TemplateController extends Controller
             'secondary_text_color.regex' => 'The secondary text color must be a valid hex code.',
         ]);
 
-        // Check for duplicate game title (exclude current template)
-        if ($request->filled('game_title_id')) {
-            $exists = Auth::user()->templates()
-                ->where('game_title_id', $request->game_title_id)
-                ->where('id', '!=', $template->id)
-                ->exists();
-
-            if ($exists) {
-                return back()->withErrors(['game_title_id' => 'You already have a template for this game title.'])->withInput();
-            }
-        }
-
-        $data = $request->only(['card_title', 'game_title_id', 'quote', 'image_position_y', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
+        $data = $request->only(['card_title', 'quote', 'image_position_y', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
         $data['card_title'] = strtoupper($data['card_title']);
 
         if ($request->image_mode === 'upload') {

@@ -27,7 +27,7 @@
             <div class="neon-card p-4 h-100" style="border-color: rgba(255, 255, 255, 0.1);">
                 <h4 style="font-family: 'Orbitron', sans-serif; color: #fff;"><i class="bi bi-info-circle me-2"></i> SHARDS CURRENCY</h4>
                 <p class="text-muted mt-3 mb-0" style="line-height: 1.6;">
-                    Shards are the official in-game currency of Brag. You can use Shards to purchase premium templates, special borders, or trade them for services. 
+                    Shards are the official in-game currency of Brag. You can use Shards to forge new Digital Cards, purchase premium templates, special borders, or trade them for services. 
                     <br><br>
                     <i class="bi bi-shield-lock text-warning me-1"></i> <em>Player-to-player transfers are currently disabled but will be arriving in a future update.</em>
                 </p>
