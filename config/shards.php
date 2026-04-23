@@ -21,14 +21,14 @@ return [
             'shards' => 50,
             'price' => 120,
             'currency' => 'PHP',
-            'name' => 'Elite Pack',
+            'name' => 'Pro Pack',
         ],
         'package_100' => [
             'id' => 'package_100',
             'shards' => 100,
             'price' => 130,
             'currency' => 'PHP',
-            'name' => 'Legendary Pack',
+            'name' => 'Rich Kid Pack',
         ],
     ],
 ];

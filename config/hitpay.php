@@ -29,8 +29,8 @@ return [
         'card'          => env('HITPAY_METHOD_CARD', true),
         'gcash'         => env('HITPAY_METHOD_GCASH', true),
         'paymaya'       => env('HITPAY_METHOD_PAYMAYA', true),
-        'ph_qr_ph'      => env('HITPAY_METHOD_QRPH', true),
         
+        'ph_qr_ph'      => env('HITPAY_METHOD_QRPH', false),
         'grabpay'       => env('HITPAY_METHOD_GRABPAY', false),
         'ph_billease'   => env('HITPAY_METHOD_BILLEASE', false),
         'ph_shopeepay'  => env('HITPAY_METHOD_SHOPEEPAY', false),
