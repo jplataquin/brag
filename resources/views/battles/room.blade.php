@@ -1,6 +1,20 @@
 @extends('layouts.app')
 
+@php
+    $gameTitle = $battle->challengerCard && $battle->challengerCard->template && $battle->challengerCard->template->gameTitle 
+                 ? $battle->challengerCard->template->gameTitle->title 
+                 : 'an Epic Game';
+    $challengerName = $battle->challenger ? $battle->challenger->username : 'A challenger';
+    $roomTitle = "Battle Room #{$battle->id} — {$gameTitle}";
+    $roomDescription = "Join {$challengerName} in a high-stakes {$gameTitle} battle! Stake your digital cards and claim victory in the Arena.";
+@endphp
+
 @section('title', 'Battle Room #' . $battle->id)
+
+@section('og_title', $roomTitle)
+@section('og_description', $roomDescription)
+@section('twitter_title', $roomTitle)
+@section('twitter_description', $roomDescription)
 
 @section('content')
 <div class="mb-3">
