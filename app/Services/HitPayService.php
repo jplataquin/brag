@@ -25,11 +25,9 @@ class HitPayService
     /**
      * Create a new payment request on HitPay
      */
-    public function createPaymentRequest($amount, $currency, $reference, $email, $name, $redirectUrl, $webhookUrl)
+    public function createPaymentRequest($amount, $currency, $reference, $email, $name, $redirectUrl, $webhookUrl, $paymentMethods = [])
     {
-        $response = Http::withHeaders([
-            'X-BUSINESS-API-KEY' => $this->apiKey,
-        ])->asForm()->post($this->baseUrl . '/payment-requests', [
+        $params = [
             'amount' => $amount,
             'currency' => $currency,
             'reference_number' => $reference,
@@ -37,7 +35,17 @@ class HitPayService
             'name' => $name,
             'redirect_url' => $redirectUrl,
             'webhook' => $webhookUrl,
-        ]);
+        ];
+
+        // If payment methods are provided, pass them as an array.
+        // Laravel's Http client (Guzzle) will handle the conversion to payment_methods[] format.
+        if (!empty($paymentMethods)) {
+            $params['payment_methods'] = $paymentMethods;
+        }
+
+        $response = Http::withHeaders([
+            'X-BUSINESS-API-KEY' => $this->apiKey,
+        ])->asForm()->post($this->baseUrl . '/payment-requests', $params);
 
         if ($response->successful()) {
             return $response->json();

@@ -44,6 +44,20 @@ return [
         'api_key' => env('HITPAY_API_KEY'),
         'salt' => env('HITPAY_SALT'),
         'env' => env('HITPAY_ENV', 'sandbox'),
+        'payment_methods' => [
+            'card',
+            'gcash',
+            'paymaya',
+            'grabpay',
+            'ph_qr_ph',
+            'ph_billease',
+            'ph_shopeepay',
+            'paynow_online',
+            'shopeepay',
+            'fpx',
+            'alipay',
+            'wechat',
+        ],
     ],
 
 ];

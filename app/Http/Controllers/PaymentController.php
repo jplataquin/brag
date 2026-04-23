@@ -53,6 +53,9 @@ class PaymentController extends Controller
         ]);
 
         try {
+            // Get enabled payment methods from config
+            $paymentMethods = config('services.hitpay.payment_methods', []);
+
             // Generate HitPay Request
             $hitPayResponse = $this->hitPayService->createPaymentRequest(
                 $payment->amount,
@@ -61,7 +64,8 @@ class PaymentController extends Controller
                 $user->email,
                 $user->username,
                 route('payments.callback'), // User redirected here after
-                route('payments.webhook')   // Server-to-server webhook
+                route('payments.webhook'),  // Server-to-server webhook
+                $paymentMethods
             );
 
             // Update with HitPay ID if we want

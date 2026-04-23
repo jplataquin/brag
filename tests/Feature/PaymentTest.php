@@ -46,6 +46,32 @@ class PaymentTest extends TestCase
         ]);
     }
 
+    public function test_user_can_initiate_checkout_with_payment_methods()
+    {
+        config(['services.hitpay.payment_methods' => ['card', 'gcash', 'paymaya']]);
+
+        Http::fake([
+            'api.sandbox.hit-pay.com/*' => function ($request) {
+                // Verify that payment_methods[] are in the request
+                // In asForm, it looks like payment_methods[0]=card&payment_methods[1]=gcash...
+                $data = $request->data();
+                return isset($data['payment_methods']) && 
+                       $data['payment_methods'] === ['card', 'gcash', 'paymaya']
+                    ? Http::response(['id' => 'hitpay_req_123', 'url' => 'https://sandbox.hit-pay.com/checkout/123'], 200)
+                    : Http::response(['error' => 'Missing payment methods'], 400);
+            }
+        ]);
+
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $response = $this->post(route('payments.checkout'), [
+            'package_id' => 'package_10'
+        ]);
+
+        $response->assertRedirect('https://sandbox.hit-pay.com/checkout/123');
+    }
+
     public function test_webhook_completes_payment_and_adds_shards()
     {
         $user = User::factory()->create();
