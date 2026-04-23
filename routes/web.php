@@ -101,4 +101,8 @@ Route::middleware('auth')->group(function () {
 // HitPay Webhook (Must be outside auth middleware and should exclude CSRF)
 Route::post('/payments/webhook', [\App\Http\Controllers\PaymentController::class, 'webhook'])->name('payments.webhook')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class]);
 
+Route::get('/offline', function () {
+    return view('offline');
+})->name('offline');
+
 Route::get('/user/{username}', [ProfileController::class, 'show'])->name('profile.show');
