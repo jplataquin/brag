@@ -116,4 +116,40 @@ class PaymentTest extends TestCase
         $user->refresh();
         $this->assertEquals(10, $user->shards_balance);
     }
+
+    public function test_payment_callback_redirects_to_success_page()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $response = $this->get(route('payments.callback', [
+            'reference' => 'TEST-REF-123',
+            'status' => 'completed'
+        ]));
+
+        $response->assertRedirect(route('payments.success', ['reference' => 'TEST-REF-123']));
+    }
+
+    public function test_success_page_shows_payment_details()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $payment = Payment::create([
+            'user_id' => $user->id,
+            'reference' => 'SUCCESS-REF-456',
+            'amount' => 100,
+            'currency' => 'PHP',
+            'shards_amount' => 25,
+            'status' => 'completed'
+        ]);
+
+        $response = $this->get(route('payments.success', ['reference' => 'SUCCESS-REF-456']));
+
+        $response->assertStatus(200);
+        $response->assertSee('SUCCESS-REF-456');
+        $response->assertSee('25 SHARDS');
+        $response->assertSee('PHP 100.00');
+        $response->assertSee('PAYMENT SUCCESSFUL!');
+    }
 }

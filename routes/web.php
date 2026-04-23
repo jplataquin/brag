@@ -95,6 +95,7 @@ Route::middleware('auth')->group(function () {
     // Payments / HitPay
     Route::post('/payments/checkout', [\App\Http\Controllers\PaymentController::class, 'checkout'])->name('payments.checkout');
     Route::get('/payments/callback', [\App\Http\Controllers\PaymentController::class, 'callback'])->name('payments.callback');
+    Route::get('/payments/success', [\App\Http\Controllers\PaymentController::class, 'success'])->name('payments.success');
 });
 
 // HitPay Webhook (Must be outside auth middleware and should exclude CSRF)

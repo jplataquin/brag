@@ -95,10 +95,24 @@ class PaymentController extends Controller
         $status = $request->query('status'); // 'completed', 'canceled', etc.
 
         if ($status === 'completed') {
-            return redirect()->route('wallet.index')->with('success', 'Payment successful! Your shards will be added to your wallet shortly.');
+            return redirect()->route('payments.success', ['reference' => $reference]);
         }
 
         return redirect()->route('wallet.index')->with('error', 'Payment was cancelled or failed.');
+    }
+
+    /**
+     * Display the success page after a successful payment.
+     */
+    public function success(Request $request)
+    {
+        $reference = $request->query('reference');
+        
+        $payment = Payment::where('reference', $reference)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        return view('payments.success', compact('payment'));
     }
 
     /**
