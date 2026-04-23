@@ -13,9 +13,9 @@ class HitPayService
 
     public function __construct()
     {
-        $this->apiKey = config('services.hitpay.api_key');
-        $this->salt = config('services.hitpay.salt');
-        $this->env = config('services.hitpay.env', 'sandbox');
+        $this->apiKey = config('hitpay.api_key');
+        $this->salt = config('hitpay.salt');
+        $this->env = config('hitpay.env', 'sandbox');
         
         $this->baseUrl = $this->env === 'production' 
             ? 'https://api.hit-pay.com/v1' 

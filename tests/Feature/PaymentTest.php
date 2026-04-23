@@ -48,7 +48,12 @@ class PaymentTest extends TestCase
 
     public function test_user_can_initiate_checkout_with_payment_methods()
     {
-        config(['services.hitpay.payment_methods' => ['card', 'gcash', 'paymaya']]);
+        config(['hitpay.payment_methods' => [
+            'card' => true, 
+            'gcash' => true, 
+            'paymaya' => true,
+            'grabpay' => false // ensure false values are filtered out
+        ]]);
 
         Http::fake([
             'api.sandbox.hit-pay.com/*' => function ($request) {
@@ -56,7 +61,7 @@ class PaymentTest extends TestCase
                 // In asForm, it looks like payment_methods[0]=card&payment_methods[1]=gcash...
                 $data = $request->data();
                 return isset($data['payment_methods']) && 
-                       $data['payment_methods'] === ['card', 'gcash', 'paymaya']
+                       array_values($data['payment_methods']) === ['card', 'gcash', 'paymaya']
                     ? Http::response(['id' => 'hitpay_req_123', 'url' => 'https://sandbox.hit-pay.com/checkout/123'], 200)
                     : Http::response(['error' => 'Missing payment methods'], 400);
             }
@@ -92,7 +97,7 @@ class PaymentTest extends TestCase
         ];
 
         // Generate valid HMAC using our test salt
-        config(['services.hitpay.salt' => 'test_salt']);
+        config(['hitpay.salt' => 'test_salt']);
         ksort($payload);
         $baseString = '';
         foreach ($payload as $key => $val) {

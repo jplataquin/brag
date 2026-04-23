@@ -54,7 +54,9 @@ class PaymentController extends Controller
 
         try {
             // Get enabled payment methods from config
-            $paymentMethods = config('services.hitpay.payment_methods', []);
+            $allMethods = config('hitpay.payment_methods', []);
+            // Filter the array to only keep the keys where the value is true
+            $paymentMethods = array_keys(array_filter($allMethods));
 
             // Generate HitPay Request
             $hitPayResponse = $this->hitPayService->createPaymentRequest(
