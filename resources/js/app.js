@@ -103,7 +103,7 @@ class DigitalCardRenderer {
         let title = (options.title || 'CARD TITLE').toString().toUpperCase().trim();
 
         const imageUrl = options.image || '';
-        const rankBadgeUrl = this.getRankBadgeUrl(options.rankLevel || 1, mode, options.badgeVersion);
+        const rankBadgeUrl = this.getRankBadgeUrl(options.rankLevel || 1, mode, options.badgeVersion, options);
 
         await Promise.all([
             this.loadImage(imageUrl),
@@ -408,7 +408,7 @@ class DigitalCardRenderer {
         }
 
         const currentMode = options.mode || 'default';
-        const rankBadgeUrl = this.getRankBadgeUrl(options.rankLevel || 1, currentMode, options.badgeVersion);
+        const rankBadgeUrl = this.getRankBadgeUrl(options.rankLevel || 1, currentMode, options.badgeVersion, options);
         const photoImg = this.imageCache[imageUrl];
         const badgeImg = this.imageCache[rankBadgeUrl];
         if (photoImg) {
@@ -455,7 +455,7 @@ class DigitalCardRenderer {
         });
     }
 
-    getRankBadgeUrl(level, mode, version) {
+    getRankBadgeUrl(level, mode, version, options = {}) {
         if (mode === 'template') {
             const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
                 <circle cx="32" cy="32" r="30" fill="#1a1800" stroke="#ffdd00" stroke-width="4"/>
@@ -467,7 +467,8 @@ class DigitalCardRenderer {
                 </svg>`;
             return 'data:image/svg+xml;base64,' + btoa(svg);
         }
-        let url = `/img/badge/lv${level}.png`;
+        let baseUrl = options.badgeBaseUrl || '/img/badge';
+        let url = `${baseUrl}/lv${level}.png`;
         if (version) url += `?v=${version}`;
         return url;
     }

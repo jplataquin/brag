@@ -87,6 +87,7 @@ $cardOptionsJson = json_encode([
     'rarityIcon' => $computedRarityIcon,
     'rankLevel' => $rankLevel,
     'badgeVersion' => $badgeVersion,
+    'badgeBaseUrl' => asset('img/badge'),
     'serialNumber' => $serialNumber !== null ? $serialNumber : null,
     'year' => $year,
     'asThumbnail' => $asThumbnail ? true : false,
