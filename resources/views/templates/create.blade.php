@@ -9,9 +9,11 @@
         $selectedGameTitle = $selectedGame ? $selectedGame->title : 'GAME';
     }
     
-    $initialAiPhoto = '';
-    if (old('generated_ai_photo')) {
-        $initialAiPhoto = asset('storage/' . old('generated_ai_photo'));
+    $initialPreviewImage = '';
+    if (old('image_mode') == 'ai' && old('generated_ai_photo')) {
+        $initialPreviewImage = asset('storage/' . old('generated_ai_photo'));
+    } elseif (old('image_mode', 'upload') == 'upload' && old('temporary_photo_path')) {
+        $initialPreviewImage = asset('storage/' . old('temporary_photo_path'));
     }
 @endphp
 
@@ -199,7 +201,7 @@
                                :game="$selectedGameTitle"
                                :creator="Auth::user()->username"
                                :quote="old('quote', 'Card quote goes here...')"
-                               :image="$initialAiPhoto"
+                               :image="$initialPreviewImage"
                                :backgroundColor="old('background_color', '#0a0a1a')"
                                :borderColor="old('border_color', '#00f0ff')"
                                :sectionColor="old('section_color', '#111122')"

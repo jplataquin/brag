@@ -673,10 +673,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (trigger.tagName === 'A') {
                 window.location.href = trigger.href;
             } else if (trigger.tagName === 'BUTTON' && trigger.type === 'submit') {
-                const form = trigger.closest('form');
-                if (form) form.submit();
+                let form = trigger.closest('form');
+                if (!form && trigger.getAttribute('form')) {
+                    form = document.getElementById(trigger.getAttribute('form'));
+                }
+                if (form) {
+                    if (typeof form.requestSubmit === 'function') {
+                        form.requestSubmit();
+                    } else {
+                        form.submit();
+                    }
+                }
             } else if (trigger.tagName === 'FORM') {
-                trigger.submit();
+                if (typeof trigger.requestSubmit === 'function') {
+                    trigger.requestSubmit();
+                } else {
+                    trigger.submit();
+                }
             } else {
                 trigger.click();
             }

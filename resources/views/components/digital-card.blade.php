@@ -151,7 +151,11 @@ $placeholderSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.
 <script>
     (function() {
         const initCard = function() {
-            if (typeof DigitalCardRenderer === 'undefined') return;
+            if (typeof DigitalCardRenderer === 'undefined') {
+                // If DigitalCardRenderer is not yet defined, retry in 100ms
+                setTimeout(initCard, 100);
+                return;
+            }
             const canvasId = '{{ $id }}';
             const canvasEl = document.getElementById(canvasId);
             if (!canvasEl) return;
