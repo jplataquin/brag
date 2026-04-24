@@ -37,7 +37,7 @@ class CardForgeTest extends TestCase
 
         $response->assertStatus(302);
         $response->assertSessionHas('error');
-        $this->assertStringContainsString('You need at least 2 Shards', session('error'));
+        $this->assertStringContainsString('You need at least ' . config('shards.costs.forging') . ' Shard', session('error'));
         $this->assertEquals(0, $user->digitalCards()->count());
     }
 
@@ -63,13 +63,13 @@ class CardForgeTest extends TestCase
         $response->assertSessionHas('success');
         $this->assertEquals(1, $user->digitalCards()->count());
         $user->refresh();
-        $this->assertEquals(3, $user->shards_balance);
+        $this->assertEquals(5 - config('shards.costs.forging'), $user->shards_balance);
     }
 
     public function test_forge_is_wrapped_in_transaction()
     {
         $user = User::factory()->create();
-        $user->addShards(2, 'system', 'Exact amount');
+        $user->addShards(config('shards.costs.forging'), 'system', 'Exact amount');
         
         $gameTitle = GameTitle::create(['title' => 'Test Game']);
         $template = Template::create([

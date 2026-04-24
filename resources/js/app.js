@@ -468,7 +468,7 @@ class DigitalCardRenderer {
             return 'data:image/svg+xml;base64,' + btoa(svg);
         }
         let baseUrl = options.badgeBaseUrl || '/img/badge';
-        let url = `${baseUrl}/lv${level}.png`;
+        let url = `${baseUrl}/lv${level}.webp`;
         if (version) url += `?v=${version}`;
         return url;
     }

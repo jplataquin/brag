@@ -38,7 +38,7 @@ class TemplateCreateTest extends TestCase
 
         $response->assertStatus(302);
         $response->assertSessionHas('error');
-        $this->assertStringContainsString('You need at least 1 Shard', session('error'));
+        $this->assertStringContainsString('You need at least ' . config('shards.costs.template_creation') . ' Shard', session('error'));
         $this->assertEquals(0, $user->templates()->count());
     }
 
@@ -68,7 +68,7 @@ class TemplateCreateTest extends TestCase
         $response->assertSessionHas('success');
         $this->assertEquals(1, $user->templates()->count());
         $user->refresh();
-        $this->assertEquals(4, $user->shards_balance);
+        $this->assertEquals(5 - config('shards.costs.template_creation'), $user->shards_balance);
     }
 
     public function test_template_creation_is_wrapped_in_transaction()
@@ -76,7 +76,7 @@ class TemplateCreateTest extends TestCase
         Storage::fake('public');
 
         $user = User::factory()->create();
-        $user->addShards(1, 'system', 'Exact amount');
+        $user->addShards(config('shards.costs.template_creation'), 'system', 'Exact amount');
         
         $gameTitle = GameTitle::create(['title' => 'Test Game']);
 

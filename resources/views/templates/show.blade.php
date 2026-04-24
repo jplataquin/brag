@@ -75,10 +75,10 @@
             </h5>
 
             @if($canForge)
-                <p style="font-size: 0.85rem; color: #8888aa;">Forge a new Digital Card from this template. <strong class="text-neon-cyan">Cost: 2 Shards</strong></p>
+                <p style="font-size: 0.85rem; color: #8888aa;">Forge a new Digital Card from this template. <strong class="text-neon-cyan">Cost: {{ config('shards.costs.forging') }} Shards</strong></p>
                 <form action="{{ route('cards.forge', $template) }}" method="POST">
                     @csrf
-                    <button type="submit" class="btn btn-neon-lime" id="btn-forge-card" data-confirm="Forge a new Digital Card for 2 Shards? You can forge up to 3 cards per day from this template.">
+                    <button type="submit" class="btn btn-neon-lime" id="btn-forge-card" data-confirm="Forge a new Digital Card for {{ config('shards.costs.forging') }} Shards? You can forge up to 3 cards per day from this template.">
                         <i class="bi bi-lightning-charge-fill"></i> FORGE NOW
                     </button>
                 </form>

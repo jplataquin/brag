@@ -25,11 +25,12 @@ class CardForgeService
             ];
         }
 
-        // Check if user has enough shards (requires 2)
-        if ($user->shards_balance < 2) {
+        // Check if user has enough shards
+        $cost = config('shards.costs.forging');
+        if ($user->shards_balance < $cost) {
             return [
                 'can_forge' => false,
-                'reason' => 'You need at least 2 Shards to forge a new card. You currently have ' . $user->shards_balance . '.',
+                'reason' => "You need at least {$cost} Shards to forge a new card. You currently have " . $user->shards_balance . '.',
                 'cooldown_ends' => null,
             ];
         }
@@ -83,7 +84,8 @@ class CardForgeService
 
         return \Illuminate\Support\Facades\DB::transaction(function () use ($user, $template) {
             // Deduct shards
-            $user->deductShards(2, 'system', "Forged new card from template: {$template->card_title}");
+            $cost = config('shards.costs.forging');
+            $user->deductShards($cost, 'system', "Forged new card from template: {$template->card_title}");
 
             return DigitalCard::create([
                 'template_id' => $template->id,

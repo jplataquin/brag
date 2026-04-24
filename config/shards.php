@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'costs' => [
+        'template_creation' => 3,
+        'forging' => 2,
+    ],
     'packages' => [
         'package_10' => [
             'id' => 'package_10',

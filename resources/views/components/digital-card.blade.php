@@ -45,7 +45,7 @@ if ($mode === 'template') {
 }
 $hasFullscreen = $mode === 'thumbnail' || filter_var($fullscreen, FILTER_VALIDATE_BOOLEAN);
 if ($linkUrl) $hasFullscreen = false;
-$badgeVersion = file_exists(public_path("img/badge/lv{$rankLevel}.png")) ? filemtime(public_path("img/badge/lv{$rankLevel}.png")) : time();
+$badgeVersion = file_exists(public_path("img/badge/lv{$rankLevel}.webp")) ? filemtime(public_path("img/badge/lv{$rankLevel}.webp")) : time();
 
 // Rarity Color & Icon
 $rarityColors = [

@@ -86,8 +86,9 @@ class TemplateController extends Controller
 
         $user = Auth::user();
 
-        if ($user->shards_balance < 1) {
-            return back()->with('error', 'You need at least 1 Shard to create a template. You currently have ' . $user->shards_balance . '.')->withInput();
+        $cost = config('shards.costs.template_creation');
+        if ($user->shards_balance < $cost) {
+            return back()->with('error', "You need at least {$cost} Shards to create a template. You currently have " . $user->shards_balance . '.')->withInput();
         }
 
         // Check for duplicate game title
@@ -120,7 +121,8 @@ class TemplateController extends Controller
         }
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($user, $data) {
-            $user->deductShards(1, 'system', "Created new template: {$data['card_title']}");
+            $cost = config('shards.costs.template_creation');
+            $user->deductShards($cost, 'system', "Created new template: {$data['card_title']}");
             Template::create($data);
         });
 
