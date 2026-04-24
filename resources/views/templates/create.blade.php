@@ -163,7 +163,7 @@
 
                         <div id="ai-result-container" class="mt-3" style="display: {{ old('generated_ai_photo') ? 'block' : 'none' }};">
                             <label style="font-size: 0.75rem; color: #ff00ff; display: block; margin-bottom: 5px;">AI PREVIEW</label>
-                            <img id="ai-preview-img" src="{{ $initialAiPhoto }}" alt="AI Preview" style="max-width: 200px; border-radius: 12px; border: 2px solid #ff00ff; box-shadow: 0 0 10px rgba(255,0,255,0.4);">
+                            <img id="ai-preview-img" src="{{ $initialPreviewImage }}" alt="AI Preview" style="max-width: 200px; border-radius: 12px; border: 2px solid #ff00ff; box-shadow: 0 0 10px rgba(255,0,255,0.4);">
                         </div>
                         @error('generated_ai_photo')
                             <div class="text-danger mt-1 small">{{ $message }}</div>
