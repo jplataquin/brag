@@ -190,9 +190,13 @@ $placeholderSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.
             window['updateDigitalCard_' + canvasId] = function(newOptions) {
                 Object.assign(initialOptions_{{ $id }}, newOptions);
                 window.digitalCardRenderers[canvasId].draw(initialOptions_{{ $id }});
-                if (newOptions.borderColor) {
-                    const canvas = document.getElementById(canvasId);
-                    if (canvas) canvas.style.boxShadow = `0 0 15px ${newOptions.borderColor}40`;
+                
+                const canvas = document.getElementById(canvasId);
+                if (canvas) {
+                    canvas.setAttribute('data-card-options', JSON.stringify(initialOptions_{{ $id }}));
+                    if (newOptions.borderColor) {
+                        canvas.style.boxShadow = `0 0 15px ${newOptions.borderColor}40`;
+                    }
                 }
             };
         };
