@@ -19,6 +19,22 @@
                     <div style="font-size: 0.85rem; color: #00f0ff;">@<span>{{ $user->username }}</span></div>
                 </div>
 
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">FIRST NAME</label>
+                        <input type="text" class="form-control" value="{{ $user->firstname }}" readonly disabled style="background-color: rgba(255,255,255,0.05); color: #8888aa; border-color: rgba(255,255,255,0.1);">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">LAST NAME</label>
+                        <input type="text" class="form-control" value="{{ $user->lastname }}" readonly disabled style="background-color: rgba(255,255,255,0.05); color: #8888aa; border-color: rgba(255,255,255,0.1);">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted">BIRTHDATE</label>
+                    <input type="text" class="form-control" value="{{ $user->birthdate ? $user->birthdate->format('Y-m-d') : 'N/A' }}" readonly disabled style="background-color: rgba(255,255,255,0.05); color: #8888aa; border-color: rgba(255,255,255,0.1);">
+                </div>
+
                 <div class="mb-3">
                     <label for="bio" class="form-label">BIO</label>
                     <textarea class="form-control @error('bio') is-invalid @enderror"
