@@ -40,4 +40,9 @@ return [
         'url' => env('NANO_BANANA_API_URL', 'https://api.nanobanana.com/v1/enhance'),
     ],
 
+    'turnstile' => [
+        'key' => env('TURNSTILE_SITE_KEY'),
+        'secret' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
 ];

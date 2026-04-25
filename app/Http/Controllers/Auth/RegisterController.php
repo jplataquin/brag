@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Rules\Turnstile;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -48,11 +49,14 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
+            'firstname' => ['required', 'string', 'max:255'],
+            'lastname' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:30', 'unique:users', 'regex:/^[a-zA-Z0-9_]+$/'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'birthdate' => ['nullable', 'date'],
             'gender' => ['nullable', 'string', 'in:Male,Female,None'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'cf-turnstile-response' => ['required', new Turnstile],
         ]);
     }
 
@@ -64,6 +68,8 @@ class RegisterController extends Controller
     protected function create(array $data)
     {
         $user = User::create([
+            'firstname' => $data['firstname'],
+            'lastname' => $data['lastname'],
             'username' => strtolower($data['username']),
             'email' => $data['email'],
             'birthdate' => $data['birthdate'] ?? null,

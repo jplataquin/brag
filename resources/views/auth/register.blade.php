@@ -16,11 +16,35 @@
             <form method="POST" action="{{ route('register') }}" id="register-form">
                 @csrf
 
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="firstname" class="form-label">FIRST NAME</label>
+                        <input id="firstname" type="text" class="form-control @error('firstname') is-invalid @enderror"
+                               name="firstname" value="{{ old('firstname') }}" required autocomplete="given-name" autofocus>
+                        @error('firstname')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="lastname" class="form-label">LAST NAME</label>
+                        <input id="lastname" type="text" class="form-control @error('lastname') is-invalid @enderror"
+                               name="lastname" value="{{ old('lastname') }}" required autocomplete="family-name">
+                        @error('lastname')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+                </div>
+
                 <div class="mb-3">
                     <label for="username" class="form-label">USERNAME</label>
                     <input id="username" type="text" class="form-control @error('username') is-invalid @enderror"
                            name="username" value="{{ old('username') }}" required autocomplete="username"
-                           placeholder="your_gamer_tag" maxlength="30" pattern="[a-zA-Z0-9_]+" autofocus>
+                           placeholder="your_gamer_tag" maxlength="30" pattern="[a-zA-Z0-9_]+">
                     <small style="color: #555577; font-size: 0.75rem;">Letters, numbers, and underscores only. This is your unique identity.</small>
                     @error('username')
                         <span class="invalid-feedback" role="alert">
@@ -85,6 +109,17 @@
                            placeholder="••••••••">
                 </div>
 
+                <div class="mb-4 d-flex justify-content-center">
+                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}" data-theme="dark"></div>
+                </div>
+                @error('cf-turnstile-response')
+                    <div class="text-center mb-3">
+                        <span class="text-danger" style="font-size: 0.85rem;">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    </div>
+                @enderror
+
                 <button type="submit" class="btn btn-neon-magenta w-100" id="btn-register">
                     <i class="bi bi-person-plus-fill"></i> {{ __('CREATE ACCOUNT') }}
                 </button>
@@ -97,4 +132,8 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 @endsection
