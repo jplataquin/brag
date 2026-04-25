@@ -22,5 +22,10 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production' || env('FORCE_HTTPS', false)) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
+
+        \Illuminate\Support\Facades\Event::listen(
+            \Illuminate\Auth\Events\Verified::class,
+            \App\Listeners\GrantWelcomeShards::class,
+        );
     }
 }

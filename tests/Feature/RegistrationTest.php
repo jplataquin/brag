@@ -23,7 +23,7 @@ class RegistrationTest extends TestCase
         ]);
     }
 
-    public function test_user_receives_welcome_shards_upon_registration()
+    public function test_user_receives_welcome_shards_upon_email_verification()
     {
         $response = $this->post('/register', [
             'firstname' => 'John',
@@ -35,12 +35,22 @@ class RegistrationTest extends TestCase
             'cf-turnstile-response' => 'fake-token',
         ]);
 
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect('/dashboard'); // The controller dictates redirecting to /dashboard
 
         $user = User::where('email', 'newplayer@example.com')->first();
         
         $this->assertNotNull($user);
-        $this->assertEquals(10, $user->shards_balance);
+        $this->assertEquals(0, $user->shards_balance); // No shards yet
+        
+        $this->assertDatabaseMissing('shard_ledgers', [
+            'user_id' => $user->id,
+            'remarks' => 'Welcome Gift',
+        ]);
+
+        // Manually trigger the verified event
+        event(new \Illuminate\Auth\Events\Verified($user));
+
+        $this->assertEquals(10, $user->fresh()->shards_balance); // Shards granted after verification
 
         $this->assertDatabaseHas('shard_ledgers', [
             'user_id' => $user->id,

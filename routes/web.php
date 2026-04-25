@@ -22,7 +22,7 @@ Route::get('/', function () {
 // Gallery
 Route::get('/gallery', [DigitalCardController::class, 'gallery'])->name('gallery');
 
-Auth::routes();
+Auth::routes(['verify' => true]);
 
 // Fallback GET route for logout
 Route::get('/logout', function (\Illuminate\Http\Request $request) {
@@ -33,18 +33,20 @@ Route::get('/logout', function (\Illuminate\Http\Request $request) {
 });
 
 // Dashboard
-Route::get('/home', [DashboardController::class, 'index'])->name('home')->middleware('auth');
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/home', [DashboardController::class, 'index'])->name('home');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
 
 // Templates
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/templates/ai-preview', [TemplateController::class, 'generateAiPreview'])->name('templates.ai-preview');
     Route::resource('templates', TemplateController::class);
     Route::post('/upload/chunk', [App\Http\Controllers\UploadController::class, 'uploadChunk'])->name('upload.chunk');
 });
 
 // Digital Cards
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/cards', [DigitalCardController::class, 'index'])->name('cards.index');
     Route::get('/cards/{digitalCard}', [DigitalCardController::class, 'show'])->name('cards.show');
     Route::post('/cards/{digitalCard}/burn', [DigitalCardController::class, 'burn'])->name('cards.burn');
@@ -53,7 +55,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Battles
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/battles', [BattleController::class, 'index'])->name('battles.index');
     Route::get('/battles/create', [BattleController::class, 'create'])->name('battles.create');
     Route::post('/battles', [BattleController::class, 'store'])->name('battles.store');
@@ -85,7 +87,7 @@ Route::middleware('auth')->group(function () {
 
 // Profiles & Search
 Route::get('/search', [ProfileController::class, 'search'])->name('search');
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     

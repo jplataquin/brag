@@ -77,9 +77,6 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
-        // Give new users 10 free shards as a welcome gift
-        $user->addShards(10, 'system', 'Welcome Gift');
-
         return $user;
     }
 }
