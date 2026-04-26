@@ -19,17 +19,21 @@
         </div>
 
         <div class="text-center">
-            <form action="{{ route('terms.agree') }}" method="POST">
-                @csrf
-                <div class="mb-4 d-flex justify-content-center align-items-center gap-2">
-                    <input type="checkbox" id="agree-check" required style="width: 20px; height: 20px; cursor: pointer;">
-                    <label for="agree-check" style="color: #fff; cursor: pointer; font-size: 1.1rem;">I have read and agree to the terms above.</label>
-                </div>
+            @auth
+                @if(auth()->user()->terms_version_agreed < $latestTerms->id)
+                    <form action="{{ route('terms.agree') }}" method="POST">
+                        @csrf
+                        <div class="mb-4 d-flex justify-content-center align-items-center gap-2">
+                            <input type="checkbox" id="agree-check" required style="width: 20px; height: 20px; cursor: pointer;">
+                            <label for="agree-check" style="color: #fff; cursor: pointer; font-size: 1.1rem;">I have read and agree to the terms above.</label>
+                        </div>
 
-                <button type="submit" class="btn btn-neon py-3 px-5" style="font-family: 'Orbitron', sans-serif; letter-spacing: 2px;">
-                    AGREE & CONTINUE
-                </button>
-            </form>
+                        <button type="submit" class="btn btn-neon py-3 px-5" style="font-family: 'Orbitron', sans-serif; letter-spacing: 2px;">
+                            AGREE & CONTINUE
+                        </button>
+                    </form>
+                @endif
+            @endauth
         </div>
     </div>
 </div>
