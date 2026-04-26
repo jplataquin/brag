@@ -58,7 +58,9 @@ class TemplateController extends Controller
             'card_title' => 'required|string|max:255|unique:templates,card_title,' . $template->id,
             'game_title_id' => 'required|exists:game_titles,id',
             'quote' => 'required|string|max:500',
+            'image_mode' => 'required|string|in:upload,ai',
             'photo' => 'nullable|image|max:10240', // Max 10MB
+            'generated_ai_photo' => 'nullable|string',
             'background_color' => 'nullable|string|max:50',
             'border_color' => 'nullable|string|max:50',
             'section_color' => 'nullable|string|max:50',
@@ -82,7 +84,7 @@ class TemplateController extends Controller
             'admin_edited_at' => now(),
         ];
 
-        if ($request->hasFile('photo')) {
+        if ($request->image_mode === 'upload' && $request->hasFile('photo')) {
             // Delete old photos
             if ($template->photo) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($template->photo);
@@ -95,6 +97,15 @@ class TemplateController extends Controller
             // Store new photo
             $path = $request->file('photo')->store('templates', 'public');
             $dataToUpdate['photo'] = $path;
+        } elseif ($request->image_mode === 'ai' && $request->filled('generated_ai_photo')) {
+            if ($template->photo && $template->photo !== $template->ai_photo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($template->photo);
+            }
+            if ($template->ai_photo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($template->ai_photo);
+            }
+            $dataToUpdate['ai_photo'] = $request->generated_ai_photo;
+            $dataToUpdate['photo'] = $request->generated_ai_photo; // Set as main photo as well
         }
 
         $template->update($dataToUpdate);

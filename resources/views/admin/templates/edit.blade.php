@@ -66,10 +66,54 @@
                         <textarea name="quote" id="quote" class="form-control bg-dark text-white border-secondary" rows="3" required maxlength="500">{{ $template->quote }}</textarea>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="photo" class="form-label text-white-50">Replace Image (Optional)</label>
-                        <input type="file" name="photo" id="photo" class="form-control bg-dark text-white border-secondary" accept="image/*">
-                        <small class="text-muted">Uploading a new image will overwrite the existing one (and delete the AI photo if present).</small>
+                    <div class="mb-4">
+                        <label class="form-label text-neon-yellow">CARD IMAGE SOURCE (OPTIONAL)</label>
+                        
+                        <div class="d-flex gap-3 mb-3">
+                            <div class="flex-fill">
+                                <input type="radio" class="btn-check" name="image_mode" id="mode_upload" value="upload" checked autocomplete="off">
+                                <label class="btn btn-outline-neon w-100" for="mode_upload">
+                                    <i class="bi bi-cloud-upload"></i> UPLOAD PHOTO
+                                </label>
+                            </div>
+                            <div class="flex-fill">
+                                <input type="radio" class="btn-check" name="image_mode" id="mode_ai" value="ai" autocomplete="off">
+                                <label class="btn btn-outline-neon-magenta w-100" for="mode_ai">
+                                    <i class="bi bi-magic"></i> AI GENERATE
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Upload Section -->
+                        <div id="section_upload" class="p-3 neon-card" style="border: 1px dashed rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.02);">
+                            <label for="photo" class="form-label text-white-50">Upload New File</label>
+                            <input type="file" name="photo" id="photo" class="form-control bg-dark text-white border-secondary" accept="image/*">
+                            <small class="text-muted mt-2 d-block">Uploading a new image will overwrite the existing one (and delete the AI photo if present).</small>
+                        </div>
+
+                        <!-- AI Section -->
+                        <div id="section_ai" class="p-3 neon-card" style="display: none; border: 1px dashed rgba(255, 0, 255, 0.4); background: rgba(255, 0, 255, 0.02);">
+                            <label for="ai_prompt" class="form-label text-white-50">Art Style / Character Description</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control bg-dark text-white border-secondary" id="ai_prompt" name="ai_prompt" placeholder="e.g. Cyberpunk ninja, neon city background, realistic...">
+                                <button class="btn btn-neon-magenta" type="button" id="btn-preview-ai">
+                                    <i class="bi bi-magic"></i> Generate
+                                </button>
+                            </div>
+                            <small class="text-muted d-block mb-3">Powered by Nano Banana AI. Generates a new image based on your prompt.</small>
+                            
+                            <div id="ai-loading" class="text-center my-3" style="display: none;">
+                                <div class="spinner-border text-magenta" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2 text-magenta" style="font-family: 'Orbitron', sans-serif;">GENERATING IMAGE...</p>
+                            </div>
+
+                            <div id="ai-result-container" class="text-center" style="display: none;">
+                                <p class="text-success small mb-2"><i class="bi bi-check-circle-fill"></i> Image generated successfully!</p>
+                                <input type="hidden" id="generated_ai_photo" name="generated_ai_photo">
+                            </div>
+                        </div>
                     </div>
 
                     <hr class="border-secondary my-4">
@@ -160,7 +204,21 @@
                      @endphp
                      
                      <div style="transform: scale(0.85); transform-origin: top center; width: 100%;">
-                        <x-digital-card :card="$dummyCard" />
+                        <x-digital-card 
+                            id="card_canvas_admin_preview" 
+                            :card="$dummyCard" 
+                            :title="$template->card_title"
+                            :game="$template->gameTitle->title ?? 'GAME'"
+                            :creator="$template->user->username ?? 'CREATOR'"
+                            :quote="$template->quote"
+                            :image="$template->display_photo"
+                            :imagePositionY="$template->image_position_y ?? 50"
+                            :backgroundColor="$template->background_color"
+                            :borderColor="$template->border_color"
+                            :sectionColor="$template->section_color"
+                            :primaryTextColor="$template->primary_text_color"
+                            :secondaryTextColor="$template->secondary_text_color"
+                        />
                      </div>
                  </div>
             </div>
@@ -168,4 +226,127 @@
     </div>
 </div>
 
+@section('scripts')
+<script>
+    // Live update helper for the digital card component
+    function updateLivePreview(updates) {
+        if(window.updateDigitalCard_card_canvas_admin_preview) {
+            window.updateDigitalCard_card_canvas_admin_preview(updates);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle Game Title Dropdown changes
+        const gameSelect = document.getElementById('game_title_id');
+        if (gameSelect) {
+            gameSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const gameText = selectedOption.text.split(' (ID:')[0].trim().toUpperCase();
+                updateLivePreview({ game: gameText });
+            });
+        }
+
+        // Handle User Dropdown changes
+        const userSelect = document.getElementById('user_id');
+        if (userSelect) {
+            userSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const userText = selectedOption.text.split(' (ID:')[0].trim();
+                updateLivePreview({ creator: userText });
+            });
+        }
+
+        // Image Mode Toggle Logic
+        document.querySelectorAll('input[name="image_mode"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'upload') {
+                    document.getElementById('section_upload').style.display = 'block';
+                    document.getElementById('section_ai').style.display = 'none';
+                    // The actual file input preview isn't live until upload, but we could hook into FileReader if we wanted.
+                    // For now, it just falls back to the original image until saved.
+                } else {
+                    document.getElementById('section_upload').style.display = 'none';
+                    document.getElementById('section_ai').style.display = 'block';
+                    
+                    const generatedPhotoUrl = document.getElementById('generated_ai_photo').getAttribute('data-url');
+                    if (generatedPhotoUrl) {
+                        updateLivePreview({ image: generatedPhotoUrl });
+                    }
+                }
+            });
+        });
+
+        // AI Generation Logic
+        document.getElementById('btn-preview-ai').addEventListener('click', function() {
+            const prompt = document.getElementById('ai_prompt').value;
+            if (!prompt) {
+                window.neonAlert('Please enter an art style prompt first.');
+                return;
+            }
+
+            const btn = this;
+            const loading = document.getElementById('ai-loading');
+            const resultContainer = document.getElementById('ai-result-container');
+            const hiddenInput = document.getElementById('generated_ai_photo');
+
+            btn.disabled = true;
+            loading.style.display = 'block';
+            resultContainer.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('ai_prompt', prompt);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+            fetch('{{ route("templates.ai-preview") }}', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                btn.disabled = false;
+                loading.style.display = 'none';
+
+                if (data.success) {
+                    hiddenInput.value = data.path;
+                    hiddenInput.setAttribute('data-url', data.url);
+                    resultContainer.style.display = 'block';
+                    updateLivePreview({ image: data.url });
+                } else {
+                    window.neonAlert('Failed to generate preview: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                btn.disabled = false;
+                loading.style.display = 'none';
+                window.neonAlert('An error occurred during generation.');
+                console.error('Error:', error);
+            });
+        });
+
+        // Add live preview listeners for design inputs
+        const inputs = ['card_title', 'quote', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color', 'image_position_y'];
+        inputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', function() {
+                    let key = id;
+                    if (id === 'card_title') key = 'title';
+                    if (id === 'image_position_y') key = 'imagePositionY';
+                    if (id === 'background_color') key = 'backgroundColor';
+                    if (id === 'border_color') key = 'borderColor';
+                    if (id === 'section_color') key = 'sectionColor';
+                    if (id === 'primary_text_color') key = 'primaryTextColor';
+                    if (id === 'secondary_text_color') key = 'secondaryTextColor';
+                    
+                    let updates = {};
+                    updates[key] = this.value;
+                    updateLivePreview(updates);
+                });
+            }
+        });
+    });
+</script>
 @endsection
