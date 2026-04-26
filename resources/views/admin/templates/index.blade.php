@@ -60,7 +60,7 @@
                                     @endif
                                 </td>
                                 <td>
-                                    {{ $template->gameTitle->name ?? 'Deleted Game' }}
+                                    {{ $template->gameTitle->title ?? 'Deleted Game' }}
                                 </td>
                                 <td>
                                     @if($template->trashed())

@@ -25,7 +25,7 @@ class TemplateController extends Controller
                       $q->where('username', 'like', "%{$search}%");
                   })
                   ->orWhereHas('gameTitle', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%");
+                      $q->where('title', 'like', "%{$search}%");
                   });
         }
 
@@ -40,7 +40,7 @@ class TemplateController extends Controller
     public function edit($id)
     {
         $template = Template::with(['user', 'gameTitle', 'adminEditor'])->withTrashed()->findOrFail($id);
-        $gameTitles = GameTitle::orderBy('name')->get();
+        $gameTitles = GameTitle::orderBy('title')->get();
         $users = User::orderBy('username')->get();
 
         return view('admin.templates.edit', compact('template', 'gameTitles', 'users'));

@@ -49,7 +49,7 @@
                             <select name="game_title_id" id="game_title_id" class="form-select bg-dark text-white border-secondary" required>
                                 @foreach($gameTitles as $game)
                                     <option value="{{ $game->id }}" {{ $template->game_title_id == $game->id ? 'selected' : '' }}>
-                                        {{ $game->name }} (ID: {{ $game->id }})
+                                        {{ $game->title }} (ID: {{ $game->id }})
                                     </option>
                                 @endforeach
                             </select>
