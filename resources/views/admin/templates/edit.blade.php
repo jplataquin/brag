@@ -85,10 +85,29 @@
                         </div>
 
                         <!-- Upload Section -->
-                        <div id="section_upload" class="p-3 neon-card" style="border: 1px dashed rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.02);">
-                            <label for="photo" class="form-label text-white-50">Upload New File</label>
-                            <input type="file" name="photo" id="photo" class="form-control bg-dark text-white border-secondary" accept="image/*">
-                            <small class="text-muted mt-2 d-block">Uploading a new image will overwrite the existing one (and delete the AI photo if present).</small>
+                        <div id="section_upload" style="display: {{ old('image_mode', 'upload') == 'upload' ? 'block' : 'none' }};">
+                            <div class="position-relative" id="photo-upload-wrapper">
+                                <input type="file" class="position-absolute w-100 h-100 opacity-0"
+                                       style="z-index: 2; cursor: pointer; top: 0; left: 0;"
+                                       id="photo" accept="image/*">
+                                <div id="photo-dropzone" class="d-flex flex-column align-items-center justify-content-center p-4 text-center neon-card @error('temporary_photo_path') border-danger @enderror" style="border: 2px dashed rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.02); transition: all 0.3s ease;">
+                                    <i class="bi bi-cloud-arrow-up-fill mb-2" style="font-size: 2.5rem; color: #00f0ff; text-shadow: 0 0 10px rgba(0,240,255,0.4);"></i>
+                                    <span style="font-family: 'Orbitron', sans-serif; color: #00f0ff; font-weight: 600; letter-spacing: 1px;">CLICK OR DRAG PHOTO HERE</span>
+                                    <small class="mt-2" style="color: #8888aa; font-size: 0.75rem;">Uploading a new image will overwrite the existing one.</small>
+                                </div>
+                            </div>
+                            <input type="hidden" name="temporary_photo_path" id="temporary_photo_path" value="{{ old('temporary_photo_path') }}">
+                            @error('temporary_photo_path')
+                                <div class="text-danger mt-1 small" style="text-shadow: 0 0 5px rgba(255,0,0,0.5);">{{ $message }}</div>
+                            @enderror
+
+                            <!-- Upload Progress -->
+                            <div id="upload-progress-container" class="mt-2" style="display: none;">
+                                <div class="progress" style="height: 10px; background-color: #111122;">
+                                    <div id="upload-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; background-color: #00f0ff;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <div id="upload-status" class="text-center mt-1 small" style="color: #00f0ff;"></div>
+                            </div>
                         </div>
 
                         <!-- AI Section -->
@@ -262,8 +281,13 @@
                 if (this.value === 'upload') {
                     document.getElementById('section_upload').style.display = 'block';
                     document.getElementById('section_ai').style.display = 'none';
+                    
                     // The actual file input preview isn't live until upload, but we could hook into FileReader if we wanted.
-                    // For now, it just falls back to the original image until saved.
+                    // For now, it just falls back to the original image until saved unless a new one was uploaded.
+                    const tempInput = document.getElementById('temporary_photo_path');
+                    if (tempInput.value) {
+                        // Ideally we'd show the preview of the newly uploaded image, but for now we just keep whatever is in the live preview
+                    }
                 } else {
                     document.getElementById('section_upload').style.display = 'none';
                     document.getElementById('section_ai').style.display = 'block';
@@ -274,6 +298,111 @@
                     }
                 }
             });
+        });
+
+        const photoInput = document.getElementById('photo');
+        const dropzone = document.getElementById('photo-dropzone');
+        
+        photoInput.addEventListener('dragenter', () => {
+            dropzone.style.background = 'rgba(0, 240, 255, 0.1)';
+            dropzone.style.borderColor = '#00f0ff';
+        });
+        photoInput.addEventListener('dragleave', () => {
+            dropzone.style.background = 'rgba(0, 240, 255, 0.02)';
+            dropzone.style.borderColor = 'rgba(0, 240, 255, 0.4)';
+        });
+        photoInput.addEventListener('drop', () => {
+            dropzone.style.background = 'rgba(0, 240, 255, 0.02)';
+            dropzone.style.borderColor = 'rgba(0, 240, 255, 0.4)';
+        });
+
+        photoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0] || this.files[0];
+            if (file) {
+                // Update dropzone UI
+                dropzone.innerHTML = `
+                    <i class="bi bi-file-earmark-image-fill mb-2" style="font-size: 2.5rem; color: #39ff14; text-shadow: 0 0 10px rgba(57,255,20,0.4);"></i>
+                    <span style="font-family: 'Orbitron', sans-serif; color: #39ff14; font-weight: 600; letter-spacing: 1px;">${file.name}</span>
+                    <small class="mt-2" style="color: #8888aa; font-size: 0.75rem;">Click or drag to change</small>
+                `;
+                dropzone.style.borderColor = '#39ff14';
+
+                // Local preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (document.getElementById('mode_upload').checked) {
+                        updateLivePreview({ image: e.target.result });
+                    }
+                };
+                reader.readAsDataURL(file);
+
+                // Chunk Upload
+                const btnSubmit = document.querySelector('button[type="submit"]');
+                const progressContainer = document.getElementById('upload-progress-container');
+                const progressBar = document.getElementById('upload-progress-bar');
+                const statusText = document.getElementById('upload-status');
+                const tempInput = document.getElementById('temporary_photo_path');
+
+                btnSubmit.disabled = true;
+                progressContainer.style.display = 'block';
+                progressBar.style.width = '0%';
+                statusText.innerText = 'Uploading: 0%';
+
+                const CHUNK_SIZE = 256 * 1024; // 256KB
+                const fileId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+                const extension = file.name.split('.').pop();
+                let chunkIndex = 0;
+
+                function uploadNextChunk() {
+                    const start = chunkIndex * CHUNK_SIZE;
+                    const end = Math.min(start + CHUNK_SIZE, file.size);
+                    const chunk = file.slice(start, end);
+
+                    const formData = new FormData();
+                    formData.append('file', chunk);
+                    formData.append('file_id', fileId);
+                    formData.append('chunk_index', chunkIndex);
+                    formData.append('total_chunks', totalChunks);
+                    formData.append('extension', extension);
+                    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+                    fetch('{{ route("upload.chunk") }}', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            statusText.innerText = 'Upload failed!';
+                            statusText.style.color = 'red';
+                            btnSubmit.disabled = false;
+                            return;
+                        }
+                        
+                        chunkIndex++;
+                        const percent = Math.round((chunkIndex / totalChunks) * 100);
+                        progressBar.style.width = percent + '%';
+                        statusText.innerText = 'Uploading: ' + percent + '%';
+
+                        if (chunkIndex < totalChunks) {
+                            uploadNextChunk();
+                        } else if (data.success && data.path) {
+                            tempInput.value = data.path;
+                            statusText.innerText = 'Upload complete!';
+                            statusText.style.color = '#39ff14';
+                            btnSubmit.disabled = false;
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Upload Error:', err);
+                        statusText.innerText = 'Upload error!';
+                        statusText.style.color = 'red';
+                        btnSubmit.disabled = false;
+                    });
+                }
+                uploadNextChunk();
+            }
         });
 
         // AI Generation Logic

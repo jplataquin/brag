@@ -59,7 +59,7 @@ class TemplateController extends Controller
             'game_title_id' => 'required|exists:game_titles,id',
             'quote' => 'required|string|max:500',
             'image_mode' => 'required|string|in:upload,ai',
-            'photo' => 'nullable|image|max:10240', // Max 10MB
+            'temporary_photo_path' => 'nullable|string',
             'generated_ai_photo' => 'nullable|string',
             'background_color' => 'nullable|string|max:50',
             'border_color' => 'nullable|string|max:50',
@@ -84,7 +84,7 @@ class TemplateController extends Controller
             'admin_edited_at' => now(),
         ];
 
-        if ($request->image_mode === 'upload' && $request->hasFile('photo')) {
+        if ($request->image_mode === 'upload' && $request->filled('temporary_photo_path')) {
             // Delete old photos
             if ($template->photo) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($template->photo);
@@ -94,9 +94,15 @@ class TemplateController extends Controller
                 $dataToUpdate['ai_photo'] = null; // Remove AI photo since we are uploading a fresh base photo
             }
 
-            // Store new photo
-            $path = $request->file('photo')->store('templates', 'public');
-            $dataToUpdate['photo'] = $path;
+            // Move new photo from temp chunk directory to final destination
+            $tmpPath = $request->input('temporary_photo_path');
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($tmpPath)) {
+                $newPath = 'templates/' . basename($tmpPath);
+                \Illuminate\Support\Facades\Storage::disk('public')->move($tmpPath, $newPath);
+                $dataToUpdate['photo'] = $newPath;
+            } else {
+                $dataToUpdate['photo'] = $tmpPath;
+            }
         } elseif ($request->image_mode === 'ai' && $request->filled('generated_ai_photo')) {
             if ($template->photo && $template->photo !== $template->ai_photo) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($template->photo);
