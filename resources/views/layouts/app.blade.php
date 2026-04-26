@@ -255,6 +255,7 @@
             <p style="font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: #555577; letter-spacing: 2px;">
                 &copy; {{ date('Y') }} BRAG — FORGE. BATTLE. BRAG.
             </p>
+            <a href="{{ route('terms.show') }}" style="font-size: 0.8rem; color: var(--neon-cyan); text-decoration: none;">Terms of Service</a>
         </footer>
     </div>
 
