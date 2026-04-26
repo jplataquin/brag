@@ -39,7 +39,7 @@
                             <select name="template_id" id="template_id" class="form-select bg-dark text-white border-secondary" required>
                                 @foreach($templates as $template)
                                     <option value="{{ $template->id }}" {{ $card->template_id == $template->id ? 'selected' : '' }}>
-                                        {{ $template->name }} (ID: {{ $template->id }})
+                                        {{ $template->card_title }} (ID: {{ $template->id }})
                                     </option>
                                 @endforeach
                             </select>

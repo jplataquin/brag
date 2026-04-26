@@ -50,7 +50,7 @@
                                     <span class="fw-bold" style="color: var(--neon-yellow);">#{{ $card->id }}</span>
                                 </td>
                                 <td>
-                                    {{ $card->template->name ?? 'Deleted Template' }}
+                                    {{ $card->template()->withTrashed()->first()->card_title ?? 'Deleted Template' }}
                                 </td>
                                 <td>
                                     @if($card->owner)

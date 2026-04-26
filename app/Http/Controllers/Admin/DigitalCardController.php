@@ -24,7 +24,7 @@ class DigitalCardController extends Controller
                       $q->where('username', 'like', "%{$search}%");
                   })
                   ->orWhereHas('template', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%");
+                      $q->where('card_title', 'like', "%{$search}%");
                   });
         }
 
@@ -39,7 +39,7 @@ class DigitalCardController extends Controller
     public function edit($id)
     {
         $card = DigitalCard::with(['owner', 'originalOwner', 'template', 'adminEditor'])->findOrFail($id);
-        $templates = Template::orderBy('name')->get();
+        $templates = Template::orderBy('card_title')->get();
         $users = User::orderBy('username')->get();
 
         return view('admin.cards.edit', compact('card', 'templates', 'users'));
