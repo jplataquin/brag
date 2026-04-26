@@ -31,11 +31,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/terms/agree', [TermsOfServiceController::class, 'agree'])->name('terms.agree');
 });
 
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 
 // Admin Routes
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
-    Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/terms', [TermsOfServiceController::class, 'index'])->name('admin.terms.index');
     Route::post('/admin/terms', [TermsOfServiceController::class, 'store'])->name('admin.terms.store');
 });
