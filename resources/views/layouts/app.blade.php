@@ -188,8 +188,8 @@
                                     </a>
                                     @if(Auth::user()->is_admin)
                                         <div class="dropdown-divider" style="border-color: rgba(0,240,255,0.1);"></div>
-                                        <a class="dropdown-item" href="{{ route('admin.terms.index') }}">
-                                            <i class="bi bi-shield-lock-fill"></i> Manage Terms
+                                        <a class="dropdown-item text-danger" href="{{ route('admin.dashboard') }}">
+                                            <i class="bi bi-speedometer2"></i> Admin Panel
                                         </a>
                                     @endif
                                     <div class="dropdown-divider" style="border-color: rgba(0,240,255,0.1);"></div>

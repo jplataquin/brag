@@ -4,9 +4,14 @@
 
 @section('content')
 <div class="container">
-    <h1 class="page-title">
-        <span class="page-title-accent"><i class="bi bi-shield-lock-fill"></i></span> MANAGE TERMS OF SERVICE
-    </h1>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="page-title m-0">
+            <span class="page-title-accent"><i class="bi bi-shield-lock-fill"></i></span> MANAGE TERMS OF SERVICE
+        </h1>
+        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-info">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
 
     <div class="row justify-content-center">
         <div class="col-lg-10">
