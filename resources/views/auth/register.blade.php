@@ -109,6 +109,18 @@
                            placeholder="••••••••">
                 </div>
 
+                <div class="mb-4 form-check d-flex align-items-center">
+                    <input class="form-check-input mt-0 me-2 @error('terms') is-invalid @enderror" type="checkbox" name="terms" id="terms" {{ old('terms') ? 'checked' : '' }} required>
+                    <label class="form-check-label text-white-50" for="terms" style="font-size: 0.85rem;">
+                        I agree to the <a href="{{ route('terms.show') }}" target="_blank" style="color: var(--neon-cyan);">Terms of Service</a>
+                    </label>
+                    @error('terms')
+                        <span class="invalid-feedback d-block" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+
                 <div class="mb-4 d-flex justify-content-center">
                     <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}" data-theme="dark"></div>
                 </div>

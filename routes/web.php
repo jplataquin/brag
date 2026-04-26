@@ -25,9 +25,11 @@ Route::get('/gallery', [DigitalCardController::class, 'gallery'])->name('gallery
 
 Auth::routes(['verify' => true]);
 
+// Terms of Service (Public view)
+Route::get('/terms', [TermsOfServiceController::class, 'show'])->name('terms.show');
+
 // Terms of Service (Only auth required)
 Route::middleware(['auth'])->group(function () {
-    Route::get('/terms', [TermsOfServiceController::class, 'show'])->name('terms.show');
     Route::post('/terms/agree', [TermsOfServiceController::class, 'agree'])->name('terms.agree');
 });
 
@@ -38,6 +40,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/terms', [TermsOfServiceController::class, 'index'])->name('admin.terms.index');
     Route::post('/admin/terms', [TermsOfServiceController::class, 'store'])->name('admin.terms.store');
+    Route::get('/admin/terms/{id}', [TermsOfServiceController::class, 'showPrevious'])->name('admin.terms.show_previous');
 });
 
 // Fallback GET route for logout

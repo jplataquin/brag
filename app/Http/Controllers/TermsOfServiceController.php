@@ -13,7 +13,17 @@ class TermsOfServiceController extends Controller
     public function index()
     {
         $latestTerms = TermsOfService::latest('id')->first();
-        return view('admin.terms.index', compact('latestTerms'));
+        $history = TermsOfService::orderBy('id', 'desc')->get();
+        return view('admin.terms.index', compact('latestTerms', 'history'));
+    }
+
+    /**
+     * Admin view to see a specific previous version.
+     */
+    public function showPrevious($id)
+    {
+        $terms = TermsOfService::findOrFail($id);
+        return view('admin.terms.show_previous', compact('terms'));
     }
 
     /**
@@ -24,6 +34,13 @@ class TermsOfServiceController extends Controller
         $request->validate([
             'content' => 'required|string',
         ]);
+
+        $latestTerms = TermsOfService::latest('id')->first();
+
+        // Prevent saving if there are no changes
+        if ($latestTerms && trim($latestTerms->content) === trim($request->content)) {
+            return redirect()->back()->with('error', 'No changes were detected. A new version was not created.');
+        }
 
         TermsOfService::create([
             'content' => $request->content,

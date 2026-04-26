@@ -25,7 +25,7 @@
                     @endif
                 </div>
 
-                <form action="{{ route('admin.terms.store') }}" method="POST">
+                <form action="{{ route('admin.terms.store') }}" method="POST" id="terms-form">
                     @csrf
                     <div class="mb-4">
                         <textarea name="content" id="editor">{{ $latestTerms ? $latestTerms->content : '' }}</textarea>
@@ -40,6 +40,43 @@
                     </button>
                 </form>
             </div>
+
+            <div class="neon-card p-4 mt-4">
+                <h3 class="neon-text mb-4" style="font-size: 1.2rem;">VERSION HISTORY</h3>
+                @if($history->count() > 0)
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle mb-0" style="border-color: rgba(0,240,255,0.1);">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="text-uppercase text-muted small fw-bold">Version ID</th>
+                                    <th scope="col" class="text-uppercase text-muted small fw-bold">Date Created</th>
+                                    <th scope="col" class="text-uppercase text-muted small fw-bold text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($history as $term)
+                                    <tr>
+                                        <td>
+                                            <span class="fw-bold" style="color: var(--neon-cyan);">#{{ $term->id }}</span>
+                                            @if($latestTerms && $latestTerms->id === $term->id)
+                                                <span class="badge bg-neon-magenta ms-2">Current</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-secondary">{{ $term->created_at->format('M j, Y h:i A') }}</td>
+                                        <td class="text-end">
+                                            <a href="{{ route('admin.terms.show_previous', $term->id) }}" class="btn btn-sm btn-outline-info">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="text-muted mb-0">No previous versions available.</p>
+                @endif
+            </div>
         </div>
     </div>
 </div>
@@ -48,13 +85,39 @@
 @section('scripts')
 <script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
 <script>
-    ClassicEditor
-        .create(document.querySelector('#editor'), {
-            toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'undo', 'redo'],
-        })
-        .catch(error => {
-            console.error(error);
+    document.addEventListener('DOMContentLoaded', function() {
+        let editorInstance;
+
+        ClassicEditor
+            .create(document.querySelector('#editor'), {
+                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'undo', 'redo'],
+            })
+            .then(editor => {
+                editorInstance = editor;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        const form = document.getElementById('terms-form');
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Ensure editor data is synced back to textarea
+            if (editorInstance) {
+                editorInstance.updateSourceElement();
+            }
+
+            const confirmed = await window.neonConfirm(
+                'Are you sure you want to publish this new version of the Terms of Service? All users will be required to re-agree upon their next sign-in.',
+                'PUBLISH VERSION'
+            );
+
+            if (confirmed) {
+                form.submit();
+            }
         });
+    });
 </script>
 <style>
     .ck-editor__editable {
