@@ -58,6 +58,7 @@ class TemplateController extends Controller
             'card_title' => 'required|string|max:255|unique:templates,card_title,' . $template->id,
             'game_title_id' => 'required|exists:game_titles,id',
             'quote' => 'required|string|max:500',
+            'photo' => 'nullable|image|max:10240', // Max 10MB
             'background_color' => 'nullable|string|max:50',
             'border_color' => 'nullable|string|max:50',
             'section_color' => 'nullable|string|max:50',
@@ -66,7 +67,7 @@ class TemplateController extends Controller
             'image_position_y' => 'nullable|integer|min:0|max:100',
         ]);
 
-        $template->update([
+        $dataToUpdate = [
             'user_id' => $request->user_id,
             'card_title' => $request->card_title,
             'game_title_id' => $request->game_title_id,
@@ -79,7 +80,24 @@ class TemplateController extends Controller
             'image_position_y' => $request->image_position_y,
             'admin_editor_id' => auth()->id(),
             'admin_edited_at' => now(),
-        ]);
+        ];
+
+        if ($request->hasFile('photo')) {
+            // Delete old photos
+            if ($template->photo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($template->photo);
+            }
+            if ($template->ai_photo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($template->ai_photo);
+                $dataToUpdate['ai_photo'] = null; // Remove AI photo since we are uploading a fresh base photo
+            }
+
+            // Store new photo
+            $path = $request->file('photo')->store('templates', 'public');
+            $dataToUpdate['photo'] = $path;
+        }
+
+        $template->update($dataToUpdate);
 
         return redirect()->route('admin.templates.index')->with('success', "Template #{$template->id} updated successfully.");
     }

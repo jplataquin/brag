@@ -27,7 +27,7 @@
         <!-- Edit Form -->
         <div class="col-lg-8 mb-4">
             <div class="card bg-dark bg-opacity-75 border-secondary rounded-4 p-4 shadow-lg" style="backdrop-filter: blur(10px);">
-                <form action="{{ route('admin.templates.update', $template->id) }}" method="POST">
+                <form action="{{ route('admin.templates.update', $template->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -64,6 +64,12 @@
                     <div class="mb-3">
                         <label for="quote" class="form-label text-white-50">Quote</label>
                         <textarea name="quote" id="quote" class="form-control bg-dark text-white border-secondary" rows="3" required maxlength="500">{{ $template->quote }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="photo" class="form-label text-white-50">Replace Image (Optional)</label>
+                        <input type="file" name="photo" id="photo" class="form-control bg-dark text-white border-secondary" accept="image/*">
+                        <small class="text-muted">Uploading a new image will overwrite the existing one (and delete the AI photo if present).</small>
                     </div>
 
                     <hr class="border-secondary my-4">
@@ -139,12 +145,23 @@
             <!-- Preview Thumbnail -->
             <div class="card bg-dark border-secondary rounded-4 shadow-lg overflow-hidden">
                  <div class="card-header border-secondary bg-dark text-center">
-                     <span class="text-muted small text-uppercase">Current Image</span>
+                     <span class="text-muted small text-uppercase">Current Design Preview</span>
                  </div>
-                 <div class="card-body p-0 d-flex justify-content-center align-items-center" style="background: url('{{ $template->display_photo }}') center/cover; height: 250px; background-position-y: {{ $template->image_position_y ?? 50 }}%;">
-                     @if(!$template->photo && !$template->ai_photo)
-                         <span class="text-muted"><i class="bi bi-image"></i> No Custom Image</span>
-                     @endif
+                 <div class="card-body p-0 d-flex justify-content-center align-items-center p-3" style="min-height: 400px; background: #050505;">
+                     @php
+                        // Create a dummy digital card instance for the component
+                        $dummyCard = new \App\Models\DigitalCard();
+                        $dummyCard->id = 0;
+                        $dummyCard->level = 1;
+                        $dummyCard->wins = 0;
+                        $dummyCard->losses = 0;
+                        $dummyCard->is_trophy = false;
+                        $dummyCard->setRelation('template', $template);
+                     @endphp
+                     
+                     <div style="transform: scale(0.85); transform-origin: top center; width: 100%;">
+                        <x-digital-card :card="$dummyCard" />
+                     </div>
                  </div>
             </div>
         </div>
