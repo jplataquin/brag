@@ -51,7 +51,7 @@
             @endif
 
             <!-- Marshall Leave -->
-            @if($battle->marshall_id === Auth::id())
+            @if($battle->marshall_id === Auth::id() && !in_array($battle->status, ['completed', 'cancelled']))
                 <form method="POST" action="{{ route('battles.leaveMarshall', $battle) }}" class="d-inline">
                     @csrf
                     <button type="submit" class="btn btn-neon-danger" data-confirm="Are you sure you want to leave this battle room?">

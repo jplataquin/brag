@@ -262,12 +262,17 @@ class BattleService
         }
 
         // Notify Marshall if present
-        if ($battle->marshall_id && $declarer->id !== $battle->marshall_id) {
-            $battle->marshall->notify(new BattleNotification(
-                $battle,
-                "Battle finalized. {$winner->username} won.",
-                'finalized'
-            ));
+        if ($battle->marshall_id) {
+            if ($declarer->id !== $battle->marshall_id) {
+                $battle->marshall->notify(new BattleNotification(
+                    $battle,
+                    "Battle finalized. {$winner->username} won.",
+                    'finalized'
+                ));
+            }
+            
+            // Marshall automatically leaves the room but retains their historical assignment
+            $this->logActivity($battle->id, $battle->marshall_id, 'marshall_leave', "{$battle->marshall->username} has automatically left the battle room.");
         }
 
         event(new \App\Events\BattleUpdated($battle, "Battle finalized! {$winner->username} won.", 'winner'));
@@ -647,6 +652,10 @@ class BattleService
     {
         if ($battle->marshall_id !== $marshall->id) {
             throw new \Exception('You are not the marshall of this battle.');
+        }
+
+        if (in_array($battle->status, ['completed', 'cancelled'])) {
+            throw new \Exception('You cannot leave a battle that has already ended.');
         }
 
         $battle->update([
