@@ -20,6 +20,9 @@
                     <a href="{{ route('admin.terms.index') }}" class="btn btn-outline-info btn-sm">
                         <i class="bi bi-file-earmark-text"></i> Manage Terms of Service
                     </a>
+                    <a href="{{ route('admin.cards.index') }}" class="btn btn-outline-warning btn-sm">
+                        <i class="bi bi-cpu"></i> Manage Digital Cards
+                    </a>
                 </div>
             </div>
         </div>

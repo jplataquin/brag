@@ -34,6 +34,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\DigitalCardController as AdminDigitalCardController;
 
 // Admin Routes
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
@@ -41,6 +42,11 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin/terms', [TermsOfServiceController::class, 'index'])->name('admin.terms.index');
     Route::post('/admin/terms', [TermsOfServiceController::class, 'store'])->name('admin.terms.store');
     Route::get('/admin/terms/{id}', [TermsOfServiceController::class, 'showPrevious'])->name('admin.terms.show_previous');
+    
+    // Digital Cards Management
+    Route::get('/admin/cards', [AdminDigitalCardController::class, 'index'])->name('admin.cards.index');
+    Route::get('/admin/cards/{id}/edit', [AdminDigitalCardController::class, 'edit'])->name('admin.cards.edit');
+    Route::put('/admin/cards/{id}', [AdminDigitalCardController::class, 'update'])->name('admin.cards.update');
 });
 
 // Fallback GET route for logout

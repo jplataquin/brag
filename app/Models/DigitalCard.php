@@ -33,6 +33,8 @@ class DigitalCard extends Model
         'forged_at',
         'burned_at',
         'burned_by',
+        'admin_editor_id',
+        'admin_edited_at',
     ];
 
     protected $casts = [
@@ -41,7 +43,16 @@ class DigitalCard extends Model
         'is_trophy' => 'boolean',
         'forged_at' => 'datetime',
         'burned_at' => 'datetime',
+        'admin_edited_at' => 'datetime',
     ];
+
+    /**
+     * The admin user who last edited this card.
+     */
+    public function adminEditor()
+    {
+        return $this->belongsTo(User::class, 'admin_editor_id');
+    }
 
     /**
      * The template this card was forged from.
