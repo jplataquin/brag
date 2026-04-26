@@ -23,6 +23,12 @@ class Template extends Model
         'section_color',
         'primary_text_color',
         'secondary_text_color',
+        'admin_editor_id',
+        'admin_edited_at',
+    ];
+
+    protected $casts = [
+        'admin_edited_at' => 'datetime',
     ];
 
     protected static function boot()
@@ -36,6 +42,14 @@ class Template extends Model
         static::restored(function ($template) {
             $template->digitalCards()->update(['status' => 'Maintained']);
         });
+    }
+
+    /**
+     * The admin user who last edited this template.
+     */
+    public function adminEditor()
+    {
+        return $this->belongsTo(User::class, 'admin_editor_id');
     }
 
     /**

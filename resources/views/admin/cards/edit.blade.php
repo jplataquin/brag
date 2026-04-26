@@ -161,8 +161,12 @@
                  <div class="card-header border-secondary bg-dark text-center">
                      <span class="text-muted small text-uppercase">Current Design Preview</span>
                  </div>
-                 <div class="card-body p-0 d-flex justify-content-center align-items-center" style="background: url('{{ asset('storage/' . ($card->template->image_path ?? '')) }}') center/cover; height: 250px;">
-                     @if(!$card->template || !$card->template->image_path)
+                 @php
+                     $template = $card->template()->withTrashed()->first();
+                     $displayPhotoUrl = $template ? $template->display_photo : null;
+                 @endphp
+                 <div class="card-body p-0 d-flex justify-content-center align-items-center" style="background: url('{{ $displayPhotoUrl }}') center/cover; height: 250px;">
+                     @if(!$displayPhotoUrl)
                          <span class="text-muted"><i class="bi bi-image"></i> No Image Available</span>
                      @endif
                  </div>
