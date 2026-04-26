@@ -137,6 +137,16 @@ Brag uses Laravel's task scheduler to handle automated tasks (like auto-cancelin
    ## 13. Custom Artisan Commands
    Brag includes several custom Artisan commands to help with system maintenance and administration:
 
+- **Create Admin User:** Interactively creates a new admin user account.
+  ```bash
+  php artisan make:admin
+  ```
+
+- **Convert Badges to WebP:** Optimizes badge icon PNGs by converting them to WebP format.
+  ```bash
+  php artisan badge:convert-webp
+  ```
+
 - **Auto-Cancel Stale Battles:** Automatically cancels battles where a cancellation request has been ignored for 5+ minutes.
   ```bash
   php artisan app:auto-cancel-battles
