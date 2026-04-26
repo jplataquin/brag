@@ -186,6 +186,12 @@
                                     <a class="dropdown-item" href="{{ route('profile.edit') }}" id="nav-edit-profile">
                                         <i class="bi bi-gear-fill"></i> Edit Profile
                                     </a>
+                                    @if(Auth::user()->is_admin)
+                                        <div class="dropdown-divider" style="border-color: rgba(0,240,255,0.1);"></div>
+                                        <a class="dropdown-item" href="{{ route('admin.terms.index') }}">
+                                            <i class="bi bi-shield-lock-fill"></i> Manage Terms
+                                        </a>
+                                    @endif
                                     <div class="dropdown-divider" style="border-color: rgba(0,240,255,0.1);"></div>
                                     <form action="{{ route('logout') }}" method="POST" class="m-0 p-0">
                                         @csrf
