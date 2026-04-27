@@ -63,7 +63,31 @@
                                                 <div class="selectable-card {{ $selectedCardId == $card->id ? 'selected' : '' }}" 
                                                      wire:click="$set('selectedCardId', {{ $card->id }})">
                                                     <div class="card-img-wrapper">
-                                                        <img src="{{ $card->template->display_photo }}" class="img-fluid rounded" alt="{{ $card->template->card_title }}">
+                                                        <div style="pointer-events: none;">
+                                                            <x-digital-card 
+                                                                id="card_1on1_{{ $card->id }}"
+                                                                mode="thumbnail"
+                                                                :title="$card->template->card_title"
+                                                                :game="$card->template->gameTitle->title ?? 'GAME'"
+                                                                :creator="$card->originalOwner->username ?? 'Creator'"
+                                                                :quote="$card->template->quote"
+                                                                :image="$card->template->display_photo"
+                                                                :imagePositionY="$card->template->image_position_y ?? 50"
+                                                                :backgroundColor="$card->template->background_color"
+                                                                :borderColor="$card->template->border_color"
+                                                                :sectionColor="$card->template->section_color"
+                                                                :primaryTextColor="$card->template->primary_text_color"
+                                                                :secondaryTextColor="$card->template->secondary_text_color"
+                                                                :wins="$card->wins"
+                                                                :losses="$card->losses"
+                                                                :integrityStat="$card->integrity_stat"
+                                                                :lifePoints="$card->life_points"
+                                                                :status="$card->status"
+                                                                :rankLevel="$card->level"
+                                                                :serialNumber="$card->serial_number"
+                                                                :rarity="$card->rarity"
+                                                            />
+                                                        </div>
                                                         @if($selectedCardId == $card->id)
                                                             <div class="selection-overlay">
                                                                 <i class="bi bi-check-circle-fill"></i>
@@ -148,7 +172,31 @@
                                                                         <div class="selectable-card {{ $selectedCardId == $card->id ? 'selected' : '' }}" 
                                                                              wire:click="$set('selectedCardId', {{ $card->id }})">
                                                                             <div class="card-img-wrapper">
-                                                                                <img src="{{ $card->template->display_photo }}" class="img-fluid rounded" alt="{{ $card->template->card_title }}">
+                                                                                <div style="pointer-events: none;">
+                                                                                    <x-digital-card 
+                                                                                        id="card_team_{{ $card->id }}"
+                                                                                        mode="thumbnail"
+                                                                                        :title="$card->template->card_title"
+                                                                                        :game="$card->template->gameTitle->title ?? 'GAME'"
+                                                                                        :creator="$card->originalOwner->username ?? 'Creator'"
+                                                                                        :quote="$card->template->quote"
+                                                                                        :image="$card->template->display_photo"
+                                                                                        :imagePositionY="$card->template->image_position_y ?? 50"
+                                                                                        :backgroundColor="$card->template->background_color"
+                                                                                        :borderColor="$card->template->border_color"
+                                                                                        :sectionColor="$card->template->section_color"
+                                                                                        :primaryTextColor="$card->template->primary_text_color"
+                                                                                        :secondaryTextColor="$card->template->secondary_text_color"
+                                                                                        :wins="$card->wins"
+                                                                                        :losses="$card->losses"
+                                                                                        :integrityStat="$card->integrity_stat"
+                                                                                        :lifePoints="$card->life_points"
+                                                                                        :status="$card->status"
+                                                                                        :rankLevel="$card->level"
+                                                                                        :serialNumber="$card->serial_number"
+                                                                                        :rarity="$card->rarity"
+                                                                                    />
+                                                                                </div>
                                                                                 @if($selectedCardId == $card->id)
                                                                                     <div class="selection-overlay">
                                                                                         <i class="bi bi-check-circle-fill" style="font-size: 1.5rem;"></i>

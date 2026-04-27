@@ -166,7 +166,31 @@
                             <div class="col-4">
                                 <div class="selectable-card {{ $selectedCardId == $card->id ? 'selected' : '' }}" 
                                      wire:click="$set('selectedCardId', {{ $card->id }})">
-                                    <img src="{{ $card->template->display_photo }}" class="img-fluid rounded mb-1">
+                                    <div style="pointer-events: none;">
+                                        <x-digital-card 
+                                            id="card_join_{{ $card->id }}"
+                                            mode="thumbnail"
+                                            :title="$card->template->card_title"
+                                            :game="$card->template->gameTitle->title ?? 'GAME'"
+                                            :creator="$card->originalOwner->username ?? 'Creator'"
+                                            :quote="$card->template->quote"
+                                            :image="$card->template->display_photo"
+                                            :imagePositionY="$card->template->image_position_y ?? 50"
+                                            :backgroundColor="$card->template->background_color"
+                                            :borderColor="$card->template->border_color"
+                                            :sectionColor="$card->template->section_color"
+                                            :primaryTextColor="$card->template->primary_text_color"
+                                            :secondaryTextColor="$card->template->secondary_text_color"
+                                            :wins="$card->wins"
+                                            :losses="$card->losses"
+                                            :integrityStat="$card->integrity_stat"
+                                            :lifePoints="$card->life_points"
+                                            :status="$card->status"
+                                            :rankLevel="$card->level"
+                                            :serialNumber="$card->serial_number"
+                                            :rarity="$card->rarity"
+                                        />
+                                    </div>
                                     <div style="font-size: 0.6rem; line-height: 1;" class="text-center text-truncate">{{ $card->template->card_title }}</div>
                                 </div>
                             </div>
