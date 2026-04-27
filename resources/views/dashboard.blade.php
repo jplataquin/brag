@@ -9,12 +9,14 @@
         <i class="bi bi-lightning-fill section-icon" style="color: #ffdd00;"></i> QUICK ACTIONS
     </h5>
     <div class="row g-3">
+        @if($platformSettings->allow_battle_creation)
         <div class="col-6 col-md-3">
             <a href="{{ route('battles.create') }}" class="quick-action-card">
                 <i class="bi bi-plus-lg" style="color: #ff00ff;"></i>
                 <span>New Battle</span>
             </a>
         </div>
+        @endif
         <div class="col-6 col-md-3">
             <button type="button" class="quick-action-card border-0" id="btn-scan-qr">
                 <i class="bi bi-qr-code-scan"></i>
@@ -137,7 +139,9 @@
         <div class="empty-state">
             <div class="empty-icon">⚔️</div>
             <div class="empty-text">No battles yet</div>
+            @if($platformSettings->allow_battle_creation)
             <a href="{{ route('battles.create') }}" class="btn btn-neon-magenta btn-neon-sm">Create a Battle</a>
+            @endif
         </div>
     @endif
 </div>

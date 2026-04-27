@@ -27,5 +27,13 @@ class AppServiceProvider extends ServiceProvider
             \Illuminate\Auth\Events\Verified::class,
             \App\Listeners\GrantWelcomeShards::class,
         );
+
+        // Share platform settings with all views globally if database is available
+        try {
+            $platformSettings = \App\Models\PlatformSetting::current();
+            \Illuminate\Support\Facades\View::share('platformSettings', $platformSettings);
+        } catch (\Exception $e) {
+            // Ignore during migrations or when database is not set up
+        }
     }
 }

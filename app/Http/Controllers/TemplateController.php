@@ -24,7 +24,11 @@ class TemplateController extends Controller
      */
     public function create()
     {
-        $gameTitles = \App\Models\GameTitle::orderBy('title')->get();
+        if (!\App\Models\PlatformSetting::current()->allow_template_creation) {
+            return redirect()->route('dashboard')->with('error', 'Template creation is currently disabled by administrators.');
+        }
+
+        $gameTitles = \App\Models\GameTitle::where('status', 'active')->orderBy('title')->get();
         return view('templates.create', compact('gameTitles'));
     }
 
@@ -158,7 +162,7 @@ class TemplateController extends Controller
     public function edit(Template $template)
     {
         $this->authorize('update', $template);
-        $gameTitles = \App\Models\GameTitle::orderBy('title')->get();
+        $gameTitles = \App\Models\GameTitle::where('status', 'active')->orderBy('title')->get();
         return view('templates.edit', compact('template', 'gameTitles'));
     }
 

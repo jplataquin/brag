@@ -46,6 +46,10 @@ class BattleController extends Controller
      */
     public function create(Request $request)
     {
+        if (!\App\Models\PlatformSetting::current()->allow_battle_creation) {
+            return redirect()->route('dashboard')->with('error', 'Battle room creation is currently disabled by administrators.');
+        }
+
         $cards = Auth::user()->digitalCards()
             ->where('life_points', '>', 0)
             ->with('template.gameTitle')
@@ -67,6 +71,10 @@ class BattleController extends Controller
      */
     public function store(Request $request)
     {
+        if (!\App\Models\PlatformSetting::current()->allow_battle_creation) {
+            return redirect()->route('dashboard')->with('error', 'Battle room creation is currently disabled by administrators.');
+        }
+
         $request->validate([
             'card_id' => 'required|exists:digital_cards,id',
             'terms' => 'nullable|string|max:1000',

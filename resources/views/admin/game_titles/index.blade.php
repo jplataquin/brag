@@ -53,6 +53,7 @@
                         <tr>
                             <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">ID</th>
                             <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3 text-start">Title</th>
+                            <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Status</th>
                             <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Templates Count</th>
                             <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Created</th>
                             <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Actions</th>
@@ -64,6 +65,13 @@
                                 <td class="py-3 text-white-50">#{{ $gameTitle->id }}</td>
                                 <td class="py-3 text-start">
                                     <span class="fw-bold text-white fs-6">{{ $gameTitle->title }}</span>
+                                </td>
+                                <td class="py-3">
+                                    @if($gameTitle->status === 'active')
+                                        <span class="badge bg-success rounded-pill px-3">Active</span>
+                                    @else
+                                        <span class="badge bg-secondary rounded-pill px-3">Hidden</span>
+                                    @endif
                                 </td>
                                 <td class="py-3">
                                     <span class="badge bg-secondary fs-6 rounded-pill px-3">{{ $gameTitle->templates_count }}</span>

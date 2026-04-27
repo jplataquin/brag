@@ -212,6 +212,10 @@ class DigitalCardController extends Controller
      */
     public function forge(Template $template)
     {
+        if (!\App\Models\PlatformSetting::current()->allow_card_forging) {
+            return redirect()->route('dashboard')->with('error', 'Card forging is currently disabled by administrators.');
+        }
+
         $user = Auth::user();
 
         try {

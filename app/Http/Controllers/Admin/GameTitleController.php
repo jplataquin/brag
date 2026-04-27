@@ -30,6 +30,7 @@ class GameTitleController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255|unique:game_titles,title',
+            'status' => 'required|in:active,hidden',
         ]);
 
         GameTitle::create($validated);
@@ -47,6 +48,7 @@ class GameTitleController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255|unique:game_titles,title,' . $gameTitle->id,
+            'status' => 'required|in:active,hidden',
         ]);
 
         $gameTitle->update($validated);

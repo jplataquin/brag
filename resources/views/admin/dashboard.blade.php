@@ -17,6 +17,12 @@
             <div class="card bg-dark bg-opacity-50 border-info" style="backdrop-filter: blur(10px);">
                 <div class="card-body d-flex gap-3 align-items-center">
                     <span class="text-uppercase fw-bold text-muted small"><i class="bi bi-link-45deg"></i> Quick Actions:</span>
+                    <a href="{{ route('admin.settings.edit') }}" class="btn btn-outline-cyan btn-sm" style="color: var(--neon-cyan); border-color: var(--neon-cyan);">
+                        <i class="bi bi-sliders"></i> Platform Features
+                    </a>
+                    <a href="{{ route('admin.users.index') }}" class="btn btn-outline-warning btn-sm" style="color: var(--neon-yellow); border-color: var(--neon-yellow);">
+                        <i class="bi bi-people-fill"></i> Manage Citizens
+                    </a>
                     <a href="{{ route('admin.terms.index') }}" class="btn btn-outline-info btn-sm">
                         <i class="bi bi-file-earmark-text"></i> Manage Terms of Service
                     </a>

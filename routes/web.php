@@ -38,13 +38,25 @@ use App\Http\Controllers\Admin\DigitalCardController as AdminDigitalCardControll
 use App\Http\Controllers\Admin\TemplateController as AdminTemplateController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\GameTitleController as AdminGameTitleController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\PlatformSettingController as AdminPlatformSettingController;
 
 // Admin Routes
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    
+    // Platform Settings
+    Route::get('/admin/settings', [AdminPlatformSettingController::class, 'edit'])->name('admin.settings.edit');
+    Route::put('/admin/settings', [AdminPlatformSettingController::class, 'update'])->name('admin.settings.update');
+    
     Route::get('/admin/terms', [TermsOfServiceController::class, 'index'])->name('admin.terms.index');
     Route::post('/admin/terms', [TermsOfServiceController::class, 'store'])->name('admin.terms.store');
     Route::get('/admin/terms/{id}', [TermsOfServiceController::class, 'showPrevious'])->name('admin.terms.show_previous');
+    
+    // Users Management
+    Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
+    Route::get('/admin/users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
     
     // Game Titles Management
     Route::resource('admin/game_titles', AdminGameTitleController::class)->except(['show'])->names([

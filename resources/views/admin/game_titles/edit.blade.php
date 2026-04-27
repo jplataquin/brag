@@ -30,6 +30,18 @@
                             @enderror
                         </div>
 
+                        <div class="mb-4">
+                            <label for="status" class="form-label text-muted small text-uppercase fw-bold">Status <span class="text-danger">*</span></label>
+                            <select name="status" id="status" class="form-select form-control-lg bg-dark text-white border-info @error('status') is-invalid @enderror" required>
+                                <option value="active" {{ old('status', $gameTitle->status) == 'active' ? 'selected' : '' }}>Active (Visible to Users)</option>
+                                <option value="hidden" {{ old('status', $gameTitle->status) == 'hidden' ? 'selected' : '' }}>Hidden (Not Visible)</option>
+                            </select>
+                            @error('status')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text text-secondary mt-2">Hidden game titles cannot be selected by users when forging new templates.</div>
+                        </div>
+
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-lg fw-bold text-white" style="background-color: var(--neon-magenta); border-color: var(--neon-magenta); box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);">
                                 <i class="bi bi-check-lg"></i> Update Game Title

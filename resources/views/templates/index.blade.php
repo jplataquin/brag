@@ -54,11 +54,13 @@
 @else
     <div class="empty-state">
         <div class="empty-icon">🎨</div>
-        <div class="empty-text">No templates yet. Create your first!</div>
+        <div class="empty-text">No templates yet.</div>
         <p style="color: #555577; font-size: 0.85rem; margin-bottom: 1rem;">Templates are the blueprints from which you forge Digital Cards.</p>
+        @if($platformSettings->allow_template_creation)
         <a href="{{ route('templates.create') }}" class="btn btn-neon">
             <i class="bi bi-plus-lg"></i> Create Template
         </a>
+        @endif
     </div>
 @endif
 @endsection

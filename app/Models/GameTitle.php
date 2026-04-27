@@ -9,7 +9,7 @@ class GameTitle extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title'];
+    protected $fillable = ['title', 'status'];
 
     public function templates()
     {

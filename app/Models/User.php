@@ -29,6 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'bio',
         'is_admin',
         'terms_version_agreed',
+        'suspended_until',
     ];
 
     /**
@@ -53,7 +54,16 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'birthdate' => 'date',
             'is_admin' => 'boolean',
+            'suspended_until' => 'datetime',
         ];
+    }
+
+    /**
+     * Check if the user is currently suspended.
+     */
+    public function isSuspended(): bool
+    {
+        return $this->suspended_until && $this->suspended_until->isFuture();
     }
 
     /**
