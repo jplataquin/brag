@@ -37,6 +37,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DigitalCardController as AdminDigitalCardController;
 use App\Http\Controllers\Admin\TemplateController as AdminTemplateController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\GameTitleController as AdminGameTitleController;
 
 // Admin Routes
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
@@ -44,6 +45,16 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin/terms', [TermsOfServiceController::class, 'index'])->name('admin.terms.index');
     Route::post('/admin/terms', [TermsOfServiceController::class, 'store'])->name('admin.terms.store');
     Route::get('/admin/terms/{id}', [TermsOfServiceController::class, 'showPrevious'])->name('admin.terms.show_previous');
+    
+    // Game Titles Management
+    Route::resource('admin/game_titles', AdminGameTitleController::class)->except(['show'])->names([
+        'index' => 'admin.game_titles.index',
+        'create' => 'admin.game_titles.create',
+        'store' => 'admin.game_titles.store',
+        'edit' => 'admin.game_titles.edit',
+        'update' => 'admin.game_titles.update',
+        'destroy' => 'admin.game_titles.destroy',
+    ]);
     
     // Digital Cards Management
     Route::get('/admin/cards', [AdminDigitalCardController::class, 'index'])->name('admin.cards.index');

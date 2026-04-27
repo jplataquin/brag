@@ -14,10 +14,10 @@
     </div>
 
     <!-- Search Form -->
-    <div class="card bg-dark border-secondary rounded-4 p-4 mb-4" style="background: rgba(10, 10, 30, 0.8);">
+    <div class="card bg-dark border-info rounded-4 p-4 mb-4" style="background: rgba(10, 10, 30, 0.8);">
         <form action="{{ route('admin.templates.index') }}" method="GET" class="d-flex gap-2">
             <div class="flex-grow-1">
-                <input type="text" name="search" class="form-control bg-dark text-white border-secondary" placeholder="Search by Template ID, Title, User Username, or Game Title" value="{{ request('search') }}">
+                <input type="text" name="search" class="form-control bg-dark text-white border-info" placeholder="Search by Template ID, Title, User Username, or Game Title" value="{{ request('search') }}">
             </div>
             <button type="submit" class="btn btn-neon-cyan px-4">
                 <i class="bi bi-search"></i> Search
@@ -29,7 +29,7 @@
     </div>
 
     <!-- Templates Table -->
-    <div class="card bg-dark bg-opacity-75 border-secondary rounded-4 shadow-lg" style="backdrop-filter: blur(10px);">
+    <div class="card bg-dark bg-opacity-75 border-info rounded-4 shadow-lg" style="backdrop-filter: blur(10px);">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-dark table-hover align-middle mb-0 text-center">
@@ -89,7 +89,7 @@
         </div>
         
         @if($templates->hasPages())
-            <div class="card-footer border-secondary border-top p-3 d-flex justify-content-center">
+            <div class="card-footer border-info border-top p-3 d-flex justify-content-center">
                 {{ $templates->links() }}
             </div>
         @endif

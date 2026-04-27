@@ -14,22 +14,25 @@
     <!-- Quick Links -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card bg-dark bg-opacity-50 border-secondary" style="backdrop-filter: blur(10px);">
+            <div class="card bg-dark bg-opacity-50 border-info" style="backdrop-filter: blur(10px);">
                 <div class="card-body d-flex gap-3 align-items-center">
                     <span class="text-uppercase fw-bold text-muted small"><i class="bi bi-link-45deg"></i> Quick Actions:</span>
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-info btn-sm">
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-info btn-sm d-print-none">
                         <i class="bi bi-arrow-left"></i> Back to Dashboard
                     </a>
+                    <button onclick="window.print()" class="btn btn-outline-light btn-sm ms-auto d-print-none">
+                        <i class="bi bi-printer"></i> Print Report
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Filters -->
-    <div class="row mb-4">
+    <div class="row mb-4 d-print-none">
         <div class="col-12">
-            <div class="card bg-dark bg-opacity-75 border-secondary rounded-4" style="backdrop-filter: blur(10px);">
-                <div class="card-header border-secondary border-bottom p-3">
+            <div class="card bg-dark bg-opacity-75 border-info rounded-4" style="backdrop-filter: blur(10px);">
+                <div class="card-header border-info border-bottom p-3">
                     <h5 class="mb-0 text-uppercase fw-bold text-white" style="font-family: 'Orbitron', sans-serif;">
                         <i class="bi bi-funnel-fill me-2" style="color: var(--neon-magenta);"></i> Filters & Sorting
                     </h5>
@@ -38,11 +41,11 @@
                     <form action="{{ route('admin.payments.index') }}" method="GET" class="row g-3 align-items-end">
                         <div class="col-md-3">
                             <label class="form-label text-muted small text-uppercase fw-bold">Search User</label>
-                            <input type="text" name="user_search" class="form-control bg-dark text-white border-secondary" placeholder="Username or Email" value="{{ request('user_search') }}">
+                            <input type="text" name="user_search" class="form-control bg-dark text-white border-info" placeholder="Username or Email" value="{{ request('user_search') }}">
                         </div>
                         <div class="col-md-2">
                             <label class="form-label text-muted small text-uppercase fw-bold">Status</label>
-                            <select name="status" class="form-select bg-dark text-white border-secondary">
+                            <select name="status" class="form-select bg-dark text-white border-info">
                                 <option value="">All Statuses</option>
                                 <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
                                 <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
@@ -51,7 +54,7 @@
                         </div>
                         <div class="col-md-2">
                             <label class="form-label text-muted small text-uppercase fw-bold">Payment Type</label>
-                            <select name="payment_type" class="form-select bg-dark text-white border-secondary">
+                            <select name="payment_type" class="form-select bg-dark text-white border-info">
                                 <option value="">All Types</option>
                                 @foreach($paymentTypes as $pt)
                                     <option value="{{ $pt }}" {{ request('payment_type') == $pt ? 'selected' : '' }}>{{ $pt }}</option>
@@ -60,16 +63,16 @@
                         </div>
                         <div class="col-md-2">
                             <label class="form-label text-muted small text-uppercase fw-bold">Date From</label>
-                            <input type="date" name="date_from" class="form-control bg-dark text-white border-secondary" value="{{ request('date_from') }}">
+                            <input type="date" name="date_from" class="form-control bg-dark text-white border-info" value="{{ request('date_from') }}">
                         </div>
                         <div class="col-md-2">
                             <label class="form-label text-muted small text-uppercase fw-bold">Date To</label>
-                            <input type="date" name="date_to" class="form-control bg-dark text-white border-secondary" value="{{ request('date_to') }}">
+                            <input type="date" name="date_to" class="form-control bg-dark text-white border-info" value="{{ request('date_to') }}">
                         </div>
                         
                         <div class="col-md-2 mt-3">
                             <label class="form-label text-muted small text-uppercase fw-bold">Sort By</label>
-                            <select name="sort_by" class="form-select bg-dark text-white border-secondary">
+                            <select name="sort_by" class="form-select bg-dark text-white border-info">
                                 <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Date</option>
                                 <option value="amount" {{ request('sort_by') == 'amount' ? 'selected' : '' }}>Amount</option>
                                 <option value="status" {{ request('sort_by') == 'status' ? 'selected' : '' }}>Status</option>
@@ -77,7 +80,7 @@
                         </div>
                         <div class="col-md-2 mt-3">
                             <label class="form-label text-muted small text-uppercase fw-bold">Sort Dir</label>
-                            <select name="sort_dir" class="form-select bg-dark text-white border-secondary">
+                            <select name="sort_dir" class="form-select bg-dark text-white border-info">
                                 <option value="desc" {{ request('sort_dir', 'desc') == 'desc' ? 'selected' : '' }}>Desc</option>
                                 <option value="asc" {{ request('sort_dir') == 'asc' ? 'selected' : '' }}>Asc</option>
                             </select>
@@ -96,7 +99,7 @@
     <!-- Payments Table -->
     <div class="row">
         <div class="col-12">
-            <div class="card bg-dark bg-opacity-75 border-secondary rounded-4" style="backdrop-filter: blur(10px);">
+            <div class="card bg-dark bg-opacity-75 border-info rounded-4" style="backdrop-filter: blur(10px);">
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-dark table-hover mb-0 align-middle text-nowrap">
@@ -166,7 +169,7 @@
                     </div>
                 </div>
                 @if($payments->hasPages())
-                    <div class="card-footer border-secondary border-top p-3 bg-transparent">
+                    <div class="card-footer border-info border-top p-3 bg-transparent">
                         {{ $payments->links('pagination::bootstrap-5') }}
                     </div>
                 @endif
@@ -177,5 +180,68 @@
 
 <style>
     .tracking-wide { letter-spacing: 1px; }
+
+    @media print {
+        /* Hide layout and UI controls */
+        nav, header, footer, .d-print-none, form, .pagination, .card-footer {
+            display: none !important;
+        }
+
+        /* Override dark theme for printing (save ink) */
+        body, .container, .card, .card-body {
+            background-color: transparent !important;
+            background: none !important;
+            color: #000 !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+        /* Clean up table for paper */
+        .table {
+            border-color: #000 !important;
+            width: 100% !important;
+            color: #000 !important;
+        }
+        .table th, .table td {
+            background-color: transparent !important;
+            color: #000 !important;
+            border-bottom: 1px solid #ccc !important;
+        }
+        
+        /* Remove neon glowing effects and custom colors */
+        h1, h2, h3, h4, h5, span, div, th, td, i {
+            color: #000 !important;
+            text-shadow: none !important;
+        }
+
+        /* Outline badges for clarity instead of background colors */
+        .badge {
+            border: 1px solid #000 !important;
+            color: #000 !important;
+            background: transparent !important;
+        }
+
+        /* Format headers and footers */
+        thead {
+            display: table-header-group;
+        }
+        tfoot {
+            display: table-footer-group;
+            border-top: 2px solid #000 !important;
+        }
+        tr {
+            page-break-inside: avoid;
+        }
+
+        /* Make Action column disappear */
+        th:last-child, td:last-child {
+            display: none !important;
+        }
+
+        /* Show the currently applied filter as a subtitle if needed, or hide the filter card */
+        .card-header:has(.bi-funnel-fill) {
+            display: none !important;
+        }
+    }
 </style>
 @endsection

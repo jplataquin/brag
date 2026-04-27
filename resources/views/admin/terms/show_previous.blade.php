@@ -15,9 +15,9 @@
 
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <div class="card bg-dark bg-opacity-75 border-secondary rounded-4 p-4 shadow-lg" style="backdrop-filter: blur(10px); border: 1px solid rgba(0, 240, 255, 0.2);">
+            <div class="card bg-dark bg-opacity-75 border-info rounded-4 p-4 shadow-lg" style="backdrop-filter: blur(10px); border: 1px solid rgba(0, 240, 255, 0.2);">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-3 mb-4">
+                    <div class="d-flex justify-content-between align-items-center border-bottom border-info pb-3 mb-4">
                         <span class="text-muted">
                             <i class="bi bi-calendar3"></i> Published on: {{ $terms->created_at->format('F j, Y, g:i a') }}
                         </span>

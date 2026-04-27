@@ -14,11 +14,14 @@
     <!-- Quick Links -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card bg-dark bg-opacity-50 border-secondary" style="backdrop-filter: blur(10px);">
+            <div class="card bg-dark bg-opacity-50 border-info" style="backdrop-filter: blur(10px);">
                 <div class="card-body d-flex gap-3 align-items-center">
                     <span class="text-uppercase fw-bold text-muted small"><i class="bi bi-link-45deg"></i> Quick Actions:</span>
                     <a href="{{ route('admin.terms.index') }}" class="btn btn-outline-info btn-sm">
                         <i class="bi bi-file-earmark-text"></i> Manage Terms of Service
+                    </a>
+                    <a href="{{ route('admin.game_titles.index') }}" class="btn btn-outline-light btn-sm" style="color: var(--neon-magenta); border-color: var(--neon-magenta);">
+                        <i class="bi bi-controller"></i> Manage Game Titles
                     </a>
                     <a href="{{ route('admin.templates.index') }}" class="btn btn-outline-success btn-sm">
                         <i class="bi bi-images"></i> Manage Templates
@@ -90,8 +93,8 @@
     <!-- Recent Users Table -->
     <div class="row">
         <div class="col-12">
-            <div class="card bg-dark bg-opacity-75 border-secondary rounded-4" style="backdrop-filter: blur(10px);">
-                <div class="card-header border-secondary border-bottom p-3 d-flex justify-content-between align-items-center">
+            <div class="card bg-dark bg-opacity-75 border-info rounded-4" style="backdrop-filter: blur(10px);">
+                <div class="card-header border-info border-bottom p-3 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 text-uppercase fw-bold text-white" style="font-family: 'Orbitron', sans-serif;">
                         <i class="bi bi-person-plus-fill me-2" style="color: var(--neon-cyan);"></i> Recently Joined Citizens
                     </h5>

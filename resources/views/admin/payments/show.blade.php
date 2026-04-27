@@ -19,8 +19,8 @@
     <div class="row g-4">
         <!-- Main Transaction Info -->
         <div class="col-md-8">
-            <div class="card bg-dark border-secondary rounded-4 overflow-hidden mb-4" style="box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);">
-                <div class="card-header border-secondary p-3 border-bottom-0 bg-transparent">
+            <div class="card bg-dark border-info rounded-4 overflow-hidden mb-4" style="box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);">
+                <div class="card-header border-info p-3 border-bottom-0 bg-transparent">
                     <h5 class="mb-0 text-uppercase fw-bold text-white" style="font-family: 'Orbitron', sans-serif;">Payment Information</h5>
                 </div>
                 <div class="card-body p-4">
@@ -60,21 +60,21 @@
             </div>
 
             <!-- Financial Breakdown -->
-            <div class="card bg-dark border-secondary rounded-4 overflow-hidden" style="box-shadow: 0 0 15px rgba(57, 255, 20, 0.1);">
-                <div class="card-header border-secondary p-3 border-bottom-0 bg-transparent">
+            <div class="card bg-dark border-info rounded-4 overflow-hidden" style="box-shadow: 0 0 15px rgba(57, 255, 20, 0.1);">
+                <div class="card-header border-info p-3 border-bottom-0 bg-transparent">
                     <h5 class="mb-0 text-uppercase fw-bold text-white" style="font-family: 'Orbitron', sans-serif;">Financial Breakdown</h5>
                 </div>
                 <div class="card-body p-4">
                     <ul class="list-group list-group-flush bg-transparent">
-                        <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 py-3 border-secondary">
+                        <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 py-3 border-info">
                             <span class="text-muted text-uppercase fw-bold">Gross Amount</span>
                             <span class="fs-5">{{ $payment->currency }} {{ number_format($payment->amount, 2) }}</span>
                         </li>
-                        <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 py-3 border-secondary">
+                        <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 py-3 border-info">
                             <span class="text-muted text-uppercase fw-bold">HitPay Fees</span>
                             <span class="fs-5 text-danger">{{ $payment->fees !== null ? '- ' . $payment->currency . ' ' . number_format($payment->fees, 2) : 'Pending' }}</span>
                         </li>
-                        <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 py-3 border-secondary border-bottom-0 mt-2 rounded">
+                        <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 py-3 border-info border-bottom-0 mt-2 rounded">
                             <span class="text-uppercase fw-bold" style="color: var(--neon-green);">Net Amount (To Bank)</span>
                             <span class="fs-3 fw-bold" style="color: var(--neon-green); text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);">
                                 {{ $payment->net_amount !== null ? $payment->currency . ' ' . number_format($payment->net_amount, 2) : 'Pending' }}
@@ -87,8 +87,8 @@
 
         <!-- User Info Sidebar -->
         <div class="col-md-4">
-            <div class="card bg-dark border-secondary rounded-4 overflow-hidden h-100" style="box-shadow: 0 0 15px rgba(255, 221, 0, 0.1);">
-                <div class="card-header border-secondary p-3 border-bottom-0 bg-transparent">
+            <div class="card bg-dark border-info rounded-4 overflow-hidden h-100" style="box-shadow: 0 0 15px rgba(255, 221, 0, 0.1);">
+                <div class="card-header border-info p-3 border-bottom-0 bg-transparent">
                     <h5 class="mb-0 text-uppercase fw-bold text-white" style="font-family: 'Orbitron', sans-serif;">Customer Info</h5>
                 </div>
                 <div class="card-body p-4 text-center">
@@ -96,7 +96,7 @@
                     <h4 class="text-white fw-bold mb-1">{{ $payment->user->username }}</h4>
                     <p class="text-muted mb-4">{{ $payment->user->email }}</p>
                     
-                    <hr class="border-secondary">
+                    <hr class="border-info">
                     
                     <div class="text-start mt-4">
                         <div class="mb-3">
@@ -115,7 +115,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-footer border-secondary border-top p-3 bg-transparent text-center">
+                <div class="card-footer border-info border-top p-3 bg-transparent text-center">
                     <a href="{{ route('profile.show', $payment->user->username) }}" class="btn btn-outline-cyan w-100" style="color: var(--neon-cyan); border-color: var(--neon-cyan);">
                         View Full Profile
                     </a>
