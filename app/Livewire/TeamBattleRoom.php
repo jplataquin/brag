@@ -24,6 +24,34 @@ class TeamBattleRoom extends Component
     public $newTeamNameA = '';
     public $newTeamNameB = '';
 
+    public $marshallSearchQuery = '';
+    public $marshallSearchResults = [];
+
+    public function updatedMarshallSearchQuery()
+    {
+        if (strlen($this->marshallSearchQuery) < 2) {
+            $this->marshallSearchResults = [];
+            return;
+        }
+
+        $this->marshallSearchResults = User::where('username', 'like', '%' . $this->marshallSearchQuery . '%')
+            ->take(5)
+            ->get();
+    }
+
+    public function selectMarshallNominee($userId, $username)
+    {
+        $this->marshallNomineeId = $userId;
+        $this->marshallSearchQuery = '';
+        $this->marshallSearchResults = [];
+    }
+
+    public function clearMarshallSelection()
+    {
+        $this->marshallNomineeId = '';
+        $this->marshallSearchQuery = '';
+    }
+
     public function mount(TeamBattle $teamBattle)
     {
         $this->teamBattle = $teamBattle;

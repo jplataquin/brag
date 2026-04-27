@@ -151,10 +151,10 @@
                         @endif
                         
                         @if(!$teamBattle->marshall_id && in_array($teamBattle->status, ['pending', 'ready', 'active']))
-                            <div class="input-group input-group-sm" style="max-width: 250px;">
-                                <input type="number" wire:model="marshallNomineeId" class="form-control bg-dark text-white border-secondary" placeholder="Marshall User ID">
-                                <button class="btn btn-outline-warning" wire:click="electMarshall()">ELECT</button>
-                            </div>
+                            <button type="button" class="btn btn-neon btn-sm" style="border-color: #ffdd00; color: #ffdd00;" data-bs-toggle="modal" data-bs-target="#electMarshallModal">
+                                <i class="bi bi-shield-fill-check"></i> 
+                                {{ (Auth::id() === $teamBattle->team_a_user_1 ? $teamBattle->team_a_marshall_elect : $teamBattle->team_b_marshall_elect) ? 'CHANGE ELECTION' : 'ELECT MARSHALL' }}
+                            </button>
                         @endif
                         
                         @if($teamBattle->status == 'pending' && Auth::id() == $teamBattle->team_a_user_1)
@@ -254,6 +254,61 @@
             </div>
         </div>
     @endif
+
+    <!-- Elect Marshall Modal -->
+    <div class="modal fade" wire:ignore.self id="electMarshallModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #ffdd00; backdrop-filter: blur(20px);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title" style="color: #ffdd00; font-family: 'Orbitron', sans-serif;">ELECT MARSHALL</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <div class="mb-3 position-relative">
+                        <label class="form-label">MARSHALL USERNAME</label>
+                        @php
+                            $existingUsername = '';
+                            if (Auth::id() === $teamBattle->team_a_user_1 && $teamBattle->team_a_marshall_elect) {
+                                $existingUsername = \App\Models\User::find($teamBattle->team_a_marshall_elect)?->username;
+                            } elseif (Auth::id() === $teamBattle->team_b_user_1 && $teamBattle->team_b_marshall_elect) {
+                                $existingUsername = \App\Models\User::find($teamBattle->team_b_marshall_elect)?->username;
+                            }
+                        @endphp
+                        <div class="form-control d-flex align-items-center p-1" style="min-height: 42px;">
+                            @if($marshallNomineeId)
+                                <span class="badge d-flex align-items-center gap-2 p-2" style="background: rgba(255,221,0,0.2); border: 1px solid #ffdd00; color: #ffdd00; font-size: 0.9rem;">
+                                    <i class="bi bi-person-fill"></i> 
+                                    <span>{{ \App\Models\User::find($marshallNomineeId)?->username }}</span>
+                                    <i class="bi bi-x-circle-fill ms-2" style="cursor: pointer;" wire:click="clearMarshallSelection()"></i>
+                                </span>
+                            @else
+                                <input type="text" wire:model.live.debounce.300ms="marshallSearchQuery" class="border-0 bg-transparent text-white flex-grow-1 px-2" placeholder="{{ $existingUsername ? 'Currently: ' . $existingUsername : 'Search username...' }}" autocomplete="off" style="outline: none; box-shadow: none;">
+                            @endif
+                        </div>
+                        
+                        @if(count($marshallSearchResults) > 0 && !$marshallNomineeId)
+                            <div class="position-absolute w-100 mt-1" style="z-index: 1050; max-height: 200px; overflow-y: auto; background: rgba(10, 10, 30, 0.95); border: 1px solid #ffdd00; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                                @foreach($marshallSearchResults as $user)
+                                    <div class="p-2 d-flex align-items-center gap-2" wire:click="selectMarshallNominee({{ $user->id }}, '{{ $user->username }}')" style="cursor: pointer; border-bottom: 1px solid rgba(255, 221, 0, 0.1);">
+                                        <img src="{{ $user->avatar_url ?? asset('img/default-avatar.png') }}" alt="{{ $user->username }}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ffdd00;">
+                                        <span class="text-white">{{ '@' . $user->username }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @elseif(strlen($marshallSearchQuery) >= 2 && !$marshallNomineeId)
+                            <div class="position-absolute w-100 mt-1 p-2 text-center text-muted small" style="z-index: 1050; background: rgba(10, 10, 30, 0.95); border: 1px solid #ffdd00; border-radius: 4px;">
+                                No players found
+                            </div>
+                        @endif
+                    </div>
+                    <p class="text-muted small">Both team leaders must elect the same user for them to be designated as the marshall.</p>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-neon w-100" style="border-color: #ffdd00; color: #ffdd00;" wire:click="electMarshall()" data-bs-dismiss="modal">ELECT USER</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <style>
         .custom-modal-backdrop {
