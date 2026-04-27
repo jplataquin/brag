@@ -47,6 +47,13 @@ class PaymentController extends Controller
             $query->orderBy($sortField, $sortDirection);
         }
 
+        // Calculate totals for the filtered results
+        $totalsData = (clone $query)->selectRaw('
+            SUM(amount) as total_gross,
+            SUM(fees) as total_fees,
+            SUM(net_amount) as total_net
+        ')->first();
+
         $payments = $query->paginate(20)->withQueryString();
 
         // Get unique payment types for the dropdown
@@ -54,7 +61,7 @@ class PaymentController extends Controller
             ->distinct()
             ->pluck('payment_type');
 
-        return view('admin.payments.index', compact('payments', 'paymentTypes'));
+        return view('admin.payments.index', compact('payments', 'paymentTypes', 'totalsData'));
     }
 
     public function show(Payment $payment)

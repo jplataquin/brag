@@ -84,7 +84,7 @@
                         </div>
 
                         <div class="col-md-3 mt-3 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100" style="background-color: var(--neon-cyan); color: #000; border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,240,255,0.5);">Filter</button>
+                            <button type="submit" class="btn w-100 fw-bold" style="background-color: var(--neon-cyan); color: #111 !important; box-shadow: 0 0 10px rgba(0,240,255,0.5);">Filter</button>
                             <a href="{{ route('admin.payments.index') }}" class="btn btn-outline-secondary w-100">Reset</a>
                         </div>
                     </form>
@@ -106,6 +106,7 @@
                                     <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Ref</th>
                                     <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">User</th>
                                     <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Gross</th>
+                                    <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Fees</th>
                                     <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Net</th>
                                     <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Method</th>
                                     <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Status</th>
@@ -126,6 +127,7 @@
                                             </div>
                                         </td>
                                         <td class="py-3 text-white">{{ $payment->currency }} {{ number_format($payment->amount, 2) }}</td>
+                                        <td class="py-3 text-danger">{{ $payment->fees !== null ? $payment->currency . ' ' . number_format($payment->fees, 2) : '-' }}</td>
                                         <td class="py-3" style="color: var(--neon-green);">
                                             {{ $payment->net_amount !== null ? $payment->currency . ' ' . number_format($payment->net_amount, 2) : '-' }}
                                         </td>
@@ -147,10 +149,19 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center text-muted py-5">No transactions found.</td>
+                                        <td colspan="9" class="text-center text-muted py-5">No transactions found.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
+                            <tfoot style="border-top: 2px solid var(--neon-cyan); background-color: rgba(255, 255, 255, 0.03);">
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold text-uppercase py-3 text-muted tracking-wide">Grand Total:</td>
+                                    <td class="fw-bold text-white py-3">{{ number_format($totalsData->total_gross, 2) }}</td>
+                                    <td class="fw-bold text-danger py-3">{{ number_format($totalsData->total_fees, 2) }}</td>
+                                    <td class="fw-bold py-3" style="color: var(--neon-green);">{{ number_format($totalsData->total_net, 2) }}</td>
+                                    <td colspan="3"></td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
