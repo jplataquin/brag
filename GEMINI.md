@@ -7,7 +7,7 @@
 - **Templates & Forging:** Users can create unique templates (one per Game Title). From these templates, they can forge a "Digital Card"—a unique trophy. Forging has a 3-day cooldown to prevent market flooding.
 - **Digital Cards:** These act as the core stakes of the platform. Each card tracks its own stats (Level, Wins, Losses, and Copies in Circulation), determining its rarity and social worth. Users can keep a maximum of three per game title of their own forged cards in their inventory.
 - **The Arena & Battles:** Users can join or create matches ("Battles") to bet their digital cards. 
-- **Adjudicators:** Battles can optionally have an "Adjudicator"—a neutral third-party user invited to oversee the match and declare the winner.
+- **Marshalls:** Battles can optionally have an "Marshall"—a neutral third-party user invited to oversee the match and declare the winner.
 - **Trophy Collection:** When a user loses a match, their staked digital card is transferred to the winner. Winners collect these cards as trophies to showcase their dominance.
 - **Profiles & Social:** Users have dedicated profile pages to showcase their available digital cards, display their collected trophies, and search for other users.
 - **Real-Time Rooms:** Battle rooms feature real-time updates (powered by Laravel Reverb WebSockets) for joining, starting, and resolving matches, complete with live activity logs and in-game notifications.

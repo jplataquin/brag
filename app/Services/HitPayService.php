@@ -55,6 +55,22 @@ class HitPayService
     }
 
     /**
+     * Get the status and details of a payment request.
+     */
+    public function getPaymentRequest($paymentRequestId)
+    {
+        $response = Http::withHeaders([
+            'X-BUSINESS-API-KEY' => $this->apiKey,
+        ])->get($this->baseUrl . '/payment-requests/' . $paymentRequestId);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
+
+    /**
      * Verify the HitPay webhook HMAC signature
      */
     public function verifySignature(array $payload): bool

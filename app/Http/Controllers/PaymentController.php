@@ -134,14 +134,27 @@ class PaymentController extends Controller
 
         $reference = $payload['reference_number'] ?? null;
         $status = $payload['status'] ?? null; // e.g., 'completed'
+        $paymentRequestId = $payload['payment_request_id'] ?? null;
 
         if (!$reference) {
             return response()->json(['error' => 'No reference provided'], 400);
         }
 
+        // 2. Fetch payment details outside of DB transaction to avoid holding locks during HTTP call
+        $paymentType = null;
+        $fees = null;
+        if ($paymentRequestId) {
+            $paymentDetails = $this->hitPayService->getPaymentRequest($paymentRequestId);
+            if (!empty($paymentDetails['payments'])) {
+                $successfulPayment = collect($paymentDetails['payments'])->firstWhere('status', 'succeeded');
+                $paymentType = $successfulPayment['payment_type'] ?? null;
+                $fees = $successfulPayment['fees'] ?? null;
+            }
+        }
+
         try {
-            // 2. Wrap fulfillment in a Database Transaction for integrity
-            DB::transaction(function () use ($reference, $status) {
+            // 3. Wrap fulfillment in a Database Transaction for integrity
+            DB::transaction(function () use ($reference, $status, $paymentType, $fees) {
                 // Lock the row to prevent race conditions (e.g. double webhook delivery)
                 $payment = Payment::where('reference', $reference)->lockForUpdate()->firstOrFail();
 
@@ -151,13 +164,21 @@ class PaymentController extends Controller
                 }
 
                 if ($status === 'completed') {
-                    $payment->update(['status' => 'completed']);
+                    $updateData = ['status' => 'completed'];
+                    if ($paymentType) {
+                        $updateData['payment_type'] = $paymentType;
+                    }
+                    if ($fees !== null) {
+                        $updateData['fees'] = $fees;
+                        $updateData['net_amount'] = max(0, $payment->amount - $fees);
+                    }
+                    $payment->update($updateData);
 
                     // Add Shards to user
                     $payment->user->addShards(
                         $payment->shards_amount, 
                         'purchased', 
-                        "Purchased {$payment->shards_amount} Shards via HitPay (Ref: {$payment->reference})"
+                        "Purchased {$payment->shards_amount} Shards via HitPay using {$paymentType} (Ref: {$payment->reference})"
                     );
 
                     // Send email receipt
@@ -169,7 +190,11 @@ class PaymentController extends Controller
                     }
 
                 } elseif (in_array($status, ['failed', 'canceled', 'refunded'])) {
-                    $payment->update(['status' => $status]);
+                    $updateData = ['status' => $status];
+                    if ($paymentType) {
+                        $updateData['payment_type'] = $paymentType;
+                    }
+                    $payment->update($updateData);
                 }
             });
 

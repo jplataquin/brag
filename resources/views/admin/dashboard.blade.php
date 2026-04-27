@@ -26,6 +26,9 @@
                     <a href="{{ route('admin.cards.index') }}" class="btn btn-outline-warning btn-sm">
                         <i class="bi bi-cpu"></i> Manage Digital Cards
                     </a>
+                    <a href="{{ route('admin.payments.index') }}" class="btn btn-outline-primary btn-sm" style="color: var(--neon-cyan); border-color: var(--neon-cyan);">
+                        <i class="bi bi-cash-coin"></i> Sales Transactions
+                    </a>
                 </div>
             </div>
         </div>

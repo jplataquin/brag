@@ -14,6 +14,9 @@ class Payment extends Model
         'currency',
         'shards_amount',
         'status',
+        'payment_type',
+        'fees',
+        'net_amount',
     ];
 
     /**
