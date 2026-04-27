@@ -24,8 +24,8 @@
                 <div class="team-slots">
                     @for($i = 1; $i <= $teamBattle->no_players_per_team; $i++)
                         @php 
-                            $u = User::find($teamBattle->{"team_a_user_{$i}"});
-                            $c = DigitalCard::find($teamBattle->{"team_a_card_{$i}"});
+                            $u = \App\Models\User::find($teamBattle->{"team_a_user_{$i}"});
+                            $c = \App\Models\DigitalCard::find($teamBattle->{"team_a_card_{$i}"});
                         @endphp
                         <div class="slot-item p-2 border-bottom border-secondary d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center">
@@ -76,8 +76,8 @@
                 <div class="team-slots">
                     @for($i = 1; $i <= $teamBattle->no_players_per_team; $i++)
                         @php 
-                            $u = User::find($teamBattle->{"team_b_user_{$i}"});
-                            $c = DigitalCard::find($teamBattle->{"team_b_card_{$i}"});
+                            $u = \App\Models\User::find($teamBattle->{"team_b_user_{$i}"});
+                            $c = \App\Models\DigitalCard::find($teamBattle->{"team_b_card_{$i}"});
                         @endphp
                         <div class="slot-item p-2 border-bottom border-secondary d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center">
