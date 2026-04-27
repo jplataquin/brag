@@ -189,11 +189,13 @@ class BattleService
             ? $battle->challenger_card_id
             : $battle->opponent_card_id;
 
-        // Update winner card stats
         $winnerCard = DigitalCard::find($winnerCardId);
-        $winnerCard->increment('wins');
-        $winnerCard->refresh();
-        $promoted = $winnerCard->checkPromotion();
+        $loserCard = DigitalCard::find($loserCardId);
+
+        // Use the refactored logic from the model
+        $result = $battle->processBattleResult($winnerCard, $loserCard, $winner);
+        $promoted = $result['promoted'];
+        $cardTransferred = $result['cardTransferred'];
 
         if ($promoted) {
             $winnerCard->refresh();
@@ -203,26 +205,6 @@ class BattleService
                 'promotion'
             ));
             $this->logActivity($battle->id, null, 'promotion', "{$winner->username}'s card reached Level {$winnerCard->level}!");
-        }
-
-        // Update loser card stats
-        $loserCard = DigitalCard::find($loserCardId);
-        $loserCard->increment('losses');
-        
-        $cardTransferred = false;
-
-        if ($loserCard->life_points > 0) {
-            $loserCard->decrement('life_points');
-            $loserCard->refresh();
-        }
-
-        if ($loserCard->life_points <= 0) {
-            $loserCard->update([
-                'owner_id' => $winner->id,
-                'is_trophy' => true,
-                'life_points' => 3,
-            ]);
-            $cardTransferred = true;
         }
 
         $overrides = [];

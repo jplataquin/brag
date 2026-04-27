@@ -142,6 +142,11 @@ Route::middleware(['auth', 'verified', 'terms.agreed'])->group(function () {
     Route::get('/battles/{battle:room_id}/join', [BattleController::class, 'showJoinReadyPage'])->name('battles.join.ready');
     Route::post('/battles/{battle:room_id}/confirm-join', [BattleController::class, 'confirmJoin'])->name('battles.confirmJoin');
 
+    // Team Battles
+    Route::get('/team-battles/room/{teamBattle}', function (\App\Models\TeamBattle $teamBattle) {
+        return view('battles.team-room', compact('teamBattle'));
+    })->name('team-battles.room');
+
     // Notifications
     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-all-as-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
