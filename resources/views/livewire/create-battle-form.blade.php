@@ -63,7 +63,7 @@
                                                 <div class="selectable-card {{ $selectedCardId == $card->id ? 'selected' : '' }}" 
                                                      wire:click="$set('selectedCardId', {{ $card->id }})">
                                                     <div class="card-img-wrapper">
-                                                        <div style="pointer-events: none;">
+                                                        <div style="pointer-events: none;" wire:ignore>
                                                             <x-digital-card 
                                                                 id="card_1on1_{{ $card->id }}"
                                                                 mode="thumbnail"
@@ -172,7 +172,7 @@
                                                                         <div class="selectable-card {{ $selectedCardId == $card->id ? 'selected' : '' }}" 
                                                                              wire:click="$set('selectedCardId', {{ $card->id }})">
                                                                             <div class="card-img-wrapper">
-                                                                                <div style="pointer-events: none;">
+                                                                                <div style="pointer-events: none;" wire:ignore>
                                                                                     <x-digital-card 
                                                                                         id="card_team_{{ $card->id }}"
                                                                                         mode="thumbnail"

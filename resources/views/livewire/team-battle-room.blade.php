@@ -166,7 +166,7 @@
                             <div class="col-4">
                                 <div class="selectable-card {{ $selectedCardId == $card->id ? 'selected' : '' }}" 
                                      wire:click="$set('selectedCardId', {{ $card->id }})">
-                                    <div style="pointer-events: none;">
+                                    <div style="pointer-events: none;" wire:ignore>
                                         <x-digital-card 
                                             id="card_join_{{ $card->id }}"
                                             mode="thumbnail"

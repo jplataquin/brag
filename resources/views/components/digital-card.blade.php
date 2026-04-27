@@ -151,15 +151,19 @@ $placeholderSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.
 
 <script>
     (function() {
-        const initCard = function() {
+        const initCard = function(attempts = 0) {
             if (typeof DigitalCardRenderer === 'undefined') {
-                // If DigitalCardRenderer is not yet defined, retry in 100ms
-                setTimeout(initCard, 100);
+                // If DigitalCardRenderer is not yet defined, retry in 100ms (max 5 seconds)
+                if (attempts < 50) setTimeout(() => initCard(attempts + 1), 100);
                 return;
             }
             const canvasId = '{{ $id }}';
             const canvasEl = document.getElementById(canvasId);
-            if (!canvasEl) return;
+            if (!canvasEl) {
+                // If the element is not in the DOM yet (e.g. Livewire is patching), retry
+                if (attempts < 50) setTimeout(() => initCard(attempts + 1), 100);
+                return;
+            }
             
             if (!window.digitalCardRenderers) window.digitalCardRenderers = {};
             window.digitalCardRenderers[canvasId] = new DigitalCardRenderer(canvasId);
