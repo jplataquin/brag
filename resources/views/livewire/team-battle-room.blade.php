@@ -175,7 +175,7 @@
 
             <!-- Leader Battle Actions -->
             @if(Auth::id() == $teamBattle->team_a_user_1 || Auth::id() == $teamBattle->team_b_user_1)
-                @if(Auth::id())
+                @if($this->isParticipant())
                     <div class="mt-4 mb-5 pt-4" style="border-top: 1px solid rgba(0, 240, 255, 0.1);">
                         <h5 class="section-header mb-3">
                             <i class="bi bi-gear-wide-connected section-icon" style="color: #00f0ff;"></i> BATTLE ACTIONS
