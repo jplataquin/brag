@@ -13,7 +13,7 @@
         const qrcodeContainer = document.getElementById('qrcode');
         if (qrcodeContainer) {
             new QRCode(qrcodeContainer, {
-                text: "{{ url()->current() }}",
+                text: "{{ route('team-battles.room', $teamBattle) }}",
                 width: 200,
                 height: 200,
                 colorDark : "#000000",

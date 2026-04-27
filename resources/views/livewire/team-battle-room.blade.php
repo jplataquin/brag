@@ -328,13 +328,13 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center py-4">
-                    <div id="qrcode-container" class="d-inline-block p-3 bg-white rounded-3 mb-3">
+                    <div id="qrcode-container" class="d-inline-block p-3 bg-white rounded-3 mb-3" wire:ignore>
                         <div id="qrcode"></div>
                     </div>
                     <p class="text-muted small">Show this QR code to your opponents or teammates to let them join this battle room.</p>
-                    <div class="mt-3">
+                    <div class="mt-3" wire:ignore>
                         <div class="input-group input-group-sm">
-                            <input type="text" class="form-control bg-dark border-secondary text-light" value="{{ url()->current() }}" id="battle-url" readonly>
+                            <input type="text" class="form-control bg-dark border-secondary text-light" value="{{ route('team-battles.room', $teamBattle) }}" id="battle-url" readonly>
                             <button class="btn btn-outline-secondary" type="button" onclick="copyBattleUrl()">COPY</button>
                         </div>
                     </div>
