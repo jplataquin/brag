@@ -61,6 +61,19 @@ class TeamBattle extends Model
     }
 
     /**
+     * Check if all player slots are filled
+     */
+    public function getIsFullAttribute()
+    {
+        for ($i = 1; $i <= $this->no_players_per_team; $i++) {
+            if (empty($this->{"team_a_user_{$i}"}) || empty($this->{"team_b_user_{$i}"})) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Get Team A Leader
      */
     public function getTeamALeaderAttribute()

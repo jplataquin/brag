@@ -122,7 +122,9 @@
                     </div>
                     <div class="col-md-5 text-md-end">
                         @if($teamBattle->status == 'pending')
-                            @if(Auth::id() != $teamBattle->team_a_user_1)
+                            @if(!$teamBattle->is_full)
+                                <div class="alert alert-warning py-2 small">Waiting for players to join...</div>
+                            @elseif(Auth::id() != $teamBattle->team_a_user_1)
                                 <div class="alert alert-info py-2 small">Waiting for Team A Leader to start...</div>
                             @endif
                         @endif
@@ -158,9 +160,11 @@
                         @endif
                         
                         @if($teamBattle->status == 'pending' && Auth::id() == $teamBattle->team_a_user_1)
-                            <button class="btn btn-neon-lime" wire:click="startBattle" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
-                                <i class="bi bi-play-fill"></i> START MATCH
-                            </button>
+                            @if($teamBattle->is_full)
+                                <button class="btn btn-neon-lime" wire:click="startBattle" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
+                                    <i class="bi bi-play-fill"></i> START MATCH
+                                </button>
+                            @endif
                             <button class="btn btn-neon-danger" wire:click="cancelBattle">
                                 <i class="bi bi-x-circle"></i> CANCEL BATTLE
                             </button>
