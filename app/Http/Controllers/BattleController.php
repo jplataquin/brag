@@ -291,6 +291,7 @@ class BattleController extends Controller
         }
     }
 
+    
     /**
      * Elect an marshall.
      */
