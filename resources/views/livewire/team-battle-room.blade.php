@@ -122,9 +122,7 @@
                     </div>
                     <div class="col-md-5 text-md-end">
                         @if($teamBattle->status == 'pending')
-                            @if(Auth::id() == $teamBattle->team_a_user_1)
-                                <button class="btn btn-neon btn-lg orbitron" wire:click="startBattle">START BATTLE</button>
-                            @else
+                            @if(Auth::id() != $teamBattle->team_a_user_1)
                                 <div class="alert alert-info py-2 small">Waiting for Team A Leader to start...</div>
                             @endif
                         @endif
@@ -134,12 +132,12 @@
 
             <!-- Leader Battle Actions -->
             @if(Auth::id() == $teamBattle->team_a_user_1 || Auth::id() == $teamBattle->team_b_user_1)
-                <div class="neon-card p-4">
+                <div class="mt-4 mb-5 pt-4" style="border-top: 1px solid rgba(0, 240, 255, 0.1);">
                     <h5 class="section-header mb-3">
                         <i class="bi bi-gear-wide-connected section-icon" style="color: #00f0ff;"></i> BATTLE ACTIONS
                     </h5>
                     
-                    <div class="d-flex gap-3 flex-wrap align-items-center">
+                    <div id="actions-container" class="d-flex gap-3 flex-wrap align-items-center">
                         @if($teamBattle->status == 'active')
                             <button class="btn btn-neon btn-sm" wire:click="declareWin('A')">
                                 <i class="bi bi-trophy"></i> TEAM A WON
@@ -147,7 +145,7 @@
                             <button class="btn btn-neon-magenta btn-sm" wire:click="declareWin('B')">
                                 <i class="bi bi-trophy"></i> TEAM B WON
                             </button>
-                            <button class="btn btn-outline-danger btn-sm" wire:click="cancelBattle">
+                            <button class="btn btn-neon-danger btn-sm" wire:click="cancelBattle">
                                 <i class="bi bi-x-circle"></i> CANCEL
                             </button>
                         @endif
@@ -158,17 +156,30 @@
                                 <button class="btn btn-outline-warning" wire:click="electMarshall()">ELECT</button>
                             </div>
                         @endif
+                        
+                        @if($teamBattle->status == 'pending' && Auth::id() == $teamBattle->team_a_user_1)
+                            <button class="btn btn-neon-lime" wire:click="startBattle" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
+                                <i class="bi bi-play-fill"></i> START MATCH
+                            </button>
+                            <button class="btn btn-neon-danger" wire:click="cancelBattle">
+                                <i class="bi bi-x-circle"></i> CANCEL BATTLE
+                            </button>
+                        @elseif($teamBattle->status == 'pending' && Auth::id() == $teamBattle->team_b_user_1)
+                            <button class="btn btn-neon-danger" wire:click="cancelBattle">
+                                <i class="bi bi-x-circle"></i> CANCEL BATTLE
+                            </button>
+                        @endif
                     </div>
                 </div>
             @elseif(Auth::id() == $teamBattle->marshall_id && $teamBattle->status == 'active')
-                <div class="neon-card p-4">
+                <div class="mt-4 mb-5 pt-4" style="border-top: 1px solid rgba(255, 221, 0, 0.1);">
                     <h5 class="section-header mb-3">
                         <i class="bi bi-gear-wide-connected section-icon" style="color: #ffdd00;"></i> MARSHALL ACTIONS
                     </h5>
-                    <div class="d-flex gap-3 flex-wrap align-items-center">
+                    <div id="actions-container" class="d-flex gap-3 flex-wrap align-items-center">
                         <button class="btn btn-neon btn-sm" wire:click="declareWin('A')">TEAM A WON</button>
                         <button class="btn btn-neon-magenta btn-sm" wire:click="declareWin('B')">TEAM B WON</button>
-                        <button class="btn btn-outline-danger btn-sm" wire:click="cancelBattle">CANCEL MATCH</button>
+                        <button class="btn btn-neon-danger btn-sm" wire:click="cancelBattle">CANCEL MATCH</button>
                     </div>
                 </div>
             @endif
