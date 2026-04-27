@@ -287,4 +287,57 @@
         .cursor-pointer { cursor: pointer; }
         .hover-glow:hover { box-shadow: 0 0 15px currentColor; }
     </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            function initializeVisibleCards() {
+                if (typeof DigitalCardRenderer === 'undefined') return;
+                if (!window.digitalCardRenderers) window.digitalCardRenderers = {};
+                
+                document.querySelectorAll('canvas[data-card-options]').forEach(canvas => {
+                    // Check if the canvas hasn't been rendered yet
+                    if (!window.digitalCardRenderers[canvas.id]) {
+                        try {
+                            window.digitalCardRenderers[canvas.id] = new DigitalCardRenderer(canvas.id);
+                            const options = JSON.parse(canvas.getAttribute('data-card-options'));
+                            window.digitalCardRenderers[canvas.id].draw(options);
+                        } catch (e) {
+                            console.error("Failed to init card", e);
+                        }
+                    }
+                });
+            }
+
+            // Observe the DOM for new canvases (Livewire updates)
+            const observer = new MutationObserver((mutations) => {
+                let shouldInit = false;
+                for (let mutation of mutations) {
+                    if (mutation.addedNodes.length > 0) {
+                        shouldInit = true;
+                        break;
+                    }
+                }
+                if (shouldInit) {
+                    setTimeout(initializeVisibleCards, 100);
+                }
+            });
+
+            // Start observing
+            const workflowContainer = document.querySelector('.create-battle-workflow');
+            if (workflowContainer) {
+                observer.observe(workflowContainer, { childList: true, subtree: true });
+            }
+
+            // Fallback for initial load
+            const interval = setInterval(() => {
+                if (typeof DigitalCardRenderer !== 'undefined') {
+                    initializeVisibleCards();
+                    clearInterval(interval);
+                }
+            }, 100);
+            
+            // Safety timeout for the interval
+            setTimeout(() => clearInterval(interval), 5000);
+        });
+    </script>
 </div>

@@ -248,4 +248,52 @@
             border-radius: 2px;
         }
     </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            function initializeVisibleCards() {
+                if (typeof DigitalCardRenderer === 'undefined') return;
+                if (!window.digitalCardRenderers) window.digitalCardRenderers = {};
+                
+                document.querySelectorAll('canvas[data-card-options]').forEach(canvas => {
+                    if (!window.digitalCardRenderers[canvas.id]) {
+                        try {
+                            window.digitalCardRenderers[canvas.id] = new DigitalCardRenderer(canvas.id);
+                            const options = JSON.parse(canvas.getAttribute('data-card-options'));
+                            window.digitalCardRenderers[canvas.id].draw(options);
+                        } catch (e) {
+                            console.error("Failed to init card", e);
+                        }
+                    }
+                });
+            }
+
+            const observer = new MutationObserver((mutations) => {
+                let shouldInit = false;
+                for (let mutation of mutations) {
+                    if (mutation.addedNodes.length > 0) {
+                        shouldInit = true;
+                        break;
+                    }
+                }
+                if (shouldInit) {
+                    setTimeout(initializeVisibleCards, 100);
+                }
+            });
+
+            const roomContainer = document.querySelector('.team-battle-room');
+            if (roomContainer) {
+                observer.observe(roomContainer, { childList: true, subtree: true });
+            }
+
+            const interval = setInterval(() => {
+                if (typeof DigitalCardRenderer !== 'undefined') {
+                    initializeVisibleCards();
+                    clearInterval(interval);
+                }
+            }, 100);
+            
+            setTimeout(() => clearInterval(interval), 5000);
+        });
+    </script>
 </div>
