@@ -259,52 +259,85 @@
     <!-- Join Modal (Simulated) -->
     @if($joiningTeam)
         <div class="custom-modal-backdrop">
-            <div class="custom-modal p-4 neon-card" style="max-width: 600px; width: 90%;">
-                <h4 class="orbitron text-cyan mb-4">JOIN TEAM {{ $joiningTeam }}</h4>
+            <div class="custom-modal p-4 neon-card" style="max-width: 800px; width: 95%;">
+                <h4 class="orbitron text-cyan mb-4 text-center">JOIN TEAM {{ $joiningTeam }}</h4>
                 
                 <div class="mb-4">
-                    <label class="form-label small">SELECT YOUR CARD TO BET</label>
-                    <div class="row g-2" style="max-height: 300px; overflow-y: auto;">
-                        @foreach($myEligibleCards as $card)
-                            <div class="col-4">
-                                <div class="selectable-card {{ $selectedCardId == $card->id ? 'selected' : '' }}" 
-                                     wire:click="$set('selectedCardId', {{ $card->id }})">
-                                    <div style="pointer-events: none;" wire:ignore>
-                                        <x-digital-card 
-                                            id="card_join_{{ $card->id }}"
-                                            mode="thumbnail"
-                                            :title="$card->template->card_title"
-                                            :game="$card->template->gameTitle->title ?? 'GAME'"
-                                            :creator="$card->originalOwner->username ?? 'Creator'"
-                                            :quote="$card->template->quote"
-                                            :image="$card->template->display_photo"
-                                            :imagePositionY="$card->template->image_position_y ?? 50"
-                                            :backgroundColor="$card->template->background_color"
-                                            :borderColor="$card->template->border_color"
-                                            :sectionColor="$card->template->section_color"
-                                            :primaryTextColor="$card->template->primary_text_color"
-                                            :secondaryTextColor="$card->template->secondary_text_color"
-                                            :wins="$card->wins"
-                                            :losses="$card->losses"
-                                            :integrityStat="$card->integrity_stat"
-                                            :lifePoints="$card->life_points"
-                                            :status="$card->status"
-                                            :rankLevel="$card->level"
-                                            :serialNumber="$card->serial_number"
-                                            :rarity="$card->rarity"
-                                        />
+                    <label class="form-label small text-center w-100 mb-3" style="color: #39ff14;"><i class="bi bi-suit-diamond-fill"></i> SELECT YOUR CARD TO BET</label>
+                    
+                    @if($myEligibleCards->isEmpty())
+                        <div class="alert alert-warning text-center">
+                            You don't have any eligible cards with life points for this game title.
+                        </div>
+                    @else
+                        <div id="joinCardCarousel" class="carousel slide px-md-5" data-bs-ride="false">
+                            <div class="carousel-inner p-2">
+                                @foreach($myEligibleCards->chunk(3) as $chunkIndex => $chunk)
+                                    <div class="carousel-item {{ $chunkIndex === 0 ? 'active' : '' }}">
+                                        <div class="row g-3 justify-content-center">
+                                            @foreach($chunk as $card)
+                                                <div class="col-md-4 col-6">
+                                                    <div class="selectable-card {{ $selectedCardId == $card->id ? 'selected' : '' }}" 
+                                                         wire:click="$set('selectedCardId', {{ $card->id }})">
+                                                        <div class="card-img-wrapper" style="position: relative;">
+                                                            <div style="pointer-events: none;" wire:ignore>
+                                                                <x-digital-card 
+                                                                    id="card_join_{{ $card->id }}"
+                                                                    mode="thumbnail"
+                                                                    :title="$card->template->card_title"
+                                                                    :game="$card->template->gameTitle->title ?? 'GAME'"
+                                                                    :creator="$card->originalOwner->username ?? 'Creator'"
+                                                                    :quote="$card->template->quote"
+                                                                    :image="$card->template->display_photo"
+                                                                    :imagePositionY="$card->template->image_position_y ?? 50"
+                                                                    :backgroundColor="$card->template->background_color"
+                                                                    :borderColor="$card->template->border_color"
+                                                                    :sectionColor="$card->template->section_color"
+                                                                    :primaryTextColor="$card->template->primary_text_color"
+                                                                    :secondaryTextColor="$card->template->secondary_text_color"
+                                                                    :wins="$card->wins"
+                                                                    :losses="$card->losses"
+                                                                    :integrityStat="$card->integrity_stat"
+                                                                    :lifePoints="$card->life_points"
+                                                                    :status="$card->status"
+                                                                    :rankLevel="$card->level"
+                                                                    :serialNumber="$card->serial_number"
+                                                                    :rarity="$card->rarity"
+                                                                />
+                                                            </div>
+                                                            @if($selectedCardId == $card->id)
+                                                                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 240, 255, 0.3); display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                                                                    <i class="bi bi-check-circle-fill" style="font-size: 2rem; color: #00f0ff;"></i>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                        <div class="mt-2 text-center text-truncate small fw-bold">{{ $card->template->card_title }}</div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
-                                    <div style="font-size: 0.6rem; line-height: 1;" class="text-center text-truncate">{{ $card->template->card_title }}</div>
-                                </div>
+                                @endforeach
                             </div>
-                        @endforeach
-                    </div>
-                    @error('selectedCardId') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            
+                            @if($myEligibleCards->count() > 3)
+                                <button class="carousel-control-prev" type="button" data-bs-target="#joinCardCarousel" data-bs-slide="prev" style="width: 5%;">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#joinCardCarousel" data-bs-slide="next" style="width: 5%;">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            @endif
+                        </div>
+                    @endif
+                    @error('selectedCardId') <div class="text-danger small mt-2 text-center">{{ $message }}</div> @enderror
                 </div>
 
-                <div class="d-flex gap-2">
-                    <button class="btn btn-neon w-100" wire:click="confirmJoin">CONFIRM JOIN</button>
-                    <button class="btn btn-outline-secondary w-100" wire:click="$set('joiningTeam', '')">CANCEL</button>
+                <div class="d-flex gap-3 mt-4">
+                    <button class="btn btn-outline-secondary w-50 py-2" wire:click="$set('joiningTeam', '')">CANCEL</button>
+                    <button class="btn btn-neon w-50 py-2 orbitron" wire:click="confirmJoin">CONFIRM JOIN</button>
                 </div>
             </div>
         </div>
