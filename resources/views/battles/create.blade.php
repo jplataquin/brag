@@ -7,6 +7,6 @@
     <span class="page-title-accent"><i class="bi bi-crosshair"></i></span> CREATE BATTLE
 </h1>
 
-<livewire:⚡create-battle-form />
+<livewire:create-battle-form />
 
 @endsection
