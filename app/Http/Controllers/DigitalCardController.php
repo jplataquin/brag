@@ -129,6 +129,49 @@ class DigitalCardController extends Controller
     }
 
     /**
+     * Heal a digital card.
+     */
+    public function heal($id)
+    {
+        $card = DigitalCard::findOrFail($id);
+        $user = auth()->user();
+
+        if ($card->owner_id !== $user->id) {
+            return back()->with('error', 'You do not own this card.');
+        }
+
+        if ($card->life_points >= 3) {
+            return back()->with('error', 'This card is already at maximum health.');
+        }
+
+        // Check if card is in an active battle (usually can't heal while battling)
+        $inBattle = \App\Models\Battle::whereIn('status', ['pending', 'active', 'ready'])
+            ->where(function ($q) use ($card) {
+                $q->where('challenger_card_id', $card->id)
+                  ->orWhere('opponent_card_id', $card->id);
+            })->exists();
+
+        if ($inBattle) {
+            return back()->with('error', 'You cannot heal a card that is currently in a battle.');
+        }
+
+        $cost = 5;
+
+        if ($user->shards_balance < $cost) {
+            return back()->with('error', "You need at least {$cost} Shards to heal this card.");
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($card, $cost, $user) {
+            $user->deductShards($cost, 'system', "Healed card #{$card->serial_number} ({$card->template->card_title})");
+            
+            $card->life_points += 1;
+            $card->save();
+        });
+
+        return back()->with('success', "💖 Card successfully healed! Restored 1 Life Point for {$cost} Shard(s).");
+    }
+
+    /**
      * Burn a digital card.
      */
     public function burn($id)

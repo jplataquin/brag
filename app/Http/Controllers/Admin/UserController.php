@@ -61,4 +61,28 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')
                          ->with('success', "User '{$user->username}' updated successfully.");
     }
+
+    public function updateShards(Request $request, User $user)
+    {
+        $request->validate([
+            'action' => 'required|in:credit,debit',
+            'amount' => 'required|integer|min:1',
+            'remarks' => 'required|string|max:255',
+        ]);
+
+        $amount = (int) $request->amount;
+
+        if ($request->action === 'debit') {
+            if ($user->shards_balance < $amount) {
+                return back()->with('error', "Cannot deduct {$amount} shards. User only has {$user->shards_balance} shards.");
+            }
+            $user->deductShards($amount, 'admin_adjustment', 'Admin: ' . $request->remarks, auth()->id());
+            $message = "Successfully deducted {$amount} Shards from {$user->username}.";
+        } else {
+            $user->addShards($amount, 'admin_adjustment', 'Admin: ' . $request->remarks, auth()->id());
+            $message = "Successfully added {$amount} Shards to {$user->username}.";
+        }
+
+        return back()->with('success', $message);
+    }
 }

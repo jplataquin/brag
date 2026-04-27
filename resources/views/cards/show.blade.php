@@ -47,6 +47,17 @@
                         <i class="bi bi-crosshair"></i> BATTLE WITH THIS CARD
                     </a>
                 </div>
+                
+                @if($digitalCard->life_points < 3)
+                <div class="mt-2 mb-4">
+                    <form id="heal-form-{{ $digitalCard->id }}" action="{{ route('cards.heal', $digitalCard->id) }}" method="POST">
+                        @csrf
+                        <button type="button" class="btn btn-outline-danger w-100 py-2 fw-bold" style="border-color: #ff4444; color: #ff4444; box-shadow: 0 0 10px rgba(255, 68, 68, 0.2);" onclick="window.neonConfirm('Healing this card will cost 5 Shards. Proceed?').then(confirmed => { if(confirmed) { document.getElementById('heal-form-{{ $digitalCard->id }}').submit(); } });">
+                            <i class="bi bi-heart-fill"></i> Heal 💖 (-5 Shards)
+                        </button>
+                    </form>
+                </div>
+                @endif
 
                 @php
                     $nextLevel = $digitalCard->level + 1;

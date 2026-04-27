@@ -130,6 +130,50 @@
                     </form>
                 </div>
             </div>
+
+            <!-- Wallet Management -->
+            <div class="card bg-dark bg-opacity-75 border-info rounded-4 shadow-lg mt-4" style="backdrop-filter: blur(10px);">
+                <div class="card-body p-4">
+                    <form action="{{ route('admin.users.shards', $user->id) }}" method="POST">
+                        @csrf
+                        
+                        <h5 class="text-uppercase fw-bold text-white mb-4" style="font-family: 'Orbitron', sans-serif;">
+                            <i class="bi bi-wallet2" style="color: var(--neon-yellow);"></i> Wallet Adjustments
+                        </h5>
+
+                        @if(session('success'))
+                            <div class="alert alert-success p-2 small"><i class="bi bi-check-circle-fill"></i> {{ session('success') }}</div>
+                        @endif
+                        @if(session('error'))
+                            <div class="alert alert-danger p-2 small"><i class="bi bi-exclamation-triangle-fill"></i> {{ session('error') }}</div>
+                        @endif
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label text-muted small text-uppercase fw-bold">Action</label>
+                                <select name="action" class="form-select bg-dark text-white border-info" required>
+                                    <option value="credit">Credit (Add Shards)</option>
+                                    <option value="debit">Debit (Deduct Shards)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label text-muted small text-uppercase fw-bold">Amount</label>
+                                <input type="number" name="amount" min="1" class="form-control bg-dark text-white border-info" placeholder="100" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label text-muted small text-uppercase fw-bold">Remarks (Reason)</label>
+                                <input type="text" name="remarks" class="form-control bg-dark text-white border-info" placeholder="e.g. Event Reward, Refund..." required>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="submit" class="btn fw-bold text-dark px-4" style="background-color: var(--neon-yellow); border-color: var(--neon-yellow); box-shadow: 0 0 10px rgba(255, 221, 0, 0.5);">
+                                <i class="bi bi-arrow-left-right"></i> Apply Adjustment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>

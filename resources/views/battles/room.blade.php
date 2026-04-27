@@ -356,168 +356,196 @@
         setTimeout(() => { btn.innerText = originalText; }, 2000);
     }
 
-    // Elect Marshall Auto-Suggest
-    const adjWrapper = document.getElementById('adj-input-wrapper');
-    const adjInput = document.getElementById('elect-marshall-input');
-    const adjHidden = document.getElementById('adj-hidden-user-id');
-    const adjChip = document.getElementById('adj-selected-chip');
-    const adjChipText = document.getElementById('adj-chip-text');
-    const adjResults = document.getElementById('elect-marshall-results');
-    let adjDebounce = null;
+    // Livewire-compatible Event Delegation for Auto-Suggests
+    let searchDebounce = null;
 
-    if (adjInput && adjResults) {
-        if (adjWrapper) {
-            adjWrapper.addEventListener('click', () => {
-                if (!adjHidden.value) adjInput.focus();
-            });
+    document.addEventListener('click', function(e) {
+        // Invite Wrapper Click
+        if (e.target.closest('#invite-input-wrapper')) {
+            const hidden = document.getElementById('invite-hidden-username');
+            const input = document.getElementById('invite-player-input');
+            if (hidden && input && !hidden.value) input.focus();
         }
 
-        adjInput.addEventListener('input', function() {
-            clearTimeout(adjDebounce);
-            const q = this.value.trim();
+        // Marshall Wrapper Click
+        if (e.target.closest('#adj-input-wrapper')) {
+            const hidden = document.getElementById('adj-hidden-user-id');
+            const input = document.getElementById('elect-marshall-input');
+            if (hidden && input && !hidden.value) input.focus();
+        }
+
+        // Hide results when clicking outside
+        const inviteWrapper = document.getElementById('invite-input-wrapper');
+        const inviteResults = document.getElementById('invite-player-results');
+        if (inviteWrapper && inviteResults && !inviteWrapper.contains(e.target) && !inviteResults.contains(e.target)) {
+            inviteResults.classList.add('d-none');
+        }
+
+        const adjWrapper = document.getElementById('adj-input-wrapper');
+        const adjResults = document.getElementById('elect-marshall-results');
+        if (adjWrapper && adjResults && !adjWrapper.contains(e.target) && !adjResults.contains(e.target)) {
+            adjResults.classList.add('d-none');
+        }
+    });
+
+    document.addEventListener('input', function(e) {
+        // Marshall Search
+        if (e.target.id === 'elect-marshall-input') {
+            const input = e.target;
+            const results = document.getElementById('elect-marshall-results');
+            if (!results) return;
+
+            clearTimeout(searchDebounce);
+            const q = input.value.trim();
 
             if (q.length < 2) {
-                adjResults.classList.add('d-none');
-                adjResults.innerHTML = '';
+                results.classList.add('d-none');
+                results.innerHTML = '';
                 return;
             }
 
-            adjDebounce = setTimeout(() => {
+            searchDebounce = setTimeout(() => {
                 fetch(`/search?q=${encodeURIComponent(q)}&battle_id={{$battle->room_id }}`, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
                 .then(r => r.json())
                 .then(users => {
                     if (users.length === 0) {
-                        adjInput.value = '';
-                        adjResults.innerHTML = '<div class="p-2 text-center text-muted small">No players found</div>';
+                        input.value = '';
+                        results.innerHTML = '<div class="p-2 text-center text-muted small">No players found</div>';
                     } else {
-                        adjResults.innerHTML = users.map(u => `
+                        results.innerHTML = users.map(u => `
                             <div class="adj-search-item p-2 d-flex align-items-center gap-2" onmousedown="selectMarshall(${u.id}, '${u.username}')" style="cursor: pointer; border-bottom: 1px solid rgba(255, 221, 0, 0.1);">
                                 <img src="${u.avatar_url}" alt="${u.username}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ffdd00;">
                                 <span class="text-white">@${u.username}</span>
                             </div>
                         `).join('');
                     }
-                    adjResults.classList.remove('d-none');
+                    results.classList.remove('d-none');
                 });
             }, 300);
-        });
-
-        // Clear input on blur if no user is selected
-        adjInput.addEventListener('blur', function() {
-            setTimeout(() => {
-                if (!adjHidden.value) {
-                    adjInput.value = '';
-                    adjResults.classList.add('d-none');
-                }
-            }, 150); // Delay to allow onmousedown selection to trigger first
-        });
-
-        // Hide results when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!adjWrapper.contains(e.target) && !adjResults.contains(e.target)) {
-                adjResults.classList.add('d-none');
-            }
-        });
-    }
-
-    window.selectMarshall = function(userId, username) {
-        adjHidden.value = userId;
-        adjInput.value = '';
-        adjInput.classList.add('d-none');
-        adjChipText.innerText = username;
-        adjChip.classList.remove('d-none');
-        adjResults.classList.add('d-none');
-    }
-
-    window.clearMarshallSelection = function() {
-        adjHidden.value = '';
-        adjChip.classList.add('d-none');
-        adjInput.classList.remove('d-none');
-        adjInput.focus();
-    }
-
-    // Invite Player Auto-Suggest
-    const inviteWrapper = document.getElementById('invite-input-wrapper');
-    const inviteInput = document.getElementById('invite-player-input');
-    const inviteHidden = document.getElementById('invite-hidden-username');
-    const inviteChip = document.getElementById('invite-selected-chip');
-    const inviteChipText = document.getElementById('invite-chip-text');
-    const inviteResults = document.getElementById('invite-player-results');
-    let inviteDebounce = null;
-
-    if (inviteInput && inviteResults) {
-        if (inviteWrapper) {
-            inviteWrapper.addEventListener('click', () => {
-                if (!inviteHidden.value) inviteInput.focus();
-            });
         }
 
-        inviteInput.addEventListener('input', function() {
-            clearTimeout(inviteDebounce);
-            const q = this.value.trim();
+        // Invite Search
+        if (e.target.id === 'invite-player-input') {
+            const input = e.target;
+            const results = document.getElementById('invite-player-results');
+            if (!results) return;
+
+            clearTimeout(searchDebounce);
+            const q = input.value.trim();
 
             if (q.length < 2) {
-                inviteResults.classList.add('d-none');
-                inviteResults.innerHTML = '';
+                results.classList.add('d-none');
+                results.innerHTML = '';
                 return;
             }
 
-            inviteDebounce = setTimeout(() => {
+            searchDebounce = setTimeout(() => {
                 fetch(`/search?q=${encodeURIComponent(q)}&battle_id={{$battle->room_id }}`, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
                 .then(r => r.json())
                 .then(users => {
                     if (users.length === 0) {
-                        inviteInput.value = '';
-                        inviteResults.innerHTML = '<div class="p-2 text-center text-muted small">No players found</div>';
+                        input.value = '';
+                        results.innerHTML = '<div class="p-2 text-center text-muted small">No players found</div>';
                     } else {
-                        inviteResults.innerHTML = users.map(u => `
+                        results.innerHTML = users.map(u => `
                             <div class="adj-search-item p-2 d-flex align-items-center gap-2" onmousedown="selectInvitePlayer('${u.username}')" style="cursor: pointer; border-bottom: 1px solid rgba(0, 240, 255, 0.1);">
                                 <img src="${u.avatar_url}" alt="${u.username}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #00f0ff;">
                                 <span class="text-white">@${u.username}</span>
                             </div>
                         `).join('');
                     }
-                    inviteResults.classList.remove('d-none');
+                    results.classList.remove('d-none');
                 });
             }, 300);
-        });
+        }
+    });
 
-        // Clear input on blur if no user is selected
-        inviteInput.addEventListener('blur', function() {
+    document.addEventListener('focusout', function(e) {
+        if (e.target.id === 'elect-marshall-input') {
             setTimeout(() => {
-                if (!inviteHidden.value) {
-                    inviteInput.value = '';
-                    inviteResults.classList.add('d-none');
+                const hidden = document.getElementById('adj-hidden-user-id');
+                const results = document.getElementById('elect-marshall-results');
+                if (hidden && !hidden.value && results) {
+                    e.target.value = '';
+                    results.classList.add('d-none');
                 }
-            }, 150); // Delay to allow onmousedown selection to trigger first
-        });
+            }, 150);
+        }
 
-        // Hide results when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!inviteWrapper.contains(e.target) && !inviteResults.contains(e.target)) {
-                inviteResults.classList.add('d-none');
-            }
-        });
+        if (e.target.id === 'invite-player-input') {
+            setTimeout(() => {
+                const hidden = document.getElementById('invite-hidden-username');
+                const results = document.getElementById('invite-player-results');
+                if (hidden && !hidden.value && results) {
+                    e.target.value = '';
+                    results.classList.add('d-none');
+                }
+            }, 150);
+        }
+    });
+
+    window.selectMarshall = function(userId, username) {
+        const hidden = document.getElementById('adj-hidden-user-id');
+        const input = document.getElementById('elect-marshall-input');
+        const chipText = document.getElementById('adj-chip-text');
+        const chip = document.getElementById('adj-selected-chip');
+        const results = document.getElementById('elect-marshall-results');
+
+        if (hidden) hidden.value = userId;
+        if (input) {
+            input.value = '';
+            input.classList.add('d-none');
+        }
+        if (chipText) chipText.innerText = username;
+        if (chip) chip.classList.remove('d-none');
+        if (results) results.classList.add('d-none');
+    }
+
+    window.clearMarshallSelection = function() {
+        const hidden = document.getElementById('adj-hidden-user-id');
+        const input = document.getElementById('elect-marshall-input');
+        const chip = document.getElementById('adj-selected-chip');
+
+        if (hidden) hidden.value = '';
+        if (chip) chip.classList.add('d-none');
+        if (input) {
+            input.classList.remove('d-none');
+            input.focus();
+        }
     }
 
     window.selectInvitePlayer = function(username) {
-        inviteHidden.value = username;
-        inviteInput.value = '';
-        inviteInput.classList.add('d-none');
-        inviteChipText.innerText = username;
-        inviteChip.classList.remove('d-none');
-        inviteResults.classList.add('d-none');
+        const hidden = document.getElementById('invite-hidden-username');
+        const input = document.getElementById('invite-player-input');
+        const chipText = document.getElementById('invite-chip-text');
+        const chip = document.getElementById('invite-selected-chip');
+        const results = document.getElementById('invite-player-results');
+
+        if (hidden) hidden.value = username;
+        if (input) {
+            input.value = '';
+            input.classList.add('d-none');
+        }
+        if (chipText) chipText.innerText = username;
+        if (chip) chip.classList.remove('d-none');
+        if (results) results.classList.add('d-none');
     }
 
     window.clearInviteSelection = function() {
-        inviteHidden.value = '';
-        inviteChip.classList.add('d-none');
-        inviteInput.classList.remove('d-none');
-        inviteInput.focus();
+        const hidden = document.getElementById('invite-hidden-username');
+        const input = document.getElementById('invite-player-input');
+        const chip = document.getElementById('invite-selected-chip');
+
+        if (hidden) hidden.value = '';
+        if (chip) chip.classList.add('d-none');
+        if (input) {
+            input.classList.remove('d-none');
+            input.focus();
+        }
     }
 
 </script>

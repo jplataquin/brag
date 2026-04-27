@@ -57,6 +57,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
     Route::get('/admin/users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
     Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
+    Route::post('/admin/users/{user}/shards', [AdminUserController::class, 'updateShards'])->name('admin.users.shards');
     
     // Game Titles Management
     Route::resource('admin/game_titles', AdminGameTitleController::class)->except(['show'])->names([
@@ -109,6 +110,7 @@ Route::middleware(['auth', 'verified', 'terms.agreed'])->group(function () {
     Route::get('/cards', [DigitalCardController::class, 'index'])->name('cards.index');
     Route::get('/cards/{digitalCard}', [DigitalCardController::class, 'show'])->name('cards.show');
     Route::post('/cards/{digitalCard}/burn', [DigitalCardController::class, 'burn'])->name('cards.burn');
+    Route::post('/cards/{digitalCard}/heal', [DigitalCardController::class, 'heal'])->name('cards.heal');
     Route::get('/cards/{digitalCard}/history', [DigitalCardController::class, 'history'])->name('cards.history');
     Route::post('/cards/forge/{template}', [DigitalCardController::class, 'forge'])->name('cards.forge');
 });
