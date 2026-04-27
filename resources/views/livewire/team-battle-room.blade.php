@@ -173,6 +173,11 @@
                                 <i class="bi bi-x-circle"></i> CANCEL BATTLE
                             </button>
                         @endif
+
+                        <!-- Share QR (Mobile Only) -->
+                        <button type="button" class="btn btn-neon d-md-none" style="border-color: #39ff14; color: #39ff14;" data-bs-toggle="modal" data-bs-target="#shareQRModal">
+                            <i class="bi bi-qr-code"></i> SHARE QR
+                        </button>
                     </div>
                 </div>
             @elseif(Auth::id() == $teamBattle->marshall_id && $teamBattle->status == 'active')
@@ -309,6 +314,30 @@
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-neon w-100" style="border-color: #ffdd00; color: #ffdd00;" wire:click="electMarshall()" data-bs-dismiss="modal">ELECT USER</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share QR Modal -->
+    <div class="modal fade" wire:ignore.self id="shareQRModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #39ff14; backdrop-filter: blur(20px);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title" style="color: #39ff14; font-family: 'Orbitron', sans-serif;">BATTLE QR CODE</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div id="qrcode-container" class="d-inline-block p-3 bg-white rounded-3 mb-3">
+                        <div id="qrcode"></div>
+                    </div>
+                    <p class="text-muted small">Show this QR code to your opponents or teammates to let them join this battle room.</p>
+                    <div class="mt-3">
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control bg-dark border-secondary text-light" value="{{ url()->current() }}" id="battle-url" readonly>
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyBattleUrl()">COPY</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
