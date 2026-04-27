@@ -173,6 +173,8 @@ class TeamBattleRoom extends Component
         $this->pairingSlot = null;
         $this->refreshRoom();
         $this->broadcastUpdate("{$user->username} joined the battle.");
+        
+        return redirect()->route('team-battles.room', $this->teamBattle);
     }
 
     public function startBattle()

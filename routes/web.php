@@ -144,8 +144,40 @@ Route::middleware(['auth', 'verified', 'terms.agreed'])->group(function () {
 
     // Team Battles
     Route::get('/team-battles/room/{teamBattle}', function (\App\Models\TeamBattle $teamBattle) {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        
+        if ($teamBattle->status === 'pending') {
+            $isParticipant = false;
+            for ($i = 1; $i <= $teamBattle->no_players_per_team; $i++) {
+                if ($teamBattle->{"team_a_user_{$i}"} == $user->id || $teamBattle->{"team_b_user_{$i}"} == $user->id) {
+                    $isParticipant = true;
+                    break;
+                }
+            }
+            if (!$isParticipant) {
+                return redirect()->route('team-battles.join', $teamBattle);
+            }
+        }
+
         return view('battles.team-room', compact('teamBattle'));
     })->name('team-battles.room');
+
+    Route::get('/team-battles/room/{teamBattle}/join', function (\App\Models\TeamBattle $teamBattle) {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        
+        $isParticipant = false;
+        for ($i = 1; $i <= $teamBattle->no_players_per_team; $i++) {
+            if ($teamBattle->{"team_a_user_{$i}"} == $user->id || $teamBattle->{"team_b_user_{$i}"} == $user->id) {
+                $isParticipant = true;
+                break;
+            }
+        }
+        if ($isParticipant) {
+            return redirect()->route('team-battles.room', $teamBattle);
+        }
+
+        return view('battles.team-join', compact('teamBattle'));
+    })->name('team-battles.join');
 
     // Notifications
     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
