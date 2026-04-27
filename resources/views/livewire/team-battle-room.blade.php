@@ -12,7 +12,7 @@
                 @else
                     <h4 class="orbitron text-cyan mb-0 d-inline-block text-truncate w-100" title="{{ $teamBattle->team_name_a }}">
                         {{ $teamBattle->team_name_a }}
-                        @if(Auth::id() == $teamBattle->team_a_user_1)
+                        @if(Auth::id() == $teamBattle->team_a_user_1 && $this->isParticipant())
                             <i class="bi bi-pencil-square cursor-pointer ms-2" style="font-size: 0.8rem;" wire:click="$set('showEditTeamA', true)"></i>
                         @endif
                     </h4>
@@ -82,7 +82,7 @@
                 @else
                     <h4 class="orbitron text-magenta mb-0 d-inline-block text-truncate w-100" title="{{ $teamBattle->team_name_b }}">
                         {{ $teamBattle->team_name_b }}
-                        @if(Auth::id() == $teamBattle->team_b_user_1)
+                        @if(Auth::id() == $teamBattle->team_b_user_1 && $this->isParticipant())
                             <i class="bi bi-pencil-square cursor-pointer ms-2" style="font-size: 0.8rem;" wire:click="$set('showEditTeamB', true)"></i>
                         @endif
                     </h4>
