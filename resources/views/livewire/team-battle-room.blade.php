@@ -56,6 +56,9 @@
                                 />
                             </div>
                         @else
+                            <div class="mb-2 text-center text-truncate">
+                                <span class="fw-bold text-muted">----</span>
+                            </div>
                             <div class="empty-card-slot d-flex flex-column align-items-center justify-content-center p-3 rounded" style="border: 2px dashed rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.05); aspect-ratio: 350 / 490; width: 100%;">
                                 <div class="orbitron text-muted mb-3 fs-5">SLOT {{ $i }}</div>
                                 @if($teamBattle->status == 'pending')
@@ -123,6 +126,9 @@
                                 />
                             </div>
                         @else
+                            <div class="mb-2 text-center text-truncate">
+                                <span class="fw-bold text-muted">----</span>
+                            </div>
                             <div class="empty-card-slot d-flex flex-column align-items-center justify-content-center p-3 rounded" style="border: 2px dashed rgba(255, 0, 255, 0.4); background: rgba(255, 0, 255, 0.05); aspect-ratio: 350 / 490; width: 100%;">
                                 <div class="orbitron text-muted mb-3 fs-5">SLOT {{ $i }}</div>
                                 @if($teamBattle->status == 'pending')
@@ -137,39 +143,39 @@
     </div>
 
     <!-- Battle Controls / Actions & Activity Log -->
-    @if($this->isParticipant)
-        <div class="row justify-content-center mt-4">
-            <div class="col-lg-7">
-                <div class="neon-card p-4 mb-4">
-                    <div class="row">
-                        <div class="col-md-7">
-                            <h5 class="orbitron text-cyan">BATTLE STATUS: <span class="text-white">{{ strtoupper($teamBattle->status) }}</span></h5>
-                            <p class="small text-muted">{{ $teamBattle->battle_terms }}</p>
-                            
-                            @if($teamBattle->marshall_id)
-                                <div class="mt-3">
-                                    <span class="badge bg-warning text-dark"><i class="bi bi-shield-check"></i> MARSHALL: {{ $teamBattle->marshall->username }}</span>
-                                </div>
-                            @elseif($teamBattle->team_a_marshall_elect || $teamBattle->team_b_marshall_elect)
-                                <div class="mt-3 small text-warning">
-                                    <i class="bi bi-hourglass-split"></i> Waiting for Marshall Consensus...
-                                </div>
+    <div class="row justify-content-center mt-4">
+        <div class="col-lg-7">
+            <div class="neon-card p-4 mb-4">
+                <div class="row">
+                    <div class="col-md-7">
+                        <h5 class="orbitron text-cyan">BATTLE STATUS: <span class="text-white">{{ strtoupper($teamBattle->status) }}</span></h5>
+                        <p class="small text-muted">{{ $teamBattle->battle_terms }}</p>
+                        
+                        @if($teamBattle->marshall_id)
+                            <div class="mt-3">
+                                <span class="badge bg-warning text-dark"><i class="bi bi-shield-check"></i> MARSHALL: {{ $teamBattle->marshall->username }}</span>
+                            </div>
+                        @elseif($teamBattle->team_a_marshall_elect || $teamBattle->team_b_marshall_elect)
+                            <div class="mt-3 small text-warning">
+                                <i class="bi bi-hourglass-split"></i> Waiting for Marshall Consensus...
+                            </div>
+                        @endif
+                    </div>
+                    <div class="col-md-5 text-md-end">
+                        @if($teamBattle->status == 'pending')
+                            @if(!$teamBattle->is_full)
+                                <div class="alert alert-warning py-2 small">Waiting for players to join...</div>
+                            @elseif(Auth::id() != $teamBattle->team_a_user_1)
+                                <div class="alert alert-info py-2 small">Waiting for Team A Leader to start...</div>
                             @endif
-                        </div>
-                        <div class="col-md-5 text-md-end">
-                            @if($teamBattle->status == 'pending')
-                                @if(!$teamBattle->is_full)
-                                    <div class="alert alert-warning py-2 small">Waiting for players to join...</div>
-                                @elseif(Auth::id() != $teamBattle->team_a_user_1)
-                                    <div class="alert alert-info py-2 small">Waiting for Team A Leader to start...</div>
-                                @endif
-                            @endif
-                        </div>
+                        @endif
                     </div>
                 </div>
+            </div>
 
-                <!-- Leader Battle Actions -->
-                @if(Auth::id() == $teamBattle->team_a_user_1 || Auth::id() == $teamBattle->team_b_user_1)
+            <!-- Leader Battle Actions -->
+            @if(Auth::id() == $teamBattle->team_a_user_1 || Auth::id() == $teamBattle->team_b_user_1)
+                @if(Auth::id())
                     <div class="mt-4 mb-5 pt-4" style="border-top: 1px solid rgba(0, 240, 255, 0.1);">
                         <h5 class="section-header mb-3">
                             <i class="bi bi-gear-wide-connected section-icon" style="color: #00f0ff;"></i> BATTLE ACTIONS
@@ -216,7 +222,9 @@
                             </button>
                         </div>
                     </div>
-                @elseif(Auth::id() == $teamBattle->marshall_id && $teamBattle->status == 'active')
+                @endif
+            @elseif(Auth::id() == $teamBattle->marshall_id && $teamBattle->status == 'active')
+                @if(Auth::id())
                     <div class="mt-4 mb-5 pt-4" style="border-top: 1px solid rgba(255, 221, 0, 0.1);">
                         <h5 class="section-header mb-3">
                             <i class="bi bi-gear-wide-connected section-icon" style="color: #ffdd00;"></i> MARSHALL ACTIONS
@@ -228,24 +236,24 @@
                         </div>
                     </div>
                 @endif
-            </div>
-            
-            <!-- Activity Log -->
-            <div class="col-lg-3 mt-4 mt-lg-0">
-                <div class="neon-card p-3 h-100">
-                    <h6 class="orbitron text-cyan mb-3 border-bottom border-secondary pb-2">ACTIVITY LOG</h6>
-                    <div class="activity-log-container" style="max-height: 300px; overflow-y: auto;">
-                        @foreach($activities as $activity)
-                            <div class="activity-item mb-2 border-bottom border-secondary border-opacity-10 pb-1">
-                                <span class="text-muted small">[{{ $activity->created_at->format('H:i') }}]</span>
-                                <span class="small">{{ $activity->message }}</span>
-                            </div>
-                        @endforeach
-                    </div>
+            @endif
+        </div>
+        
+        <!-- Activity Log -->
+        <div class="col-lg-3 mt-4 mt-lg-0">
+            <div class="neon-card p-3 h-100">
+                <h6 class="orbitron text-cyan mb-3 border-bottom border-secondary pb-2">ACTIVITY LOG</h6>
+                <div class="activity-log-container" style="max-height: 300px; overflow-y: auto;">
+                    @foreach($activities as $activity)
+                        <div class="activity-item mb-2 border-bottom border-secondary border-opacity-10 pb-1">
+                            <span class="text-muted small">[{{ $activity->created_at->format('H:i') }}]</span>
+                            <span class="small">{{ $activity->message }}</span>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
-    @endif
+    </div>
 
     <!-- Join Modal (Simulated) -->
     @if($joiningTeam)

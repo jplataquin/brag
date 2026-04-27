@@ -27,9 +27,11 @@ class TeamBattleRoom extends Component
     public $marshallSearchQuery = '';
     public $marshallSearchResults = [];
 
-    public function getIsParticipantProperty()
+    public function isParticipant()
     {
         $userId = Auth::id();
+        if (!$userId) return false;
+
         for ($i = 1; $i <= $this->teamBattle->no_players_per_team; $i++) {
             if ($this->teamBattle->{"team_a_user_{$i}"} == $userId || $this->teamBattle->{"team_b_user_{$i}"} == $userId) {
                 return true;
