@@ -36,12 +36,12 @@ class TeamBattleRoom extends Component
         for ($i = 1; $i <= $this->teamBattle->no_players_per_team; $i++) {
 
             if ($this->teamBattle->{"team_a_user_{$i}"} == $userId && $this->teamBattle->{"team_a_card_{$i}"}) {
-                echo $this->teamBattle->{"team_a_user_{$i}"}.' - '.$this->teamBattle->{"team_a_card_{$i}"}; 
+                echo $this->teamBattle->{"team_a_user_{$i}"}.' - '.$this->teamBattle->{"team_a_card_{$i}"}.'<br>'; 
                 return true;
             }
 
             if ($this->teamBattle->{"team_b_user_{$i}"} == $userId && $this->teamBattle->{"team_b_card_{$i}"}) {
-                 echo $this->teamBattle->{"team_b_user_{$i}"}.' - '.$this->teamBattle->{"team_b_card_{$i}"}; 
+                 echo $this->teamBattle->{"team_b_user_{$i}"}.' - '.$this->teamBattle->{"team_b_card_{$i}"}.'<br>'; 
                 return true;
             }
         }
