@@ -28,7 +28,7 @@
                     <div class="w-100" style="max-width: 350px;">
                         @if($u)
                             <div class="mb-2 text-center text-truncate">
-                                <span class="fw-bold">{{ $u->username }}</span>
+                                <span class="fw-bold">{{ $u->id == Auth::id() ? 'YOU' : $u->username }}</span>
                             </div>
                             <div wire:ignore>
                                 <x-digital-card 
@@ -98,7 +98,7 @@
                     <div class="w-100" style="max-width: 350px;">
                         @if($u)
                             <div class="mb-2 text-center text-truncate">
-                                <span class="fw-bold">{{ $u->username }}</span>
+                                <span class="fw-bold">{{ $u->id == Auth::id() ? 'YOU' : $u->username }}</span>
                             </div>
                             <div wire:ignore>
                                 <x-digital-card 

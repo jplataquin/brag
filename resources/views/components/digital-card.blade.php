@@ -126,7 +126,6 @@ $placeholderSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.
 
 <!-- Full Screen Modal -->
 @if($hasFullscreen)
-@push('modals')
 <div class="modal fade" wire:ignore.self id="modal_{{ $id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
     <div class="modal-dialog modal-dialog-centered modal-lg d-flex justify-content-center">
         <div class="modal-content" style="background: transparent; border: none; align-items: center; box-shadow: none;">
@@ -146,7 +145,6 @@ $placeholderSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.
         </div>
     </div>
 </div>
-@endpush
 @endif
 
 <script>
