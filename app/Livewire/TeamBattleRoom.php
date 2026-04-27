@@ -16,6 +16,7 @@ class TeamBattleRoom extends Component
     public $selectedCardId = '';
     public $joiningTeam = ''; // 'A' or 'B'
     public $pairingSlot = null;
+    public $marshallNomineeId = '';
     
     // For editing team names
     public $showEditTeamA = false;
@@ -85,6 +86,20 @@ class TeamBattleRoom extends Component
 
             $team = $this->joiningTeam;
             $slot = $this->pairingSlot;
+
+            // Check if this is the first person joining Team B
+            if ($team === 'B') {
+                $isFirst = true;
+                for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
+                    if ($battle->{"team_b_user_{$i}"}) {
+                        $isFirst = false;
+                        break;
+                    }
+                }
+                if ($isFirst) {
+                    $slot = 1; // Force into slot 1 to become leader
+                }
+            }
 
             if ($slot) {
                 // User wants to pair with someone in a specific slot
@@ -252,13 +267,24 @@ class TeamBattleRoom extends Component
         $this->refreshRoom();
     }
 
-    public function electMarshall($nomineeId)
+    public function electMarshall($nomineeId = null)
     {
+        $nomineeId = $nomineeId ?: $this->marshallNomineeId;
+        if (!$nomineeId) return;
+
         $user = Auth::user();
         $isLeaderA = $user->id == $this->teamBattle->team_a_user_1;
         $isLeaderB = $user->id == $this->teamBattle->team_b_user_1;
         
         if (!$isLeaderA && !$isLeaderB) return;
+
+        // Prevent electing someone who is already a player in the match
+        for ($i = 1; $i <= $this->teamBattle->no_players_per_team; $i++) {
+            if ($this->teamBattle->{"team_a_user_{$i}"} == $nomineeId || $this->teamBattle->{"team_b_user_{$i}"} == $nomineeId) {
+                session()->flash('error', 'Cannot elect a player currently in the battle.');
+                return;
+            }
+        }
 
         if ($isLeaderA) $this->teamBattle->update(['team_a_marshall_elect' => $nomineeId]);
         if ($isLeaderB) $this->teamBattle->update(['team_b_marshall_elect' => $nomineeId]);
@@ -270,11 +296,13 @@ class TeamBattleRoom extends Component
                  'team_a_marshall_elect' => null,
                  'team_b_marshall_elect' => null
              ]);
-             $this->broadcastUpdate("Marshall elected!");
+             $this->broadcastUpdate("Marshall elected by consensus!");
+             $this->logActivity($user->id, 'consensus', "Marshall consensus reached.");
         } else {
             $this->broadcastUpdate("Marshall nominated.");
         }
         
+        $this->marshallNomineeId = '';
         $this->refreshRoom();
     }
 

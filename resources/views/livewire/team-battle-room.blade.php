@@ -101,10 +101,10 @@
         </div>
     </div>
 
-    <!-- Battle Controls -->
+    <!-- Battle Controls / Actions -->
     <div class="row justify-content-center mt-4">
         <div class="col-lg-7">
-            <div class="neon-card p-4">
+            <div class="neon-card p-4 mb-4">
                 <div class="row">
                     <div class="col-md-7">
                         <h5 class="orbitron text-cyan">BATTLE STATUS: <span class="text-white">{{ strtoupper($teamBattle->status) }}</span></h5>
@@ -113,6 +113,10 @@
                         @if($teamBattle->marshall_id)
                             <div class="mt-3">
                                 <span class="badge bg-warning text-dark"><i class="bi bi-shield-check"></i> MARSHALL: {{ $teamBattle->marshall->username }}</span>
+                            </div>
+                        @elseif($teamBattle->team_a_marshall_elect || $teamBattle->team_b_marshall_elect)
+                            <div class="mt-3 small text-warning">
+                                <i class="bi bi-hourglass-split"></i> Waiting for Marshall Consensus...
                             </div>
                         @endif
                     </div>
@@ -123,18 +127,51 @@
                             @else
                                 <div class="alert alert-info py-2 small">Waiting for Team A Leader to start...</div>
                             @endif
-                        @elseif($teamBattle->status == 'active')
-                            <div class="d-flex gap-2 justify-content-md-end flex-wrap">
-                                @if(Auth::id() == $teamBattle->team_a_user_1 || Auth::id() == $teamBattle->team_b_user_1 || Auth::id() == $teamBattle->marshall_id)
-                                    <button class="btn btn-neon btn-sm" wire:click="declareWin('A')">TEAM A WON</button>
-                                    <button class="btn btn-neon-magenta btn-sm" wire:click="declareWin('B')">TEAM B WON</button>
-                                    <button class="btn btn-outline-danger btn-sm" wire:click="cancelBattle">CANCEL</button>
-                                @endif
-                            </div>
                         @endif
                     </div>
                 </div>
             </div>
+
+            <!-- Leader Battle Actions -->
+            @if(Auth::id() == $teamBattle->team_a_user_1 || Auth::id() == $teamBattle->team_b_user_1)
+                <div class="neon-card p-4">
+                    <h5 class="section-header mb-3">
+                        <i class="bi bi-gear-wide-connected section-icon" style="color: #00f0ff;"></i> BATTLE ACTIONS
+                    </h5>
+                    
+                    <div class="d-flex gap-3 flex-wrap align-items-center">
+                        @if($teamBattle->status == 'active')
+                            <button class="btn btn-neon btn-sm" wire:click="declareWin('A')">
+                                <i class="bi bi-trophy"></i> TEAM A WON
+                            </button>
+                            <button class="btn btn-neon-magenta btn-sm" wire:click="declareWin('B')">
+                                <i class="bi bi-trophy"></i> TEAM B WON
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" wire:click="cancelBattle">
+                                <i class="bi bi-x-circle"></i> CANCEL
+                            </button>
+                        @endif
+                        
+                        @if(!$teamBattle->marshall_id && in_array($teamBattle->status, ['pending', 'ready', 'active']))
+                            <div class="input-group input-group-sm" style="max-width: 250px;">
+                                <input type="number" wire:model="marshallNomineeId" class="form-control bg-dark text-white border-secondary" placeholder="Marshall User ID">
+                                <button class="btn btn-outline-warning" wire:click="electMarshall()">ELECT</button>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @elseif(Auth::id() == $teamBattle->marshall_id && $teamBattle->status == 'active')
+                <div class="neon-card p-4">
+                    <h5 class="section-header mb-3">
+                        <i class="bi bi-gear-wide-connected section-icon" style="color: #ffdd00;"></i> MARSHALL ACTIONS
+                    </h5>
+                    <div class="d-flex gap-3 flex-wrap align-items-center">
+                        <button class="btn btn-neon btn-sm" wire:click="declareWin('A')">TEAM A WON</button>
+                        <button class="btn btn-neon-magenta btn-sm" wire:click="declareWin('B')">TEAM B WON</button>
+                        <button class="btn btn-outline-danger btn-sm" wire:click="cancelBattle">CANCEL MATCH</button>
+                    </div>
+                </div>
+            @endif
         </div>
         
         <!-- Activity Log -->
