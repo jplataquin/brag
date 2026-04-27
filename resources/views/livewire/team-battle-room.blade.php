@@ -1,214 +1,251 @@
 
 <div class="team-battle-room" wire:poll.10s>
-    <div class="row">
-        <!-- Team A -->
-        <div class="col-md-5">
-            <div class="neon-card p-3 mb-4" style="border-color: #00f0ff !important;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    @if($showEditTeamA)
-                        <div class="input-group input-group-sm">
-                            <input type="text" wire:model="newTeamNameA" class="form-control bg-dark text-white border-cyan">
-                            <button class="btn btn-neon btn-sm" wire:click="updateTeamName('A')">SAVE</button>
-                        </div>
-                    @else
-                        <h4 class="orbitron text-cyan mb-0">
-                            {{ $teamBattle->team_name_a }}
-                            @if(Auth::id() == $teamBattle->team_a_user_1)
-                                <i class="bi bi-pencil-square cursor-pointer ms-2" style="font-size: 0.8rem;" wire:click="$set('showEditTeamA', true)"></i>
-                            @endif
-                        </h4>
-                    @endif
-                    <span class="badge bg-cyan text-dark">TEAM A</span>
-                </div>
+    <div class="row g-4">
+        <!-- Team A Column -->
+        <div class="col-6">
+            <div class="text-center mb-4">
+                @if($showEditTeamA)
+                    <div class="input-group input-group-sm w-100 w-md-75 mx-auto">
+                        <input type="text" wire:model="newTeamNameA" class="form-control bg-dark text-white border-cyan text-center">
+                        <button class="btn btn-neon btn-sm" wire:click="updateTeamName('A')">SAVE</button>
+                    </div>
+                @else
+                    <h4 class="orbitron text-cyan mb-0 d-inline-block text-truncate w-100" title="{{ $teamBattle->team_name_a }}">
+                        {{ $teamBattle->team_name_a }}
+                        @if(Auth::id() == $teamBattle->team_a_user_1)
+                            <i class="bi bi-pencil-square cursor-pointer ms-2" style="font-size: 0.8rem;" wire:click="$set('showEditTeamA', true)"></i>
+                        @endif
+                    </h4>
+                @endif
+            </div>
 
-                <div class="team-slots">
-                    @for($i = 1; $i <= $teamBattle->no_players_per_team; $i++)
-                        @php 
-                            $u = \App\Models\User::find($teamBattle->{"team_a_user_{$i}"});
-                            $c = \App\Models\DigitalCard::find($teamBattle->{"team_a_card_{$i}"});
-                        @endphp
-                        <div class="slot-item p-2 border-bottom border-secondary d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center">
-                                <div class="slot-number me-3 orbitron text-muted">{{ $i }}</div>
-                                @if($u)
-                                    <div>
-                                        <div class="fw-bold">{{ $u->username }}</div>
-                                        <div class="small text-cyan">{{ $c->template->card_title }} (LVL {{ $c->level }})</div>
-                                    </div>
-                                @else
-                                    <div class="text-muted italic">Empty Slot</div>
+            <div class="d-flex flex-column gap-4 align-items-center">
+                @for($i = 1; $i <= $teamBattle->no_players_per_team; $i++)
+                    @php 
+                        $u = \App\Models\User::find($teamBattle->{"team_a_user_{$i}"});
+                        $c = \App\Models\DigitalCard::find($teamBattle->{"team_a_card_{$i}"});
+                    @endphp
+                    <div class="w-100" style="max-width: 350px;">
+                        @if($u)
+                            <div class="mb-2 text-center text-truncate">
+                                <span class="fw-bold">{{ $u->username }}</span>
+                            </div>
+                            <div wire:ignore>
+                                <x-digital-card 
+                                    id="card_a_{{ $i }}_{{ $c->id }}"
+                                    mode="thumbnail"
+                                    :title="$c->template->card_title"
+                                    :game="$c->template->gameTitle->title ?? 'GAME'"
+                                    :creator="$c->originalOwner->username ?? 'Creator'"
+                                    :quote="$c->template->quote"
+                                    :image="$c->template->display_photo"
+                                    :imagePositionY="$c->template->image_position_y ?? 50"
+                                    :backgroundColor="$c->template->background_color"
+                                    :borderColor="$c->template->border_color"
+                                    :sectionColor="$c->template->section_color"
+                                    :primaryTextColor="$c->template->primary_text_color"
+                                    :secondaryTextColor="$c->template->secondary_text_color"
+                                    :wins="$c->wins"
+                                    :losses="$c->losses"
+                                    :integrityStat="$c->integrity_stat"
+                                    :lifePoints="$c->life_points"
+                                    :status="$c->status"
+                                    :rankLevel="$c->level"
+                                    :serialNumber="$c->serial_number"
+                                    :rarity="$c->rarity"
+                                />
+                            </div>
+                        @else
+                            <div class="empty-card-slot d-flex flex-column align-items-center justify-content-center p-3 rounded" style="border: 2px dashed rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.05); aspect-ratio: 350 / 490; width: 100%;">
+                                <div class="orbitron text-muted mb-3 fs-5">SLOT {{ $i }}</div>
+                                @if($teamBattle->status == 'pending')
+                                    <button class="btn btn-outline-cyan btn-sm w-100" style="max-width: 150px;" wire:click="joinTeam('A', {{ $i }})">JOIN TEAM A</button>
                                 @endif
                             </div>
-                            @if(!$u && $teamBattle->status == 'pending')
-                                <button class="btn btn-outline-cyan btn-sm" wire:click="joinTeam('A', {{ $i }})">JOIN</button>
-                            @endif
-                        </div>
-                    @endfor
-                </div>
+                        @endif
+                    </div>
+                @endfor
             </div>
         </div>
 
-        <!-- VS Divider -->
-        <div class="col-md-2 d-flex align-items-center justify-content-center my-3">
-            <div class="orbitron text-white h2">VS</div>
-        </div>
+        <!-- Team B Column -->
+        <div class="col-6">
+            <div class="text-center mb-4">
+                @if($showEditTeamB)
+                    <div class="input-group input-group-sm w-100 w-md-75 mx-auto">
+                        <input type="text" wire:model="newTeamNameB" class="form-control bg-dark text-white border-magenta text-center">
+                        <button class="btn btn-neon-magenta btn-sm" wire:click="updateTeamName('B')">SAVE</button>
+                    </div>
+                @else
+                    <h4 class="orbitron text-magenta mb-0 d-inline-block text-truncate w-100" title="{{ $teamBattle->team_name_b }}">
+                        {{ $teamBattle->team_name_b }}
+                        @if(Auth::id() == $teamBattle->team_b_user_1)
+                            <i class="bi bi-pencil-square cursor-pointer ms-2" style="font-size: 0.8rem;" wire:click="$set('showEditTeamB', true)"></i>
+                        @endif
+                    </h4>
+                @endif
+            </div>
 
-        <!-- Team B -->
-        <div class="col-md-5">
-            <div class="neon-card p-3 mb-4" style="border-color: #ff00ff !important;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    @if($showEditTeamB)
-                        <div class="input-group input-group-sm">
-                            <input type="text" wire:model="newTeamNameB" class="form-control bg-dark text-white border-magenta">
-                            <button class="btn btn-neon-magenta btn-sm" wire:click="updateTeamName('B')">SAVE</button>
-                        </div>
-                    @else
-                        <h4 class="orbitron text-magenta mb-0">
-                            {{ $teamBattle->team_name_b }}
-                            @if(Auth::id() == $teamBattle->team_b_user_1)
-                                <i class="bi bi-pencil-square cursor-pointer ms-2" style="font-size: 0.8rem;" wire:click="$set('showEditTeamB', true)"></i>
-                            @endif
-                        </h4>
-                    @endif
-                    <span class="badge bg-magenta text-white">TEAM B</span>
-                </div>
-
-                <div class="team-slots">
-                    @for($i = 1; $i <= $teamBattle->no_players_per_team; $i++)
-                        @php 
-                            $u = \App\Models\User::find($teamBattle->{"team_b_user_{$i}"});
-                            $c = \App\Models\DigitalCard::find($teamBattle->{"team_b_card_{$i}"});
-                        @endphp
-                        <div class="slot-item p-2 border-bottom border-secondary d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center">
-                                <div class="slot-number me-3 orbitron text-muted">{{ $i }}</div>
-                                @if($u)
-                                    <div>
-                                        <div class="fw-bold">{{ $u->username }}</div>
-                                        <div class="small text-magenta">{{ $c->template->card_title }} (LVL {{ $c->level }})</div>
-                                    </div>
-                                @else
-                                    <div class="text-muted italic">Empty Slot</div>
+            <div class="d-flex flex-column gap-4 align-items-center">
+                @for($i = 1; $i <= $teamBattle->no_players_per_team; $i++)
+                    @php 
+                        $u = \App\Models\User::find($teamBattle->{"team_b_user_{$i}"});
+                        $c = \App\Models\DigitalCard::find($teamBattle->{"team_b_card_{$i}"});
+                    @endphp
+                    <div class="w-100" style="max-width: 350px;">
+                        @if($u)
+                            <div class="mb-2 text-center text-truncate">
+                                <span class="fw-bold">{{ $u->username }}</span>
+                            </div>
+                            <div wire:ignore>
+                                <x-digital-card 
+                                    id="card_b_{{ $i }}_{{ $c->id }}"
+                                    mode="thumbnail"
+                                    :title="$c->template->card_title"
+                                    :game="$c->template->gameTitle->title ?? 'GAME'"
+                                    :creator="$c->originalOwner->username ?? 'Creator'"
+                                    :quote="$c->template->quote"
+                                    :image="$c->template->display_photo"
+                                    :imagePositionY="$c->template->image_position_y ?? 50"
+                                    :backgroundColor="$c->template->background_color"
+                                    :borderColor="$c->template->border_color"
+                                    :sectionColor="$c->template->section_color"
+                                    :primaryTextColor="$c->template->primary_text_color"
+                                    :secondaryTextColor="$c->template->secondary_text_color"
+                                    :wins="$c->wins"
+                                    :losses="$c->losses"
+                                    :integrityStat="$c->integrity_stat"
+                                    :lifePoints="$c->life_points"
+                                    :status="$c->status"
+                                    :rankLevel="$c->level"
+                                    :serialNumber="$c->serial_number"
+                                    :rarity="$c->rarity"
+                                />
+                            </div>
+                        @else
+                            <div class="empty-card-slot d-flex flex-column align-items-center justify-content-center p-3 rounded" style="border: 2px dashed rgba(255, 0, 255, 0.4); background: rgba(255, 0, 255, 0.05); aspect-ratio: 350 / 490; width: 100%;">
+                                <div class="orbitron text-muted mb-3 fs-5">SLOT {{ $i }}</div>
+                                @if($teamBattle->status == 'pending')
+                                    <button class="btn btn-outline-magenta btn-sm w-100" style="max-width: 150px;" wire:click="joinTeam('B', {{ $i }})">JOIN TEAM B</button>
                                 @endif
                             </div>
-                            @if(!$u && $teamBattle->status == 'pending')
-                                <button class="btn btn-outline-magenta btn-sm" wire:click="joinTeam('B', {{ $i }})">JOIN</button>
-                            @endif
-                        </div>
-                    @endfor
-                </div>
+                        @endif
+                    </div>
+                @endfor
             </div>
         </div>
     </div>
 
-    <!-- Battle Controls / Actions -->
-    <div class="row justify-content-center mt-4">
-        <div class="col-lg-7">
-            <div class="neon-card p-4 mb-4">
-                <div class="row">
-                    <div class="col-md-7">
-                        <h5 class="orbitron text-cyan">BATTLE STATUS: <span class="text-white">{{ strtoupper($teamBattle->status) }}</span></h5>
-                        <p class="small text-muted">{{ $teamBattle->battle_terms }}</p>
-                        
-                        @if($teamBattle->marshall_id)
-                            <div class="mt-3">
-                                <span class="badge bg-warning text-dark"><i class="bi bi-shield-check"></i> MARSHALL: {{ $teamBattle->marshall->username }}</span>
-                            </div>
-                        @elseif($teamBattle->team_a_marshall_elect || $teamBattle->team_b_marshall_elect)
-                            <div class="mt-3 small text-warning">
-                                <i class="bi bi-hourglass-split"></i> Waiting for Marshall Consensus...
-                            </div>
-                        @endif
-                    </div>
-                    <div class="col-md-5 text-md-end">
-                        @if($teamBattle->status == 'pending')
-                            @if(!$teamBattle->is_full)
-                                <div class="alert alert-warning py-2 small">Waiting for players to join...</div>
-                            @elseif(Auth::id() != $teamBattle->team_a_user_1)
-                                <div class="alert alert-info py-2 small">Waiting for Team A Leader to start...</div>
+    <!-- Battle Controls / Actions & Activity Log -->
+    @if($this->isParticipant)
+        <div class="row justify-content-center mt-4">
+            <div class="col-lg-7">
+                <div class="neon-card p-4 mb-4">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <h5 class="orbitron text-cyan">BATTLE STATUS: <span class="text-white">{{ strtoupper($teamBattle->status) }}</span></h5>
+                            <p class="small text-muted">{{ $teamBattle->battle_terms }}</p>
+                            
+                            @if($teamBattle->marshall_id)
+                                <div class="mt-3">
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-shield-check"></i> MARSHALL: {{ $teamBattle->marshall->username }}</span>
+                                </div>
+                            @elseif($teamBattle->team_a_marshall_elect || $teamBattle->team_b_marshall_elect)
+                                <div class="mt-3 small text-warning">
+                                    <i class="bi bi-hourglass-split"></i> Waiting for Marshall Consensus...
+                                </div>
                             @endif
-                        @endif
+                        </div>
+                        <div class="col-md-5 text-md-end">
+                            @if($teamBattle->status == 'pending')
+                                @if(!$teamBattle->is_full)
+                                    <div class="alert alert-warning py-2 small">Waiting for players to join...</div>
+                                @elseif(Auth::id() != $teamBattle->team_a_user_1)
+                                    <div class="alert alert-info py-2 small">Waiting for Team A Leader to start...</div>
+                                @endif
+                            @endif
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Leader Battle Actions -->
-            @if(Auth::id() == $teamBattle->team_a_user_1 || Auth::id() == $teamBattle->team_b_user_1)
-                <div class="mt-4 mb-5 pt-4" style="border-top: 1px solid rgba(0, 240, 255, 0.1);">
-                    <h5 class="section-header mb-3">
-                        <i class="bi bi-gear-wide-connected section-icon" style="color: #00f0ff;"></i> BATTLE ACTIONS
-                    </h5>
-                    
-                    <div id="actions-container" class="d-flex gap-3 flex-wrap align-items-center">
-                        @if($teamBattle->status == 'active')
-                            <button class="btn btn-neon btn-sm" wire:click="declareWin('A')">
-                                <i class="bi bi-trophy"></i> TEAM A WON
-                            </button>
-                            <button class="btn btn-neon-magenta btn-sm" wire:click="declareWin('B')">
-                                <i class="bi bi-trophy"></i> TEAM B WON
-                            </button>
-                            <button class="btn btn-neon-danger btn-sm" wire:click="cancelBattle">
-                                <i class="bi bi-x-circle"></i> CANCEL
-                            </button>
-                        @endif
+                <!-- Leader Battle Actions -->
+                @if(Auth::id() == $teamBattle->team_a_user_1 || Auth::id() == $teamBattle->team_b_user_1)
+                    <div class="mt-4 mb-5 pt-4" style="border-top: 1px solid rgba(0, 240, 255, 0.1);">
+                        <h5 class="section-header mb-3">
+                            <i class="bi bi-gear-wide-connected section-icon" style="color: #00f0ff;"></i> BATTLE ACTIONS
+                        </h5>
                         
-                        @if(!$teamBattle->marshall_id && in_array($teamBattle->status, ['pending', 'ready', 'active']))
-                            <button type="button" class="btn btn-neon btn-sm" style="border-color: #ffdd00; color: #ffdd00;" data-bs-toggle="modal" data-bs-target="#electMarshallModal">
-                                <i class="bi bi-shield-fill-check"></i> 
-                                {{ (Auth::id() === $teamBattle->team_a_user_1 ? $teamBattle->team_a_marshall_elect : $teamBattle->team_b_marshall_elect) ? 'CHANGE ELECTION' : 'ELECT MARSHALL' }}
-                            </button>
-                        @endif
-                        
-                        @if($teamBattle->status == 'pending' && Auth::id() == $teamBattle->team_a_user_1)
-                            @if($teamBattle->is_full)
-                                <button class="btn btn-neon-lime" wire:click="startBattle" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
-                                    <i class="bi bi-play-fill"></i> START MATCH
+                        <div id="actions-container" class="d-flex gap-3 flex-wrap align-items-center">
+                            @if($teamBattle->status == 'active')
+                                <button class="btn btn-neon btn-sm" wire:click="declareWin('A')">
+                                    <i class="bi bi-trophy"></i> TEAM A WON
+                                </button>
+                                <button class="btn btn-neon-magenta btn-sm" wire:click="declareWin('B')">
+                                    <i class="bi bi-trophy"></i> TEAM B WON
+                                </button>
+                                <button class="btn btn-neon-danger btn-sm" wire:click="cancelBattle">
+                                    <i class="bi bi-x-circle"></i> CANCEL
                                 </button>
                             @endif
-                            <button class="btn btn-neon-danger" wire:click="cancelBattle">
-                                <i class="bi bi-x-circle"></i> CANCEL BATTLE
-                            </button>
-                        @elseif($teamBattle->status == 'pending' && Auth::id() == $teamBattle->team_b_user_1)
-                            <button class="btn btn-neon-danger" wire:click="cancelBattle">
-                                <i class="bi bi-x-circle"></i> CANCEL BATTLE
-                            </button>
-                        @endif
+                            
+                            @if(!$teamBattle->marshall_id && in_array($teamBattle->status, ['pending', 'ready', 'active']))
+                                <button type="button" class="btn btn-neon btn-sm" style="border-color: #ffdd00; color: #ffdd00;" data-bs-toggle="modal" data-bs-target="#electMarshallModal">
+                                    <i class="bi bi-shield-fill-check"></i> 
+                                    {{ (Auth::id() === $teamBattle->team_a_user_1 ? $teamBattle->team_a_marshall_elect : $teamBattle->team_b_marshall_elect) ? 'CHANGE ELECTION' : 'ELECT MARSHALL' }}
+                                </button>
+                            @endif
+                            
+                            @if($teamBattle->status == 'pending' && Auth::id() == $teamBattle->team_a_user_1)
+                                @if($teamBattle->is_full)
+                                    <button class="btn btn-neon-lime" wire:click="startBattle" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
+                                        <i class="bi bi-play-fill"></i> START MATCH
+                                    </button>
+                                @endif
+                                <button class="btn btn-neon-danger" wire:click="cancelBattle">
+                                    <i class="bi bi-x-circle"></i> CANCEL BATTLE
+                                </button>
+                            @elseif($teamBattle->status == 'pending' && Auth::id() == $teamBattle->team_b_user_1)
+                                <button class="btn btn-neon-danger" wire:click="cancelBattle">
+                                    <i class="bi bi-x-circle"></i> CANCEL BATTLE
+                                </button>
+                            @endif
 
-                        <!-- Share QR (Mobile Only) -->
-                        <button type="button" class="btn btn-neon d-md-none" style="border-color: #39ff14; color: #39ff14;" data-bs-toggle="modal" data-bs-target="#shareQRModal">
-                            <i class="bi bi-qr-code"></i> SHARE QR
-                        </button>
-                    </div>
-                </div>
-            @elseif(Auth::id() == $teamBattle->marshall_id && $teamBattle->status == 'active')
-                <div class="mt-4 mb-5 pt-4" style="border-top: 1px solid rgba(255, 221, 0, 0.1);">
-                    <h5 class="section-header mb-3">
-                        <i class="bi bi-gear-wide-connected section-icon" style="color: #ffdd00;"></i> MARSHALL ACTIONS
-                    </h5>
-                    <div id="actions-container" class="d-flex gap-3 flex-wrap align-items-center">
-                        <button class="btn btn-neon btn-sm" wire:click="declareWin('A')">TEAM A WON</button>
-                        <button class="btn btn-neon-magenta btn-sm" wire:click="declareWin('B')">TEAM B WON</button>
-                        <button class="btn btn-neon-danger btn-sm" wire:click="cancelBattle">CANCEL MATCH</button>
-                    </div>
-                </div>
-            @endif
-        </div>
-        
-        <!-- Activity Log -->
-        <div class="col-lg-3 mt-4 mt-lg-0">
-            <div class="neon-card p-3 h-100">
-                <h6 class="orbitron text-cyan mb-3 border-bottom border-secondary pb-2">ACTIVITY LOG</h6>
-                <div class="activity-log-container" style="max-height: 300px; overflow-y: auto;">
-                    @foreach($activities as $activity)
-                        <div class="activity-item mb-2 border-bottom border-secondary border-opacity-10 pb-1">
-                            <span class="text-muted small">[{{ $activity->created_at->format('H:i') }}]</span>
-                            <span class="small">{{ $activity->message }}</span>
+                            <!-- Share QR (Mobile Only) -->
+                            <button type="button" class="btn btn-neon d-md-none" style="border-color: #39ff14; color: #39ff14;" data-bs-toggle="modal" data-bs-target="#shareQRModal">
+                                <i class="bi bi-qr-code"></i> SHARE QR
+                            </button>
                         </div>
-                    @endforeach
+                    </div>
+                @elseif(Auth::id() == $teamBattle->marshall_id && $teamBattle->status == 'active')
+                    <div class="mt-4 mb-5 pt-4" style="border-top: 1px solid rgba(255, 221, 0, 0.1);">
+                        <h5 class="section-header mb-3">
+                            <i class="bi bi-gear-wide-connected section-icon" style="color: #ffdd00;"></i> MARSHALL ACTIONS
+                        </h5>
+                        <div id="actions-container" class="d-flex gap-3 flex-wrap align-items-center">
+                            <button class="btn btn-neon btn-sm" wire:click="declareWin('A')">TEAM A WON</button>
+                            <button class="btn btn-neon-magenta btn-sm" wire:click="declareWin('B')">TEAM B WON</button>
+                            <button class="btn btn-neon-danger btn-sm" wire:click="cancelBattle">CANCEL MATCH</button>
+                        </div>
+                    </div>
+                @endif
+            </div>
+            
+            <!-- Activity Log -->
+            <div class="col-lg-3 mt-4 mt-lg-0">
+                <div class="neon-card p-3 h-100">
+                    <h6 class="orbitron text-cyan mb-3 border-bottom border-secondary pb-2">ACTIVITY LOG</h6>
+                    <div class="activity-log-container" style="max-height: 300px; overflow-y: auto;">
+                        @foreach($activities as $activity)
+                            <div class="activity-item mb-2 border-bottom border-secondary border-opacity-10 pb-1">
+                                <span class="text-muted small">[{{ $activity->created_at->format('H:i') }}]</span>
+                                <span class="small">{{ $activity->message }}</span>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    @endif
 
     <!-- Join Modal (Simulated) -->
     @if($joiningTeam)
