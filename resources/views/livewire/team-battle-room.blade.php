@@ -173,6 +173,7 @@
                 </div>
             </div>
 
+            here {{$this->isParticipant()}}
             <!-- Leader Battle Actions -->
             @if(Auth::id() == $teamBattle->team_a_user_1 || Auth::id() == $teamBattle->team_b_user_1)
                 @if($this->isParticipant())
