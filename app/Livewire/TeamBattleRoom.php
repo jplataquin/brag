@@ -129,21 +129,27 @@ class TeamBattleRoom extends Component
             return;
         }
 
-        // Check if user is already in the battle (force refresh check)
         $this->teamBattle->refresh();
-        for ($i = 1; $i <= 6; $i++) {
-            if ($this->teamBattle->{"team_a_user_{$i}"} == $user->id || $this->teamBattle->{"team_b_user_{$i}"} == $user->id) {
-                Log::warning("Join failed: User already in battle");
-                session()->flash('error', 'You are already in this battle.');
-                $this->joiningTeam = '';
-                return;
-            }
-        }
 
         try {
             DB::transaction(function () use ($user, $card) {
                 // Lock the record for update to prevent race conditions
                 $battle = TeamBattle::where('id', $this->teamBattle->id)->lockForUpdate()->first();
+
+                // Remove from existing slot if any (to support transferring slots)
+                $wasAlreadyInBattle = false;
+                for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
+                    if ($battle->{"team_a_user_{$i}"} == $user->id) {
+                        $battle->{"team_a_user_{$i}"} = null;
+                        $battle->{"team_a_card_{$i}"} = null;
+                        $wasAlreadyInBattle = true;
+                    }
+                    if ($battle->{"team_b_user_{$i}"} == $user->id) {
+                        $battle->{"team_b_user_{$i}"} = null;
+                        $battle->{"team_b_card_{$i}"} = null;
+                        $wasAlreadyInBattle = true;
+                    }
+                }
 
                 $team = $this->joiningTeam;
                 $slot = $this->pairingSlot;
@@ -153,7 +159,7 @@ class TeamBattleRoom extends Component
                 if ($team === 'B') {
                     $isFirst = true;
                     for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
-                        if ($battle->{"team_b_user_{$i}"}) {
+                        if ($battle->{"team_b_user_{$i}"} && $battle->{"team_b_user_{$i}"} != $user->id) {
                             $isFirst = false;
                             break;
                         }
@@ -217,11 +223,11 @@ class TeamBattleRoom extends Component
             $this->pairingSlot = null;
             $this->teamBattle->refresh();
             
-            $this->broadcastUpdate("{$user->username} joined the battle.");
+            $this->broadcastUpdate("{$user->username} joined or transferred within the battle.");
             
-            Log::info("User {$user->id} successfully joined Team Battle {$this->teamBattle->id}");
+            Log::info("User {$user->id} successfully joined/transferred in Team Battle {$this->teamBattle->id}");
             
-            session()->flash('success', 'Joined successfully!');
+            session()->flash('success', 'Joined/Transferred successfully!');
             return redirect()->route('team-battles.room', $this->teamBattle);
 
         } catch (\Exception $e) {
