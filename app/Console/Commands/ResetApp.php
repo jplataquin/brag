@@ -112,5 +112,6 @@ class ResetApp extends Command
         // but normally we keep it clean.
 
         $this->info('Images and temporary files deleted.');
+        
     }
 }
