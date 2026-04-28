@@ -35,15 +35,17 @@ class UploadController extends Controller
 
             Storage::disk('public')->makeDirectory($tempDirPath);
 
-            
-            echo "LAVENDER";exit;
         }
+
+
         if (!Storage::disk('public')->exists($finalDirPath)) {
             Storage::disk('public')->makeDirectory($finalDirPath);
         }
 
         // Store current chunk
         $chunkPath = $tempDirPath . '/' . $chunkIndex . '.part';
+
+        echo $chunkPath;exit;
         file_put_contents(Storage::disk('public')->path($chunkPath), file_get_contents($file->path()));
 
         // Check if this is the last chunk
