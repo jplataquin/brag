@@ -1,5 +1,19 @@
 
 <div class="team-battle-room" wire:poll.10s>
+    @if(session()->has('error'))
+        <div class="alert alert-danger alert-dismissible fade show mb-4 orbitron" role="alert" style="background: rgba(220, 53, 69, 0.1); border: 1px solid #dc3545; color: #ff8888;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    
+    @if(session()->has('success'))
+        <div class="alert alert-success alert-dismissible fade show mb-4 orbitron" role="alert" style="background: rgba(57, 255, 20, 0.1); border: 1px solid #39ff14; color: #39ff14;">
+            <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <div class="row g-4">
         <!-- Team A Column -->
         <div class="col-6">
@@ -25,7 +39,7 @@
                         $u = \App\Models\User::find($teamBattle->{"team_a_user_{$i}"});
                         $c = \App\Models\DigitalCard::find($teamBattle->{"team_a_card_{$i}"});
                     @endphp
-                    <div class="w-100" style="max-width: 350px;">
+                    <div class="w-100" style="max-width: 350px;" wire:key="slot-a-{{ $i }}-{{ $u?->id ?? 'empty' }}">
                         @if($u)
                             <div class="mb-2 text-center text-truncate">
                                 <span class="fw-bold">{{ $u->id == Auth::id() ? 'YOU' : $u->username }}</span>
@@ -95,7 +109,7 @@
                         $u = \App\Models\User::find($teamBattle->{"team_b_user_{$i}"});
                         $c = \App\Models\DigitalCard::find($teamBattle->{"team_b_card_{$i}"});
                     @endphp
-                    <div class="w-100" style="max-width: 350px;">
+                    <div class="w-100" style="max-width: 350px;" wire:key="slot-b-{{ $i }}-{{ $u?->id ?? 'empty' }}">
                         @if($u)
                             <div class="mb-2 text-center text-truncate">
                                 <span class="fw-bold">{{ $u->id == Auth::id() ? 'YOU' : $u->username }}</span>
@@ -276,10 +290,11 @@
                                     <div class="carousel-item {{ $chunkIndex === 0 ? 'active' : '' }}">
                                         <div class="row g-3 justify-content-center">
                                             @foreach($chunk as $card)
-                                                <div class="col-md-4 col-6">
-                                                    <div class="selectable-card {{ $selectedCardId == $card->id ? 'selected' : '' }}" 
-                                                         wire:click="$set('selectedCardId', {{ $card->id }})">
-                                                        <div class="card-img-wrapper" style="position: relative;">
+                                                <div class="col-md-4 col-6" wire:key="carousel-card-{{ $card->id }}">
+                                                    <div class="selectable-card {{ (int)$selectedCardId === (int)$card->id ? 'selected' : '' }}" 
+                                                         wire:click="selectCard({{ $card->id }})"
+                                                         style="cursor: pointer;">
+                                                        <div class="card-img-wrapper" style="position: relative; cursor: pointer;">
                                                             <div style="pointer-events: none;" wire:ignore>
                                                                 <x-digital-card 
                                                                     id="card_join_{{ $card->id }}"
@@ -339,8 +354,11 @@
                 </div>
 
                 <div class="d-flex gap-3 mt-4">
-                    <button class="btn btn-outline-secondary w-50 py-2" wire:click="$set('joiningTeam', '')">CANCEL</button>
-                    <button class="btn btn-neon w-50 py-2 orbitron" wire:click="confirmJoin">CONFIRM JOIN</button>
+                    <button class="btn btn-outline-secondary w-50 py-2" wire:click="$set('joiningTeam', '')" wire:loading.attr="disabled">CANCEL</button>
+                    <button class="btn btn-neon w-50 py-2 orbitron" wire:click="confirmJoin" wire:loading.attr="disabled">
+                        <span wire:loading.remove wire:target="confirmJoin">CONFIRM JOIN</span>
+                        <span wire:loading wire:target="confirmJoin"><i class="bi bi-hourglass-split"></i> JOINING...</span>
+                    </button>
                 </div>
             </div>
         </div>

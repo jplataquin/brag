@@ -9,11 +9,12 @@ use App\Models\User;
 use App\Models\BattleActivity;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TeamBattleRoom extends Component
 {
     public TeamBattle $teamBattle;
-    public $selectedCardId = '';
+    public $selectedCardId = null;
     public $joiningTeam = ''; // 'A' or 'B'
     public $pairingSlot = null;
     public $marshallNomineeId = '';
@@ -95,11 +96,18 @@ class TeamBattleRoom extends Component
     {
         $this->joiningTeam = $team;
         $this->pairingSlot = $slot;
-        $this->selectedCardId = '';
+        $this->selectedCardId = null;
+    }
+
+    public function selectCard($cardId)
+    {
+        $this->selectedCardId = $cardId;
     }
 
     public function confirmJoin()
     {
+        Log::info("Join attempt: User ".Auth::id()." Team ".$this->joiningTeam." Slot ".$this->pairingSlot." Card ".$this->selectedCardId);
+
         $this->validate([
             'selectedCardId' => 'required|exists:digital_cards,id',
             'joiningTeam' => 'required|in:A,B',
@@ -110,90 +118,114 @@ class TeamBattleRoom extends Component
 
         // Basic validations
         if ($card->template->game_title_id != $this->teamBattle->game_title_id) {
+            Log::warning("Join failed: Card game title mismatch");
             $this->addError('selectedCardId', 'Card must match the game title.');
             return;
         }
 
         if ($card->life_points <= 0) {
+            Log::warning("Join failed: Card has no life points");
             $this->addError('selectedCardId', 'Card has no life points.');
             return;
         }
 
-        // Check if user is already in the battle
+        // Check if user is already in the battle (force refresh check)
+        $this->teamBattle->refresh();
         for ($i = 1; $i <= 6; $i++) {
             if ($this->teamBattle->{"team_a_user_{$i}"} == $user->id || $this->teamBattle->{"team_b_user_{$i}"} == $user->id) {
+                Log::warning("Join failed: User already in battle");
                 session()->flash('error', 'You are already in this battle.');
+                $this->joiningTeam = '';
                 return;
             }
         }
 
-        DB::transaction(function () use ($user, $card) {
-            // Lock the record for update to prevent race conditions
-            $battle = TeamBattle::where('id', $this->teamBattle->id)->lockForUpdate()->first();
+        try {
+            DB::transaction(function () use ($user, $card) {
+                // Lock the record for update to prevent race conditions
+                $battle = TeamBattle::where('id', $this->teamBattle->id)->lockForUpdate()->first();
 
-            $team = $this->joiningTeam;
-            $slot = $this->pairingSlot;
+                $team = $this->joiningTeam;
+                $slot = $this->pairingSlot;
 
-            // Check if this is the first person joining Team B
-            if ($team === 'B') {
-                $isFirst = true;
-                for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
-                    if ($battle->{"team_b_user_{$i}"}) {
-                        $isFirst = false;
-                        break;
+                // Check if this is the first person joining Team B
+                if ($team === 'B') {
+                    $isFirst = true;
+                    for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
+                        if ($battle->{"team_b_user_{$i}"}) {
+                            $isFirst = false;
+                            break;
+                        }
+                    }
+                    if ($isFirst) {
+                        Log::info("First opponent detected, forcing slot 1");
+                        $slot = 1; // Force into slot 1 to become leader
                     }
                 }
-                if ($isFirst) {
-                    $slot = 1; // Force into slot 1 to become leader
-                }
-            }
 
-            if ($slot) {
-                // User wants to pair with someone in a specific slot
-                $userField = "team_{$team}_user_{$slot}";
-                $cardField = "team_{$team}_card_{$slot}";
+                if ($slot) {
+                    // User wants to pair with someone in a specific slot
+                    $userField = "team_{$team}_user_{$slot}";
+                    $cardField = "team_{$team}_card_{$slot}";
 
-                if ($battle->$userField) {
-                     // Slot taken while user was selecting
-                     $slot = null; // Fallback to auto-assignment
-                } else {
-                    $battle->update([
-                        $userField => $user->id,
-                        $cardField => $card->id,
-                    ]);
-                }
-            }
-
-            if (!$slot) {
-                // Auto-assignment to next available slot in that team
-                $assigned = false;
-                for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
-                    $userField = "team_{$team}_user_{$i}";
-                    $cardField = "team_{$team}_card_{$i}";
-                    if (!$battle->$userField) {
+                    if ($battle->$userField) {
+                         Log::info("Slot {$team}{$slot} taken, falling back to auto");
+                         $slot = null; // Fallback to auto-assignment
+                    } else {
+                        Log::info("Assigning to specific slot {$team}{$slot}");
                         $battle->update([
                             $userField => $user->id,
                             $cardField => $card->id,
                         ]);
-                        $assigned = true;
-                        break;
                     }
                 }
 
-                if (!$assigned) {
-                    throw new \Exception("Team {$team} is already full.");
+                if (!$slot) {
+                    // Auto-assignment to next available slot in that team
+                    $assigned = false;
+                    for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
+                        $userField = "team_{$team}_user_{$i}";
+                        $cardField = "team_{$team}_card_{$i}";
+                        if (!$battle->$userField) {
+                            Log::info("Auto-assigning to slot {$team}{$i}");
+                            $battle->update([
+                                $userField => $user->id,
+                                $cardField => $card->id,
+                            ]);
+                            $assigned = true;
+                            break;
+                        }
+                    }
+
+                    if (!$assigned) {
+                        throw new \Exception("Team {$team} is already full.");
+                    }
                 }
-            }
 
-            $this->logActivity($user->id, 'join', "{$user->username} joined Team {$team}.");
-        });
+                BattleActivity::create([
+                    'team_battle_id' => $battle->id,
+                    'user_id' => $user->id,
+                    'type' => 'join',
+                    'message' => "{$user->username} joined Team {$team}.",
+                ]);
+            });
 
-        $this->joiningTeam = '';
-        $this->pairingSlot = null;
-        $this->refreshRoom();
-        $this->broadcastUpdate("{$user->username} joined the battle.");
-        
-        return redirect()->route('team-battles.room', $this->teamBattle);
+            $this->joiningTeam = '';
+            $this->pairingSlot = null;
+            $this->teamBattle->refresh();
+            
+            $this->broadcastUpdate("{$user->username} joined the battle.");
+            
+            Log::info("User {$user->id} successfully joined Team Battle {$this->teamBattle->id}");
+            
+            session()->flash('success', 'Joined successfully!');
+            return redirect()->route('team-battles.room', $this->teamBattle);
+
+        } catch (\Exception $e) {
+            Log::error("Failed to join team battle: " . $e->getMessage());
+            session()->flash('error', 'Failed to join: ' . $e->getMessage());
+            $this->joiningTeam = '';
+        }
     }
 
     public function startBattle()
