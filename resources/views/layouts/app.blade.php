@@ -315,6 +315,38 @@
         </div>
     </div>
 
+    <!-- Global Active Battle FAB -->
+    @if(Auth::check())
+        @php
+            $currentRoute = Route::currentRouteName();
+            $hideFabRoutes = ['battles.index', 'battles.room', 'team-battles.room'];
+        @endphp
+        @if(!in_array($currentRoute, $hideFabRoutes))
+            @php
+                $currentRoomInfo = Auth::user()->currentBattleRoom();
+            @endphp
+            @if($currentRoomInfo)
+                <a href="{{ $currentRoomInfo['type'] === '1v1' ? route('battles.room', $currentRoomInfo['battle']->id) : route('team-battles.room', $currentRoomInfo['battle']->id) }}" 
+                   class="btn btn-neon active-battle-fab" 
+                   title="Return to Active Battle"
+                   style="position: fixed; bottom: 30px; right: 30px; border-radius: 50%; width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; z-index: 1050; padding: 0; background: rgba(10, 10, 30, 0.9); box-shadow: 0 0 20px rgba(0, 240, 255, 0.6); animation: pulse-fab 2s infinite;">
+                    <i class="bi bi-crosshair" style="font-size: 2rem; color: #00f0ff; filter: drop-shadow(0 0 5px #00f0ff);"></i>
+                </a>
+                <style>
+                    @keyframes pulse-fab {
+                        0% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.7); }
+                        70% { box-shadow: 0 0 0 15px rgba(0, 240, 255, 0); }
+                        100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); }
+                    }
+                    .active-battle-fab:hover {
+                        transform: scale(1.1);
+                        transition: transform 0.2s ease-in-out;
+                    }
+                </style>
+            @endif
+        @endif
+    @endif
+
     @livewireScripts
     @yield('scripts')
 
