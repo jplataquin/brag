@@ -33,19 +33,23 @@ class UploadController extends Controller
         // Ensure directories exist
         if (!Storage::disk('public')->exists($tempDirPath)) {
 
-            Storage::disk('public')->makeDirectory($tempDirPath);
+            if(!Storage::disk('public')->makeDirectory($tempDirPath)){
+                  return response()->json(['error' => 'Unable to make directory '.$tempDirPath], 400);
+            }
 
         }
 
 
         if (!Storage::disk('public')->exists($finalDirPath)) {
-            Storage::disk('public')->makeDirectory($finalDirPath);
+            if(!Storage::disk('public')->makeDirectory($finalDirPath)){
+                  return response()->json(['error' => 'Unable to make directory '.$finalDirPath], 400);
+            }
         }
 
         // Store current chunk
         $chunkPath = $tempDirPath . '/' . $chunkIndex . '.part';
 
-        echo $chunkPath;exit;
+       
         file_put_contents(Storage::disk('public')->path($chunkPath), file_get_contents($file->path()));
 
         // Check if this is the last chunk
