@@ -42,7 +42,11 @@
                     <div class="w-100" style="max-width: 350px;" wire:key="slot-a-{{ $i }}-{{ $u?->id ?? 'empty' }}">
                         @if($u)
                             <div class="mb-2 text-center text-truncate">
-                                <span class="fw-bold">{{ $u->id == Auth::id() ? 'YOU' : $u->username }}</span>
+                                <span class="fw-bold">
+                                    @if($i == 1)
+                                    👑
+                                    @endif
+                                    {{ $u->id == Auth::id() ? 'YOU' : $u->username }}</span>
                             </div>
                             <div wire:ignore>
                                 <x-digital-card 
@@ -71,7 +75,11 @@
                             </div>
                         @else
                             <div class="mb-2 text-center text-truncate">
-                                <span class="fw-bold text-muted">----</span>
+                                <span class="fw-bold text-muted">
+                                    @if($i == 1)
+                                    👑
+                                    @endif
+                                    ----</span>
                             </div>
                             <div class="empty-card-slot d-flex flex-column align-items-center justify-content-center p-3 rounded" style="border: 2px dashed rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.05); aspect-ratio: 350 / 490; width: 100%;">
                                 <div class="orbitron text-muted mb-3 fs-5">SLOT {{ $i }}</div>
@@ -112,7 +120,11 @@
                     <div class="w-100" style="max-width: 350px;" wire:key="slot-b-{{ $i }}-{{ $u?->id ?? 'empty' }}">
                         @if($u)
                             <div class="mb-2 text-center text-truncate">
-                                <span class="fw-bold">{{ $u->id == Auth::id() ? 'YOU' : $u->username }}</span>
+                                <span class="fw-bold">
+                                    @if($i == 1)
+                                    👑
+                                    @endif
+                                    {{ $u->id == Auth::id() ? 'YOU' : $u->username }}</span>
                             </div>
                             <div wire:ignore>
                                 <x-digital-card 
@@ -141,7 +153,11 @@
                             </div>
                         @else
                             <div class="mb-2 text-center text-truncate">
-                                <span class="fw-bold text-muted">----</span>
+                                <span class="fw-bold text-muted">
+                                    @if($i == 1)
+                                    👑
+                                    @endif
+                                    ----</span>
                             </div>
                             <div class="empty-card-slot d-flex flex-column align-items-center justify-content-center p-3 rounded" style="border: 2px dashed rgba(255, 0, 255, 0.4); background: rgba(255, 0, 255, 0.05); aspect-ratio: 350 / 490; width: 100%;">
                                 <div class="orbitron text-muted mb-3 fs-5">SLOT {{ $i }}</div>
@@ -189,7 +205,7 @@
                 </div>
             </div>
 
-            
+
             <!-- Participant Battle Actions -->
             @if($this->isParticipant() && Auth::id() != $teamBattle->marshall_id)
                     <div class="mt-4 mb-5 pt-4" style="border-top: 1px solid rgba(0, 240, 255, 0.1);">
