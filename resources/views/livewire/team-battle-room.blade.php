@@ -189,66 +189,73 @@
                 </div>
             </div>
 
-            here {{$this->isParticipant()}}
-            <!-- Leader Battle Actions -->
-            @if(Auth::id() == $teamBattle->team_a_user_1 || Auth::id() == $teamBattle->team_b_user_1)
-                @if($this->isParticipant())
+            
+            <!-- Participant Battle Actions -->
+            @if($this->isParticipant() && Auth::id() != $teamBattle->marshall_id)
                     <div class="mt-4 mb-5 pt-4" style="border-top: 1px solid rgba(0, 240, 255, 0.1);">
                         <h5 class="section-header mb-3">
                             <i class="bi bi-gear-wide-connected section-icon" style="color: #00f0ff;"></i> BATTLE ACTIONS
                         </h5>
                         
                         <div id="actions-container" class="d-flex gap-3 flex-wrap align-items-center">
-                            @if($teamBattle->status == 'active' || $teamBattle->status == 'failed')
-                                <button class="btn btn-neon btn-sm" wire:click="declareWin('A')">
-                                    <i class="bi bi-trophy"></i> TEAM A WON
-                                </button>
-                                <button class="btn btn-neon-magenta btn-sm" wire:click="declareWin('B')">
-                                    <i class="bi bi-trophy"></i> TEAM B WON
-                                </button>
-                                @php
-                                    $hasRequestedCancel = (Auth::id() == $teamBattle->team_a_user_1 && $teamBattle->team_a_cancel_flag) || 
-                                                          (Auth::id() == $teamBattle->team_b_user_1 && $teamBattle->team_b_cancel_flag);
-                                @endphp
-                                @if(!$hasRequestedCancel)
-                                    <button class="btn btn-neon-danger btn-sm" wire:click="cancelBattle">
-                                        <i class="bi bi-x-circle"></i> REQUEST CANCEL
+                            @if(Auth::id() == $teamBattle->team_a_user_1 || Auth::id() == $teamBattle->team_b_user_1)
+                                @if($teamBattle->status == 'active' || $teamBattle->status == 'failed')
+                                    <button class="btn btn-neon btn-sm" wire:click="declareWin('A')">
+                                        <i class="bi bi-trophy"></i> TEAM A WON
                                     </button>
+                                    <button class="btn btn-neon-magenta btn-sm" wire:click="declareWin('B')">
+                                        <i class="bi bi-trophy"></i> TEAM B WON
+                                    </button>
+                                    @php
+                                        $hasRequestedCancel = (Auth::id() == $teamBattle->team_a_user_1 && $teamBattle->team_a_cancel_flag) || 
+                                                            (Auth::id() == $teamBattle->team_b_user_1 && $teamBattle->team_b_cancel_flag);
+                                    @endphp
+                                    @if(!$hasRequestedCancel)
+                                        <button class="btn btn-neon-danger btn-sm" wire:click="cancelBattle">
+                                            <i class="bi bi-x-circle"></i> REQUEST CANCEL
+                                        </button>
+                                    @endif
+                                @endif
+                                
+                                @if(!$teamBattle->marshall_id && in_array($teamBattle->status, ['pending', 'ready', 'active']))
+                                    <button type="button" class="btn btn-neon btn-sm" style="border-color: #ffdd00; color: #ffdd00;" data-bs-toggle="modal" data-bs-target="#electMarshallModal">
+                                        <i class="bi bi-shield-fill-check"></i> 
+                                        {{ (Auth::id() === $teamBattle->team_a_user_1 ? $teamBattle->team_a_marshall_elect : $teamBattle->team_b_marshall_elect) ? 'CHANGE ELECTION' : 'ELECT MARSHALL' }}
+                                    </button>
+                                @endif
+                                
+                                @if($teamBattle->status == 'pending' && Auth::id() == $teamBattle->team_a_user_1)
+                                    @if($teamBattle->is_full && $teamBattle->team_b_ready)
+                                        <button class="btn btn-neon-lime" wire:click="startBattle" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
+                                            <i class="bi bi-play-fill"></i> START MATCH
+                                        </button>
+                                    @endif
+                                    @if(!$teamBattle->is_full)
+                                        <button type="button" class="btn btn-neon" data-bs-toggle="modal" data-bs-target="#invitePlayerModal">
+                                            <i class="bi bi-person-plus-fill"></i> INVITE PLAYERS
+                                        </button>
+                                    @endif
+                                    <button class="btn btn-neon-danger" wire:click="cancelBattle">
+                                        <i class="bi bi-x-circle"></i> CANCEL BATTLE
+                                    </button>
+                                @elseif($teamBattle->status == 'pending' && Auth::id() == $teamBattle->team_b_user_1)
+                                    @if($teamBattle->is_team_b_full && !$teamBattle->team_b_ready)
+                                        <button class="btn btn-neon-lime" wire:click="teamBReady" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
+                                            <i class="bi bi-check2-all"></i> READY
+                                        </button>
+                                    @endif
+                                    @if(!$teamBattle->is_full)
+                                        <button type="button" class="btn btn-neon" data-bs-toggle="modal" data-bs-target="#invitePlayerModal">
+                                            <i class="bi bi-person-plus-fill"></i> INVITE PLAYERS
+                                        </button>
+                                    @endif
                                 @endif
                             @endif
-                            
-                            @if(!$teamBattle->marshall_id && in_array($teamBattle->status, ['pending', 'ready', 'active']))
-                                <button type="button" class="btn btn-neon btn-sm" style="border-color: #ffdd00; color: #ffdd00;" data-bs-toggle="modal" data-bs-target="#electMarshallModal">
-                                    <i class="bi bi-shield-fill-check"></i> 
-                                    {{ (Auth::id() === $teamBattle->team_a_user_1 ? $teamBattle->team_a_marshall_elect : $teamBattle->team_b_marshall_elect) ? 'CHANGE ELECTION' : 'ELECT MARSHALL' }}
+
+                            @if($teamBattle->status == 'pending' && Auth::id() != $teamBattle->team_a_user_1)
+                                <button class="btn btn-outline-warning" wire:click="standUp">
+                                    <i class="bi bi-box-arrow-right"></i> STAND UP
                                 </button>
-                            @endif
-                            
-                            @if($teamBattle->status == 'pending' && Auth::id() == $teamBattle->team_a_user_1)
-                                @if($teamBattle->is_full && $teamBattle->team_b_ready)
-                                    <button class="btn btn-neon-lime" wire:click="startBattle" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
-                                        <i class="bi bi-play-fill"></i> START MATCH
-                                    </button>
-                                @endif
-                                @if(!$teamBattle->is_full)
-                                    <button type="button" class="btn btn-neon" data-bs-toggle="modal" data-bs-target="#invitePlayerModal">
-                                        <i class="bi bi-person-plus-fill"></i> INVITE PLAYERS
-                                    </button>
-                                @endif
-                                <button class="btn btn-neon-danger" wire:click="cancelBattle">
-                                    <i class="bi bi-x-circle"></i> CANCEL BATTLE
-                                </button>
-                            @elseif($teamBattle->status == 'pending' && Auth::id() == $teamBattle->team_b_user_1)
-                                @if($teamBattle->is_team_b_full && !$teamBattle->team_b_ready)
-                                    <button class="btn btn-neon-lime" wire:click="teamBReady" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
-                                        <i class="bi bi-check2-all"></i> READY
-                                    </button>
-                                @endif
-                                @if(!$teamBattle->is_full)
-                                    <button type="button" class="btn btn-neon" data-bs-toggle="modal" data-bs-target="#invitePlayerModal">
-                                        <i class="bi bi-person-plus-fill"></i> INVITE PLAYERS
-                                    </button>
-                                @endif
                             @endif
 
                             <!-- Share QR (Mobile Only) -->
@@ -257,7 +264,6 @@
                             </button>
                         </div>
                     </div>
-                @endif
             @elseif(Auth::id() == $teamBattle->marshall_id && $teamBattle->status == 'active')
                 @if(Auth::id())
                     <div class="mt-4 mb-5 pt-4" style="border-top: 1px solid rgba(255, 221, 0, 0.1);">

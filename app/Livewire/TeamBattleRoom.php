@@ -265,6 +265,57 @@ class TeamBattleRoom extends Component
         }
     }
 
+    public function standUp()
+    {
+        $user = Auth::user();
+        
+        if ($this->teamBattle->status !== 'pending') {
+            session()->flash('error', 'You can only stand up while the battle is pending.');
+            return;
+        }
+
+        if ($this->teamBattle->team_a_user_1 == $user->id) {
+            session()->flash('error', 'The creator of the battle room cannot stand up.');
+            return;
+        }
+
+        DB::transaction(function () use ($user) {
+            $battle = TeamBattle::where('id', $this->teamBattle->id)->lockForUpdate()->first();
+            
+            $stoodUp = false;
+            $slotInfo = '';
+
+            for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
+                if ($battle->{"team_a_user_{$i}"} == $user->id) {
+                    $battle->{"team_a_user_{$i}"} = null;
+                    $battle->{"team_a_card_{$i}"} = null;
+                    $stoodUp = true;
+                    $slotInfo = "Team A Slot {$i}";
+                    break;
+                }
+                if ($battle->{"team_b_user_{$i}"} == $user->id) {
+                    $battle->{"team_b_user_{$i}"} = null;
+                    $battle->{"team_b_card_{$i}"} = null;
+                    $stoodUp = true;
+                    $slotInfo = "Team B Slot {$i}";
+                    break;
+                }
+            }
+
+            if ($stoodUp) {
+                if (str_contains($slotInfo, 'Team B')) {
+                    $battle->team_b_ready = false;
+                }
+                $battle->save();
+                
+                $this->logActivity($user->id, 'leave', "{$user->username} stood up from {$slotInfo}.");
+            }
+        });
+
+        $this->broadcastUpdate("{$user->username} left their slot.");
+        $this->refreshRoom();
+    }
+
     public function teamBReady()
     {
         $user = Auth::user();
