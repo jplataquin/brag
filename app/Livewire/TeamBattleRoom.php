@@ -28,6 +28,62 @@ class TeamBattleRoom extends Component
     public $marshallSearchQuery = '';
     public $marshallSearchResults = [];
 
+    public $inviteSearchQuery = '';
+    public $inviteSearchResults = [];
+    public $inviteNomineeId = '';
+
+    public function updatedInviteSearchQuery()
+    {
+        if (strlen($this->inviteSearchQuery) < 2) {
+            $this->inviteSearchResults = [];
+            return;
+        }
+
+        $this->inviteSearchResults = User::where('username', 'like', '%' . $this->inviteSearchQuery . '%')
+            ->take(5)
+            ->get();
+    }
+
+    public function selectInviteNominee($userId, $username)
+    {
+        $this->inviteNomineeId = $userId;
+        $this->inviteSearchQuery = '';
+        $this->inviteSearchResults = [];
+    }
+
+    public function clearInviteSelection()
+    {
+        $this->inviteNomineeId = '';
+        $this->inviteSearchQuery = '';
+    }
+
+    public function sendInvite()
+    {
+        if (!$this->inviteNomineeId) return;
+
+        $user = Auth::user();
+        $isLeaderA = $user->id == $this->teamBattle->team_a_user_1;
+        $isLeaderB = $user->id == $this->teamBattle->team_b_user_1;
+
+        if (!$isLeaderA && !$isLeaderB) return;
+
+        $invitedUser = User::find($this->inviteNomineeId);
+        if ($invitedUser) {
+            $teamName = $isLeaderA ? $this->teamBattle->team_name_a : $this->teamBattle->team_name_b;
+            $invitedUser->notify(new \App\Notifications\TeamBattleNotification(
+                $this->teamBattle,
+                "{$user->username} has invited you to join {$teamName} in Team Battle #{$this->teamBattle->id}!",
+                'invite',
+                route('team-battles.join', $this->teamBattle)
+            ));
+            
+            $this->logActivity($user->id, 'invite', "{$user->username} invited @{$invitedUser->username} to join the battle.");
+            session()->flash('success', "Invite sent to @{$invitedUser->username}");
+        }
+
+        $this->clearInviteSelection();
+    }
+
     public function isParticipant()
     {
         $userId = Auth::id();

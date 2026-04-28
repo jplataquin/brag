@@ -224,6 +224,11 @@
                                         <i class="bi bi-play-fill"></i> START MATCH
                                     </button>
                                 @endif
+                                @if(!$teamBattle->is_full)
+                                    <button type="button" class="btn btn-neon" data-bs-toggle="modal" data-bs-target="#invitePlayerModal">
+                                        <i class="bi bi-person-plus-fill"></i> INVITE PLAYERS
+                                    </button>
+                                @endif
                                 <button class="btn btn-neon-danger" wire:click="cancelBattle">
                                     <i class="bi bi-x-circle"></i> CANCEL BATTLE
                                 </button>
@@ -231,6 +236,11 @@
                                 @if($teamBattle->is_team_b_full && !$teamBattle->team_b_ready)
                                     <button class="btn btn-neon-lime" wire:click="teamBReady" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
                                         <i class="bi bi-check2-all"></i> READY
+                                    </button>
+                                @endif
+                                @if(!$teamBattle->is_full)
+                                    <button type="button" class="btn btn-neon" data-bs-toggle="modal" data-bs-target="#invitePlayerModal">
+                                        <i class="bi bi-person-plus-fill"></i> INVITE PLAYERS
                                     </button>
                                 @endif
                                 <button class="btn btn-neon-danger" wire:click="cancelBattle">
@@ -445,6 +455,53 @@
                             <button class="btn btn-outline-secondary" type="button" onclick="copyBattleUrl()">COPY</button>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invite Player Modal -->
+    <div class="modal fade" wire:ignore.self id="invitePlayerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; backdrop-filter: blur(20px);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title neon-text">INVITE PLAYERS</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <div class="mb-3 position-relative">
+                        <label class="form-label">PLAYER USERNAME</label>
+                        <div class="form-control d-flex align-items-center p-1" style="min-height: 42px;">
+                            @if($inviteNomineeId)
+                                <span class="badge d-flex align-items-center gap-2 p-2" style="background: rgba(0,240,255,0.2); border: 1px solid #00f0ff; color: #00f0ff; font-size: 0.9rem;">
+                                    <i class="bi bi-person-fill"></i> 
+                                    <span>{{ \App\Models\User::find($inviteNomineeId)?->username }}</span>
+                                    <i class="bi bi-x-circle-fill ms-2" style="cursor: pointer;" wire:click="clearInviteSelection()"></i>
+                                </span>
+                            @else
+                                <input type="text" wire:model.live.debounce.300ms="inviteSearchQuery" class="border-0 bg-transparent text-white flex-grow-1 px-2" placeholder="Search username..." autocomplete="off" style="outline: none; box-shadow: none;">
+                            @endif
+                        </div>
+                        
+                        @if(count($inviteSearchResults) > 0 && !$inviteNomineeId)
+                            <div class="position-absolute w-100 mt-1" style="z-index: 1050; max-height: 200px; overflow-y: auto; background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                                @foreach($inviteSearchResults as $user)
+                                    <div class="p-2 d-flex align-items-center gap-2" wire:click="selectInviteNominee({{ $user->id }}, '{{ $user->username }}')" style="cursor: pointer; border-bottom: 1px solid rgba(0, 240, 255, 0.1);">
+                                        <img src="{{ $user->avatar_url ?? asset('img/default-avatar.png') }}" alt="{{ $user->username }}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #00f0ff;">
+                                        <span class="text-white">{{ '@' . $user->username }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @elseif(strlen($inviteSearchQuery) >= 2 && !$inviteNomineeId)
+                            <div class="position-absolute w-100 mt-1 p-2 text-center text-muted small" style="z-index: 1050; background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; border-radius: 4px;">
+                                No players found
+                            </div>
+                        @endif
+                    </div>
+                    <p class="text-muted small">Invited players will receive a notification to join this battle room.</p>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-neon w-100" wire:click="sendInvite()" data-bs-dismiss="modal" @if(!$inviteNomineeId) disabled @endif>SEND INVITE</button>
                 </div>
             </div>
         </div>
