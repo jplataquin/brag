@@ -1,4 +1,5 @@
 import './bootstrap';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import * as bootstrap from 'bootstrap';
 
 // Make bootstrap available globally for the alert auto-dismiss script
