@@ -47,8 +47,8 @@ class ResetApp extends Command
         $this->deleteImages();
 
         // 3. Re-seed essential data
-        $this->info('Re-seeding database...');
-        $this->call('db:seed');
+        //$this->info('Re-seeding database...');
+        //$this->call('db:seed');
 
         // 4. Clear cache and views
         $this->info('Clearing cache and views...');
