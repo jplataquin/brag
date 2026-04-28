@@ -104,7 +104,7 @@ class TeamBattleRoom extends Component
         $this->selectedCardId = $cardId;
     }
 
-    public function confirmJoin()
+        public function confirmJoin()
     {
         Log::info("Join attempt: User ".Auth::id()." Team ".$this->joiningTeam." Slot ".$this->pairingSlot." Card ".$this->selectedCardId);
 
@@ -129,6 +129,12 @@ class TeamBattleRoom extends Component
             return;
         }
 
+        if ($this->teamBattle->team_a_user_1 == $user->id) {
+            Log::warning("Join failed: Creator attempted to change slot");
+            $this->addError('selectedCardId', 'The room creator cannot change their slot.');
+            return;
+        }
+
         $this->teamBattle->refresh();
 
         try {
@@ -136,24 +142,13 @@ class TeamBattleRoom extends Component
                 // Lock the record for update to prevent race conditions
                 $battle = TeamBattle::where('id', $this->teamBattle->id)->lockForUpdate()->first();
 
-                // Remove from existing slot if any (to support transferring slots)
-                $wasAlreadyInBattle = false;
-                for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
-                    if ($battle->{"team_a_user_{$i}"} == $user->id) {
-                        $battle->{"team_a_user_{$i}"} = null;
-                        $battle->{"team_a_card_{$i}"} = null;
-                        $wasAlreadyInBattle = true;
-                    }
-                    if ($battle->{"team_b_user_{$i}"} == $user->id) {
-                        $battle->{"team_b_user_{$i}"} = null;
-                        $battle->{"team_b_card_{$i}"} = null;
-                        $wasAlreadyInBattle = true;
-                    }
-                }
-
                 $team = $this->joiningTeam;
                 $slot = $this->pairingSlot;
                 $teamLower = strtolower($team);
+
+                if (!$slot) {
+                    throw new \Exception("A specific slot must be selected.");
+                }
 
                 // Check if this is the first person joining Team B
                 if ($team === 'B') {
@@ -170,43 +165,33 @@ class TeamBattleRoom extends Component
                     }
                 }
 
-                if ($slot) {
-                    // User wants to pair with someone in a specific slot
-                    $userField = "team_{$teamLower}_user_{$slot}";
-                    $cardField = "team_{$teamLower}_card_{$slot}";
+                $userField = "team_{$teamLower}_user_{$slot}";
+                $cardField = "team_{$teamLower}_card_{$slot}";
 
-                    if ($battle->$userField) {
-                         Log::info("Slot {$team}{$slot} taken, falling back to auto");
-                         $slot = null; // Fallback to auto-assignment
-                    } else {
-                        Log::info("Assigning to specific slot {$team}{$slot}");
-                        $battle->$userField = $user->id;
-                        $battle->$cardField = $card->id;
+                if ($battle->$userField && $battle->$userField != $user->id) {
+                     throw new \Exception("Slot {$team}{$slot} has already been taken by another player.");
+                }
+
+                // Remove from existing slot if any (to support transferring slots)
+                $wasAlreadyInBattle = false;
+                for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
+                    if ($battle->{"team_a_user_{$i}"} == $user->id) {
+                        $battle->{"team_a_user_{$i}"} = null;
+                        $battle->{"team_a_card_{$i}"} = null;
+                        $wasAlreadyInBattle = true;
+                    }
+                    if ($battle->{"team_b_user_{$i}"} == $user->id) {
+                        $battle->{"team_b_user_{$i}"} = null;
+                        $battle->{"team_b_card_{$i}"} = null;
+                        $wasAlreadyInBattle = true;
                     }
                 }
+
+                Log::info("Assigning to specific slot {$team}{$slot}");
+                $battle->$userField = $user->id;
+                $battle->$cardField = $card->id;
 
                 $assignedSlot = $slot;
-
-                if (!$slot) {
-                    // Auto-assignment to next available slot in that team
-                    $assigned = false;
-                    for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
-                        $userField = "team_{$teamLower}_user_{$i}";
-                        $cardField = "team_{$teamLower}_card_{$i}";
-                        if (!$battle->$userField) {
-                            Log::info("Auto-assigning to slot {$team}{$i}");
-                            $battle->$userField = $user->id;
-                            $battle->$cardField = $card->id;
-                            $assigned = true;
-                            $assignedSlot = $i;
-                            break;
-                        }
-                    }
-
-                    if (!$assigned) {
-                        throw new \Exception("Team {$team} is already full.");
-                    }
-                }
 
                 $battle->save();
 
