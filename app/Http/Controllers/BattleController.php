@@ -208,6 +208,12 @@ class BattleController extends Controller
      */
     public function confirmJoin(Request $request, Battle $battle)
     {
+        $user = Auth::user();
+
+        if ($user->currentBattleRoom()) {
+            return redirect()->route('battles.index')->with('error', 'You are already in an active battle room. You must finish or cancel it before joining another.');
+        }
+
         // Ensure battle is pending and does not have an opponent yet
         if ($battle->status !== 'pending' || !is_null($battle->opponent_id)) {
             return redirect()->route('battles.room', $battle)->with('error', 'This battle is no longer joinable.');

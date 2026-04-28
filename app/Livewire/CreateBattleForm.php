@@ -40,6 +40,11 @@ class CreateBattleForm extends Component
 
     public function createBattle()
     {
+        if (Auth::user()->currentBattleRoom()) {
+            session()->flash('error', 'You are already in an active battle room. You must finish or cancel it before joining or creating another.');
+            return;
+        }
+
         if ($this->battleType === '1on1') {
             $this->validate([
                 'selectedCardId' => 'required|exists:digital_cards,id',

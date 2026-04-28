@@ -12,6 +12,39 @@
     </a>
 </div>
 
+@php
+    $currentRoomInfo = Auth::user()->currentBattleRoom();
+@endphp
+
+@if($currentRoomInfo)
+<div class="neon-card p-4 mb-4" style="border-color: #00f0ff; background: rgba(0,240,255,0.05); box-shadow: 0 0 20px rgba(0,240,255,0.1);">
+    <h5 class="section-header" style="color: #00f0ff; border-color: rgba(0,240,255,0.2);">
+        <i class="bi bi-broadcast section-icon" style="color: #00f0ff;"></i> CURRENT ACTIVE ROOM
+    </h5>
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+            @if($currentRoomInfo['type'] === '1v1')
+                <div style="font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: #fff;">
+                    1 VS 1 BATTLE #{{ $currentRoomInfo['battle']->id }}
+                </div>
+                <div class="text-muted small mt-1">Status: <span class="badge" style="background: rgba(0,240,255,0.2); color: #00f0ff; border: 1px solid #00f0ff;">{{ strtoupper($currentRoomInfo['battle']->status) }}</span></div>
+            @else
+                <div style="font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: #fff;">
+                    TEAM BATTLE #{{ $currentRoomInfo['battle']->id }}
+                </div>
+                <div style="color: #00f0ff; font-size: 0.9rem;" class="mt-1">
+                    {{ $currentRoomInfo['battle']->team_name_a }} <span style="color:#ff00ff">VS</span> {{ $currentRoomInfo['battle']->team_name_b }}
+                </div>
+                <div class="text-muted small mt-1">Status: <span class="badge" style="background: rgba(0,240,255,0.2); color: #00f0ff; border: 1px solid #00f0ff;">{{ strtoupper($currentRoomInfo['battle']->status) }}</span></div>
+            @endif
+        </div>
+        <a href="{{ $currentRoomInfo['type'] === '1v1' ? route('battles.room', $currentRoomInfo['battle']->id) : route('team-battles.room', $currentRoomInfo['battle']->id) }}" class="btn btn-neon px-4 py-2" style="box-shadow: 0 0 10px rgba(0,240,255,0.4);">
+            REJOIN MATCH <i class="bi bi-arrow-right ms-2"></i>
+        </a>
+    </div>
+</div>
+@endif
+
 <!-- Pending Invites -->
 @if($pendingInvites->count() > 0)
 <div class="neon-card p-3 mb-4" style="border-color: rgba(255,221,0,0.3);">

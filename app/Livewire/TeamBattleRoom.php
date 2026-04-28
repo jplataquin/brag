@@ -164,12 +164,19 @@ class TeamBattleRoom extends Component
     {
         Log::info("Join attempt: User ".Auth::id()." Team ".$this->joiningTeam." Slot ".$this->pairingSlot." Card ".$this->selectedCardId);
 
+        $user = Auth::user();
+        $currentRoom = $user->currentBattleRoom();
+        if ($currentRoom && !($currentRoom['type'] === 'team' && $currentRoom['battle']->id === $this->teamBattle->id)) {
+            session()->flash('error', 'You are already in another active battle room. You must finish or cancel it before joining this one.');
+            $this->joiningTeam = '';
+            return;
+        }
+
         $this->validate([
             'selectedCardId' => 'required|exists:digital_cards,id',
             'joiningTeam' => 'required|in:A,B',
         ]);
 
-        $user = Auth::user();
         $card = DigitalCard::find($this->selectedCardId);
 
         // Basic validations

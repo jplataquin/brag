@@ -180,6 +180,34 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get the user's currently active or pending battle room.
+     */
+    public function currentBattleRoom()
+    {
+        // Check 1v1 battles
+        $battle = \App\Models\Battle::whereIn('status', ['pending', 'ready', 'active'])
+            ->where(function($q) {
+                $q->where('challenger_id', $this->id)
+                  ->orWhere('opponent_id', $this->id);
+            })->first();
+            
+        if ($battle) return ['type' => '1v1', 'battle' => $battle];
+        
+        // Check Team battles
+        $teamBattle = \App\Models\TeamBattle::whereIn('status', ['pending', 'active'])
+            ->where(function($q) {
+                for ($i = 1; $i <= 6; $i++) {
+                    $q->orWhere("team_a_user_{$i}", $this->id)
+                      ->orWhere("team_b_user_{$i}", $this->id);
+                }
+            })->first();
+            
+        if ($teamBattle) return ['type' => 'team', 'battle' => $teamBattle];
+        
+        return null;
+    }
+
+    /**
      * Battle invites received.
      */
     public function battleInvites()
