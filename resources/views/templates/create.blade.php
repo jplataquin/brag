@@ -435,6 +435,9 @@
 
                 fetch('{{ route("upload.chunk") }}', {
                     method: 'POST',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
                     body: formData
                 })
                 .then(response => response.json())
