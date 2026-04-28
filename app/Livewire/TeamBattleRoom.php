@@ -174,12 +174,12 @@ class TeamBattleRoom extends Component
                          $slot = null; // Fallback to auto-assignment
                     } else {
                         Log::info("Assigning to specific slot {$team}{$slot}");
-                        $battle->update([
-                            $userField => $user->id,
-                            $cardField => $card->id,
-                        ]);
+                        $battle->$userField = $user->id;
+                        $battle->$cardField = $card->id;
                     }
                 }
+
+                $assignedSlot = $slot;
 
                 if (!$slot) {
                     // Auto-assignment to next available slot in that team
@@ -189,11 +189,10 @@ class TeamBattleRoom extends Component
                         $cardField = "team_{$teamLower}_card_{$i}";
                         if (!$battle->$userField) {
                             Log::info("Auto-assigning to slot {$team}{$i}");
-                            $battle->update([
-                                $userField => $user->id,
-                                $cardField => $card->id,
-                            ]);
+                            $battle->$userField = $user->id;
+                            $battle->$cardField = $card->id;
                             $assigned = true;
+                            $assignedSlot = $i;
                             break;
                         }
                     }
@@ -203,11 +202,14 @@ class TeamBattleRoom extends Component
                     }
                 }
 
+                $battle->save();
+
+                $actionWord = $wasAlreadyInBattle ? "transferred to" : "joined";
                 BattleActivity::create([
                     'team_battle_id' => $battle->id,
                     'user_id' => $user->id,
                     'type' => 'join',
-                    'message' => "{$user->username} joined Team {$team}.",
+                    'message' => "{$user->username} {$actionWord} Team {$team} (Slot {$assignedSlot}).",
                 ]);
             });
 
