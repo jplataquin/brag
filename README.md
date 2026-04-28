@@ -177,3 +177,8 @@ Brag uses Laravel's task scheduler to handle automated tasks (like auto-cancelin
   php artisan battle:revert {room_id}
   ```
 
+- **Reset Application State:** Truncates all database records (except migrations), deletes all uploaded images/templates, re-runs default seeders, and clears all application caches. Perfect for resetting to a fresh "back to zero" state during development or testing.
+  ```bash
+  php artisan app:reset
+  ```
+
