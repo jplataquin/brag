@@ -32,7 +32,11 @@ class UploadController extends Controller
         
         // Ensure directories exist
         if (!Storage::disk('public')->exists($tempDirPath)) {
+
             Storage::disk('public')->makeDirectory($tempDirPath);
+
+            
+            echo "LAVENDER";exit;
         }
         if (!Storage::disk('public')->exists($finalDirPath)) {
             Storage::disk('public')->makeDirectory($finalDirPath);
