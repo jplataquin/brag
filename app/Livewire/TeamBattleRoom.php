@@ -147,6 +147,7 @@ class TeamBattleRoom extends Component
 
                 $team = $this->joiningTeam;
                 $slot = $this->pairingSlot;
+                $teamLower = strtolower($team);
 
                 // Check if this is the first person joining Team B
                 if ($team === 'B') {
@@ -165,8 +166,8 @@ class TeamBattleRoom extends Component
 
                 if ($slot) {
                     // User wants to pair with someone in a specific slot
-                    $userField = "team_{$team}_user_{$slot}";
-                    $cardField = "team_{$team}_card_{$slot}";
+                    $userField = "team_{$teamLower}_user_{$slot}";
+                    $cardField = "team_{$teamLower}_card_{$slot}";
 
                     if ($battle->$userField) {
                          Log::info("Slot {$team}{$slot} taken, falling back to auto");
@@ -184,8 +185,8 @@ class TeamBattleRoom extends Component
                     // Auto-assignment to next available slot in that team
                     $assigned = false;
                     for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
-                        $userField = "team_{$team}_user_{$i}";
-                        $cardField = "team_{$team}_card_{$i}";
+                        $userField = "team_{$teamLower}_user_{$i}";
+                        $cardField = "team_{$teamLower}_card_{$i}";
                         if (!$battle->$userField) {
                             Log::info("Auto-assigning to slot {$team}{$i}");
                             $battle->update([
