@@ -209,11 +209,34 @@ class TeamBattleRoom extends Component
         }
     }
 
+    public function teamBReady()
+    {
+        $user = Auth::user();
+        if ($user->id != $this->teamBattle->team_b_user_1) {
+            session()->flash('error', 'Only Team B leader can declare ready status.');
+            return;
+        }
+
+        if (!$this->teamBattle->is_team_b_full) {
+            session()->flash('error', 'All Team B slots must be filled before getting ready.');
+            return;
+        }
+
+        $this->teamBattle->update(['team_b_ready' => true]);
+        $this->logActivity($user->id, 'ready', "Team B is now READY!");
+        $this->broadcastUpdate("Team B is ready!");
+    }
+
     public function startBattle()
     {
         $user = Auth::user();
         if ($user->id != $this->teamBattle->team_a_user_1) {
             session()->flash('error', 'Only Team A leader can start the battle.');
+            return;
+        }
+
+        if (!$this->teamBattle->team_b_ready) {
+            session()->flash('error', 'Team B must be ready before starting.');
             return;
         }
 

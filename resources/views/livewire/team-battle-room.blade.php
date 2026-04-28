@@ -179,6 +179,8 @@
                         @if($teamBattle->status == 'pending')
                             @if(!$teamBattle->is_full)
                                 <div class="alert alert-warning py-2 small">Waiting for players to join...</div>
+                            @elseif(!$teamBattle->team_b_ready)
+                                <div class="alert alert-warning py-2 small">Waiting for Team B to ready up...</div>
                             @elseif(Auth::id() != $teamBattle->team_a_user_1)
                                 <div class="alert alert-info py-2 small">Waiting for Team A Leader to start...</div>
                             @endif
@@ -217,7 +219,7 @@
                             @endif
                             
                             @if($teamBattle->status == 'pending' && Auth::id() == $teamBattle->team_a_user_1)
-                                @if($teamBattle->is_full)
+                                @if($teamBattle->is_full && $teamBattle->team_b_ready)
                                     <button class="btn btn-neon-lime" wire:click="startBattle" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
                                         <i class="bi bi-play-fill"></i> START MATCH
                                     </button>
@@ -226,6 +228,11 @@
                                     <i class="bi bi-x-circle"></i> CANCEL BATTLE
                                 </button>
                             @elseif($teamBattle->status == 'pending' && Auth::id() == $teamBattle->team_b_user_1)
+                                @if($teamBattle->is_team_b_full && !$teamBattle->team_b_ready)
+                                    <button class="btn btn-neon-lime" wire:click="teamBReady" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
+                                        <i class="bi bi-check2-all"></i> READY
+                                    </button>
+                                @endif
                                 <button class="btn btn-neon-danger" wire:click="cancelBattle">
                                     <i class="bi bi-x-circle"></i> CANCEL BATTLE
                                 </button>

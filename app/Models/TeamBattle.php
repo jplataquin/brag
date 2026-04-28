@@ -17,6 +17,7 @@ class TeamBattle extends Model
         'battle_terms',
         'no_players_per_team',
         'status',
+        'team_b_ready',
         'team_a_cancel_flag',
         'team_b_cancel_flag',
         'marshall_cancel_flag',
@@ -35,6 +36,7 @@ class TeamBattle extends Model
     ];
 
     protected $casts = [
+        'team_b_ready' => 'boolean',
         'team_a_cancel_flag' => 'boolean',
         'team_b_cancel_flag' => 'boolean',
         'marshall_cancel_flag' => 'boolean',
@@ -67,6 +69,19 @@ class TeamBattle extends Model
     {
         for ($i = 1; $i <= $this->no_players_per_team; $i++) {
             if (empty($this->{"team_a_user_{$i}"}) || empty($this->{"team_b_user_{$i}"})) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Check if Team B slots are filled
+     */
+    public function getIsTeamBFullAttribute()
+    {
+        for ($i = 1; $i <= $this->no_players_per_team; $i++) {
+            if (empty($this->{"team_b_user_{$i}"})) {
                 return false;
             }
         }
