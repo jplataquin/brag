@@ -31,6 +31,7 @@
                 :primaryTextColor="$template->primary_text_color"
                 :secondaryTextColor="$template->secondary_text_color"
                 :image="$template->display_photo"
+                :imagePositionY="$template->image_position_y ?? 50"
                 :year="$template->created_at->format('Y')"
             />
             

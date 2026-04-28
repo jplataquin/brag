@@ -19,28 +19,43 @@ class FixStoragePermissions extends Command
      *
      * @var string
      */
-    protected $description = 'Fixes file and directory permissions in storage/app/public to resolve 403 Forbidden errors';
+    protected $description = 'Fixes file/directory permissions, creates required folders, and changes ownership to www-data';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $path = storage_path('app/public');
+        $publicPath = storage_path('app/public');
 
-        if (!File::exists($path)) {
-            $this->error("The path does not exist: {$path}");
+        $requiredDirs = [
+            $publicPath . '/templates',
+            $publicPath . '/tmp',
+            $publicPath . '/tmp/chunks',
+            $publicPath . '/tmp/uploads',
+        ];
+
+        $this->info('Checking required directories...');
+        foreach ($requiredDirs as $dir) {
+            if (!File::exists($dir)) {
+                $this->comment("Creating directory: {$dir}");
+                File::makeDirectory($dir, 0775, true);
+            }
+        }
+
+        if (!File::exists($publicPath)) {
+            $this->error("The path does not exist: {$publicPath}");
             return Command::FAILURE;
         }
 
-        $this->info("Scanning {$path}...");
+        $this->info("Scanning {$publicPath}...");
 
         // Gather all directories and files recursively
-        $directories = File::allDirectories($path);
+        $directories = File::allDirectories($publicPath);
         // Include the root path itself
-        array_unshift($directories, $path);
+        array_unshift($directories, $publicPath);
         
-        $files = File::allFiles($path);
+        $files = File::allFiles($publicPath);
 
         $this->info('Fixing directory permissions (0775)...');
         $this->withProgressBar($directories, function ($dir) {
@@ -56,10 +71,23 @@ class FixStoragePermissions extends Command
         });
         $this->newLine(2);
 
-        $this->info("Permissions successfully updated for " . count($directories) . " directories and " . count($files) . " files.");
+        $this->info("Permissions successfully updated.");
         
-        $this->warn("Note: If 403 errors persist, you may still need to fix the file ownership by running:");
-        $this->line("sudo chown -R www-data:www-data storage/");
+        $this->info("Attempting to change ownership to www-data:www-data...");
+        $output = [];
+        $returnVar = 0;
+        
+        // Execute chown on the entire public storage folder
+        exec('chown -R www-data:www-data ' . escapeshellarg($publicPath) . ' 2>&1', $output, $returnVar);
+
+        if ($returnVar !== 0) {
+            $this->warn("Failed to change ownership automatically. This command must be run with sudo to change ownership.");
+            $this->warn("Error Output: " . implode("\n", $output));
+            $this->line("Please run this command manually:");
+            $this->line("sudo chown -R www-data:www-data storage/app/public");
+        } else {
+            $this->info("Successfully changed ownership to www-data:www-data.");
+        }
 
         return Command::SUCCESS;
     }

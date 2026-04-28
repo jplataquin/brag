@@ -27,6 +27,7 @@
                 :primaryTextColor="$digitalCard->template->primary_text_color"
                 :secondaryTextColor="$digitalCard->template->secondary_text_color"
                 :image="$digitalCard->template->display_photo"
+                :imagePositionY="$digitalCard->template->image_position_y ?? 50"
                 :wins="$digitalCard->wins"
                 :losses="$digitalCard->losses"
                 :lifePoints="$digitalCard->life_points"
