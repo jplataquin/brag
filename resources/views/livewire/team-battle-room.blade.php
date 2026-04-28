@@ -199,16 +199,22 @@
                         </h5>
                         
                         <div id="actions-container" class="d-flex gap-3 flex-wrap align-items-center">
-                            @if($teamBattle->status == 'active')
+                            @if($teamBattle->status == 'active' || $teamBattle->status == 'failed')
                                 <button class="btn btn-neon btn-sm" wire:click="declareWin('A')">
                                     <i class="bi bi-trophy"></i> TEAM A WON
                                 </button>
                                 <button class="btn btn-neon-magenta btn-sm" wire:click="declareWin('B')">
                                     <i class="bi bi-trophy"></i> TEAM B WON
                                 </button>
-                                <button class="btn btn-neon-danger btn-sm" wire:click="cancelBattle">
-                                    <i class="bi bi-x-circle"></i> CANCEL
-                                </button>
+                                @php
+                                    $hasRequestedCancel = (Auth::id() == $teamBattle->team_a_user_1 && $teamBattle->team_a_cancel_flag) || 
+                                                          (Auth::id() == $teamBattle->team_b_user_1 && $teamBattle->team_b_cancel_flag);
+                                @endphp
+                                @if(!$hasRequestedCancel)
+                                    <button class="btn btn-neon-danger btn-sm" wire:click="cancelBattle">
+                                        <i class="bi bi-x-circle"></i> REQUEST CANCEL
+                                    </button>
+                                @endif
                             @endif
                             
                             @if(!$teamBattle->marshall_id && in_array($teamBattle->status, ['pending', 'ready', 'active']))
@@ -243,9 +249,6 @@
                                         <i class="bi bi-person-plus-fill"></i> INVITE PLAYERS
                                     </button>
                                 @endif
-                                <button class="btn btn-neon-danger" wire:click="cancelBattle">
-                                    <i class="bi bi-x-circle"></i> CANCEL BATTLE
-                                </button>
                             @endif
 
                             <!-- Share QR (Mobile Only) -->
@@ -506,6 +509,55 @@
             </div>
         </div>
     </div>
+
+    <!-- Cancellation Request Modal -->
+    @php
+        $showCancelModal = false;
+        $requesterName = '';
+        if ($teamBattle->status !== 'cancelled' && $teamBattle->status !== 'completed') {
+            if ($teamBattle->team_a_cancel_flag && Auth::id() == $teamBattle->team_b_user_1) {
+                $showCancelModal = true;
+                $requesterName = \App\Models\User::find($teamBattle->team_a_user_1)?->username ?? 'Team A Leader';
+            } elseif ($teamBattle->team_b_cancel_flag && Auth::id() == $teamBattle->team_a_user_1) {
+                $showCancelModal = true;
+                $requesterName = \App\Models\User::find($teamBattle->team_b_user_1)?->username ?? 'Team B Leader';
+            }
+        }
+    @endphp
+
+    @if($showCancelModal)
+    <div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0, 0, 0, 0.8);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #ff00ff; backdrop-filter: blur(20px); box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title neon-text-magenta">CANCELLATION REQUEST</h5>
+                </div>
+                <div class="modal-body py-4 text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-exclamation-triangle-fill" style="font-size: 3rem; color: #ff00ff; opacity: 0.8;"></i>
+                    </div>
+                    <p class="mb-4" style="font-size: 1.1rem;">
+                        <strong id="cancel-requester-name">{{ $requesterName }}</strong> has requested to cancel this battle. 
+                        Do you agree to cancel the match?
+                    </p>
+                    <p class="text-muted small mb-4">
+                        If you agree, the battle will be cancelled and no cards will be transferred.
+                        If you reject, the battle will continue.
+                    </p>
+                    
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-neon-magenta w-100" wire:click="respondToCancellation(true)">
+                            <i class="bi bi-check-lg"></i> AGREE & CANCEL
+                        </button>
+                        <button class="btn btn-outline-secondary w-100" style="border-color: #555;" wire:click="respondToCancellation(false)">
+                            <i class="bi bi-x-lg"></i> REJECT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 
     <style>
         .custom-modal-backdrop {

@@ -391,6 +391,15 @@ class TeamBattleRoom extends Component
         DB::transaction(function () use ($user, $isLeaderA, $isLeaderB, $isMarshall) {
             $battle = TeamBattle::where('id', $this->teamBattle->id)->lockForUpdate()->first();
             
+            if ($battle->status === 'pending') {
+                if ($isLeaderA) {
+                    $battle->update(['status' => 'cancelled']);
+                    $this->logActivity($user->id, 'cancel', "Team A Leader cancelled the pending battle.");
+                    $this->broadcastUpdate("Battle cancelled by creator.");
+                }
+                return;
+            }
+            
             if ($isLeaderA) $battle->team_a_cancel_flag = true;
             if ($isLeaderB) $battle->team_b_cancel_flag = true;
             if ($isMarshall) $battle->marshall_cancel_flag = true;
@@ -399,12 +408,48 @@ class TeamBattleRoom extends Component
 
             if ($isMarshall || ($battle->team_a_cancel_flag && $battle->team_b_cancel_flag)) {
                 $battle->update(['status' => 'cancelled']);
+                $this->logActivity($user->id, 'cancel', "Battle has been cancelled.");
                 $this->broadcastUpdate("Battle cancelled.");
             } else {
+                $this->logActivity($user->id, 'cancel_request', "{$user->username} requested to cancel the battle.");
                 $this->broadcastUpdate("{$user->username} requested cancellation.");
             }
         });
         
+        $this->refreshRoom();
+    }
+
+    public function respondToCancellation($agreed)
+    {
+        $user = Auth::user();
+        $isLeaderA = $user->id == $this->teamBattle->team_a_user_1;
+        $isLeaderB = $user->id == $this->teamBattle->team_b_user_1;
+
+        if (!$isLeaderA && !$isLeaderB) return;
+
+        DB::transaction(function () use ($agreed, $user, $isLeaderA, $isLeaderB) {
+            $battle = TeamBattle::where('id', $this->teamBattle->id)->lockForUpdate()->first();
+
+            if ($agreed) {
+                if ($isLeaderA) $battle->team_a_cancel_flag = true;
+                if ($isLeaderB) $battle->team_b_cancel_flag = true;
+                $battle->save();
+
+                if ($battle->team_a_cancel_flag && $battle->team_b_cancel_flag) {
+                    $battle->update(['status' => 'cancelled']);
+                    $this->logActivity($user->id, 'cancel_agree', "{$user->username} agreed to cancel. Battle cancelled.");
+                    $this->broadcastUpdate("Battle cancelled by mutual agreement.");
+                }
+            } else {
+                $battle->team_a_cancel_flag = false;
+                $battle->team_b_cancel_flag = false;
+                $battle->save();
+
+                $this->logActivity($user->id, 'cancel_reject', "{$user->username} rejected the cancellation request.");
+                $this->broadcastUpdate("Cancellation request rejected by {$user->username}.");
+            }
+        });
+
         $this->refreshRoom();
     }
 
