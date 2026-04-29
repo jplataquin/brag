@@ -417,6 +417,9 @@ class TeamBattleRoom extends Component
     {
         $loserTeam = $winnerTeam == 'A' ? 'B' : 'A';
         
+        $teamASnapshots = $this->generateTeamSnapshots($battle, 'A');
+        $teamBSnapshots = $this->generateTeamSnapshots($battle, 'B');
+
         // Process results for each pair
         for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
             $winnerUserId = $battle->{"team_{$winnerTeam}_user_{$i}"};
@@ -432,9 +435,42 @@ class TeamBattleRoom extends Component
             }
         }
 
-        $battle->update(['status' => 'completed']);
+        $battle->update([
+            'status' => 'completed',
+            'winner_team' => $winnerTeam,
+            'team_a_card_data' => $teamASnapshots,
+            'team_b_card_data' => $teamBSnapshots,
+        ]);
+
         $this->logActivity(null, 'completed', "Team Battle finalized. Team {$winnerTeam} won!");
         $this->broadcastUpdate("Team Battle finalized!");
+    }
+
+    protected function generateTeamSnapshots($battle, $team)
+    {
+        $snapshots = [];
+        $teamLower = strtolower($team);
+
+        for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
+            $cardId = $battle->{"team_{$teamLower}_card_{$i}"};
+            if ($cardId) {
+                $card = DigitalCard::find($cardId);
+                if ($card) {
+                    $snapshots[$i] = [
+                        'wins' => $card->wins,
+                        'losses' => $card->losses,
+                        'win_rate' => ($card->wins + $card->losses > 0) ? round(($card->wins / ($card->wins + $card->losses)) * 100) : 0,
+                        'integrity_stat' => $card->integrity_stat,
+                        'life_points' => $card->life_points,
+                        'rarity' => $card->rarity_slug,
+                        'status' => $card->status,
+                        'level' => $card->level,
+                    ];
+                }
+            }
+        }
+
+        return $snapshots;
     }
 
     public function cancelBattle()

@@ -17,6 +17,9 @@ class TeamBattle extends Model
         'battle_terms',
         'no_players_per_team',
         'status',
+        'winner_team',
+        'team_a_card_data',
+        'team_b_card_data',
         'team_b_ready',
         'team_a_cancel_flag',
         'team_b_cancel_flag',
@@ -40,6 +43,8 @@ class TeamBattle extends Model
         'team_a_cancel_flag' => 'boolean',
         'team_b_cancel_flag' => 'boolean',
         'marshall_cancel_flag' => 'boolean',
+        'team_a_card_data' => 'array',
+        'team_b_card_data' => 'array',
     ];
 
     public function gameTitle()
