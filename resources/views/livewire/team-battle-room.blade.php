@@ -57,6 +57,7 @@
                             </div>
                             <div class="{{ $cardClass }}" style="{{ $cardStyle }}">
                                 <x-digital-card 
+                                    wire:ignore
                                     id="card_a_{{ $i }}_{{ $c->id }}"
                                     mode="thumbnail"
                                     fullscreen="true"
@@ -143,6 +144,7 @@
                             </div>
                             <div class="{{ $cardClass }}" style="{{ $cardStyle }}">
                                 <x-digital-card 
+                                    wire:ignore
                                     id="card_b_{{ $i }}_{{ $c->id }}"
                                     mode="thumbnail"
                                     fullscreen="true"
@@ -694,11 +696,17 @@
             animation: pulse-cyan 2s infinite;
             border: 2px solid #00f0ff;
             border-radius: 12px;
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
         }
         .current-player-slot-b {
             animation: pulse-magenta 2s infinite;
             border: 2px solid #ff00ff;
             border-radius: 12px;
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
         }
         .custom-modal-backdrop {
             position: fixed;
