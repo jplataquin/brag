@@ -729,41 +729,27 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            function initializeVisibleCards() {
-                if (typeof DigitalCardRenderer === 'undefined') return;
-                
-                document.querySelectorAll('canvas[data-card-options]').forEach(canvas => {
-                    // Only draw if not initialized yet
-                    if (!canvas.dataset.initialized) {
-                        try {
-                            const renderer = new DigitalCardRenderer(canvas.id);
-                            const options = JSON.parse(canvas.getAttribute('data-card-options'));
-                            renderer.draw(options);
-                            canvas.dataset.initialized = 'true';
-                        } catch (e) {
-                            console.error("Failed to init card", e);
-                        }
-                    }
-                });
-            }
-
             const observer = new MutationObserver((mutations) => {
                 let shouldInit = false;
                 for (let mutation of mutations) {
                     if (mutation.addedNodes.length > 0) {
-                        // Reset initialized flag for newly added/replaced canvases
                         mutation.addedNodes.forEach(node => {
                             if (node.querySelectorAll) {
-                                node.querySelectorAll('canvas[data-card-options]').forEach(c => {
-                                    delete c.dataset.initialized;
+                                node.querySelectorAll('canvas[data-card-options]').forEach(canvas => {
+                                    if (typeof DigitalCardRenderer !== 'undefined' && !canvas.dataset.initialized) {
+                                        try {
+                                            const renderer = new DigitalCardRenderer(canvas.id);
+                                            const options = JSON.parse(canvas.getAttribute('data-card-options'));
+                                            renderer.draw(options);
+                                            canvas.dataset.initialized = 'true';
+                                        } catch (e) {
+                                            console.error("Failed to init card via observer", e);
+                                        }
+                                    }
                                 });
                             }
                         });
-                        shouldInit = true;
                     }
-                }
-                if (shouldInit) {
-                    setTimeout(initializeVisibleCards, 50);
                 }
             });
 
@@ -771,15 +757,6 @@
             if (roomContainer) {
                 observer.observe(roomContainer, { childList: true, subtree: true });
             }
-
-            const interval = setInterval(() => {
-                if (typeof DigitalCardRenderer !== 'undefined') {
-                    initializeVisibleCards();
-                    clearInterval(interval);
-                }
-            }, 100);
-            
-            setTimeout(() => clearInterval(interval), 5000);
         });
     </script>
 </div>
