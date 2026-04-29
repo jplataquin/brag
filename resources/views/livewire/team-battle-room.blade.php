@@ -59,6 +59,7 @@
                                 <x-digital-card 
                                     id="card_a_{{ $i }}_{{ $c->id }}"
                                     mode="thumbnail"
+                                    fullscreen="true"
                                     :title="$c->template->card_title"
                                     :game="$c->template->gameTitle->title ?? 'GAME'"
                                     :creator="$c->originalOwner->username ?? 'Creator'"
@@ -144,6 +145,7 @@
                                 <x-digital-card 
                                     id="card_b_{{ $i }}_{{ $c->id }}"
                                     mode="thumbnail"
+                                    fullscreen="true"
                                     :title="$c->template->card_title"
                                     :game="$c->template->gameTitle->title ?? 'GAME'"
                                     :creator="$c->originalOwner->username ?? 'Creator'"
