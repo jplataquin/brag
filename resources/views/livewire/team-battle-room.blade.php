@@ -266,10 +266,10 @@
                                             $lostText = $votedLost ? 'VOTED LOST' : 'DECLARE LOST';
                                         @endphp
                                         
-                                        <button class="btn {{ $winClass }} btn-sm" wire:click="declareWin('{{ $winTeam }}')" wire:key="btn-declare-win-{{ $teamBattle->status }}-{{ $myVote ?? 'none' }}" wire:loading.attr="disabled" style="{{ $winStyle }}">
+                                        <button class="btn {{ $winClass }} btn-sm" x-data x-on:click="window.neonConfirm('Are you sure you want to declare TEAM {{ $winTeam }} as the WINNER?').then(c => { if(c) $wire.declareWin('{{ $winTeam }}') })" wire:key="btn-declare-win-{{ $teamBattle->status }}-{{ $myVote ?? 'none' }}" wire:loading.attr="disabled" style="{{ $winStyle }}">
                                             <i class="bi {{ $winIcon }}"></i> {{ $winText }}
                                         </button>
-                                        <button class="btn {{ $lostClass }} btn-sm" wire:click="declareWin('{{ $lostTeam }}')" wire:key="btn-declare-lost-{{ $teamBattle->status }}-{{ $myVote ?? 'none' }}" wire:loading.attr="disabled" style="{{ $lostStyle }}">
+                                        <button class="btn {{ $lostClass }} btn-sm" x-data x-on:click="window.neonConfirm('Are you sure you want to declare TEAM {{ $lostTeam }} as the WINNER? (This means you LOST)').then(c => { if(c) $wire.declareWin('{{ $lostTeam }}') })" wire:key="btn-declare-lost-{{ $teamBattle->status }}-{{ $myVote ?? 'none' }}" wire:loading.attr="disabled" style="{{ $lostStyle }}">
                                             <i class="bi {{ $lostIcon }}"></i> {{ $lostText }}
                                         </button>
                                     @else
@@ -351,9 +351,9 @@
                             <i class="bi bi-gear-wide-connected section-icon" style="color: #ffdd00;"></i> MARSHALL ACTIONS
                         </h5>
                         <div id="actions-container" class="d-flex gap-3 flex-wrap align-items-center">
-                            <button class="btn btn-neon btn-sm" wire:click="declareWin('A')">TEAM A WON</button>
-                            <button class="btn btn-neon-magenta btn-sm" wire:click="declareWin('B')">TEAM B WON</button>
-                            <button class="btn btn-neon-danger btn-sm" wire:click="cancelBattle">CANCEL MATCH</button>
+                            <button class="btn btn-neon btn-sm" x-data x-on:click="window.neonConfirm('As Marshall, are you sure you want to officially declare TEAM A as the winner?').then(c => { if(c) $wire.declareWin('A') })">TEAM A WON</button>
+                            <button class="btn btn-neon-magenta btn-sm" x-data x-on:click="window.neonConfirm('As Marshall, are you sure you want to officially declare TEAM B as the winner?').then(c => { if(c) $wire.declareWin('B') })">TEAM B WON</button>
+                            <button class="btn btn-neon-danger btn-sm" x-data x-on:click="window.neonConfirm('Are you sure you want to CANCEL this match? No cards will be transferred.').then(c => { if(c) $wire.cancelBattle() })">CANCEL MATCH</button>
                         </div>
                     </div>
                 @endif

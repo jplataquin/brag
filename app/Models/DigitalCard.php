@@ -169,25 +169,57 @@ class DigitalCard extends Model
      */
     public function getIntegrityStatAttribute()
     {
+        // 1v1 Battles
         $battlesAsChallenger = \App\Models\Battle::where('challenger_card_id', $this->id)
-                                ->whereNotNull('opponent_id')->get();
+                                ->whereNotNull('opponent_id')
+                                ->where('status', 'completed')
+                                ->get();
         $battlesAsOpponent = \App\Models\Battle::where('opponent_card_id', $this->id)
-                                ->whereNotNull('challenger_id')->get();
-
-        $totalMatches = $battlesAsChallenger->count() + $battlesAsOpponent->count();
-
-        if ($totalMatches === 0) {
-            return 0;
-        }
+                                ->whereNotNull('challenger_id')
+                                ->where('status', 'completed')
+                                ->get();
 
         $uniqueUsers = collect();
+        $totalMatches = 0;
 
         foreach ($battlesAsChallenger as $battle) {
             $uniqueUsers->push($battle->opponent_id);
+            $totalMatches++;
         }
 
         foreach ($battlesAsOpponent as $battle) {
             $uniqueUsers->push($battle->challenger_id);
+            $totalMatches++;
+        }
+
+        // Team Battles
+        // We need to find all team battles where this card was used and identify its specific opponent in the same slot
+        $teamBattles = \App\Models\TeamBattle::where('status', 'completed')
+            ->where(function($q) {
+                for ($i = 1; $i <= 6; $i++) {
+                    $q->orWhere("team_a_card_{$i}", $this->id)
+                      ->orWhere("team_b_card_{$i}", $this->id);
+                }
+            })->get();
+
+        foreach ($teamBattles as $tb) {
+            for ($i = 1; $i <= $tb->no_players_per_team; $i++) {
+                if ($tb->{"team_a_card_{$i}"} == $this->id) {
+                    if ($tb->{"team_b_user_{$i}"}) {
+                        $uniqueUsers->push($tb->{"team_b_user_{$i}"});
+                        $totalMatches++;
+                    }
+                } elseif ($tb->{"team_b_card_{$i}"} == $this->id) {
+                    if ($tb->{"team_a_user_{$i}"}) {
+                        $uniqueUsers->push($tb->{"team_a_user_{$i}"});
+                        $totalMatches++;
+                    }
+                }
+            }
+        }
+
+        if ($totalMatches === 0) {
+            return 0;
         }
 
         $integrityCount = $uniqueUsers->unique()->count();
