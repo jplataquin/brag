@@ -249,11 +249,11 @@
                                         if ($isLeaderB) $myVote = $teamBattle->team_b_declare_win;
                                     @endphp
                                     
-                                    @if(!$myVote)
-                                        <button class="btn btn-neon btn-sm" wire:click="declareWin('{{ $winTeam }}')" wire:key="btn-declare-win" wire:loading.attr="disabled">
+                                    @if(!$myVote || $teamBattle->status == 'failed')
+                                        <button class="btn btn-neon btn-sm" wire:click="declareWin('{{ $winTeam }}')" wire:key="btn-declare-win-{{ $teamBattle->status }}" wire:loading.attr="disabled">
                                             <i class="bi bi-trophy"></i> DECLARE WIN
                                         </button>
-                                        <button class="btn btn-neon-danger btn-sm" wire:click="declareWin('{{ $lostTeam }}')" wire:key="btn-declare-lost" wire:loading.attr="disabled">
+                                        <button class="btn btn-neon-danger btn-sm" wire:click="declareWin('{{ $lostTeam }}')" wire:key="btn-declare-lost-{{ $teamBattle->status }}" wire:loading.attr="disabled">
                                             <i class="bi bi-x-circle"></i> DECLARE LOST
                                         </button>
                                     @else
@@ -281,7 +281,7 @@
                                     @endif
                                 @endif
                                 
-                                @if(!$teamBattle->marshall_id && in_array($teamBattle->status, ['pending', 'ready', 'active']))
+                                @if(!$teamBattle->marshall_id && in_array($teamBattle->status, ['pending', 'ready', 'active', 'failed']))
                                     <button type="button" class="btn btn-neon btn-sm" style="border-color: #ffdd00; color: #ffdd00;" data-bs-toggle="modal" data-bs-target="#electMarshallModal">
                                         <i class="bi bi-shield-fill-check"></i> 
                                         {{ ($isLeaderA ? $teamBattle->team_a_marshall_elect : $teamBattle->team_b_marshall_elect) ? 'CHANGE ELECTION' : 'ELECT MARSHALL' }}
