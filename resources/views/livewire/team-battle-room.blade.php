@@ -329,20 +329,6 @@
                     </div>
                 @endif
             @endif
-            @elseif(Auth::id() == $teamBattle->marshall_id && $teamBattle->status == 'active')
-                @if(Auth::id())
-                    <div class="mt-4 mb-5 pt-4" style="border-top: 1px solid rgba(255, 221, 0, 0.1);">
-                        <h5 class="section-header mb-3">
-                            <i class="bi bi-gear-wide-connected section-icon" style="color: #ffdd00;"></i> MARSHALL ACTIONS
-                        </h5>
-                        <div id="actions-container" class="d-flex gap-3 flex-wrap align-items-center">
-                            <button class="btn btn-neon btn-sm" wire:click="declareWin('A')">TEAM A WON</button>
-                            <button class="btn btn-neon-magenta btn-sm" wire:click="declareWin('B')">TEAM B WON</button>
-                            <button class="btn btn-neon-danger btn-sm" wire:click="cancelBattle">CANCEL MATCH</button>
-                        </div>
-                    </div>
-                @endif
-            @endif
         </div>
         
         <!-- Activity Log -->
