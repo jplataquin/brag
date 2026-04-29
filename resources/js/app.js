@@ -389,6 +389,33 @@ class DigitalCardRenderer {
         this.wrapText(ctx, formattedQuote, textStartX, descY + (h * 0.02), innerW - (w * 0.08), descH - (h * 0.04), fontSizeDesc * 1.4);
         ctx.restore();
 
+        const currentMode = options.mode || 'default';
+        const rankBadgeUrl = this.getRankBadgeUrl(options.rankLevel || 1, currentMode, options.badgeVersion, options);
+        const photoImg = this.imageCache[imageUrl];
+        const badgeImg = this.imageCache[rankBadgeUrl];
+        if (photoImg) {
+            this.drawImageWithinBounds(ctx, photoImg, innerX, photoY, innerW, photoH, currentBorderColor, currentMode, options.imagePositionY !== undefined ? options.imagePositionY : 50);
+        }
+        if (badgeImg) {
+            const badgeSize = w * 0.25;
+            const bx = (w * 0.05) - innerX + innerW - badgeSize * 0.5;
+            const by = titleY - badgeSize * 0.3;
+            ctx.save();
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            if (currentMode === 'template') {
+                ctx.shadowColor = 'rgba(255,221,0,0.4)';
+                ctx.shadowBlur = 10;
+            } else {
+                ctx.shadowColor = 'rgba(0,0,0,0.6)';
+                ctx.shadowBlur = 8;
+                ctx.shadowOffsetY = 4;
+            }
+            ctx.drawImage(badgeImg, bx, by, badgeSize, badgeSize);
+            ctx.restore();
+        }
+        
+        // --- Watermarks (Burned / Surrendered) drawn LAST to be on top ---
         if (options.burned) {
             ctx.save();
             ctx.fillStyle = 'rgba(255, 50, 0, 0.4)'; // Reddish tint
@@ -420,31 +447,6 @@ class DigitalCardRenderer {
             ctx.restore();
         }
 
-        const currentMode = options.mode || 'default';
-        const rankBadgeUrl = this.getRankBadgeUrl(options.rankLevel || 1, currentMode, options.badgeVersion, options);
-        const photoImg = this.imageCache[imageUrl];
-        const badgeImg = this.imageCache[rankBadgeUrl];
-        if (photoImg) {
-            this.drawImageWithinBounds(ctx, photoImg, innerX, photoY, innerW, photoH, currentBorderColor, currentMode, options.imagePositionY !== undefined ? options.imagePositionY : 50);
-        }
-        if (badgeImg) {
-            const badgeSize = w * 0.25;
-            const bx = (w * 0.05) - innerX + innerW - badgeSize * 0.5;
-            const by = titleY - badgeSize * 0.3;
-            ctx.save();
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            if (currentMode === 'template') {
-                ctx.shadowColor = 'rgba(255,221,0,0.4)';
-                ctx.shadowBlur = 10;
-            } else {
-                ctx.shadowColor = 'rgba(0,0,0,0.6)';
-                ctx.shadowBlur = 8;
-                ctx.shadowOffsetY = 4;
-            }
-            ctx.drawImage(badgeImg, bx, by, badgeSize, badgeSize);
-            ctx.restore();
-        }
         if (options.asThumbnail || currentMode === 'thumbnail') {
             const imgEl = document.getElementById('img_' + this.canvas.id);
             if (imgEl) {
