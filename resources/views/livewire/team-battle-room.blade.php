@@ -243,13 +243,24 @@
                                     @php
                                         $winTeam = $userTeam;
                                         $lostTeam = $userTeam == 'A' ? 'B' : 'A';
+                                        
+                                        $myVote = null;
+                                        if ($isLeaderA) $myVote = $teamBattle->team_a_declare_win;
+                                        if ($isLeaderB) $myVote = $teamBattle->team_b_declare_win;
                                     @endphp
-                                    <button class="btn btn-neon btn-sm" wire:click="declareWin('{{ $winTeam }}')">
-                                        <i class="bi bi-trophy"></i> DECLARE WIN
-                                    </button>
-                                    <button class="btn btn-neon-danger btn-sm" wire:click="declareWin('{{ $lostTeam }}')">
-                                        <i class="bi bi-x-circle"></i> DECLARE LOST
-                                    </button>
+                                    
+                                    @if(!$myVote)
+                                        <button class="btn btn-neon btn-sm" wire:click="declareWin('{{ $winTeam }}')">
+                                            <i class="bi bi-trophy"></i> DECLARE WIN
+                                        </button>
+                                        <button class="btn btn-neon-danger btn-sm" wire:click="declareWin('{{ $lostTeam }}')">
+                                            <i class="bi bi-x-circle"></i> DECLARE LOST
+                                        </button>
+                                    @else
+                                        <div class="alert alert-info py-2 small mb-0 text-center" style="border: 1px solid #00f0ff; background: rgba(0, 240, 255, 0.1); color: #00f0ff; width: 100%; max-width: 400px;">
+                                            <i class="bi bi-hourglass-split"></i> You declared {{ $myVote == $userTeam ? 'a win' : 'a loss' }}. Waiting for opponent...
+                                        </div>
+                                    @endif
                                     
                                     @php
                                         $hasRequestedCancel = ($isLeaderA && $teamBattle->team_a_cancel_flag) || 
@@ -723,11 +734,12 @@
                 if (!window.digitalCardRenderers) window.digitalCardRenderers = {};
                 
                 document.querySelectorAll('canvas[data-card-options]').forEach(canvas => {
-                    if (!window.digitalCardRenderers[canvas.id]) {
+                    if (!canvas.dataset.initialized) {
                         try {
                             window.digitalCardRenderers[canvas.id] = new DigitalCardRenderer(canvas.id);
                             const options = JSON.parse(canvas.getAttribute('data-card-options'));
                             window.digitalCardRenderers[canvas.id].draw(options);
+                            canvas.dataset.initialized = 'true';
                         } catch (e) {
                             console.error("Failed to init card", e);
                         }

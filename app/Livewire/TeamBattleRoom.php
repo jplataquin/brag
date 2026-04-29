@@ -416,11 +416,8 @@ class TeamBattleRoom extends Component
     protected function finalizeTeamBattle($battle, $winnerTeam)
     {
         $loserTeam = $winnerTeam == 'A' ? 'B' : 'A';
-        
-        $teamASnapshots = $this->generateTeamSnapshots($battle, 'A');
-        $teamBSnapshots = $this->generateTeamSnapshots($battle, 'B');
 
-        // Process results for each pair
+        // Process results for each pair first
         for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
             $winnerUserId = $battle->{"team_{$winnerTeam}_user_{$i}"};
             $winnerCardId = $battle->{"team_{$winnerTeam}_card_{$i}"};
@@ -434,6 +431,10 @@ class TeamBattleRoom extends Component
                 $battle->processBattleResult($winnerCard, $loserCard, $winnerUser);
             }
         }
+
+        // Generate snapshots AFTER processing so they contain updated wins, losses, and life points
+        $teamASnapshots = $this->generateTeamSnapshots($battle, 'A');
+        $teamBSnapshots = $this->generateTeamSnapshots($battle, 'B');
 
         $battle->update([
             'status' => 'completed',
