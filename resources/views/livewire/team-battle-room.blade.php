@@ -266,10 +266,10 @@
                                             $lostText = $votedLost ? 'VOTED LOST' : 'DECLARE LOST';
                                         @endphp
                                         
-                                        <button class="btn {{ $winClass }} btn-sm" x-data x-on:click="window.neonConfirm('Are you sure you want to declare TEAM {{ $winTeam }} as the WINNER?').then(c => { if(c) $wire.declareWin('{{ $winTeam }}') })" wire:key="btn-declare-win-{{ $teamBattle->status }}-{{ $myVote ?? 'none' }}" wire:loading.attr="disabled" style="{{ $winStyle }}">
+                                        <button class="btn {{ $winClass }} btn-sm" x-data x-on:click="window.neonConfirm('Are you sure you want to declare WIN?').then(c => { if(c) $wire.declareWin('{{ $winTeam }}') })" wire:key="btn-declare-win-{{ $teamBattle->status }}-{{ $myVote ?? 'none' }}" wire:loading.attr="disabled" style="{{ $winStyle }}">
                                             <i class="bi {{ $winIcon }}"></i> {{ $winText }}
                                         </button>
-                                        <button class="btn {{ $lostClass }} btn-sm" x-data x-on:click="window.neonConfirm('Are you sure you want to declare TEAM {{ $lostTeam }} as the WINNER? (This means you LOST)').then(c => { if(c) $wire.declareWin('{{ $lostTeam }}') })" wire:key="btn-declare-lost-{{ $teamBattle->status }}-{{ $myVote ?? 'none' }}" wire:loading.attr="disabled" style="{{ $lostStyle }}">
+                                        <button class="btn {{ $lostClass }} btn-sm" x-data x-on:click="window.neonConfirm('Are you sure you want to declare LOST?').then(c => { if(c) $wire.declareWin('{{ $lostTeam }}') })" wire:key="btn-declare-lost-{{ $teamBattle->status }}-{{ $myVote ?? 'none' }}" wire:loading.attr="disabled" style="{{ $lostStyle }}">
                                             <i class="bi {{ $lostIcon }}"></i> {{ $lostText }}
                                         </button>
                                     @else
