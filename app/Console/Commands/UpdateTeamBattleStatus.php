@@ -53,14 +53,31 @@ class UpdateTeamBattleStatus extends Command
         }
 
         $battle->status = $status;
+        
+        $clearedData = false;
+        if (in_array($status, ['pending', 'active'])) {
+            $battle->team_a_declare_win = null;
+            $battle->team_b_declare_win = null;
+            $battle->marshall_declare_win = null;
+            $battle->winner_team = null;
+            $battle->team_a_card_data = null;
+            $battle->team_b_card_data = null;
+            $clearedData = true;
+        }
+
         $battle->save();
+
+        $logMessage = "System forcefully updated status from {$oldStatus} to {$status}.";
+        if ($clearedData) {
+            $logMessage .= " Result data and votes have been cleared.";
+        }
 
         // Log the activity
         BattleActivity::create([
             'team_battle_id' => $battle->id,
             'user_id' => null, // System action
             'type' => 'system',
-            'message' => "System forcefully updated status from {$oldStatus} to {$status}.",
+            'message' => $logMessage,
         ]);
 
         // Broadcast the update so real-time clients refresh

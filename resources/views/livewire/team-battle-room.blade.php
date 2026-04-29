@@ -1,5 +1,5 @@
 
-<div class="team-battle-room" wire:poll.10s>
+<div class="team-battle-room" wire:poll.10s style="overflow: visible;">
     @if(session()->has('error'))
         <div class="alert alert-danger alert-dismissible fade show mb-4 orbitron" role="alert" style="background: rgba(220, 53, 69, 0.1); border: 1px solid #dc3545; color: #ff8888;">
             <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
@@ -734,7 +734,8 @@
                 if (!window.digitalCardRenderers) window.digitalCardRenderers = {};
                 
                 document.querySelectorAll('canvas[data-card-options]').forEach(canvas => {
-                    if (!canvas.dataset.initialized) {
+                    // Only initialize if not already flagged on the DOM element AND not already in the global registry
+                    if (!canvas.dataset.initialized && !window.digitalCardRenderers[canvas.id]) {
                         try {
                             window.digitalCardRenderers[canvas.id] = new DigitalCardRenderer(canvas.id);
                             const options = JSON.parse(canvas.getAttribute('data-card-options'));
@@ -742,6 +743,15 @@
                             canvas.dataset.initialized = 'true';
                         } catch (e) {
                             console.error("Failed to init card", e);
+                        }
+                    } else if (canvas.dataset.initialized && !window.digitalCardRenderers[canvas.id]) {
+                        // Edge case: DOM says initialized but registry is empty (e.g. after a partial update that kept the element but cleared registry)
+                        try {
+                            window.digitalCardRenderers[canvas.id] = new DigitalCardRenderer(canvas.id);
+                            const options = JSON.parse(canvas.getAttribute('data-card-options'));
+                            window.digitalCardRenderers[canvas.id].draw(options);
+                        } catch (e) {
+                            console.error("Failed to re-init card", e);
                         }
                     }
                 });
