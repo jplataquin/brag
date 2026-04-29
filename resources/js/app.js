@@ -406,6 +406,18 @@ class DigitalCardRenderer {
             ctx.strokeText("BURNED", 0, 0);
             ctx.fillText("BURNED", 0, 0);
             ctx.restore();
+        } else if (lifePoints === 0) {
+            ctx.save();
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // Dark tint
+            ctx.fillRect(0, 0, w, h);
+            ctx.translate(w / 2, h / 2);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = `${h * 0.4}px sans-serif`;
+            ctx.shadowColor = 'rgba(255, 0, 0, 0.8)';
+            ctx.shadowBlur = 20;
+            ctx.fillText("💀", 0, 0);
+            ctx.restore();
         }
 
         const currentMode = options.mode || 'default';

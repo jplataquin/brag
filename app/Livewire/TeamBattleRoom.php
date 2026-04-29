@@ -419,6 +419,8 @@ class TeamBattleRoom extends Component
         $winnerTeamLower = strtolower($winnerTeam);
         $loserTeamLower = strtolower($loserTeam);
 
+        $overrides = [];
+
         // Process results for each pair first
         for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
             $winnerUserId = $battle->{"team_{$winnerTeamLower}_user_{$i}"};
@@ -430,13 +432,16 @@ class TeamBattleRoom extends Component
             $loserCard = DigitalCard::find($loserCardId);
             
             if ($winnerCard && $loserCard && $winnerUser) {
-                $battle->processBattleResult($winnerCard, $loserCard, $winnerUser);
+                $result = $battle->processBattleResult($winnerCard, $loserCard, $winnerUser);
+                if ($result['cardTransferred']) {
+                    $overrides[$loserCardId] = ['life_points' => 0];
+                }
             }
         }
 
         // Generate snapshots AFTER processing so they contain updated wins, losses, and life points
-        $teamASnapshots = $this->generateTeamSnapshots($battle, 'A');
-        $teamBSnapshots = $this->generateTeamSnapshots($battle, 'B');
+        $teamASnapshots = $this->generateTeamSnapshots($battle, 'A', $overrides);
+        $teamBSnapshots = $this->generateTeamSnapshots($battle, 'B', $overrides);
 
         $battle->update([
             'status' => 'completed',
@@ -449,7 +454,7 @@ class TeamBattleRoom extends Component
         $this->broadcastUpdate("Team Battle finalized!");
     }
 
-    protected function generateTeamSnapshots($battle, $team)
+    protected function generateTeamSnapshots($battle, $team, $overrides = [])
     {
         $snapshots = [];
         $teamLower = strtolower($team);
@@ -464,7 +469,7 @@ class TeamBattleRoom extends Component
                         'losses' => $card->losses,
                         'win_rate' => ($card->wins + $card->losses > 0) ? round(($card->wins / ($card->wins + $card->losses)) * 100) : 0,
                         'integrity_stat' => $card->integrity_stat,
-                        'life_points' => $card->life_points,
+                        'life_points' => $overrides[$cardId]['life_points'] ?? $card->life_points,
                         'rarity' => $card->rarity_slug,
                         'status' => $card->status,
                         'level' => $card->level,
