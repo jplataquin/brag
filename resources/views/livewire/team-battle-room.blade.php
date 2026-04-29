@@ -250,14 +250,14 @@
                                     @endphp
                                     
                                     @if(!$myVote)
-                                        <button class="btn btn-neon btn-sm" wire:click="declareWin('{{ $winTeam }}')">
+                                        <button class="btn btn-neon btn-sm" wire:click="declareWin('{{ $winTeam }}')" wire:key="btn-declare-win" wire:loading.attr="disabled">
                                             <i class="bi bi-trophy"></i> DECLARE WIN
                                         </button>
-                                        <button class="btn btn-neon-danger btn-sm" wire:click="declareWin('{{ $lostTeam }}')">
+                                        <button class="btn btn-neon-danger btn-sm" wire:click="declareWin('{{ $lostTeam }}')" wire:key="btn-declare-lost" wire:loading.attr="disabled">
                                             <i class="bi bi-x-circle"></i> DECLARE LOST
                                         </button>
                                     @else
-                                        <div class="alert alert-info py-2 small mb-0 text-center" style="border: 1px solid #00f0ff; background: rgba(0, 240, 255, 0.1); color: #00f0ff; width: 100%; max-width: 400px;">
+                                        <div class="alert alert-info py-2 small mb-0 text-center" style="border: 1px solid #00f0ff; background: rgba(0, 240, 255, 0.1); color: #00f0ff; width: 100%; max-width: 400px;" wire:key="alert-waiting-opponent">
                                             <i class="bi bi-hourglass-split"></i> You declared {{ $myVote == $userTeam ? 'a win' : 'a loss' }}. Waiting for opponent...
                                         </div>
                                     @endif
@@ -734,8 +734,11 @@
                 if (!window.digitalCardRenderers) window.digitalCardRenderers = {};
                 
                 document.querySelectorAll('canvas[data-card-options]').forEach(canvas => {
-                    // Only initialize if not already flagged on the DOM element AND not already in the global registry
-                    if (!canvas.dataset.initialized && !window.digitalCardRenderers[canvas.id]) {
+                    if (!canvas.dataset.initialized) {
+                        // If a renderer exists for this ID but the DOM element is new, purge the old renderer
+                        if (window.digitalCardRenderers[canvas.id]) {
+                            delete window.digitalCardRenderers[canvas.id];
+                        }
                         try {
                             window.digitalCardRenderers[canvas.id] = new DigitalCardRenderer(canvas.id);
                             const options = JSON.parse(canvas.getAttribute('data-card-options'));
@@ -743,15 +746,6 @@
                             canvas.dataset.initialized = 'true';
                         } catch (e) {
                             console.error("Failed to init card", e);
-                        }
-                    } else if (canvas.dataset.initialized && !window.digitalCardRenderers[canvas.id]) {
-                        // Edge case: DOM says initialized but registry is empty (e.g. after a partial update that kept the element but cleared registry)
-                        try {
-                            window.digitalCardRenderers[canvas.id] = new DigitalCardRenderer(canvas.id);
-                            const options = JSON.parse(canvas.getAttribute('data-card-options'));
-                            window.digitalCardRenderers[canvas.id].draw(options);
-                        } catch (e) {
-                            console.error("Failed to re-init card", e);
                         }
                     }
                 });

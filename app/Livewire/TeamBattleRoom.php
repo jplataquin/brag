@@ -410,7 +410,7 @@ class TeamBattleRoom extends Component
             }
         });
         
-        $this->refreshRoom();
+        $this->teamBattle->refresh();
     }
 
     protected function finalizeTeamBattle($battle, $winnerTeam)
