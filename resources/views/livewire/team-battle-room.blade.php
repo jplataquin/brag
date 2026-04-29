@@ -32,11 +32,12 @@
                         $isFinal = $teamBattle->status == 'completed';
                         $snapshot = $teamBattle->team_a_card_data[$i] ?? null;
                         
-                        $cardStyle = "";
+                        $cardClass = "";
                         if ($isMe && $teamBattle->status != 'completed') {
-                            $cardStyle = "box-shadow: 0 0 20px rgba(0, 240, 255, 0.4); border-radius: 12px; transition: all 0.3s ease;";
+                            $cardClass = "current-player-slot-a";
                         }
                         
+                        $cardStyle = "";
                         if ($isFinal) {
                             if ($teamBattle->winner_team == 'A') {
                                 $cardStyle = "box-shadow: 0 0 30px rgba(255, 221, 0, 0.6); border-radius: 16px; transform: scale(1.02); transition: all 0.3s ease;";
@@ -45,7 +46,7 @@
                             }
                         }
                     @endphp
-                    <div class="w-100" style="max-width: 350px;" wire:key="slot-a-{{ $i }}-{{ $u?->id ?? 'empty' }}">
+                    <div class="w-100" style="max-width: 350px;" wire:key="slot-a-{{ $i }}-{{ $u?->id ?? 'empty' }}-{{ $teamBattle->status }}">
                         @if($u)
                             <div class="mb-2 text-center text-truncate">
                                 <span class="fw-bold @if($isMe) text-cyan @endif">
@@ -54,7 +55,7 @@
                                     @endif
                                     {{ $isMe ? 'YOU' : $u->username }}</span>
                             </div>
-                            <div wire:ignore style="{{ $cardStyle }}">
+                            <div wire:ignore class="{{ $cardClass }}" style="{{ $cardStyle }}">
                                 <x-digital-card 
                                     id="card_a_{{ $i }}_{{ $c->id }}"
                                     mode="thumbnail"
@@ -116,11 +117,12 @@
                         $isFinal = $teamBattle->status == 'completed';
                         $snapshot = $teamBattle->team_b_card_data[$i] ?? null;
                         
-                        $cardStyle = "";
+                        $cardClass = "";
                         if ($isMe && $teamBattle->status != 'completed') {
-                            $cardStyle = "box-shadow: 0 0 20px rgba(255, 0, 255, 0.4); border-radius: 12px; transition: all 0.3s ease;";
+                            $cardClass = "current-player-slot-b";
                         }
                         
+                        $cardStyle = "";
                         if ($isFinal) {
                             if ($teamBattle->winner_team == 'B') {
                                 $cardStyle = "box-shadow: 0 0 30px rgba(255, 221, 0, 0.6); border-radius: 16px; transform: scale(1.02); transition: all 0.3s ease;";
@@ -129,7 +131,7 @@
                             }
                         }
                     @endphp
-                    <div class="w-100" style="max-width: 350px;" wire:key="slot-b-{{ $i }}-{{ $u?->id ?? 'empty' }}">
+                    <div class="w-100" style="max-width: 350px;" wire:key="slot-b-{{ $i }}-{{ $u?->id ?? 'empty' }}-{{ $teamBattle->status }}">
                         @if($u)
                             <div class="mb-2 text-center text-truncate">
                                 <span class="fw-bold @if($isMe) text-magenta @endif">
@@ -138,7 +140,7 @@
                                     @endif
                                     {{ $isMe ? 'YOU' : $u->username }}</span>
                             </div>
-                            <div wire:ignore style="{{ $cardStyle }}">
+                            <div wire:ignore class="{{ $cardClass }}" style="{{ $cardStyle }}">
                                 <x-digital-card 
                                     id="card_b_{{ $i }}_{{ $c->id }}"
                                     mode="thumbnail"
@@ -649,6 +651,30 @@
     @endif
 
     <style>
+        @keyframes pulse-cyan {
+            0% { box-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.4); transform: scale(1.0); }
+            50% { box-shadow: 0 0 25px rgba(0, 240, 255, 1), 0 0 40px rgba(0, 240, 255, 0.8); transform: scale(1.03); }
+            100% { box-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.4); transform: scale(1.0); }
+        }
+        @keyframes pulse-magenta {
+            0% { box-shadow: 0 0 10px rgba(255, 0, 255, 0.6), 0 0 20px rgba(255, 0, 255, 0.4); transform: scale(1.0); }
+            50% { box-shadow: 0 0 25px rgba(255, 0, 255, 1), 0 0 40px rgba(255, 0, 255, 0.8); transform: scale(1.03); }
+            100% { box-shadow: 0 0 10px rgba(255, 0, 255, 0.6), 0 0 20px rgba(255, 0, 255, 0.4); transform: scale(1.0); }
+        }
+        .current-player-slot-a {
+            animation: pulse-cyan 2s infinite;
+            border: 2px solid #00f0ff;
+            border-radius: 12px;
+            z-index: 10;
+            position: relative;
+        }
+        .current-player-slot-b {
+            animation: pulse-magenta 2s infinite;
+            border: 2px solid #ff00ff;
+            border-radius: 12px;
+            z-index: 10;
+            position: relative;
+        }
         .custom-modal-backdrop {
             position: fixed;
             top: 0;
