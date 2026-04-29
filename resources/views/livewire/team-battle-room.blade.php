@@ -46,7 +46,7 @@
                             }
                         }
                     @endphp
-                    <div class="w-100" style="max-width: 350px;" wire:key="slot-a-{{ $i }}-{{ $u?->id ?? 'empty' }}-{{ $teamBattle->status }}">
+                    <div class="w-100" style="max-width: 350px;" wire:key="slot-a-{{ $i }}-{{ $u?->id ?? 'empty' }}-{{ $c?->id ?? 'none' }}-{{ $teamBattle->status }}">
                         @if($u)
                             <div class="mb-2 text-center text-truncate">
                                 <span class="fw-bold @if($isMe) text-cyan @endif">
@@ -55,9 +55,8 @@
                                     @endif
                                     {{ $isMe ? 'YOU' : $u->username }}</span>
                             </div>
-                            <div class="{{ $cardClass }}" style="{{ $cardStyle }}">
+                            <div wire:ignore class="{{ $cardClass }}" style="{{ $cardStyle }}">
                                 <x-digital-card 
-                                    wire:ignore
                                     id="card_a_{{ $i }}_{{ $c->id }}"
                                     mode="thumbnail"
                                     fullscreen="true"
@@ -133,7 +132,7 @@
                             }
                         }
                     @endphp
-                    <div class="w-100" style="max-width: 350px;" wire:key="slot-b-{{ $i }}-{{ $u?->id ?? 'empty' }}-{{ $teamBattle->status }}">
+                    <div class="w-100" style="max-width: 350px;" wire:key="slot-b-{{ $i }}-{{ $u?->id ?? 'empty' }}-{{ $c?->id ?? 'none' }}-{{ $teamBattle->status }}">
                         @if($u)
                             <div class="mb-2 text-center text-truncate">
                                 <span class="fw-bold @if($isMe) text-magenta @endif">
@@ -142,9 +141,8 @@
                                     @endif
                                     {{ $isMe ? 'YOU' : $u->username }}</span>
                             </div>
-                            <div class="{{ $cardClass }}" style="{{ $cardStyle }}">
+                            <div wire:ignore class="{{ $cardClass }}" style="{{ $cardStyle }}">
                                 <x-digital-card 
-                                    wire:ignore
                                     id="card_b_{{ $i }}_{{ $c->id }}"
                                     mode="thumbnail"
                                     fullscreen="true"
