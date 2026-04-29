@@ -57,7 +57,6 @@
                             </div>
                             <div class="{{ $cardClass }}" style="{{ $cardStyle }}">
                                 <x-digital-card 
-                                    wire:ignore
                                     id="card_a_{{ $i }}_{{ $c->id }}"
                                     mode="thumbnail"
                                     fullscreen="true"
@@ -144,7 +143,6 @@
                             </div>
                             <div class="{{ $cardClass }}" style="{{ $cardStyle }}">
                                 <x-digital-card 
-                                    wire:ignore
                                     id="card_b_{{ $i }}_{{ $c->id }}"
                                     mode="thumbnail"
                                     fullscreen="true"
@@ -683,28 +681,24 @@
 
     <style>
         @keyframes pulse-cyan {
-            0% { box-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.4); transform: scale(1.0); }
-            50% { box-shadow: 0 0 25px rgba(0, 240, 255, 1), 0 0 40px rgba(0, 240, 255, 0.8); transform: scale(1.03); }
-            100% { box-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.4); transform: scale(1.0); }
+            0% { box-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(0, 240, 255, 1), 0 0 40px rgba(0, 240, 255, 0.8); }
+            100% { box-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.4); }
         }
         @keyframes pulse-magenta {
-            0% { box-shadow: 0 0 10px rgba(255, 0, 255, 0.6), 0 0 20px rgba(255, 0, 255, 0.4); transform: scale(1.0); }
-            50% { box-shadow: 0 0 25px rgba(255, 0, 255, 1), 0 0 40px rgba(255, 0, 255, 0.8); transform: scale(1.03); }
-            100% { box-shadow: 0 0 10px rgba(255, 0, 255, 0.6), 0 0 20px rgba(255, 0, 255, 0.4); transform: scale(1.0); }
+            0% { box-shadow: 0 0 10px rgba(255, 0, 255, 0.6), 0 0 20px rgba(255, 0, 255, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(255, 0, 255, 1), 0 0 40px rgba(255, 0, 255, 0.8); }
+            100% { box-shadow: 0 0 10px rgba(255, 0, 255, 0.6), 0 0 20px rgba(255, 0, 255, 0.4); }
         }
         .current-player-slot-a {
             animation: pulse-cyan 2s infinite;
             border: 2px solid #00f0ff;
             border-radius: 12px;
-            z-index: 10;
-            position: relative;
         }
         .current-player-slot-b {
             animation: pulse-magenta 2s infinite;
             border: 2px solid #ff00ff;
             border-radius: 12px;
-            z-index: 10;
-            position: relative;
         }
         .custom-modal-backdrop {
             position: fixed;
