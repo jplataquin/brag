@@ -55,8 +55,9 @@
                                     @endif
                                     {{ $isMe ? 'YOU' : $u->username }}</span>
                             </div>
-                            <div wire:ignore class="{{ $cardClass }}" style="{{ $cardStyle }}">
+                            <div class="{{ $cardClass }}" style="{{ $cardStyle }}">
                                 <x-digital-card 
+                                    wire:ignore
                                     id="card_a_{{ $i }}_{{ $c->id }}"
                                     mode="thumbnail"
                                     fullscreen="true"
@@ -141,8 +142,9 @@
                                     @endif
                                     {{ $isMe ? 'YOU' : $u->username }}</span>
                             </div>
-                            <div wire:ignore class="{{ $cardClass }}" style="{{ $cardStyle }}">
+                            <div class="{{ $cardClass }}" style="{{ $cardStyle }}">
                                 <x-digital-card 
+                                    wire:ignore
                                     id="card_b_{{ $i }}_{{ $c->id }}"
                                     mode="thumbnail"
                                     fullscreen="true"
