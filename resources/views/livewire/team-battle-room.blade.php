@@ -731,18 +731,14 @@
         document.addEventListener('DOMContentLoaded', () => {
             function initializeVisibleCards() {
                 if (typeof DigitalCardRenderer === 'undefined') return;
-                if (!window.digitalCardRenderers) window.digitalCardRenderers = {};
                 
                 document.querySelectorAll('canvas[data-card-options]').forEach(canvas => {
+                    // Only draw if not initialized yet
                     if (!canvas.dataset.initialized) {
-                        // If a renderer exists for this ID but the DOM element is new, purge the old renderer
-                        if (window.digitalCardRenderers[canvas.id]) {
-                            delete window.digitalCardRenderers[canvas.id];
-                        }
                         try {
-                            window.digitalCardRenderers[canvas.id] = new DigitalCardRenderer(canvas.id);
+                            const renderer = new DigitalCardRenderer(canvas.id);
                             const options = JSON.parse(canvas.getAttribute('data-card-options'));
-                            window.digitalCardRenderers[canvas.id].draw(options);
+                            renderer.draw(options);
                             canvas.dataset.initialized = 'true';
                         } catch (e) {
                             console.error("Failed to init card", e);
@@ -755,12 +751,19 @@
                 let shouldInit = false;
                 for (let mutation of mutations) {
                     if (mutation.addedNodes.length > 0) {
+                        // Reset initialized flag for newly added/replaced canvases
+                        mutation.addedNodes.forEach(node => {
+                            if (node.querySelectorAll) {
+                                node.querySelectorAll('canvas[data-card-options]').forEach(c => {
+                                    delete c.dataset.initialized;
+                                });
+                            }
+                        });
                         shouldInit = true;
-                        break;
                     }
                 }
                 if (shouldInit) {
-                    setTimeout(initializeVisibleCards, 100);
+                    setTimeout(initializeVisibleCards, 50);
                 }
             });
 
