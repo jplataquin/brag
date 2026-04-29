@@ -416,12 +416,14 @@ class TeamBattleRoom extends Component
     protected function finalizeTeamBattle($battle, $winnerTeam)
     {
         $loserTeam = $winnerTeam == 'A' ? 'B' : 'A';
+        $winnerTeamLower = strtolower($winnerTeam);
+        $loserTeamLower = strtolower($loserTeam);
 
         // Process results for each pair first
         for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
-            $winnerUserId = $battle->{"team_{$winnerTeam}_user_{$i}"};
-            $winnerCardId = $battle->{"team_{$winnerTeam}_card_{$i}"};
-            $loserCardId = $battle->{"team_{$loserTeam}_card_{$i}"};
+            $winnerUserId = $battle->{"team_{$winnerTeamLower}_user_{$i}"};
+            $winnerCardId = $battle->{"team_{$winnerTeamLower}_card_{$i}"};
+            $loserCardId = $battle->{"team_{$loserTeamLower}_card_{$i}"};
             
             $winnerUser = User::find($winnerUserId);
             $winnerCard = DigitalCard::find($winnerCardId);
