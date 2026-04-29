@@ -250,11 +250,27 @@
                                     @endphp
                                     
                                     @if(!$myVote || $teamBattle->status == 'failed')
-                                        <button class="btn btn-neon btn-sm" wire:click="declareWin('{{ $winTeam }}')" wire:key="btn-declare-win-{{ $teamBattle->status }}" wire:loading.attr="disabled">
-                                            <i class="bi bi-trophy"></i> DECLARE WIN
+                                        @php
+                                            // Determine styles based on what was voted
+                                            $votedWin = ($myVote == $winTeam);
+                                            $votedLost = ($myVote == $lostTeam);
+                                            
+                                            $winClass = $votedWin ? 'btn-neon' : ($myVote ? 'btn-outline-info text-muted' : 'btn-neon');
+                                            $winStyle = $votedWin ? 'box-shadow: 0 0 20px #00f0ff; border: 2px solid white;' : '';
+                                            $winIcon = $votedWin ? 'bi-check-circle-fill' : 'bi-trophy';
+                                            $winText = $votedWin ? 'VOTED WIN' : 'DECLARE WIN';
+
+                                            $lostClass = $votedLost ? 'btn-neon-danger' : ($myVote ? 'btn-outline-danger text-muted' : 'btn-neon-danger');
+                                            $lostStyle = $votedLost ? 'box-shadow: 0 0 20px #ff0000; border: 2px solid white;' : '';
+                                            $lostIcon = $votedLost ? 'bi-check-circle-fill' : 'bi-x-circle';
+                                            $lostText = $votedLost ? 'VOTED LOST' : 'DECLARE LOST';
+                                        @endphp
+                                        
+                                        <button class="btn {{ $winClass }} btn-sm" wire:click="declareWin('{{ $winTeam }}')" wire:key="btn-declare-win-{{ $teamBattle->status }}-{{ $myVote ?? 'none' }}" wire:loading.attr="disabled" style="{{ $winStyle }}">
+                                            <i class="bi {{ $winIcon }}"></i> {{ $winText }}
                                         </button>
-                                        <button class="btn btn-neon-danger btn-sm" wire:click="declareWin('{{ $lostTeam }}')" wire:key="btn-declare-lost-{{ $teamBattle->status }}" wire:loading.attr="disabled">
-                                            <i class="bi bi-x-circle"></i> DECLARE LOST
+                                        <button class="btn {{ $lostClass }} btn-sm" wire:click="declareWin('{{ $lostTeam }}')" wire:key="btn-declare-lost-{{ $teamBattle->status }}-{{ $myVote ?? 'none' }}" wire:loading.attr="disabled" style="{{ $lostStyle }}">
+                                            <i class="bi {{ $lostIcon }}"></i> {{ $lostText }}
                                         </button>
                                     @else
                                         <div class="alert alert-info py-2 small mb-0 text-center" style="border: 1px solid #00f0ff; background: rgba(0, 240, 255, 0.1); color: #00f0ff; width: 100%; max-width: 400px;" wire:key="alert-waiting-opponent">
