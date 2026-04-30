@@ -39,5 +39,5 @@ class GameTitleSeeder extends Seeder
     //     foreach ($games as $game) {
     //         GameTitle::firstOrCreate(['title' => $game]);
     //     }
-    // }
+    }
 }
