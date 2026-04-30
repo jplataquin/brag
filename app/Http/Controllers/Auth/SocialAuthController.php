@@ -123,6 +123,7 @@ class SocialAuthController extends Controller
             'firstname' => $request->firstname,
             'lastname' => $request->lastname,
             'birthdate' => $request->birthdate,
+            'email_verified_at' => now()
         ]);
 
         // Refresh the user to ensure any verified_at updates (like those done during creation) are picked up by the session/middleware
