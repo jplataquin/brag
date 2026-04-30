@@ -25,6 +25,10 @@ Route::get('/gallery', [DigitalCardController::class, 'gallery'])->name('gallery
 
 Auth::routes(['verify' => true]);
 
+// Social Auth
+Route::get('/auth/google', [App\Http\Controllers\Auth\SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [App\Http\Controllers\Auth\SocialAuthController::class, 'handleGoogleCallback']);
+
 // Terms of Service (Public view)
 Route::get('/terms', [TermsOfServiceController::class, 'show'])->name('terms.show');
 

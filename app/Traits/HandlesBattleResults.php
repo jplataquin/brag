@@ -45,6 +45,9 @@ trait HandlesBattleResults
             $loserCard->life_points = 3; // Reset life points for the new owner as a trophy
             $cardTransferred = true;
             \Log::info("Card {$loserCard->id} TRANSFERRED to User {$winnerUser->id} as trophy");
+            
+            // Notify the winner that they received a trophy
+            $winnerUser->notify(new \App\Notifications\TrophyWonNotification($loserCard));
         }
         
         $loserCard->save();

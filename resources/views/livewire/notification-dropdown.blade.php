@@ -48,6 +48,10 @@
                                         <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3);">
                                             <i class="bi bi-hand-index-thumb-fill" style="color: #00f0ff;"></i>
                                         </div>
+                                    @elseif(($notification->data['type'] ?? '') === 'trophy_won')
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; background: rgba(255, 221, 0, 0.1); border: 1px solid rgba(255, 221, 0, 0.3);">
+                                            <i class="bi bi-trophy-fill" style="color: #ffdd00;"></i>
+                                        </div>
                                     @else
                                         <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; background: rgba(255, 0, 255, 0.1); border: 1px solid rgba(255, 0, 255, 0.3);">
                                             <i class="bi bi-lightning-fill" style="color: #ff00ff;"></i>

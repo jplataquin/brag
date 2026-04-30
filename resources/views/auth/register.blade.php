@@ -135,6 +135,17 @@
                 <button type="submit" class="btn btn-neon-magenta w-100" id="btn-register">
                     <i class="bi bi-person-plus-fill"></i> {{ __('CREATE ACCOUNT') }}
                 </button>
+
+                <div class="d-flex align-items-center my-4">
+                    <hr class="flex-grow-1" style="border-color: rgba(255,255,255,0.1);">
+                    <span class="mx-3" style="color: #555577; font-size: 0.8rem; font-family: 'Orbitron', sans-serif;">OR</span>
+                    <hr class="flex-grow-1" style="border-color: rgba(255,255,255,0.1);">
+                </div>
+
+                <a href="{{ route('auth.google') }}" class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center" style="border-color: rgba(255,255,255,0.2); font-family: 'Orbitron', sans-serif; font-size: 0.8rem; letter-spacing: 1px;">
+                    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" style="width: 18px; margin-right: 10px;">
+                    {{ __('SIGN UP WITH GOOGLE') }}
+                </a>
             </form>
         </div>
 

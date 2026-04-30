@@ -35,8 +35,12 @@
                                                     <i class="bi bi-shield-fill-check fs-5" style="color: #ffdd00;"></i>
                                                 </div>
                                             @elseif(($notification->data['type'] ?? '') === 'poke')
-                                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: rgba(0, 240, 255, 0.1); border: 2px solid rgba(0, 240, 255, 0.4);">
-                                                    <i class="bi bi-hand-index-thumb-fill fs-5" style="color: #00f0ff;"></i>
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 45px; height: 45px; background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3);">
+                                                    <i class="bi bi-hand-index-thumb-fill" style="color: #00f0ff; font-size: 1.2rem;"></i>
+                                                </div>
+                                            @elseif(($notification->data['type'] ?? '') === 'trophy_won')
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 45px; height: 45px; background: rgba(255, 221, 0, 0.1); border: 1px solid rgba(255, 221, 0, 0.3);">
+                                                    <i class="bi bi-trophy-fill" style="color: #ffdd00; font-size: 1.2rem;"></i>
                                                 </div>
                                             @elseif(($notification->data['type'] ?? '') === 'victory')
                                                 <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: rgba(57, 255, 20, 0.1); border: 2px solid rgba(57, 255, 20, 0.4);">
