@@ -65,6 +65,13 @@ class UpdateTeamBattleStatus extends Command
             $clearedData = true;
         }
 
+        if ($status === 'pending') {
+            $battle->marshall_id = null;
+            $battle->team_a_marshall_elect = null;
+            $battle->team_b_marshall_elect = null;
+            $clearedData = true;
+        }
+
         $battle->save();
 
         $logMessage = "System forcefully updated status from {$oldStatus} to {$status}.";
