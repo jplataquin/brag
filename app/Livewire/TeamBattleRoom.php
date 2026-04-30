@@ -394,6 +394,7 @@ class TeamBattleRoom extends Component
             $finalWinnerTeam = null;
             if ($isMarshall) {
                 $finalWinnerTeam = $team;
+                $this->logActivity($user->id, 'marshall_decision', "Marshall {$user->username} has made the final decision: Team {$team} wins.");
             } elseif ($battle->team_a_declare_win && $battle->team_b_declare_win) {
                 if ($battle->team_a_declare_win == $battle->team_b_declare_win) {
                     $finalWinnerTeam = $battle->team_a_declare_win;
@@ -668,7 +669,7 @@ class TeamBattleRoom extends Component
                 ->filter(fn($c) => $c->template->game_title_id == $this->teamBattle->game_title_id);
         }
 
-        $activities = BattleActivity::where('team_battle_id', $this->teamBattle->id)->latest()->take(20)->get()->reverse();
+        $activities = BattleActivity::where('team_battle_id', $this->teamBattle->id)->latest()->take(50)->get();
 
         return view('livewire.team-battle-room', [
             'myEligibleCards' => $cards,

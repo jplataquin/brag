@@ -381,7 +381,7 @@
         <div class="col-lg-3 mt-4 mt-lg-0">
             <div class="neon-card p-3 h-100">
                 <h6 class="orbitron text-cyan mb-3 border-bottom border-secondary pb-2">ACTIVITY LOG</h6>
-                <div class="activity-log-container" style="max-height: 300px; overflow-y: auto;">
+                <div class="activity-log-container d-flex flex-column" style="max-height: 300px; overflow-y: auto;">
                     @foreach($activities as $activity)
                         <div class="activity-item mb-2 border-bottom border-secondary border-opacity-10 pb-1">
                             <span class="text-muted small">[{{ $activity->created_at->format('H:i') }}]</span>
