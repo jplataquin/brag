@@ -125,6 +125,9 @@ class SocialAuthController extends Controller
             'birthdate' => $request->birthdate,
         ]);
 
+        // Refresh the user to ensure any verified_at updates (like those done during creation) are picked up by the session/middleware
+        Auth::setUser($user->fresh());
+
         return redirect('/home')->with('success', 'Profile setup complete! Welcome to the Arena.');
     }
 
