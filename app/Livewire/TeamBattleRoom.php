@@ -577,21 +577,55 @@ class TeamBattleRoom extends Component
         if ($isLeaderA) $this->teamBattle->update(['team_a_marshall_elect' => $nomineeId]);
         if ($isLeaderB) $this->teamBattle->update(['team_b_marshall_elect' => $nomineeId]);
 
+        $nominee = \App\Models\User::find($nomineeId);
+        $nomineeName = $nominee ? $nominee->username : 'Unknown';
+
         if ($this->teamBattle->team_a_marshall_elect && $this->teamBattle->team_a_marshall_elect == $this->teamBattle->team_b_marshall_elect) {
-             // Consensus
-             $this->teamBattle->update([
-                 'marshall_id' => $this->teamBattle->team_a_marshall_elect,
-                 'team_a_marshall_elect' => null,
-                 'team_b_marshall_elect' => null
-             ]);
-             $this->broadcastUpdate("Marshall elected by consensus!");
-             $this->logActivity($user->id, 'consensus', "Marshall consensus reached.");
+             // Consensus reached, wait for acceptance
+             $nominee->notify(new \App\Notifications\TeamBattleNotification(
+                 $this->teamBattle,
+                 "Both team leaders have elected you as the MARSHALL. Will you accept?",
+                 'marshall_election'
+             ));
+             
+             $this->broadcastUpdate("Marshall consensus reached! Waiting for {$nomineeName} to accept.");
+             $this->logActivity($user->id, 'consensus', "Marshall consensus reached: Waiting for {$nomineeName} to accept.");
         } else {
             $this->broadcastUpdate("Marshall nominated.");
+            $this->logActivity($user->id, 'system', "{$user->username} nominated {$nomineeName} as Marshall.");
         }
         
         $this->marshallNomineeId = '';
         $this->refreshRoom();
+    }
+
+    public function acceptMarshall()
+    {
+        $user = Auth::user();
+        if ($this->teamBattle->team_a_marshall_elect == $user->id && $this->teamBattle->team_b_marshall_elect == $user->id) {
+            $this->teamBattle->update([
+                 'marshall_id' => $user->id,
+                 'team_a_marshall_elect' => null,
+                 'team_b_marshall_elect' => null
+            ]);
+            $this->logActivity($user->id, 'system', "{$user->username} accepted the Marshall role.");
+            $this->broadcastUpdate("{$user->username} accepted the Marshall role.");
+            $this->refreshRoom();
+        }
+    }
+
+    public function rejectMarshall()
+    {
+        $user = Auth::user();
+        if ($this->teamBattle->team_a_marshall_elect == $user->id && $this->teamBattle->team_b_marshall_elect == $user->id) {
+            $this->teamBattle->update([
+                 'team_a_marshall_elect' => null,
+                 'team_b_marshall_elect' => null
+            ]);
+            $this->logActivity($user->id, 'system', "{$user->username} rejected the Marshall role.");
+            $this->broadcastUpdate("{$user->username} rejected the Marshall role.");
+            $this->refreshRoom();
+        }
     }
 
     public function updateTeamName($team)
