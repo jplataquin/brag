@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Exception;
 
 class SocialAuthController extends Controller
@@ -41,8 +42,17 @@ class SocialAuthController extends Controller
 
         if ($user) {
             // Update google_id if it's not set (in case of existing email match)
+            $updates = [];
             if (!$user->google_id) {
-                $user->update(['google_id' => $googleUser->id]);
+                $updates['google_id'] = $googleUser->id;
+            }
+            // Mark email as verified if it wasn't already
+            if (!$user->email_verified_at) {
+                $updates['email_verified_at'] = now();
+            }
+
+            if (!empty($updates)) {
+                $user->update($updates);
             }
             
             Auth::login($user);
@@ -65,10 +75,57 @@ class SocialAuthController extends Controller
                 'email_verified_at' => now(), // Google emails are verified
             ]);
 
+            // Fire the Verified event so listeners (like GrantWelcomeShards) are triggered
+            event(new \Illuminate\Auth\Events\Verified($user));
+
             Auth::login($user);
         }
 
+        // Redirect to setup if birthdate is missing
+        if (!$user->birthdate) {
+            return redirect()->route('auth.google.setup');
+        }
+
         return redirect()->intended('/home');
+    }
+
+    /**
+     * Show the profile setup form for Google users.
+     */
+    public function showSetupProfile()
+    {
+        $user = Auth::user();
+        
+        // If profile is already complete, go to home
+        if ($user->birthdate) {
+            return redirect('/home');
+        }
+
+        return view('auth.google-setup', compact('user'));
+    }
+
+    /**
+     * Save the profile setup data.
+     */
+    public function saveSetupProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'birthdate' => 'required|date|before:today',
+        ]);
+
+        $user->update([
+            'username' => $request->username,
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
+            'birthdate' => $request->birthdate,
+        ]);
+
+        return redirect('/home')->with('success', 'Profile setup complete! Welcome to the Arena.');
     }
 
     /**
