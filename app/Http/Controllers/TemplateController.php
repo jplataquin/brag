@@ -95,16 +95,6 @@ class TemplateController extends Controller
             return back()->with('error', "You need at least {$cost} Shards to create a template. You currently have " . $user->shards_balance . '.')->withInput();
         }
 
-        // Check for duplicate game title
-        $gameTitleId = (int) $request->input('game_title_id');
-        
-        if ($gameTitleId > 0) {
-            $exists = $user->templates()->where('game_title_id', $gameTitleId)->exists();
-            if ($exists) {
-                return back()->withErrors(['game_title_id' => 'You already have a template for this game title.'])->withInput();
-            }
-        }
-
         $data = $request->only(['card_title', 'game_title_id', 'quote', 'image_position_y', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
         $data['card_title'] = strtoupper($data['card_title']);
         $data['user_id'] = $user->id;

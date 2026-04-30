@@ -65,17 +65,27 @@
 </div>
 
 <div class="mb-5">
-    <h5 class="section-header">
-        <i class="bi bi-collection-fill section-icon"></i> ALL CARDS
-        <span class="badge rounded-pill ms-2" style="background: rgba(0,240,255,0.1); color: #00f0ff; font-size: 0.7rem;">{{ $cards->count() }}</span>
-    </h5>
-
     @if($cards->count() > 0)
-        <div class="card-grid">
-            @foreach($cards as $card)
-                @include('partials.card-mini', ['card' => $card])
-            @endforeach
-        </div>
+        @php
+            $groupedCards = $cards->groupBy(function($card) {
+                return $card->template->gameTitle->title ?? 'Unknown Game';
+            });
+        @endphp
+
+        @foreach($groupedCards as $gameTitle => $gameCards)
+            <div class="mb-5">
+                <h5 class="section-header">
+                    <i class="bi bi-controller section-icon"></i> {{ strtoupper($gameTitle) }}
+                    <span class="badge rounded-pill ms-2" style="background: rgba(0,240,255,0.1); color: #00f0ff; font-size: 0.7rem;">{{ $gameCards->count() }}</span>
+                </h5>
+
+                <div class="card-grid">
+                    @foreach($gameCards as $card)
+                        @include('partials.card-mini', ['card' => $card])
+                    @endforeach
+                </div>
+            </div>
+        @endforeach
     @else
         <div class="empty-state">
             <div class="empty-icon">🃏</div>

@@ -17,7 +17,8 @@ use App\Http\Controllers\TermsOfServiceController;
 // Landing page
 Route::get('/', function () {
     $cardsInCirculation = \App\Models\DigitalCard::count();
-    return view('welcome', compact('cardsInCirculation'));
+    $gameTitlesCount = \App\Models\GameTitle::where('status', 'active')->count();
+    return view('welcome', compact('cardsInCirculation', 'gameTitlesCount'));
 });
 
 // Gallery
