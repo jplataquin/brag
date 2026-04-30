@@ -28,8 +28,8 @@ Auth::routes(['verify' => true]);
 // Social Auth
 Route::get('/auth/google', [App\Http\Controllers\Auth\SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [App\Http\Controllers\Auth\SocialAuthController::class, 'handleGoogleCallback']);
-Route::get('/auth/google/setup', [App\Http\Controllers\Auth\SocialAuthController::class, 'showSetupProfile'])->name('auth.google.setup')->middleware('auth');
-Route::post('/auth/google/setup', [App\Http\Controllers\Auth\SocialAuthController::class, 'saveSetupProfile'])->middleware('auth');
+Route::get('/auth/google/setup', [App\Http\Controllers\Auth\SocialAuthController::class, 'showSetupProfile'])->name('auth.google.setup');
+Route::post('/auth/google/setup', [App\Http\Controllers\Auth\SocialAuthController::class, 'saveSetupProfile']);
 
 // Terms of Service (Public view)
 Route::get('/terms', [TermsOfServiceController::class, 'show'])->name('terms.show');

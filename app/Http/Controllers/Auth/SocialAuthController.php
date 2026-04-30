@@ -56,37 +56,24 @@ class SocialAuthController extends Controller
             }
             
             Auth::login($user);
-        } else {
-            // Create a new user
-            $username = $this->generateUsername($googleUser->name ?: explode('@', $googleUser->email)[0]);
-            
-            // Handle names
-            $nameParts = explode(' ', $googleUser->name, 2);
-            $firstname = $nameParts[0] ?? null;
-            $lastname = $nameParts[1] ?? null;
 
-            $user = User::create([
-                'firstname' => $firstname,
-                'lastname' => $lastname,
-                'username' => $username,
-                'email' => $googleUser->email,
-                'google_id' => $googleUser->id,
-                'password' => null, // No password for social users
-                'email_verified_at' => now(), // Google emails are verified
+            // Redirect to setup if birthdate is missing
+            if (!$user->birthdate) {
+                return redirect()->route('auth.google.setup');
+            }
+
+            return redirect()->intended('/home');
+        } else {
+            // User doesn't exist. Store Google data in session and redirect to setup.
+            session([
+                'google_user_id' => $googleUser->id,
+                'google_user_email' => $googleUser->email,
+                'google_user_name' => $googleUser->name,
+                'google_user_avatar' => $googleUser->avatar,
             ]);
 
-            // Fire the Verified event so listeners (like GrantWelcomeShards) are triggered
-            event(new \Illuminate\Auth\Events\Verified($user));
-
-            Auth::login($user);
-        }
-
-        // Redirect to setup if birthdate is missing
-        if (!$user->birthdate) {
             return redirect()->route('auth.google.setup');
         }
-
-        return redirect()->intended('/home');
     }
 
     /**
@@ -94,14 +81,38 @@ class SocialAuthController extends Controller
      */
     public function showSetupProfile()
     {
-        $user = Auth::user();
-        
-        // If profile is already complete, go to home
-        if ($user->birthdate) {
-            return redirect('/home');
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->birthdate) {
+                return redirect('/home');
+            }
+            $defaults = [
+                'username' => $user->username,
+                'firstname' => $user->firstname,
+                'lastname' => $user->lastname,
+                'email' => $user->email,
+            ];
+            $isNewUser = false;
+        } else if (session()->has('google_user_id')) {
+            $name = session('google_user_name');
+            $email = session('google_user_email');
+            
+            $nameParts = explode(' ', $name, 2);
+            $firstname = $nameParts[0] ?? '';
+            $lastname = $nameParts[1] ?? '';
+            
+            $defaults = [
+                'username' => $this->generateUsername($name ?: explode('@', $email)[0]),
+                'firstname' => $firstname,
+                'lastname' => $lastname,
+                'email' => $email,
+            ];
+            $isNewUser = true;
+        } else {
+            return redirect('/login')->with('error', 'Authentication session expired.');
         }
 
-        return view('auth.google-setup', compact('user'));
+        return view('auth.google-setup', compact('defaults', 'isNewUser'));
     }
 
     /**
@@ -109,25 +120,61 @@ class SocialAuthController extends Controller
      */
     public function saveSetupProfile(Request $request)
     {
-        $user = Auth::user();
+        $isNewUser = !Auth::check();
 
-        $request->validate([
-            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+        $rules = [
             'firstname' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
             'birthdate' => 'required|date|before:today',
-        ]);
+        ];
 
-        $user->update([
-            'username' => $request->username,
-            'firstname' => $request->firstname,
-            'lastname' => $request->lastname,
-            'birthdate' => $request->birthdate,
-            'email_verified_at' => now()
-        ]);
+        if ($isNewUser) {
+            $rules['username'] = 'required|string|max:255|unique:users,username';
+            $rules['terms'] = 'required|accepted';
+        } else {
+            $user = Auth::user();
+            $rules['username'] = 'required|string|max:255|unique:users,username,' . $user->id;
+            // Existing users are caught by EnsureTermsAgreed middleware
+        }
 
-        // Refresh the user to ensure any verified_at updates (like those done during creation) are picked up by the session/middleware
-        Auth::setUser($user->fresh());
+        $request->validate($rules);
+
+        if ($isNewUser) {
+            if (!session()->has('google_user_id')) {
+                return redirect('/login')->with('error', 'Authentication session expired.');
+            }
+
+            $latestTerms = \App\Models\TermsOfService::latest('id')->first();
+
+            $user = User::create([
+                'firstname' => $request->firstname,
+                'lastname' => $request->lastname,
+                'username' => $request->username,
+                'email' => session('google_user_email'),
+                'google_id' => session('google_user_id'),
+                'password' => null, // No password for social users
+                'email_verified_at' => now(), // Google emails are verified
+                'birthdate' => $request->birthdate,
+                'terms_version_agreed' => $latestTerms ? $latestTerms->id : 0,
+            ]);
+
+            // Fire the Verified event so listeners (like GrantWelcomeShards) are triggered
+            event(new \Illuminate\Auth\Events\Verified($user));
+
+            session()->forget(['google_user_id', 'google_user_email', 'google_user_name', 'google_user_avatar']);
+            
+            Auth::login($user);
+        } else {
+            $user = Auth::user();
+            $user->update([
+                'username' => $request->username,
+                'firstname' => $request->firstname,
+                'lastname' => $request->lastname,
+                'birthdate' => $request->birthdate,
+            ]);
+            
+            Auth::setUser($user->fresh());
+        }
 
         return redirect('/home')->with('success', 'Profile setup complete! Welcome to the Arena.');
     }

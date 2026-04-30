@@ -19,7 +19,7 @@
                 <div class="mb-3">
                     <label for="username" class="form-label">{{ __('Username') }}</label>
                     <input id="username" type="text" class="form-control @error('username') is-invalid @enderror"
-                           name="username" value="{{ old('username', $user->username) }}" required autocomplete="username"
+                           name="username" value="{{ old('username', $defaults['username']) }}" required autocomplete="username"
                            placeholder="Enter your gamertag">
                     <div class="form-text" style="color: #555577; font-size: 0.75rem;">This is your unique handle in the Arena.</div>
                     @error('username')
@@ -33,7 +33,7 @@
                     <div class="col-md-6">
                         <label for="firstname" class="form-label">{{ __('First Name') }}</label>
                         <input id="firstname" type="text" class="form-control @error('firstname') is-invalid @enderror"
-                               name="firstname" value="{{ old('firstname', $user->firstname) }}" required autocomplete="given-name"
+                               name="firstname" value="{{ old('firstname', $defaults['firstname']) }}" required autocomplete="given-name"
                                placeholder="First Name">
                         @error('firstname')
                             <span class="invalid-feedback" role="alert">
@@ -44,7 +44,7 @@
                     <div class="col-md-6">
                         <label for="lastname" class="form-label">{{ __('Last Name') }}</label>
                         <input id="lastname" type="text" class="form-control @error('lastname') is-invalid @enderror"
-                               name="lastname" value="{{ old('lastname', $user->lastname) }}" required autocomplete="family-name"
+                               name="lastname" value="{{ old('lastname', $defaults['lastname']) }}" required autocomplete="family-name"
                                placeholder="Last Name">
                         @error('lastname')
                             <span class="invalid-feedback" role="alert">
@@ -66,6 +66,20 @@
                     @enderror
                 </div>
 
+                @if($isNewUser)
+                <div class="mb-4 form-check">
+                    <input class="form-check-input @error('terms') is-invalid @enderror" type="checkbox" name="terms" id="terms" {{ old('terms') ? 'checked' : '' }} required>
+                    <label class="form-check-label" for="terms" style="font-size: 0.85rem; color: #8888aa;">
+                        I agree to the <a href="{{ route('terms.show') }}" target="_blank" style="color: #00f0ff;">Terms of Service</a>
+                    </label>
+                    @error('terms')
+                        <span class="invalid-feedback d-block" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+                @endif
+
                 <button type="submit" class="btn btn-neon w-100" style="background: linear-gradient(45deg, #ff00ff, #00f0ff); border: none;">
                     <i class="bi bi-check-circle-fill"></i> COMPLETE SETUP
                 </button>
@@ -73,7 +87,7 @@
         </div>
 
         <div class="text-center mt-3">
-            <p style="color: #555577; font-size: 0.8rem;">Logged in as: <span style="color: #00f0ff;">{{ $user->email }}</span></p>
+            <p style="color: #555577; font-size: 0.8rem;">Setting up profile for: <span style="color: #00f0ff;">{{ $defaults['email'] }}</span></p>
         </div>
     </div>
 </div>
