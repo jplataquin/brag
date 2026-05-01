@@ -4,7 +4,7 @@
 "Brag" is a sleek, competitive social platform where gamers can forge unique "Digital Cards" from customizable "Templates" and use them as stakes in PvP (Player vs. Player) battles. 
 
 ### Core Features
-- **Templates & Forging:** Users can create unique templates (one per Game Title). From these templates, they can forge a "Digital Card"—a unique trophy. Forging has a 3-day cooldown to prevent market flooding.
+- **Templates & Forging:** Users can create unique templates (one per Game Title). From these templates, they can forge a "Digital Card"—a unique trophy.
 - **Digital Cards:** These act as the core stakes of the platform. Each card tracks its own stats (Level, Wins, Losses, and Copies in Circulation), determining its rarity and social worth. Users can keep a maximum of three per game title of their own forged cards in their inventory.
 - **The Arena & Battles:** Users can join or create matches ("Battles") to bet their digital cards. 
 - **Marshalls:** Battles can optionally have an "Marshall"—a neutral third-party user invited to oversee the match and declare the winner.

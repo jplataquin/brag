@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ShardLedger extends Model
+class DiamondLedger extends Model
 {
     use HasFactory;
 
@@ -28,7 +28,7 @@ class ShardLedger extends Model
     }
 
     /**
-     * The user who sent the shards (if applicable).
+     * The user who sent the diamonds (if applicable).
      */
     public function fromUser()
     {
@@ -36,7 +36,7 @@ class ShardLedger extends Model
     }
 
     /**
-     * The user who received the shards (if applicable).
+     * The user who received the diamonds (if applicable).
      */
     public function transferUser()
     {

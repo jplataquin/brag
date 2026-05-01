@@ -161,7 +161,7 @@ class SocialAuthController extends Controller
                 'privacy_version_agreed' => $latestPrivacy ? $latestPrivacy->id : 0,
             ]);
 
-            // Fire the Verified event so listeners (like GrantWelcomeShards) are triggered
+            // Fire the Verified event so listeners (like GrantWelcomeDiamonds) are triggered
             event(new \Illuminate\Auth\Events\Verified($user));
 
             session()->forget(['google_user_id', 'google_user_email', 'google_user_name', 'google_user_avatar']);

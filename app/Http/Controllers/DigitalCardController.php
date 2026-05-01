@@ -157,18 +157,18 @@ class DigitalCardController extends Controller
 
         $cost = 5;
 
-        if ($user->shards_balance < $cost) {
-            return back()->with('error', "You need at least {$cost} Shards to heal this card.");
+        if ($user->diamonds_balance < $cost) {
+            return back()->with('error', "You need at least {$cost} Diamonds to heal this card.");
         }
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($card, $cost, $user) {
-            $user->deductShards($cost, 'system', "Healed card #{$card->serial_number} ({$card->template->card_title})");
+            $user->deductDiamonds($cost, 'system', "Healed card #{$card->serial_number} ({$card->template->card_title})");
             
             $card->life_points += 1;
             $card->save();
         });
 
-        return back()->with('success', "💖 Card successfully healed! Restored 1 Life Point for {$cost} Shard(s).");
+        return back()->with('success', "💖 Card successfully healed! Restored 1 Life Point for {$cost} Diamond(s).");
     }
 
     /**
@@ -193,12 +193,12 @@ class DigitalCardController extends Controller
             return back()->with('error', 'You cannot burn a card that is currently in a battle.');
         }
 
-        // Give shards based on level
-        $shards = $card->level;
+        // Give diamonds based on level
+        $diamonds = $card->level;
         $user = auth()->user();
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($card, $shards, $user) {
-            $user->addShards($shards, 'system', "Burned card #{$card->serial_number} ({$card->template->card_title} - Level {$card->level})");
+        \Illuminate\Support\Facades\DB::transaction(function () use ($card, $diamonds, $user) {
+            $user->addDiamonds($diamonds, 'system', "Burned card #{$card->serial_number} ({$card->template->card_title} - Level {$card->level})");
 
             // Burn it
             $card->update([
@@ -209,7 +209,7 @@ class DigitalCardController extends Controller
             $card->delete();
         });
 
-        return redirect()->route('cards.index')->with('success', "Card successfully burned! You received {$shards} Shard(s).");
+        return redirect()->route('cards.index')->with('success', "Card successfully burned! You received {$diamonds} Diamond(s).");
     }
 
     /**

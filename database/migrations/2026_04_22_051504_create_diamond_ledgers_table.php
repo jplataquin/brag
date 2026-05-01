@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('shard_ledgers', function (Blueprint $table) {
+        Schema::create('diamond_ledgers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->decimal('debit', 10, 2)->default(0);
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('shard_ledgers');
+        Schema::dropIfExists('diamond_ledgers');
     }
 };

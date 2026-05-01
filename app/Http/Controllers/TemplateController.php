@@ -90,9 +90,9 @@ class TemplateController extends Controller
 
         $user = Auth::user();
 
-        $cost = config('shards.costs.template_creation');
-        if ($user->shards_balance < $cost) {
-            return back()->with('error', "You need at least {$cost} Shards to create a template. You currently have " . $user->shards_balance . '.')->withInput();
+        $cost = config('diamonds.costs.template_creation');
+        if ($user->diamonds_balance < $cost) {
+            return back()->with('error', "You need at least {$cost} Diamonds to create a template. You currently have " . $user->diamonds_balance . '.')->withInput();
         }
 
         $data = $request->only(['card_title', 'game_title_id', 'quote', 'image_position_y', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
@@ -115,8 +115,8 @@ class TemplateController extends Controller
         }
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($user, $data) {
-            $cost = config('shards.costs.template_creation');
-            $user->deductShards($cost, 'system', "Created new template: {$data['card_title']}");
+            $cost = config('diamonds.costs.template_creation');
+            $user->deductDiamonds($cost, 'system', "Created new template: {$data['card_title']}");
             Template::create($data);
         });
 

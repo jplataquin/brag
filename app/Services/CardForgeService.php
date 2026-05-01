@@ -25,12 +25,12 @@ class CardForgeService
             ];
         }
 
-        // Check if user has enough shards
-        $cost = config('shards.costs.forging');
-        if ($user->shards_balance < $cost) {
+        // Check if user has enough diamonds
+        $cost = config('diamonds.costs.forging');
+        if ($user->diamonds_balance < $cost) {
             return [
                 'can_forge' => false,
-                'reason' => "You need at least {$cost} Shards to forge a new card. You currently have " . $user->shards_balance . '.',
+                'reason' => "You need at least {$cost} Diamonds to forge a new card. You currently have " . $user->diamonds_balance . '.',
                 'cooldown_ends' => null,
             ];
         }
@@ -45,23 +45,6 @@ class CardForgeService
                 'can_forge' => false,
                 'reason' => 'You already have 3 Digital Cards from this template in your inventory. You must lose or transfer some first.',
                 'cooldown_ends' => null,
-            ];
-        }
-
-        // Check cooldown (3 forges per day from this template)
-        $forgesLast24h = DigitalCard::where('template_id', $template->id)
-            ->where('original_owner_id', $user->id)
-            ->where('forged_at', '>=', now()->subDay())
-            ->orderBy('forged_at', 'desc')
-            ->get();
-
-        if ($forgesLast24h->count() >= 3) {
-            $cooldownEnds = clone $forgesLast24h->last()->forged_at;
-            $cooldownEnds->addDay();
-            return [
-                'can_forge' => false,
-                'reason' => 'Daily forge limit reached for this template. You can forge again after ' . $cooldownEnds->diffForHumans(),
-                'cooldown_ends' => $cooldownEnds,
             ];
         }
 
@@ -83,9 +66,9 @@ class CardForgeService
         }
 
         return \Illuminate\Support\Facades\DB::transaction(function () use ($user, $template) {
-            // Deduct shards
-            $cost = config('shards.costs.forging');
-            $user->deductShards($cost, 'system', "Forged new card from template: {$template->card_title}");
+            // Deduct diamonds
+            $cost = config('diamonds.costs.forging');
+            $user->deductDiamonds($cost, 'system', "Forged new card from template: {$template->card_title}");
 
             return DigitalCard::create([
                 'template_id' => $template->id,

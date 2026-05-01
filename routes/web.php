@@ -75,7 +75,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
     Route::get('/admin/users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
     Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
-    Route::post('/admin/users/{user}/shards', [AdminUserController::class, 'updateShards'])->name('admin.users.shards');
+    Route::post('/admin/users/{user}/diamonds', [AdminUserController::class, 'updateDiamonds'])->name('admin.users.diamonds');
     
     // Game Titles Management
     Route::resource('admin/game_titles', AdminGameTitleController::class)->except(['show'])->names([

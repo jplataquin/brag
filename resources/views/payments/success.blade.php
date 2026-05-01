@@ -14,7 +14,7 @@
                 PAYMENT SUCCESSFUL!
             </h1>
             <p class="lead text-muted mb-5">
-                Thank you for your purchase. Your shards are being prepared and will be added to your wallet shortly.
+                Thank you for your purchase. Your diamonds are being prepared and will be added to your wallet shortly.
             </p>
 
             <div class="neon-card p-4 mb-5 text-start" style="border-color: #00f0ff; background: rgba(17, 17, 34, 0.8); backdrop-filter: blur(10px);">
@@ -30,7 +30,7 @@
                 <div class="row mb-3">
                     <div class="col-sm-5 text-muted small" style="font-family: 'Orbitron', sans-serif;">PURCHASED</div>
                     <div class="col-sm-7 fw-bold" style="color: #00f0ff;">
-                        <i class="bi bi-gem"></i> {{ number_format($payment->shards_amount) }} SHARDS
+                        <i class="bi bi-gem"></i> {{ number_format($payment->diamonds_amount) }} DIAMONDS
                     </div>
                 </div>
                 
@@ -67,7 +67,7 @@
             
             <div class="mt-5 pt-4">
                 <p class="small text-muted">
-                    If your shards do not appear within 5 minutes, please contact support with your Reference No.
+                    If your diamonds do not appear within 5 minutes, please contact support with your Reference No.
                 </p>
             </div>
         </div>

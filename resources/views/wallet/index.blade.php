@@ -17,7 +17,7 @@
                     <i class="bi bi-gem"></i> {{ number_format($balance, 2) }}
                 </h2>
                 <div class="mt-3">
-                    <span class="badge" style="background-color: rgba(0,240,255,0.1); border: 1px solid #00f0ff; color: #00f0ff;">SHARDS</span>
+                    <span class="badge" style="background-color: rgba(0,240,255,0.1); border: 1px solid #00f0ff; color: #00f0ff;">DIAMONDS</span>
                 </div>
             </div>
         </div>
@@ -25,15 +25,15 @@
         <!-- Info/Action Card -->
         <div class="col-md-8">
             <div class="neon-card p-4 h-100" style="border-color: rgba(255, 255, 255, 0.1);">
-                <h4 style="font-family: 'Orbitron', sans-serif; color: #fff;"><i class="bi bi-info-circle me-2"></i> SHARDS CURRENCY</h4>
+                <h4 style="font-family: 'Orbitron', sans-serif; color: #fff;"><i class="bi bi-info-circle me-2"></i> DIAMONDS CURRENCY</h4>
                 <p class="text-muted mt-3 mb-0" style="line-height: 1.6;">
-                    Shards are the official in-game currency of Brag. You can use Shards to forge new Digital Cards, purchase premium templates, special borders, or trade them for services. 
+                    Diamonds are the official in-game currency of Brag. You can use Diamonds to forge new Digital Cards, purchase premium templates, special borders, or trade them for services. 
                     <br><br>
                     <i class="bi bi-shield-lock text-warning me-1"></i> <em>Player-to-player transfers are currently disabled but will be arriving in a future update.</em>
                 </p>
                 <div class="mt-4">
                     <button class="btn btn-outline-secondary disabled" title="Coming Soon">
-                        <i class="bi bi-arrow-left-right me-1"></i> TRANSFER SHARDS
+                        <i class="bi bi-arrow-left-right me-1"></i> TRANSFER DIAMONDS
                     </button>
                 </div>
             </div>
@@ -43,7 +43,7 @@
     <div class="row mb-5">
         <div class="col-12">
             <h5 class="section-header mb-4">
-                <i class="bi bi-cart section-icon"></i> PURCHASE SHARDS
+                <i class="bi bi-cart section-icon"></i> PURCHASE DIAMONDS
             </h5>
             @if(isset($packages) && count($packages) > 0)
                 <!-- Desktop View -->
@@ -54,7 +54,7 @@
                                 <h6 style="color: #00f0ff; letter-spacing: 1px;">{{ $package['name'] }}</h6>
                                 <div class="my-3">
                                     <i class="bi bi-gem" style="font-size: 2rem; color: #00f0ff; text-shadow: 0 0 10px rgba(0,240,255,0.5);"></i>
-                                    <div class="fw-bold fs-4 mt-2">{{ $package['shards'] }} <small class="text-muted" style="font-size: 0.5em;">SHARDS</small></div>
+                                    <div class="fw-bold fs-4 mt-2">{{ $package['diamonds'] }} <small class="text-muted" style="font-size: 0.5em;">DIAMONDS</small></div>
                                 </div>
                                 <form method="POST" action="{{ route('payments.checkout') }}">
                                     @csrf
@@ -70,7 +70,7 @@
 
                 <!-- Mobile View (Carousel) -->
                 <div class="d-block d-md-none position-relative px-4">
-                    <div id="shardsCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div id="diamondsCarousel" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner pb-2">
                             @php $isFirst = true; @endphp
                             @foreach($packages as $index => $package)
@@ -80,7 +80,7 @@
                                         <h6 style="color: #00f0ff; letter-spacing: 1px;">{{ $package['name'] }}</h6>
                                         <div class="my-3">
                                             <i class="bi bi-gem" style="font-size: 2rem; color: #00f0ff; text-shadow: 0 0 10px rgba(0,240,255,0.5);"></i>
-                                            <div class="fw-bold fs-4 mt-2">{{ $package['shards'] }} <small class="text-muted" style="font-size: 0.5em;">SHARDS</small></div>
+                                            <div class="fw-bold fs-4 mt-2">{{ $package['diamonds'] }} <small class="text-muted" style="font-size: 0.5em;">DIAMONDS</small></div>
                                         </div>
                                         <form method="POST" action="{{ route('payments.checkout') }}">
                                             @csrf
@@ -93,11 +93,11 @@
                                 </div>
                             @endforeach
                         </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#shardsCarousel" data-bs-slide="prev" style="width: 10%; justify-content: flex-start; margin-left: -15px;">
+                        <button class="carousel-control-prev" type="button" data-bs-target="#diamondsCarousel" data-bs-slide="prev" style="width: 10%; justify-content: flex-start; margin-left: -15px;">
                             <span class="carousel-control-prev-icon" aria-hidden="true" style="filter: invert(1) sepia(1) saturate(5) hue-rotate(135deg);"></span>
                             <span class="visually-hidden">Previous</span>
                         </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#shardsCarousel" data-bs-slide="next" style="width: 10%; justify-content: flex-end; margin-right: -15px;">
+                        <button class="carousel-control-next" type="button" data-bs-target="#diamondsCarousel" data-bs-slide="next" style="width: 10%; justify-content: flex-end; margin-right: -15px;">
                             <span class="carousel-control-next-icon" aria-hidden="true" style="filter: invert(1) sepia(1) saturate(5) hue-rotate(135deg);"></span>
                             <span class="visually-hidden">Next</span>
                         </button>
@@ -105,7 +105,7 @@
                 </div>
             @else
                 <div class="text-center text-muted">
-                    No shard packages are currently available for purchase.
+                    No diamond packages are currently available for purchase.
                 </div>
             @endif
         </div>

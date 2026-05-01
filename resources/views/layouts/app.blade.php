@@ -73,7 +73,7 @@
                                 <div class="col-6 text-end">
                                     <a href="{{ route('wallet.index') }}" class="text-decoration-none d-inline-flex align-items-center" style="background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 20px; padding: 4px 12px;">
                                         <i class="bi bi-gem me-2" style="color: #00f0ff; font-size: 0.9rem;"></i>
-                                        <span class="fw-bold" style="color: #fff; font-family: 'Orbitron', sans-serif; font-size: 0.9rem;">{{ number_format(Auth::user()->shards_balance, 0) }}</span>
+                                        <span class="fw-bold" style="color: #fff; font-family: 'Orbitron', sans-serif; font-size: 0.9rem;">{{ number_format(Auth::user()->diamonds_balance, 0) }}</span>
                                     </a>
                                 </div>
                             </div>
@@ -161,11 +161,11 @@
                                 </li>
                             @endif
                         @else
-                            <!-- Wallet Shards Balance -->
+                            <!-- Wallet Diamonds Balance -->
                             <li class="nav-item me-3 d-none d-lg-block">
                                 <a href="{{ route('wallet.index') }}" class="text-decoration-none d-flex align-items-center" style="background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 20px; padding: 4px 12px; transition: all 0.2s;" id="nav-wallet">
                                     <i class="bi bi-gem me-2" style="color: #00f0ff; font-size: 1.1rem; text-shadow: 0 0 5px #00f0ff;"></i>
-                                    <span class="fw-bold" style="color: #fff; font-family: 'Orbitron', sans-serif;">{{ number_format(Auth::user()->shards_balance, 0) }}</span>
+                                    <span class="fw-bold" style="color: #fff; font-family: 'Orbitron', sans-serif;">{{ number_format(Auth::user()->diamonds_balance, 0) }}</span>
                                 </a>
                             </li>
 
@@ -234,9 +234,9 @@
                 @endif
 
                 @if(session('error'))
-                    @if(str_contains(session('error'), 'Shard'))
+                    @if(str_contains(session('error'), 'Diamond'))
                         <script type="module">
-                            window.neonAlert("{!! addslashes(session('error')) !!}", "INSUFFICIENT SHARDS");
+                            window.neonAlert("{!! addslashes(session('error')) !!}", "INSUFFICIENT DIAMONDS");
                         </script>
                     @else
                         <div class="alert alert-danger alert-dismissible fade show" role="alert" id="alert-error">

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use App\Services\HitPayService;
-use App\Mail\ShardPurchaseReceipt;
+use App\Mail\DiamondPurchaseReceipt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +21,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Initiate the checkout process for a Shard package.
+     * Initiate the checkout process for a Diamond package.
      */
     public function checkout(Request $request)
     {
@@ -30,10 +30,10 @@ class PaymentController extends Controller
         ]);
 
         $packageId = $request->input('package_id');
-        $packages = config('shards.packages');
+        $packages = config('diamonds.packages');
 
         if (!array_key_exists($packageId, $packages)) {
-            return back()->with('error', 'Invalid Shard package selected.');
+            return back()->with('error', 'Invalid Diamond package selected.');
         }
 
         $package = $packages[$packageId];
@@ -48,7 +48,7 @@ class PaymentController extends Controller
             'reference' => $reference,
             'amount' => $package['price'],
             'currency' => $package['currency'],
-            'shards_amount' => $package['shards'],
+            'diamonds_amount' => $package['diamonds'],
             'status' => 'pending',
         ]);
 
@@ -174,16 +174,16 @@ class PaymentController extends Controller
                     }
                     $payment->update($updateData);
 
-                    // Add Shards to user
-                    $payment->user->addShards(
-                        $payment->shards_amount, 
+                    // Add Diamonds to user
+                    $payment->user->addDiamonds(
+                        $payment->diamonds_amount, 
                         'purchased', 
-                        "Purchased {$payment->shards_amount} Shards via HitPay using {$paymentType} (Ref: {$payment->reference})"
+                        "Purchased {$payment->diamonds_amount} Diamonds via HitPay using {$paymentType} (Ref: {$payment->reference})"
                     );
 
                     // Send email receipt
                     try {
-                        Mail::to($payment->user->email)->send(new ShardPurchaseReceipt($payment));
+                        Mail::to($payment->user->email)->send(new DiamondPurchaseReceipt($payment));
                     } catch (\Exception $mailEx) {
                         Log::error('HitPay Webhook: Failed to send receipt email: ' . $mailEx->getMessage());
                         // We still consider the transaction successful even if email fails

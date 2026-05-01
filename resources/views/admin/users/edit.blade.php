@@ -48,9 +48,9 @@
                             <span class="text-white small">{{ $user->created_at->format('M j, Y') }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted small">Shards:</span>
+                            <span class="text-muted small">Diamonds:</span>
                             <span class="text-white fw-bold" style="color: var(--neon-magenta) !important;">
-                                <i class="bi bi-gem"></i> {{ number_format($user->shards_balance) }}
+                                <i class="bi bi-gem"></i> {{ number_format($user->diamonds_balance) }}
                             </span>
                         </div>
                     </div>
@@ -134,7 +134,7 @@
             <!-- Wallet Management -->
             <div class="card bg-dark bg-opacity-75 border-info rounded-4 shadow-lg mt-4" style="backdrop-filter: blur(10px);">
                 <div class="card-body p-4">
-                    <form action="{{ route('admin.users.shards', $user->id) }}" method="POST">
+                    <form action="{{ route('admin.users.diamonds', $user->id) }}" method="POST">
                         @csrf
                         
                         <h5 class="text-uppercase fw-bold text-white mb-4" style="font-family: 'Orbitron', sans-serif;">
@@ -152,8 +152,8 @@
                             <div class="col-md-4">
                                 <label class="form-label text-muted small text-uppercase fw-bold">Action</label>
                                 <select name="action" class="form-select bg-dark text-white border-info" required>
-                                    <option value="credit">Credit (Add Shards)</option>
-                                    <option value="debit">Debit (Deduct Shards)</option>
+                                    <option value="credit">Credit (Add Diamonds)</option>
+                                    <option value="debit">Debit (Deduct Diamonds)</option>
                                 </select>
                             </div>
                             <div class="col-md-3">

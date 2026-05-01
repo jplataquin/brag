@@ -12,7 +12,7 @@ class Payment extends Model
         'hitpay_id',
         'amount',
         'currency',
-        'shards_amount',
+        'diamonds_amount',
         'status',
         'payment_type',
         'fees',

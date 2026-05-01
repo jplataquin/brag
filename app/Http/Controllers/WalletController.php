@@ -14,16 +14,16 @@ class WalletController extends Controller
     {
         $user = Auth::user();
         
-        // Paginate the user's shard transactions, newest first
-        $transactions = $user->shardTransactions()
+        // Paginate the user's diamond transactions, newest first
+        $transactions = $user->diamondTransactions()
             ->with(['fromUser', 'transferUser'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
             
-        // Get the computed shards balance from the model accessor
-        $balance = $user->shards_balance;
+        // Get the computed diamonds balance from the model accessor
+        $balance = $user->diamonds_balance;
         
-        $packages = config('shards.packages', []);
+        $packages = config('diamonds.packages', []);
 
         return view('wallet.index', compact('transactions', 'balance', 'packages'));
     }

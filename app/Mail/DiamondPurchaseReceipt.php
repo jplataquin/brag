@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ShardPurchaseReceipt extends Mailable
+class DiamondPurchaseReceipt extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -30,7 +30,7 @@ class ShardPurchaseReceipt extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Brag - Shard Purchase Receipt (#' . $this->payment->reference . ')',
+            subject: 'Brag - Diamond Purchase Receipt (#' . $this->payment->reference . ')',
         );
     }
 

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('hitpay_id')->nullable()->comment('HitPay payment request ID');
             $table->decimal('amount', 8, 2);
             $table->string('currency')->default('PHP');
-            $table->integer('shards_amount');
+            $table->integer('diamonds_amount');
             $table->string('status')->default('pending')->comment('pending, completed, failed');
             $table->timestamps();
         });

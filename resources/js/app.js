@@ -231,6 +231,9 @@ class DigitalCardRenderer {
         ctx.fillStyle = currentBgColor;
         ctx.fillRect(bw, bw, w - bw * 2, h - bw * 2);
         
+
+
+        
         const innerX = bw + pad;
         const innerW = w - (bw + pad) * 2;
         const titleY = bw + pad;
@@ -394,7 +397,7 @@ class DigitalCardRenderer {
         const photoImg = this.imageCache[imageUrl];
         const badgeImg = this.imageCache[rankBadgeUrl];
         if (photoImg) {
-            this.drawImageWithinBounds(ctx, photoImg, innerX, photoY, innerW, photoH, currentBorderColor, currentMode, options.imagePositionY !== undefined ? options.imagePositionY : 50);
+            this.drawImageWithinBounds(ctx, photoImg, innerX, photoY, innerW, photoH, currentBorderColor, currentMode, options.imagePositionY !== undefined ? options.imagePositionY : 50, sectionRadius);
         }
         if (badgeImg) {
             const badgeSize = w * 0.25;
@@ -488,7 +491,8 @@ class DigitalCardRenderer {
         return url;
     }
 
-    drawImageWithinBounds(ctx, img, x, y, w, h, borderColor, mode, imagePositionY = 50) {
+    drawImageWithinBounds(ctx, img, x, y, w, h, borderColor, mode, imagePositionY = 50, sectionRadius = null) {
+        
         const sRatio = img.width / img.height;
         const dRatio = w / h;
         let sx = 0, sy = 0, sw = img.width, sh = img.height;
@@ -500,10 +504,14 @@ class DigitalCardRenderer {
             const positionRatio = Math.max(0, Math.min(100, imagePositionY)) / 100;
             sy = (img.height - sh) * positionRatio;
         }
-        const radius = Math.floor(ctx.canvas.width * 0.02);
+        const radius = sectionRadius !== null ? sectionRadius : Math.floor(ctx.canvas.width * 0.02);
+        
         ctx.save();
+        
         this.createRoundRectPath(ctx, x, y, w, h, radius);
+        
         ctx.clip();
+
         if (mode === 'template') {
             ctx.filter = 'grayscale(100%)';
         }

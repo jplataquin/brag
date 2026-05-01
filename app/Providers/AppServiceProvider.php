@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
 
         \Illuminate\Support\Facades\Event::listen(
             \Illuminate\Auth\Events\Verified::class,
-            \App\Listeners\GrantWelcomeShards::class,
+            \App\Listeners\GrantWelcomeDiamonds::class,
         );
 
         // Share platform settings with all views globally if database is available

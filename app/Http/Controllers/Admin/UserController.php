@@ -62,7 +62,7 @@ class UserController extends Controller
                          ->with('success', "User '{$user->username}' updated successfully.");
     }
 
-    public function updateShards(Request $request, User $user)
+    public function updateDiamonds(Request $request, User $user)
     {
         $request->validate([
             'action' => 'required|in:credit,debit',
@@ -73,14 +73,14 @@ class UserController extends Controller
         $amount = (int) $request->amount;
 
         if ($request->action === 'debit') {
-            if ($user->shards_balance < $amount) {
-                return back()->with('error', "Cannot deduct {$amount} shards. User only has {$user->shards_balance} shards.");
+            if ($user->diamonds_balance < $amount) {
+                return back()->with('error', "Cannot deduct {$amount} diamonds. User only has {$user->diamonds_balance} diamonds.");
             }
-            $user->deductShards($amount, 'admin_adjustment', 'Admin: ' . $request->remarks, auth()->id());
-            $message = "Successfully deducted {$amount} Shards from {$user->username}.";
+            $user->deductDiamonds($amount, 'admin_adjustment', 'Admin: ' . $request->remarks, auth()->id());
+            $message = "Successfully deducted {$amount} Diamonds from {$user->username}.";
         } else {
-            $user->addShards($amount, 'admin_adjustment', 'Admin: ' . $request->remarks, auth()->id());
-            $message = "Successfully added {$amount} Shards to {$user->username}.";
+            $user->addDiamonds($amount, 'admin_adjustment', 'Admin: ' . $request->remarks, auth()->id());
+            $message = "Successfully added {$amount} Diamonds to {$user->username}.";
         }
 
         return back()->with('success', $message);

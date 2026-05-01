@@ -50,9 +50,9 @@
                         </div>
                         
                         <div class="col-sm-6">
-                            <div class="text-muted small text-uppercase fw-bold mb-1">Shards Purchased</div>
+                            <div class="text-muted small text-uppercase fw-bold mb-1">Diamonds Purchased</div>
                             <div class="fs-4 fw-bold" style="color: var(--neon-magenta); text-shadow: 0 0 5px rgba(255,0,255,0.5);">
-                                <i class="bi bi-gem"></i> {{ number_format($payment->shards_amount) }}
+                                <i class="bi bi-gem"></i> {{ number_format($payment->diamonds_amount) }}
                             </div>
                         </div>
                     </div>
@@ -110,7 +110,7 @@
                         <div>
                             <div class="text-muted small text-uppercase fw-bold mb-1">Current Balance</div>
                             <div class="text-white fw-bold" style="color: var(--neon-magenta);">
-                                <i class="bi bi-gem"></i> {{ number_format($payment->user->shards) }} Shards
+                                <i class="bi bi-gem"></i> {{ number_format($payment->user->diamonds) }} Diamonds
                             </div>
                         </div>
                     </div>

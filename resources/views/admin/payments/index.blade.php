@@ -7,7 +7,7 @@
             <h1 class="display-5 fw-bold text-uppercase" style="color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); font-family: 'Orbitron', sans-serif;">
                 <i class="bi bi-cash-coin"></i> Sales Transactions
             </h1>
-            <p class="text-secondary lead">View and filter all shard purchases via HitPay.</p>
+            <p class="text-secondary lead">View and filter all diamond purchases via HitPay.</p>
         </div>
     </div>
 

@@ -53,8 +53,8 @@
                 <div class="mt-2 mb-4">
                     <form id="heal-form-{{ $digitalCard->id }}" action="{{ route('cards.heal', $digitalCard->id) }}" method="POST">
                         @csrf
-                        <button type="button" class="btn btn-outline-danger w-100 py-2 fw-bold" style="border-color: #ff4444; color: #ff4444; box-shadow: 0 0 10px rgba(255, 68, 68, 0.2);" onclick="window.neonConfirm('Healing this card will cost 5 Shards. Proceed?').then(confirmed => { if(confirmed) { document.getElementById('heal-form-{{ $digitalCard->id }}').submit(); } });">
-                            <i class="bi bi-heart-fill"></i> Heal 💖 (-5 Shards)
+                        <button type="button" class="btn btn-outline-danger w-100 py-2 fw-bold" style="border-color: #ff4444; color: #ff4444; box-shadow: 0 0 10px rgba(255, 68, 68, 0.2);" onclick="window.neonConfirm('Healing this card will cost 5 Diamonds. Proceed?').then(confirmed => { if(confirmed) { document.getElementById('heal-form-{{ $digitalCard->id }}').submit(); } });">
+                            <i class="bi bi-heart-fill"></i> Heal 💖 (-5 Diamonds)
                         </button>
                     </form>
                 </div>
@@ -178,14 +178,14 @@
                 <div>
                     <span style="font-size: 0.85rem; color: #ff4444; font-family: 'Orbitron', sans-serif; letter-spacing: 1px;"><i class="bi bi-fire"></i> BURN CARD</span>
                     <p style="color: #bbbbd0; font-size: 0.75rem; margin-bottom: 0; max-width: 300px;">
-                        Permanently destroy this card to receive <strong>{{ $digitalCard->level }} Shard(s)</strong>. This action cannot be undone.
+                        Permanently destroy this card to receive <strong>{{ $digitalCard->level }} Diamond(s)</strong>. This action cannot be undone.
                     </p>
                 </div>
                 <div>
                     <form id="burn-form-{{ $digitalCard->id }}" action="{{ route('cards.burn', $digitalCard->id) }}" method="POST" style="display: none;">
                         @csrf
                     </form>
-                    <button type="button" class="btn btn-outline-danger btn-sm px-4" style="border-color: #ff4444; color: #ff4444; font-family: 'Orbitron', sans-serif;" onclick="window.neonConfirm('Are you sure you want to BURN this card? It will be permanently removed from your inventory and circulation, but you will receive {{ $digitalCard->level }} Shard(s).').then(confirmed => { if(confirmed) { document.getElementById('burn-form-{{ $digitalCard->id }}').submit(); } });">
+                    <button type="button" class="btn btn-outline-danger btn-sm px-4" style="border-color: #ff4444; color: #ff4444; font-family: 'Orbitron', sans-serif;" onclick="window.neonConfirm('Are you sure you want to BURN this card? It will be permanently removed from your inventory and circulation, but you will receive {{ $digitalCard->level }} Diamond(s).').then(confirmed => { if(confirmed) { document.getElementById('burn-form-{{ $digitalCard->id }}').submit(); } });">
                         BURN
                     </button>
                 </div>

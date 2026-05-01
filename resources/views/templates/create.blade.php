@@ -24,9 +24,9 @@
 
 <div class="row justify-content-center">
     <div class="col-lg-7">
-        @if(Auth::user()->shards_balance < config('shards.costs.template_creation'))
+        @if(Auth::user()->diamonds_balance < config('diamonds.costs.template_creation'))
             <div class="alert alert-danger mb-4" style="background: rgba(255, 0, 0, 0.1); border: 1px solid #ff0000; color: #ff0000;">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>INSUFFICIENT SHARDS:</strong> You need at least {{ config('shards.costs.template_creation') }} Shards to create a template. Please acquire more Shards before proceeding.
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>INSUFFICIENT DIAMONDS:</strong> You need at least {{ config('diamonds.costs.template_creation') }} Diamonds to create a template. Please acquire more Diamonds before proceeding.
             </div>
         @endif
         
@@ -225,15 +225,15 @@
             </div>
 
             <p class="text-center mt-3 mb-2" style="color: #00f0ff; font-size: 0.85rem;">
-                <i class="bi bi-gem"></i> Cost: {{ config('shards.costs.template_creation') }} Shards
+                <i class="bi bi-gem"></i> Cost: {{ config('diamonds.costs.template_creation') }} Diamonds
             </p>
             <div class="d-flex gap-2 justify-content-center">
-                @if(Auth::user()->shards_balance < config('shards.costs.template_creation'))
+                @if(Auth::user()->diamonds_balance < config('diamonds.costs.template_creation'))
                     <button type="button" class="btn btn-secondary" disabled>
-                        <i class="bi bi-x-circle"></i> INSUFFICIENT SHARDS
+                        <i class="bi bi-x-circle"></i> INSUFFICIENT DIAMONDS
                     </button>
                 @else
-                    <button type="submit" form="template-form" class="btn btn-neon" id="btn-submit-template" data-confirm="Create a new template for {{ config('shards.costs.template_creation') }} Shards?">
+                    <button type="submit" form="template-form" class="btn btn-neon" id="btn-submit-template" data-confirm="Create a new template for {{ config('diamonds.costs.template_creation') }} Diamonds?">
                         <i class="bi bi-check-lg"></i> CREATE TEMPLATE
                     </button>
                 @endif

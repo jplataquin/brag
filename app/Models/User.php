@@ -110,30 +110,30 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Get the user's shard ledger entries.
+     * Get the user's diamond ledger entries.
      */
-    public function shardTransactions()
+    public function diamondTransactions()
     {
-        return $this->hasMany(ShardLedger::class);
+        return $this->hasMany(DiamondLedger::class);
     }
 
     /**
-     * Calculate and return the user's current shards balance.
+     * Calculate and return the user's current diamonds balance.
      */
-    public function getShardsBalanceAttribute()
+    public function getDiamondsBalanceAttribute()
     {
-        $credits = $this->shardTransactions()->sum('credit');
-        $debits = $this->shardTransactions()->sum('debit');
+        $credits = $this->diamondTransactions()->sum('credit');
+        $debits = $this->diamondTransactions()->sum('debit');
         
         return $credits - $debits;
     }
 
     /**
-     * Helper to add shards to the user's wallet.
+     * Helper to add diamonds to the user's wallet.
      */
-    public function addShards($amount, $type, $remarks, $fromId = null, $transferId = null)
+    public function addDiamonds($amount, $type, $remarks, $fromId = null, $transferId = null)
     {
-        return $this->shardTransactions()->create([
+        return $this->diamondTransactions()->create([
             'credit' => $amount,
             'debit' => 0,
             'type' => $type,
@@ -144,11 +144,11 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Helper to deduct shards from the user's wallet.
+     * Helper to deduct diamonds from the user's wallet.
      */
-    public function deductShards($amount, $type, $remarks, $fromId = null, $transferId = null)
+    public function deductDiamonds($amount, $type, $remarks, $fromId = null, $transferId = null)
     {
-        return $this->shardTransactions()->create([
+        return $this->diamondTransactions()->create([
             'credit' => 0,
             'debit' => $amount,
             'type' => $type,

@@ -42,7 +42,7 @@ class PaymentController extends Controller
         $sortField = $request->get('sort_by', 'created_at');
         $sortDirection = $request->get('sort_dir', 'desc');
         
-        $allowedSorts = ['created_at', 'amount', 'shards_amount', 'status', 'payment_type'];
+        $allowedSorts = ['created_at', 'amount', 'diamonds_amount', 'status', 'payment_type'];
         if (in_array($sortField, $allowedSorts)) {
             $query->orderBy($sortField, $sortDirection);
         }
