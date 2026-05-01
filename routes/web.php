@@ -61,13 +61,13 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     
     // Announcements Management
-    Route::resource('admin/announcements', AdminAnnouncementController::class)->names([
-        'index' => 'announcements.index',
-        'create' => 'announcements.create',
-        'store' => 'announcements.store',
-        'edit' => 'announcements.edit',
-        'update' => 'announcements.update',
-        'destroy' => 'announcements.destroy',
+    Route::resource('admin/announcements', AdminAnnouncementController::class)->except(['show'])->names([
+        'index' => 'admin.announcements.index',
+        'create' => 'admin.announcements.create',
+        'store' => 'admin.announcements.store',
+        'edit' => 'admin.announcements.edit',
+        'update' => 'admin.announcements.update',
+        'destroy' => 'admin.announcements.destroy',
     ]);
     
     // Platform Settings

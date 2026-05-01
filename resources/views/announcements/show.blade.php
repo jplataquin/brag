@@ -5,7 +5,7 @@
 @section('content')
 <div class="container py-4">
     <div class="mb-4">
-        <a href="{{ route('announcements.index') }}" class="text-cyan text-decoration-none orbitron small">
+        <a href="{{ route('announcements.list') }}" class="text-cyan text-decoration-none orbitron small">
             <i class="bi bi-arrow-left"></i> BACK TO ANNOUNCEMENTS
         </a>
     </div>

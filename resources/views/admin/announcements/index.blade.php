@@ -6,7 +6,7 @@
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="orbitron text-cyan"><i class="bi bi-megaphone-fill"></i> ANNOUNCEMENTS</h1>
-        <a href="{{ route('announcements.create') }}" class="btn btn-neon">
+        <a href="{{ route('admin.announcements.create') }}" class="btn btn-neon">
             <i class="bi bi-plus-lg"></i> CREATE NEW
         </a>
     </div>
@@ -43,14 +43,14 @@
                             <td>{{ $announcement->created_at->format('M j, Y H:i') }}</td>
                             <td class="text-end pe-4">
                                 <div class="btn-group">
-                                    <a href="{{ route('announcements.edit', $announcement) }}" class="btn btn-sm btn-outline-info">
+                                    <a href="{{ route('admin.announcements.edit', $announcement) }}" class="btn btn-sm btn-outline-info">
                                         <i class="bi bi-pencil"></i>
                                     </a>
                                     <button type="button" class="btn btn-sm btn-outline-danger" x-data x-on:click="window.neonConfirm('Are you sure you want to delete this announcement?').then(c => { if(c) document.getElementById('delete-announcement-{{ $announcement->id }}').submit() })">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
-                                <form id="delete-announcement-{{ $announcement->id }}" action="{{ route('announcements.destroy', $announcement) }}" method="POST" class="d-none">
+                                <form id="delete-announcement-{{ $announcement->id }}" action="{{ route('admin.announcements.destroy', $announcement) }}" method="POST" class="d-none">
                                     @csrf
                                     @method('DELETE')
                                 </form>

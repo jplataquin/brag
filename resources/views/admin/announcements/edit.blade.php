@@ -5,7 +5,7 @@
 @section('content')
 <div class="container py-4">
     <div class="mb-4">
-        <a href="{{ route('announcements.index') }}" class="text-cyan text-decoration-none orbitron small">
+        <a href="{{ route('admin.announcements.index') }}" class="text-cyan text-decoration-none orbitron small">
             <i class="bi bi-arrow-left"></i> BACK TO LIST
         </a>
     </div>
@@ -15,7 +15,7 @@
             <h1 class="orbitron text-cyan mb-4">EDIT ANNOUNCEMENT</h1>
             
             <div class="neon-card p-4">
-                <form action="{{ route('announcements.update', $announcement) }}" method="POST">
+                <form action="{{ route('admin.announcements.update', $announcement) }}" method="POST">
                     @csrf
                     @method('PUT')
 

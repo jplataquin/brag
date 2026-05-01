@@ -51,7 +51,7 @@ class AnnouncementController extends Controller
             Notification::send($users, new GlobalAnnouncementNotification($announcement));
         }
 
-        return redirect()->route('announcements.index')->with('success', 'Announcement created successfully.');
+        return redirect()->route('admin.announcements.index')->with('success', 'Announcement created successfully.');
     }
 
     /**
@@ -79,7 +79,7 @@ class AnnouncementController extends Controller
             'is_published' => $request->has('is_published'),
         ]);
 
-        return redirect()->route('announcements.index')->with('success', 'Announcement updated successfully.');
+        return redirect()->route('admin.announcements.index')->with('success', 'Announcement updated successfully.');
     }
 
     /**
@@ -88,6 +88,6 @@ class AnnouncementController extends Controller
     public function destroy(Announcement $announcement)
     {
         $announcement->delete();
-        return redirect()->route('announcements.index')->with('success', 'Announcement deleted successfully.');
+        return redirect()->route('admin.announcements.index')->with('success', 'Announcement deleted successfully.');
     }
 }
