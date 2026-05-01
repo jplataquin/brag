@@ -484,11 +484,15 @@
         window.addEventListener('appinstalled', (event) => {
             console.log('PWA: BRAG was installed.');
             deferredPrompt = null;
-            hideInstallButtons();
             
-            if (typeof window.neonAlert === 'function') {
-                window.neonAlert('BRAG has been successfully installed! You can now launch it directly from your home screen or app launcher for the full Arena experience.', 'INSTALLATION COMPLETE');
-            }
+            // Delay DOM manipulation and focus changes to ensure Chrome's background
+            // installation thread completes without being aborted by the current tab.
+            setTimeout(() => {
+                hideInstallButtons();
+                if (typeof window.neonAlert === 'function') {
+                    window.neonAlert('BRAG is now installing. You can launch it from your home screen once the process is finished. Please check your device to see if the installation is complete.', 'INSTALLATION IN PROGRESS');
+                }
+            }, 1500);
         });
     </script>
 </body>
