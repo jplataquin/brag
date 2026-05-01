@@ -12,14 +12,14 @@
     <meta property="og:url" content="@yield('og_url', url()->current())">
     <meta property="og:title" content="@yield('og_title', config('app.name', 'Brag') . ' — Forge. Battle. Brag.')">
     <meta property="og:description" content="@yield('og_description', 'The ultimate gamer card-battling social platform. Forge unique digital cards, challenge opponents, and collect trophies.')">
-    <meta property="og:image" content="@yield('og_image', asset('img/og-image.png'))">
+    <meta property="og:image" content="@yield('og_image', asset('favicon.svg'))">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="@yield('twitter_card', 'summary_large_image')">
     <meta property="twitter:url" content="@yield('twitter_url', url()->current())">
     <meta property="twitter:title" content="@yield('twitter_title', config('app.name', 'Brag') . ' — Forge. Battle. Brag.')">
     <meta property="twitter:description" content="@yield('twitter_description', 'The ultimate gamer card-battling social platform. Forge unique digital cards, challenge opponents, and collect trophies.')">
-    <meta property="twitter:image" content="@yield('twitter_image', asset('img/og-image.png'))">
+    <meta property="twitter:image" content="@yield('twitter_image', asset('favicon.svg'))">
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">

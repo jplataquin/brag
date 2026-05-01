@@ -51,10 +51,16 @@
                            id="game_title_id" name="game_title_id" required>
                         <option value="">Select a Game...</option>
                         @foreach($gameTitles as $game)
-                            <option value="{{ $game->id }}" {{ old('game_title_id') == $game->id ? 'selected' : '' }}>{{ $game->title }}</option>
+                            @php
+                                $count = $gameTemplateCounts[$game->id] ?? 0;
+                                $isFull = $count >= 3;
+                            @endphp
+                            <option value="{{ $game->id }}" {{ old('game_title_id') == $game->id ? 'selected' : '' }} {{ $isFull ? 'disabled' : '' }}>
+                                {{ $game->title }} {{ $isFull ? '(LIMIT REACHED)' : "({$count}/3)" }}
+                            </option>
                         @endforeach
                     </select>
-                    <small style="color: #555577; font-size: 0.75rem;">You can only have one template per game title.</small>
+                    <small style="color: #555577; font-size: 0.75rem;">Rule of 3: You can only have a maximum of 3 templates per game title.</small>
                     @error('game_title_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

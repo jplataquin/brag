@@ -20,10 +20,23 @@ class CreateBattleForm extends Component
     public $battleTerms = '';
     public $selectedCardId = '';
 
-    public function mount()
+    public function mount($gameTitleId = null, $selectedCardId = null)
     {
         $this->teamNameA = Auth::user()->username . "'s Team";
         $this->teamNameB = "Opponents";
+        
+        if ($gameTitleId) {
+            $this->gameTitleId = $gameTitleId;
+        }
+        
+        if ($selectedCardId) {
+            $this->selectedCardId = $selectedCardId;
+        }
+    }
+
+    public function updatedGameTitleId()
+    {
+        $this->selectedCardId = '';
     }
 
     public function createBattle()

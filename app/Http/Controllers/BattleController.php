@@ -36,13 +36,16 @@ class BattleController extends Controller
     /**
      * Show the form for creating a new battle.
      */
-    public function create()
+    public function create(Request $request)
     {
         if (Auth::user()->currentBattleRoom()) {
             return redirect()->route('battles.index')->with('error', 'You are already in an active battle room.');
         }
         
-        return view('battles.create');
+        $preselectedGameId = $request->query('game_id');
+        $preselectedCardId = $request->query('card_id');
+        
+        return view('battles.create', compact('preselectedGameId', 'preselectedCardId'));
     }
 
     /**

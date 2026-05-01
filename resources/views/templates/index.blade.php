@@ -7,9 +7,12 @@
     <h1 class="page-title mb-0">
         <span class="page-title-accent"><i class="bi bi-layers-fill"></i></span> MY TEMPLATES
     </h1>
-    <a href="{{ route('templates.create') }}" class="btn btn-neon" id="btn-create-template">
-        <i class="bi bi-plus-lg"></i> NEW TEMPLATE
-    </a>
+    <div class="d-flex align-items-center gap-3">
+        <span class="text-muted small d-none d-md-inline orbitron" style="font-size: 0.65rem; letter-spacing: 1px;">RULE OF 3: MAX 3 TEMPLATES PER GAME</span>
+        <a href="{{ route('templates.create') }}" class="btn btn-neon" id="btn-create-template">
+            <i class="bi bi-plus-lg"></i> NEW TEMPLATE
+        </a>
+    </div>
 </div>
 
 @if($templates->count() > 0)

@@ -33,9 +33,15 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="share-links">
                             <span class="text-muted small orbitron me-3">SHARE:</span>
-                            <a href="#" class="text-cyan me-3"><i class="bi bi-twitter-x"></i></a>
-                            <a href="#" class="text-cyan me-3"><i class="bi bi-facebook"></i></a>
-                            <a href="#" class="text-cyan"><i class="bi bi-link-45deg"></i></a>
+                            <a href="https://twitter.com/intent/tweet?text={{ urlencode($announcement->title) }}&url={{ urlencode(request()->fullUrl()) }}" target="_blank" class="text-cyan me-3" title="Share on X (Twitter)">
+                                <i class="bi bi-twitter-x"></i>
+                            </a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->fullUrl()) }}" target="_blank" class="text-cyan me-3" title="Share on Facebook">
+                                <i class="bi bi-facebook"></i>
+                            </a>
+                            <a href="javascript:void(0)" onclick="copyAnnouncementUrl()" class="text-cyan" title="Copy Link">
+                                <i class="bi bi-link-45deg" style="font-size: 1.4rem; vertical-align: middle;"></i>
+                            </a>
                         </div>
                     </div>
                 </footer>
@@ -43,6 +49,21 @@
         </div>
     </div>
 </div>
+
+<script>
+    function copyAnnouncementUrl() {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+            if (typeof window.neonAlert === 'function') {
+                window.neonAlert('Announcement link copied to clipboard!', 'LINK COPIED');
+            } else {
+                alert('Link copied to clipboard!');
+            }
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+</script>
 
 <style>
     .announcement-body {

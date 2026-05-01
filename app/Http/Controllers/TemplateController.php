@@ -24,12 +24,20 @@ class TemplateController extends Controller
      */
     public function create()
     {
+        $user = Auth::user();
         if (!\App\Models\PlatformSetting::current()->allow_template_creation) {
             return redirect()->route('dashboard')->with('error', 'Template creation is currently disabled by administrators.');
         }
 
         $gameTitles = \App\Models\GameTitle::where('status', 'active')->orderBy('title')->get();
-        return view('templates.create', compact('gameTitles'));
+        
+        $gameTemplateCounts = $user->templates()
+            ->select('game_title_id', \Illuminate\Support\Facades\DB::raw('count(*) as count'))
+            ->groupBy('game_title_id')
+            ->pluck('count', 'game_title_id')
+            ->toArray();
+
+        return view('templates.create', compact('gameTitles', 'gameTemplateCounts'));
     }
 
     /**
@@ -89,6 +97,15 @@ class TemplateController extends Controller
         ]);
 
         $user = Auth::user();
+
+        // Check rule of 3: max 3 templates per game title
+        $existingTemplatesCount = $user->templates()
+            ->where('game_title_id', $request->game_title_id)
+            ->count();
+        
+        if ($existingTemplatesCount >= 3) {
+            return back()->with('error', "You can only create a maximum of 3 templates per game title.")->withInput();
+        }
 
         $cost = config('diamonds.costs.template_creation');
         if ($user->diamonds_balance < $cost) {

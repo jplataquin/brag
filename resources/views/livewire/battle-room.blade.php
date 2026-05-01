@@ -793,5 +793,18 @@
                 observer.observe(roomContainer, { childList: true, subtree: true });
             }
         });
+
+        function copyBattleUrl() {
+            const copyText = document.getElementById("battle-url");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                if (typeof window.neonAlert === 'function') {
+                    window.neonAlert('Battle URL copied to clipboard!', 'LINK COPIED');
+                } else {
+                    alert('Battle URL copied!');
+                }
+            });
+        }
     </script>
 </div>

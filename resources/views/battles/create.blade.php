@@ -4,6 +4,6 @@
 
 @section('content')
 <div class="container py-4">
-    <livewire:create-battle-form />
+    <livewire:create-battle-form :gameTitleId="$preselectedGameId" :selectedCardId="$preselectedCardId" />
 </div>
 @endsection
