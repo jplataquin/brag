@@ -26,7 +26,7 @@
                 </header>
 
                 <div class="announcement-body text-light">
-                    {!! nl2br($announcement->content) !!}
+                    {!! $announcement->content !!}
                 </div>
 
                 <footer class="mt-5 pt-5 border-top border-secondary" style="border-top-color: rgba(0, 240, 255, 0.1) !important;">

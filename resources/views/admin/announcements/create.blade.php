@@ -26,9 +26,10 @@
 
                     <div class="mb-3">
                         <label class="form-label orbitron text-cyan">CONTENT</label>
-                        <textarea name="content" class="form-control bg-dark border-secondary text-white" rows="10" required>{{ old('content') }}</textarea>
+                        <div class="ck-editor-container">
+                            <textarea name="content" id="editor" class="form-control bg-dark border-secondary text-white" rows="10">{{ old('content') }}</textarea>
+                        </div>
                         @error('content') <span class="text-danger small">{{ $message }}</span> @enderror
-                        <p class="text-muted small mt-2 italic">HTML tags are allowed for basic formatting.</p>
                     </div>
 
                     <div class="row mb-4">
@@ -54,4 +55,33 @@
         </div>
     </div>
 </div>
+@endsection
+
+<style>
+    .ck-editor__animated-shortcut { display: none !important; }
+    .ck-editor__view-wrapper { background: #111122 !important; color: #fff !important; border-color: #444 !important; }
+    .ck-content { min-height: 300px; background-color: #111122 !important; color: #fff !important; }
+    .ck.ck-editor__main>.ck-editor__editable { background: #111122 !important; border-color: #444 !important; }
+    .ck.ck-toolbar { background: #1a1a2e !important; border-color: #444 !important; }
+    .ck.ck-toolbar__separator { background: #444 !important; }
+    .ck.ck-button { color: #fff !important; cursor: pointer; }
+    .ck.ck-button:hover { background: #2a2a4e !important; }
+    .ck.ck-button.ck-on { background: #00f0ff33 !important; color: #00f0ff !important; }
+    .ck.ck-list { background: #1a1a2e !important; }
+    .ck.ck-list__item .ck-button:hover { background: #2a2a4e !important; }
+</style>
+
+@section('scripts')
+<script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        ClassicEditor
+            .create(document.querySelector('#editor'), {
+                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'undo', 'redo'],
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    });
+</script>
 @endsection

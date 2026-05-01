@@ -16,7 +16,7 @@
                     </div>
                     
                     <div class="text-light mb-4 announcement-preview">
-                        {!! Str::limit($announcement->content, 300) !!}
+                        {{ Str::limit(strip_tags($announcement->content), 300) }}
                     </div>
 
                     <a href="{{ route('announcements.show', $announcement) }}" class="btn btn-neon btn-sm orbitron">
