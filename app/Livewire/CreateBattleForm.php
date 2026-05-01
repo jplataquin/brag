@@ -5,8 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\GameTitle;
 use App\Models\DigitalCard;
-use App\Models\TeamBattle;
-use App\Services\BattleService;
+use App\Models\Battle;
 use Illuminate\Support\Facades\Auth;
 
 class CreateBattleForm extends Component

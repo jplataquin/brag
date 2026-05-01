@@ -3,25 +3,25 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\TeamBattle;
+use App\Models\Battle;
 use App\Models\BattleActivity;
-use App\Events\TeamBattleUpdated;
+use App\Events\BattleUpdated;
 
-class UpdateTeamBattleStatus extends Command
+class UpdateBattleStatus extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'team-battle:status {id} {status}';
+    protected $signature = 'battle:status {id} {status}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Change the status of a specific team battle room.';
+    protected $description = 'Change the status of a specific battle room.';
 
     /**
      * Execute the console command.
@@ -38,17 +38,17 @@ class UpdateTeamBattleStatus extends Command
             return self::FAILURE;
         }
 
-        $battle = TeamBattle::find($id);
+        $battle = Battle::find($id);
 
         if (!$battle) {
-            $this->error("Team Battle with ID {$id} not found.");
+            $this->error("Battle with ID {$id} not found.");
             return self::FAILURE;
         }
 
         $oldStatus = $battle->status;
 
         if ($oldStatus === $status) {
-            $this->info("Team Battle {$id} is already in '{$status}' status.");
+            $this->info("Battle {$id} is already in '{$status}' status.");
             return self::SUCCESS;
         }
 
@@ -81,16 +81,16 @@ class UpdateTeamBattleStatus extends Command
 
         // Log the activity
         BattleActivity::create([
-            'team_battle_id' => $battle->id,
+            'battle_id' => $battle->id,
             'user_id' => null, // System action
             'type' => 'system',
             'message' => $logMessage,
         ]);
 
         // Broadcast the update so real-time clients refresh
-        event(new TeamBattleUpdated($battle, "Battle status forcefully updated to {$status} by system.", 'update'));
+        event(new BattleUpdated($battle, "Battle status forcefully updated to {$status} by system.", 'update'));
 
-        $this->info("Successfully updated Team Battle {$id} status from '{$oldStatus}' to '{$status}'.");
+        $this->info("Successfully updated Battle {$id} status from '{$oldStatus}' to '{$status}'.");
         return self::SUCCESS;
     }
 }
