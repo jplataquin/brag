@@ -53,9 +53,22 @@ use App\Http\Controllers\Admin\GameTitleController as AdminGameTitleController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\PlatformSettingController as AdminPlatformSettingController;
 
+use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
+use App\Http\Controllers\AnnouncementController;
+
 // Admin Routes
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    
+    // Announcements Management
+    Route::resource('admin/announcements', AdminAnnouncementController::class)->names([
+        'index' => 'announcements.index',
+        'create' => 'announcements.create',
+        'store' => 'announcements.store',
+        'edit' => 'announcements.edit',
+        'update' => 'announcements.update',
+        'destroy' => 'announcements.destroy',
+    ]);
     
     // Platform Settings
     Route::get('/admin/settings', [AdminPlatformSettingController::class, 'edit'])->name('admin.settings.edit');
@@ -131,6 +144,10 @@ Route::middleware(['auth', 'verified', 'terms.agreed', 'privacy.agreed'])->group
     Route::post('/cards/{digitalCard}/heal', [DigitalCardController::class, 'heal'])->name('cards.heal');
     Route::get('/cards/{digitalCard}/history', [DigitalCardController::class, 'history'])->name('cards.history');
     Route::post('/cards/forge/{template}', [DigitalCardController::class, 'forge'])->name('cards.forge');
+    
+    // Announcements
+    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.list');
+    Route::get('/announcements/{announcement}', [AnnouncementController::class, 'show'])->name('announcements.show');
 });
 
 // Battles

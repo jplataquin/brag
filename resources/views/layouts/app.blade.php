@@ -84,6 +84,11 @@
                     <ul class="navbar-nav me-auto">
                         @auth
                             <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('announcements.*') ? 'active' : '' }}" href="{{ route('announcements.list') }}">
+                                    <i class="bi bi-megaphone"></i> Announcements
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('dashboard') || request()->routeIs('home') ? 'active' : '' }}" href="{{ route('dashboard') }}" id="nav-dashboard">
                                     <i class="bi bi-grid-fill"></i> Dashboard
                                 </a>
