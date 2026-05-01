@@ -159,27 +159,19 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Battles where the user is the challenger.
+     * Battles where the user is a participant or marshall.
      */
-    public function challengedBattles()
+    public function battles()
     {
-        return $this->hasMany(Battle::class, 'challenger_id');
-    }
-
-    /**
-     * Battles where the user is the opponent.
-     */
-    public function opponentBattles()
-    {
-        return $this->hasMany(Battle::class, 'opponent_id');
-    }
-
-    /**
-     * Battles where the user is the marshall.
-     */
-    public function adjudicatedBattles()
-    {
-        return $this->hasMany(Battle::class, 'marshall_id');
+        // This is not a standard relationship due to multiple columns, 
+        // but we can provide a query builder.
+        return Battle::where(function($q) {
+            for ($i = 1; $i <= 6; $i++) {
+                $q->orWhere("team_a_user_{$i}", $this->id)
+                  ->orWhere("team_b_user_{$i}", $this->id);
+            }
+            $q->orWhere('marshall_id', $this->id);
+        });
     }
 
     /**
@@ -187,35 +179,18 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function currentBattleRoom()
     {
-        // Check 1v1 battles
-        $battle = \App\Models\Battle::whereIn('status', ['pending', 'ready', 'active'])
-            ->where(function($q) {
-                $q->where('challenger_id', $this->id)
-                  ->orWhere('opponent_id', $this->id);
-            })->first();
-            
-        if ($battle) return ['type' => '1v1', 'battle' => $battle];
-        
-        // Check Team battles
-        $teamBattle = \App\Models\TeamBattle::whereIn('status', ['pending', 'active'])
+        $battle = Battle::whereIn('status', ['pending', 'active'])
             ->where(function($q) {
                 for ($i = 1; $i <= 6; $i++) {
                     $q->orWhere("team_a_user_{$i}", $this->id)
                       ->orWhere("team_b_user_{$i}", $this->id);
                 }
+                $q->orWhere('marshall_id', $this->id);
             })->first();
             
-        if ($teamBattle) return ['type' => 'team', 'battle' => $teamBattle];
+        if ($battle) return ['type' => 'battle', 'battle' => $battle];
         
         return null;
-    }
-
-    /**
-     * Battle invites received.
-     */
-    public function battleInvites()
-    {
-        return $this->hasMany(BattleInvite::class, 'invited_user_id');
     }
 
     /**

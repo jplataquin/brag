@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
 use App\Traits\HandlesBattleResults;
 
 class Battle extends Model
@@ -14,127 +13,101 @@ class Battle extends Model
     protected $table = 'battles';
 
     protected $fillable = [
-        'room_id',
-        'terms',
-        'challenger_id',
-        'opponent_id',
-        'marshall_id',
-        'challenger_card_id',
-        'opponent_card_id',
-        'winner_id',
+        'game_title_id',
+        'team_name_a',
+        'team_name_b',
+        'battle_terms',
+        'no_players_per_team',
         'status',
-        'challenger_cancel',
-        'opponent_cancel',
-        'challenger_cancel_timestamp',
-        'opponent_cancel_timestamp',
-        'challenger_declared_user_win',
-        'opponent_declared_user_win',
-        'marshall_declared_user_win',
-        'challenger_marshall_id',
-        'opponent_marshall_id',
-        'challenger_card_data',
-        'opponent_card_data',
+        'winner_team',
+        'team_a_card_data',
+        'team_b_card_data',
+        'team_b_ready',
+        'team_a_cancel_flag',
+        'team_b_cancel_flag',
+        'marshall_cancel_flag',
+        'team_a_declare_win',
+        'team_b_declare_win',
+        'marshall_declare_win',
+        'team_a_marshall_elect',
+        'team_b_marshall_elect',
+        'marshall_id',
+        'team_a_user_1', 'team_a_card_1', 'team_a_user_2', 'team_a_card_2',
+        'team_a_user_3', 'team_a_card_3', 'team_a_user_4', 'team_a_card_4',
+        'team_a_user_5', 'team_a_card_5', 'team_a_user_6', 'team_a_card_6',
+        'team_b_user_1', 'team_b_card_1', 'team_b_user_2', 'team_b_card_2',
+        'team_b_user_3', 'team_b_card_3', 'team_b_user_4', 'team_b_card_4',
+        'team_b_user_5', 'team_b_card_5', 'team_b_user_6', 'team_b_card_6',
     ];
 
     protected $casts = [
-        'challenger_cancel' => 'boolean',
-        'opponent_cancel' => 'boolean',
-        'challenger_cancel_timestamp' => 'datetime',
-        'opponent_cancel_timestamp' => 'datetime',
-        'challenger_card_data' => 'array',
-        'opponent_card_data' => 'array',
+        'team_b_ready' => 'boolean',
+        'team_a_cancel_flag' => 'boolean',
+        'team_b_cancel_flag' => 'boolean',
+        'marshall_cancel_flag' => 'boolean',
+        'team_a_card_data' => 'array',
+        'team_b_card_data' => 'array',
     ];
 
-    /**
-     * The challenger who created the battle.
-     */
-    public function challenger()
+    public function gameTitle()
     {
-        return $this->belongsTo(User::class, 'challenger_id');
+        return $this->belongsTo(GameTitle::class);
     }
 
-    /**
-     * The opponent in the battle.
-     */
-    public function opponent()
-    {
-        return $this->belongsTo(User::class, 'opponent_id');
-    }
-
-    /**
-     * The marshall of the battle.
-     */
     public function marshall()
     {
         return $this->belongsTo(User::class, 'marshall_id');
     }
 
-    public function challengerMarshall()
+    public function teamAMarshallElect()
     {
-        return $this->belongsTo(User::class, 'challenger_marshall_id');
+        return $this->belongsTo(User::class, 'team_a_marshall_elect');
     }
 
-    public function opponentMarshall()
+    public function teamBMarshallElect()
     {
-        return $this->belongsTo(User::class, 'opponent_marshall_id');
-    }
-
-    /**
-     * The challenger's card.
-     */
-    public function challengerCard()
-    {
-        return $this->belongsTo(DigitalCard::class, 'challenger_card_id');
+        return $this->belongsTo(User::class, 'team_b_marshall_elect');
     }
 
     /**
-     * The opponent's card.
+     * Check if all player slots are filled
      */
-    public function opponentCard()
+    public function getIsFullAttribute()
     {
-        return $this->belongsTo(DigitalCard::class, 'opponent_card_id');
+        for ($i = 1; $i <= $this->no_players_per_team; $i++) {
+            if (empty($this->{"team_a_user_{$i}"}) || empty($this->{"team_b_user_{$i}"})) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
-     * The winner of the battle.
+     * Check if Team B slots are filled
      */
-    public function winner()
+    public function getIsTeamBFullAttribute()
     {
-        return $this->belongsTo(User::class, 'winner_id');
+        for ($i = 1; $i <= $this->no_players_per_team; $i++) {
+            if (empty($this->{"team_b_user_{$i}"})) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
-     * Invites for this battle.
+     * Get Team A Leader
      */
-    public function invites()
+    public function getTeamALeaderAttribute()
     {
-        return $this->hasMany(BattleInvite::class, 'battle_id');
+        return User::find($this->team_a_user_1);
     }
 
     /**
-     * Activities for this battle.
+     * Get Team B Leader
      */
-    public function activities()
+    public function getTeamBLeaderAttribute()
     {
-        return $this->hasMany(BattleActivity::class)->orderBy('id', 'asc');
-    }
-
-    /**
-     * Check if the battle is joinable.
-     */
-    public function getIsJoinableAttribute()
-    {
-        return $this->status === 'pending' && is_null($this->opponent_id);
-    }
-
-    /**
-     * Check if the battle can be decided.
-     */
-    public function getCanBeDecidedAttribute()
-    {
-        return in_array($this->status, ['active', 'failed'])
-            && $this->challenger_card_id
-            && $this->opponent_card_id
-            && is_null($this->winner_id);
+        return User::find($this->team_b_user_1);
     }
 }

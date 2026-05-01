@@ -11,7 +11,6 @@ class BattleActivity extends Model
 
     protected $fillable = [
         'battle_id',
-        'team_battle_id',
         'user_id',
         'type',
         'message',
@@ -20,11 +19,6 @@ class BattleActivity extends Model
     public function battle()
     {
         return $this->belongsTo(Battle::class);
-    }
-
-    public function teamBattle()
-    {
-        return $this->belongsTo(TeamBattle::class);
     }
 
     public function user()

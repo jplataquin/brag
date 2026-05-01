@@ -139,63 +139,42 @@ Route::middleware(['auth', 'verified', 'terms.agreed', 'privacy.agreed'])->group
     Route::get('/battles', [BattleController::class, 'index'])->name('battles.index');
     Route::get('/battles/create', [BattleController::class, 'create'])->name('battles.create');
     Route::post('/battles', [BattleController::class, 'store'])->name('battles.store');
-    Route::get('/battles/room/{battle:room_id}', [BattleController::class, 'room'])->name('battles.room');
-    Route::get('/battles/{battle}/json', [BattleController::class, 'json'])->name('battles.json');
-    Route::post('/battles/{battle:room_id}/join', [BattleController::class, 'join'])->name('battles.join');
-    Route::post('/battles/{battle:room_id}/start', [BattleController::class, 'start'])->name('battles.start');
-    Route::post('/battles/{battle:room_id}/reject-opponent', [BattleController::class, 'rejectOpponent'])->name('battles.rejectOpponent');
     
-    // Marshalls
-    Route::post('/battles/{battle:room_id}/elect-marshall', [BattleController::class, 'electMarshall'])->name('battles.electMarshall');
-    Route::post('/battles/{battle:room_id}/accept-marshall', [BattleController::class, 'acceptMarshall'])->name('battles.acceptMarshall');
-    Route::post('/battles/{battle:room_id}/reject-marshall', [BattleController::class, 'rejectMarshall'])->name('battles.rejectMarshall');
-    Route::post('/battles/{battle:room_id}/leave-marshall', [BattleController::class, 'leaveMarshall'])->name('battles.leaveMarshall');
-    
-    Route::post('/battles/{battle:room_id}/invite', [BattleController::class, 'invite'])->name('battles.invite');
-    Route::post('/battles/{battle:room_id}/declare-winner', [BattleController::class, 'declareWinner'])->name('battles.declareWinner');
-    Route::post('/battles/{battle:room_id}/cancel', [BattleController::class, 'cancel'])->name('battles.cancel');
-    Route::post('/battles/{battle:room_id}/respond-to-cancellation', [BattleController::class, 'respondToCancellation'])->name('battles.respondToCancellation');
-    Route::post('/battles/{battle:room_id}/poke', [BattleController::class, 'poke'])->name('battles.poke');
-    Route::post('/invites/{invite}/decline', [BattleController::class, 'declineInvite'])->name('battles.invites.decline');
-    Route::get('/battles/{battle:room_id}/join', [BattleController::class, 'showJoinReadyPage'])->name('battles.join.ready');
-    Route::post('/battles/{battle:room_id}/confirm-join', [BattleController::class, 'confirmJoin'])->name('battles.confirmJoin');
-
-    // Team Battles
-    Route::get('/team-battles/room/{teamBattle}', function (\App\Models\TeamBattle $teamBattle) {
+    Route::get('/battles/room/{battle}', function (\App\Models\Battle $battle) {
         $user = \Illuminate\Support\Facades\Auth::user();
         
-        if ($teamBattle->status === 'pending') {
+        if ($battle->status === 'pending') {
             $isParticipant = false;
-            for ($i = 1; $i <= $teamBattle->no_players_per_team; $i++) {
-                if ($teamBattle->{"team_a_user_{$i}"} == $user->id || $teamBattle->{"team_b_user_{$i}"} == $user->id) {
+            for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
+                if ($battle->{"team_a_user_{$i}"} == $user->id || $battle->{"team_b_user_{$i}"} == $user->id) {
                     $isParticipant = true;
                     break;
                 }
             }
             if (!$isParticipant) {
-                return redirect()->route('team-battles.join', $teamBattle);
+                return redirect()->route('battles.join', $battle);
             }
         }
 
-        return view('battles.team-room', compact('teamBattle'));
-    })->name('team-battles.room');
+        return view('battles.room', compact('battle'));
+    })->name('battles.room');
 
-    Route::get('/team-battles/room/{teamBattle}/join', function (\App\Models\TeamBattle $teamBattle) {
+    Route::get('/battles/room/{battle}/join', function (\App\Models\Battle $battle) {
         $user = \Illuminate\Support\Facades\Auth::user();
         
         $isParticipant = false;
-        for ($i = 1; $i <= $teamBattle->no_players_per_team; $i++) {
-            if ($teamBattle->{"team_a_user_{$i}"} == $user->id || $teamBattle->{"team_b_user_{$i}"} == $user->id) {
+        for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
+            if ($battle->{"team_a_user_{$i}"} == $user->id || $battle->{"team_b_user_{$i}"} == $user->id) {
                 $isParticipant = true;
                 break;
             }
         }
         if ($isParticipant) {
-            return redirect()->route('team-battles.room', $teamBattle);
+            return redirect()->route('battles.room', $battle);
         }
 
-        return view('battles.team-join', compact('teamBattle'));
-    })->name('team-battles.join');
+        return view('battles.join', compact('battle'));
+    })->name('battles.join');
 
     // Notifications
     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
@@ -218,7 +197,7 @@ Route::middleware(['auth', 'verified', 'terms.agreed', 'privacy.agreed'])->group
 });
 
 // HitPay Webhook (Must be outside auth middleware and should exclude CSRF)
-Route::post('/payments/webhook', [\App\Http\Controllers\PaymentController::class, 'webhook'])->name('payments.webhook')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class]);
+Route::post('/payments/webhook', [\App\Http\Controllers\PaymentController::class, 'webhook'])->name('payments.webhook')->withoutMiddleware([\IlluminateFoundation\Http\Middleware\ValidateCsrfToken::class]);
 
 Route::get('/offline', function () {
     return view('offline');
