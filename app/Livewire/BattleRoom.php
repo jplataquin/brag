@@ -556,13 +556,18 @@ class BattleRoom extends Component
 
     public function electMarshall($nomineeId = null)
     {
+        if (in_array($this->battle->status, ['completed', 'cancelled'])) {
+            session()->flash('error', 'Cannot elect a marshall for a battle that has already ended.');
+            return;
+        }
+
         $nomineeId = $nomineeId ?: $this->marshallNomineeId;
         if (!$nomineeId) return;
 
         $user = Auth::user();
         $isLeaderA = $user->id == $this->battle->team_a_user_1;
         $isLeaderB = $user->id == $this->battle->team_b_user_1;
-        
+
         if (!$isLeaderA && !$isLeaderB) return;
 
         // Prevent electing someone who is already a player in the match
@@ -586,20 +591,25 @@ class BattleRoom extends Component
                  "Both team leaders have elected you as the MARSHALL. Will you accept?",
                  'marshall_election'
              ));
-             
+
              $this->broadcastUpdate("Marshall consensus reached! Waiting for {$nomineeName} to accept.");
              $this->logActivity($user->id, 'consensus', "Marshall consensus reached: Waiting for {$nomineeName} to accept.");
         } else {
             $this->broadcastUpdate("Marshall nominated.");
             $this->logActivity($user->id, 'system', "{$user->username} nominated {$nomineeName} as Marshall.");
         }
-        
+
         $this->marshallNomineeId = '';
         $this->refreshRoom();
     }
 
     public function acceptMarshall()
     {
+        if (in_array($this->battle->status, ['completed', 'cancelled'])) {
+            session()->flash('error', 'Cannot accept a marshall role for a battle that has already ended.');
+            return;
+        }
+
         $user = Auth::user();
         if ($this->battle->team_a_marshall_elect == $user->id && $this->battle->team_b_marshall_elect == $user->id) {
             $this->battle->update([
@@ -615,6 +625,10 @@ class BattleRoom extends Component
 
     public function rejectMarshall()
     {
+        if (in_array($this->battle->status, ['completed', 'cancelled'])) {
+            return; // No need for error here, just ignore
+        }
+
         $user = Auth::user();
         if ($this->battle->team_a_marshall_elect == $user->id && $this->battle->team_b_marshall_elect == $user->id) {
             $this->battle->update([
@@ -626,7 +640,6 @@ class BattleRoom extends Component
             $this->refreshRoom();
         }
     }
-
     public function updateTeamName($team)
     {
         $user = Auth::user();

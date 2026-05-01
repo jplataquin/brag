@@ -201,7 +201,7 @@
                             <div class="mt-3">
                                 <span class="badge bg-warning text-dark"><i class="bi bi-shield-check"></i> MARSHALL: {{ $battle->marshall->username }}</span>
                             </div>
-                        @elseif($battle->team_a_marshall_elect && $battle->team_a_marshall_elect == $battle->team_b_marshall_elect)
+                        @elseif($battle->team_a_marshall_elect && $battle->team_a_marshall_elect == $battle->team_b_marshall_elect && !in_array($battle->status, ['completed', 'cancelled']))
                             @if(Auth::id() == $battle->team_a_marshall_elect)
                                 <div class="mt-3 p-3" style="background: rgba(255, 221, 0, 0.1); border: 1px solid #ffdd00; border-radius: 8px;">
                                     <p style="color: #ffdd00; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; margin-bottom: 0.5rem;"><i class="bi bi-shield-exclamation"></i> MARSHALL ELECTION</p>
@@ -216,7 +216,7 @@
                                     <i class="bi bi-hourglass-split"></i> Waiting for Marshall to Accept...
                                 </div>
                             @endif
-                        @elseif($battle->team_a_marshall_elect || $battle->team_b_marshall_elect)
+                        @elseif(($battle->team_a_marshall_elect || $battle->team_b_marshall_elect) && !in_array($battle->status, ['completed', 'cancelled']))
                             <div class="mt-3 small text-warning">
                                 <i class="bi bi-hourglass-split"></i> Waiting for Marshall Consensus...
                             </div>
