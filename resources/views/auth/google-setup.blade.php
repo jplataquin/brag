@@ -67,12 +67,24 @@
                 </div>
 
                 @if($isNewUser)
-                <div class="mb-4 form-check">
+                <div class="mb-3 form-check">
                     <input class="form-check-input @error('terms') is-invalid @enderror" type="checkbox" name="terms" id="terms" {{ old('terms') ? 'checked' : '' }} required>
                     <label class="form-check-label" for="terms" style="font-size: 0.85rem; color: #8888aa;">
                         I agree to the <a href="{{ route('terms.show') }}" target="_blank" style="color: #00f0ff;">Terms of Service</a>
                     </label>
                     @error('terms')
+                        <span class="invalid-feedback d-block" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+
+                <div class="mb-4 form-check">
+                    <input class="form-check-input @error('privacy') is-invalid @enderror" type="checkbox" name="privacy" id="privacy" {{ old('privacy') ? 'checked' : '' }} required>
+                    <label class="form-check-label" for="privacy" style="font-size: 0.85rem; color: #8888aa;">
+                        I agree to the <a href="{{ route('privacy.show') }}" target="_blank" style="color: #00f0ff;">Privacy Policy</a>
+                    </label>
+                    @error('privacy')
                         <span class="invalid-feedback d-block" role="alert">
                             <strong>{{ $message }}</strong>
                         </span>

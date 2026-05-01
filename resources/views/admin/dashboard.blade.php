@@ -26,6 +26,9 @@
                     <a href="{{ route('admin.terms.index') }}" class="btn btn-outline-info btn-sm">
                         <i class="bi bi-file-earmark-text"></i> Manage Terms of Service
                     </a>
+                    <a href="{{ route('admin.privacy.index') }}" class="btn btn-outline-info btn-sm">
+                        <i class="bi bi-shield-shaded"></i> Manage Privacy Policy
+                    </a>
                     <a href="{{ route('admin.game_titles.index') }}" class="btn btn-outline-light btn-sm" style="color: var(--neon-magenta); border-color: var(--neon-magenta);">
                         <i class="bi bi-controller"></i> Manage Game Titles
                     </a>

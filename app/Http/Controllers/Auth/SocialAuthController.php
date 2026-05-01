@@ -131,6 +131,7 @@ class SocialAuthController extends Controller
         if ($isNewUser) {
             $rules['username'] = 'required|string|max:255|unique:users,username';
             $rules['terms'] = 'required|accepted';
+            $rules['privacy'] = 'required|accepted';
         } else {
             $user = Auth::user();
             $rules['username'] = 'required|string|max:255|unique:users,username,' . $user->id;
@@ -145,6 +146,7 @@ class SocialAuthController extends Controller
             }
 
             $latestTerms = \App\Models\TermsOfService::latest('id')->first();
+            $latestPrivacy = \App\Models\PrivacyPolicy::latest('id')->first();
 
             $user = User::create([
                 'firstname' => $request->firstname,
@@ -156,6 +158,7 @@ class SocialAuthController extends Controller
                 'email_verified_at' => now(), // Google emails are verified
                 'birthdate' => $request->birthdate,
                 'terms_version_agreed' => $latestTerms ? $latestTerms->id : 0,
+                'privacy_version_agreed' => $latestPrivacy ? $latestPrivacy->id : 0,
             ]);
 
             // Fire the Verified event so listeners (like GrantWelcomeShards) are triggered

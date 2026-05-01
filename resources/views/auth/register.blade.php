@@ -109,12 +109,24 @@
                            placeholder="••••••••">
                 </div>
 
-                <div class="mb-4 form-check d-flex align-items-center">
+                <div class="mb-3 form-check d-flex align-items-center">
                     <input class="form-check-input mt-0 me-2 @error('terms') is-invalid @enderror" type="checkbox" name="terms" id="terms" {{ old('terms') ? 'checked' : '' }} required>
                     <label class="form-check-label text-white-50" for="terms" style="font-size: 0.85rem;">
                         I agree to the <a href="{{ route('terms.show') }}" target="_blank" style="color: var(--neon-cyan);">Terms of Service</a>
                     </label>
                     @error('terms')
+                        <span class="invalid-feedback d-block" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+
+                <div class="mb-4 form-check d-flex align-items-center">
+                    <input class="form-check-input mt-0 me-2 @error('privacy') is-invalid @enderror" type="checkbox" name="privacy" id="privacy" {{ old('privacy') ? 'checked' : '' }} required>
+                    <label class="form-check-label text-white-50" for="privacy" style="font-size: 0.85rem;">
+                        I agree to the <a href="{{ route('privacy.show') }}" target="_blank" style="color: var(--neon-cyan);">Privacy Policy</a>
+                    </label>
+                    @error('privacy')
                         <span class="invalid-feedback d-block" role="alert">
                             <strong>{{ $message }}</strong>
                         </span>

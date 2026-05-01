@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             GameTitleSeeder::class,
             TermsOfServiceSeeder::class,
+            PrivacyPolicySeeder::class,
         ]);
         // User::factory(10)->create();
 

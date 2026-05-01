@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\TermsOfService;
+use App\Models\PrivacyPolicy;
 use App\Rules\Turnstile;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
@@ -58,6 +59,7 @@ class RegisterController extends Controller
             'gender' => ['nullable', 'string', 'in:Male,Female,None'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'terms' => ['required', 'accepted'],
+            'privacy' => ['required', 'accepted'],
             'cf-turnstile-response' => ['required', new Turnstile],
         ]);
     }
@@ -72,6 +74,9 @@ class RegisterController extends Controller
         $latestTerms = TermsOfService::latest('id')->first();
         $termsVersion = $latestTerms ? $latestTerms->id : 0;
 
+        $latestPrivacy = PrivacyPolicy::latest('id')->first();
+        $privacyVersion = $latestPrivacy ? $latestPrivacy->id : 0;
+
         $user = User::create([
             'firstname' => $data['firstname'],
             'lastname' => $data['lastname'],
@@ -81,6 +86,7 @@ class RegisterController extends Controller
             'gender' => $data['gender'] ?? 'None',
             'password' => Hash::make($data['password']),
             'terms_version_agreed' => $termsVersion,
+            'privacy_version_agreed' => $privacyVersion,
         ]);
 
         return $user;

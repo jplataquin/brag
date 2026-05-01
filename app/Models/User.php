@@ -31,6 +31,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'bio',
         'is_admin',
         'terms_version_agreed',
+        'privacy_version_agreed',
         'suspended_until',
     ];
 
