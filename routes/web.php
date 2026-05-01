@@ -172,6 +172,10 @@ Route::middleware(['auth', 'verified', 'terms.agreed', 'privacy.agreed'])->group
     // Wallet
     Route::get('/wallet', [\App\Http\Controllers\WalletController::class, 'index'])->name('wallet.index');
     
+    // Feedback
+    Route::get('/feedback', [\App\Http\Controllers\FeedbackController::class, 'index'])->name('feedback.index');
+    Route::post('/feedback', [\App\Http\Controllers\FeedbackController::class, 'send'])->name('feedback.send');
+    
     // Payments / HitPay
     Route::post('/payments/checkout', [\App\Http\Controllers\PaymentController::class, 'checkout'])->name('payments.checkout');
     Route::get('/payments/callback', [\App\Http\Controllers\PaymentController::class, 'callback'])->name('payments.callback');

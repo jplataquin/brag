@@ -126,6 +126,11 @@
                                 </a>
                             </li>
                             <li class="nav-item d-lg-none">
+                                <a class="nav-link {{ request()->routeIs('feedback.index') ? 'active' : '' }}" href="{{ route('feedback.index') }}">
+                                    <i class="bi bi-chat-right-text"></i> Feedback
+                                </a>
+                            </li>
+                            <li class="nav-item d-lg-none">
                                 <a class="nav-link" href="{{ route('pwa.instructions') }}" id="btn-install-pwa-mobile">
                                     <i class="bi bi-download"></i> Install App
                                 </a>
@@ -202,6 +207,9 @@
                                     <div class="dropdown-divider" style="border-color: rgba(0,240,255,0.1);"></div>
                                     <a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('pwa.instructions') }}" id="btn-install-pwa">
                                         <i class="bi bi-download"></i> Install App
+                                    </a>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('feedback.index') }}">
+                                        <i class="bi bi-chat-right-text"></i> Feedback
                                     </a>
                                     <div class="dropdown-divider" style="border-color: rgba(0,240,255,0.1);"></div>
                                     <form action="{{ route('logout') }}" method="POST" class="m-0 p-0">
