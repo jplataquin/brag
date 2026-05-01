@@ -331,14 +331,14 @@
     @if(Auth::check())
         @php
             $currentRoute = Route::currentRouteName();
-            $hideFabRoutes = ['battles.index', 'battles.room', 'team-battles.room'];
+            $hideFabRoutes = ['battles.index', 'battles.room'];
         @endphp
         @if(!in_array($currentRoute, $hideFabRoutes))
             @php
-                $currentRoomInfo = Auth::user()->currentBattleRoom();
+                $battle = Auth::user()->currentBattleRoom();
             @endphp
-            @if($currentRoomInfo)
-                <a href="{{ $currentRoomInfo['type'] === '1v1' ? route('battles.room', $currentRoomInfo['battle']->id) : route('team-battles.room', $currentRoomInfo['battle']->id) }}" 
+            @if($battle)
+                <a href="{{ route('battles.room', $battle) }}" 
                    class="btn btn-neon active-battle-fab" 
                    title="Return to Active Battle"
                    style="position: fixed; bottom: 30px; right: 30px; border-radius: 50%; width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; z-index: 1050; padding: 0; background: rgba(10, 10, 30, 0.9); box-shadow: 0 0 20px rgba(0, 240, 255, 0.6); animation: pulse-fab 2s infinite;">

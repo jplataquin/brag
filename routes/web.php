@@ -138,43 +138,8 @@ Route::middleware(['auth', 'verified', 'terms.agreed', 'privacy.agreed'])->group
 
     Route::get('/battles', [BattleController::class, 'index'])->name('battles.index');
     Route::get('/battles/create', [BattleController::class, 'create'])->name('battles.create');
-    Route::post('/battles', [BattleController::class, 'store'])->name('battles.store');
-    
-    Route::get('/battles/room/{battle}', function (\App\Models\Battle $battle) {
-        $user = \Illuminate\Support\Facades\Auth::user();
-        
-        if ($battle->status === 'pending') {
-            $isParticipant = false;
-            for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
-                if ($battle->{"team_a_user_{$i}"} == $user->id || $battle->{"team_b_user_{$i}"} == $user->id) {
-                    $isParticipant = true;
-                    break;
-                }
-            }
-            if (!$isParticipant) {
-                return redirect()->route('battles.join', $battle);
-            }
-        }
-
-        return view('battles.room', compact('battle'));
-    })->name('battles.room');
-
-    Route::get('/battles/room/{battle}/join', function (\App\Models\Battle $battle) {
-        $user = \Illuminate\Support\Facades\Auth::user();
-        
-        $isParticipant = false;
-        for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
-            if ($battle->{"team_a_user_{$i}"} == $user->id || $battle->{"team_b_user_{$i}"} == $user->id) {
-                $isParticipant = true;
-                break;
-            }
-        }
-        if ($isParticipant) {
-            return redirect()->route('battles.room', $battle);
-        }
-
-        return view('battles.join', compact('battle'));
-    })->name('battles.join');
+    Route::get('/battles/room/{battle}', [BattleController::class, 'room'])->name('battles.room');
+    Route::get('/battles/room/{battle}/join', [BattleController::class, 'join'])->name('battles.join');
 
     // Notifications
     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');

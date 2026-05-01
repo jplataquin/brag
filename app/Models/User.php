@@ -179,7 +179,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function currentBattleRoom()
     {
-        $battle = Battle::whereIn('status', ['pending', 'active'])
+        return Battle::whereIn('status', ['pending', 'active'])
             ->where(function($q) {
                 for ($i = 1; $i <= 6; $i++) {
                     $q->orWhere("team_a_user_{$i}", $this->id)
@@ -187,10 +187,6 @@ class User extends Authenticatable implements MustVerifyEmail
                 }
                 $q->orWhere('marshall_id', $this->id);
             })->first();
-            
-        if ($battle) return ['type' => 'battle', 'battle' => $battle];
-        
-        return null;
     }
 
     /**

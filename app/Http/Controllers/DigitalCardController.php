@@ -147,8 +147,10 @@ class DigitalCardController extends Controller
         // Check if card is in an active battle (usually can't heal while battling)
         $inBattle = \App\Models\Battle::whereIn('status', ['pending', 'active', 'ready'])
             ->where(function ($q) use ($card) {
-                $q->where('challenger_card_id', $card->id)
-                  ->orWhere('opponent_card_id', $card->id);
+                for ($i = 1; $i <= 6; $i++) {
+                    $q->orWhere("team_a_card_{$i}", $card->id)
+                      ->orWhere("team_b_card_{$i}", $card->id);
+                }
             })->exists();
 
         if ($inBattle) {
@@ -185,8 +187,10 @@ class DigitalCardController extends Controller
         // Check if card is in an active battle
         $inBattle = \App\Models\Battle::whereIn('status', ['pending', 'active', 'ready'])
             ->where(function ($q) use ($card) {
-                $q->where('challenger_card_id', $card->id)
-                  ->orWhere('opponent_card_id', $card->id);
+                for ($i = 1; $i <= 6; $i++) {
+                    $q->orWhere("team_a_card_{$i}", $card->id)
+                      ->orWhere("team_b_card_{$i}", $card->id);
+                }
             })->exists();
 
         if ($inBattle) {
@@ -221,12 +225,13 @@ class DigitalCardController extends Controller
         $limit = 10;
         $offset = $request->query('offset', 0);
 
-        $battles = \App\Models\Battle::with(['challenger', 'opponent', 'winner'])
+        $battles = \App\Models\Battle::where('status', 'completed')
             ->where(function ($query) use ($digitalCard) {
-                $query->where('challenger_card_id', $digitalCard->id)
-                      ->orWhere('opponent_card_id', $digitalCard->id);
+                for ($i = 1; $i <= 6; $i++) {
+                    $query->orWhere("team_a_card_{$i}", $digitalCard->id)
+                          ->orWhere("team_b_card_{$i}", $digitalCard->id);
+                }
             })
-            ->whereNotNull('winner_id') // Only show completed battles
             ->orderBy('updated_at', 'desc')
             ->skip($offset)
             ->take($limit)
@@ -234,14 +239,31 @@ class DigitalCardController extends Controller
 
         return response()->json([
             'battles' => $battles->map(function ($battle) use ($digitalCard) {
-                $isWin = $battle->winner_id == $digitalCard->owner_id;
+                $isTeamA = false;
+                $slotIndex = 0;
+                for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
+                    if ($battle->{"team_a_card_{$i}"} == $digitalCard->id) {
+                        $isTeamA = true;
+                        $slotIndex = $i;
+                        break;
+                    } elseif ($battle->{"team_b_card_{$i}"} == $digitalCard->id) {
+                        $isTeamA = false;
+                        $slotIndex = $i;
+                        break;
+                    }
+                }
+
+                $isWin = ($isTeamA && $battle->winner_team === 'team_a') || (!$isTeamA && $battle->winner_team === 'team_b');
+                
+                // Identify the specific opponent in the opposing team's same slot
+                $opponentId = $isTeamA ? $battle->{"team_b_user_{$slotIndex}"} : $battle->{"team_a_user_{$slotIndex}"};
+                $opponent = \App\Models\User::find($opponentId);
+
                 return [
                     'id' => $battle->id,
-                    'room_id' => $battle->room_id,
+                    'room_id' => $battle->id, // Assuming room_id is now just id or similar
                     'date' => $battle->updated_at->format('M j, Y H:i'),
-                    'opponent_name' => $battle->challenger_id == $digitalCard->owner_id 
-                        ? ($battle->opponent ? $battle->opponent->username : 'Unknown') 
-                        : $battle->challenger->username,
+                    'opponent_name' => $opponent ? $opponent->username : 'Unknown',
                     'result' => $isWin ? 'WIN' : 'LOSS',
                     'result_color' => $isWin ? '#39ff14' : '#ff0000',
                 ];
