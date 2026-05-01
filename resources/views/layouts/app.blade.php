@@ -485,6 +485,10 @@
             console.log('PWA: BRAG was installed.');
             deferredPrompt = null;
             hideInstallButtons();
+            
+            if (typeof window.neonAlert === 'function') {
+                window.neonAlert('BRAG has been successfully installed! You can now launch it directly from your home screen or app launcher for the full Arena experience.', 'INSTALLATION COMPLETE');
+            }
         });
     </script>
 </body>
