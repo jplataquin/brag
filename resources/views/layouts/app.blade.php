@@ -121,6 +121,11 @@
                                 </a>
                             </li>
                             <li class="nav-item d-lg-none">
+                                <a class="nav-link" href="{{ route('pwa.instructions') }}" id="btn-install-pwa-mobile">
+                                    <i class="bi bi-download"></i> Install App
+                                </a>
+                            </li>
+                            <li class="nav-item d-lg-none">
                                 <form action="{{ route('logout') }}" method="POST" class="m-0 p-0">
                                     @csrf
                                     <button type="submit" class="nav-link border-0 bg-transparent w-100 text-start">
@@ -189,6 +194,10 @@
                                             <i class="bi bi-speedometer2"></i> Admin Panel
                                         </a>
                                     @endif
+                                    <div class="dropdown-divider" style="border-color: rgba(0,240,255,0.1);"></div>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('pwa.instructions') }}" id="btn-install-pwa">
+                                        <i class="bi bi-download"></i> Install App
+                                    </a>
                                     <div class="dropdown-divider" style="border-color: rgba(0,240,255,0.1);"></div>
                                     <form action="{{ route('logout') }}" method="POST" class="m-0 p-0">
                                         @csrf
@@ -419,6 +428,64 @@
                     .catch(err => console.error('Service Worker registration failed.', err));
             });
         }
+
+        // PWA Installation Logic
+        let deferredPrompt;
+        const installButtons = document.querySelectorAll('#btn-install-pwa, #btn-install-pwa-mobile');
+
+        const hideInstallButtons = () => {
+            installButtons.forEach(btn => {
+                const li = btn.closest('li');
+                if (li) li.style.display = 'none';
+                else btn.style.display = 'none';
+                
+                const prevDivider = btn.previousElementSibling;
+                if (prevDivider && prevDivider.classList.contains('dropdown-divider')) {
+                    prevDivider.style.display = 'none';
+                }
+            });
+        };
+
+        // Check if already in standalone mode
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+            hideInstallButtons();
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            console.log('PWA: beforeinstallprompt event fired and stashed.');
+        });
+
+        installButtons.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                if (deferredPrompt) {
+                    // Prevent the default link behavior (redirecting to instructions)
+                    e.preventDefault();
+                    
+                    // Show the install prompt
+                    deferredPrompt.prompt();
+                    
+                    // Wait for the user to respond to the prompt
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`PWA: User response to the install prompt: ${outcome}`);
+                    
+                    // We've used the prompt, and can't use it again, throw it away
+                    deferredPrompt = null;
+                } else {
+                    // If no deferredPrompt, let the link proceed to the instructions page
+                    console.log('PWA: No install prompt available, redirecting to instructions.');
+                }
+            });
+        });
+
+        window.addEventListener('appinstalled', (event) => {
+            console.log('PWA: BRAG was installed.');
+            deferredPrompt = null;
+            hideInstallButtons();
+        });
     </script>
 </body>
 </html>

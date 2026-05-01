@@ -224,4 +224,8 @@ Route::get('/offline', function () {
     return view('offline');
 })->name('offline');
 
+Route::get('/install', function () {
+    return view('pwa-instructions');
+})->name('pwa.instructions');
+
 Route::get('/user/{username}', [ProfileController::class, 'show'])->name('profile.show');

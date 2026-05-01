@@ -139,10 +139,16 @@
                             </div>
 
                             <div class="mb-4">
-                                <label class="form-label">4. PLAYERS PER TEAM</label>
+                                <label class="form-label">4. Player Count</label>
                                 <select wire:model="noPlayersPerTeam" class="form-select">
-                                    @for($i=2; $i<=6; $i++)
-                                        <option value="{{ $i }}">{{ $i }} Players</option>
+                                    @for($i=1; $i<=6; $i++)
+                                        <option value="{{ $i }}">
+                                            @if($i == 1)
+                                                {{ $i }} on {{ $i }}
+                                            @else
+                                                {{ $i }} vs {{ $i }}
+                                            @endif
+                                        </option>
                                     @endfor
                                 </select>
                                 @error('noPlayersPerTeam') <span class="text-danger small">{{ $message }}</span> @enderror

@@ -18,7 +18,7 @@ class CreateBattleForm extends Component
     public $gameTitleId = '';
     public $teamNameA = '';
     public $teamNameB = '';
-    public $noPlayersPerTeam = 2;
+    public $noPlayersPerTeam = 1;
     public $battleTerms = '';
     public $selectedCardId = '';
 
@@ -67,7 +67,7 @@ class CreateBattleForm extends Component
                 'gameTitleId' => 'required|exists:game_titles,id',
                 'teamNameA' => 'required|string|max:255',
                 'teamNameB' => 'required|string|max:255',
-                'noPlayersPerTeam' => 'required|integer|min:2|max:6',
+                'noPlayersPerTeam' => 'required|integer|min:1|max:6',
                 'battleTerms' => 'required|string|max:1000',
                 'selectedCardId' => 'required|exists:digital_cards,id',
             ]);
