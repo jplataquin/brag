@@ -22,7 +22,7 @@
     }
 </style>
 
-<div class="team-battle-room" @if(!$joiningTeam) wire:poll.10s @endif style="overflow: visible;">
+<div class="team-battle-room"  style="overflow: visible;">
     @if(session()->has('error'))
         <div class="alert alert-danger alert-dismissible fade show mb-4 orbitron" role="alert" style="background: rgba(220, 53, 69, 0.1); border: 1px solid #dc3545; color: #ff8888;">
             <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
@@ -262,8 +262,8 @@
                                     <p style="color: #ffdd00; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; margin-bottom: 0.5rem;"><i class="bi bi-shield-exclamation"></i> MARSHALL ELECTION</p>
                                     <p class="small text-light mb-3">Both team leaders have elected you to adjudicate this team battle. Do you accept this responsibility?</p>
                                     <div class="d-flex gap-2">
-                                        <button wire:click="acceptMarshall" class="btn btn-sm btn-neon w-50" style="border-color: #ffdd00; color: #ffdd00;"><i class="bi bi-check-lg"></i> ACCEPT</button>
-                                        <button wire:click="rejectMarshall" class="btn btn-sm btn-outline-light w-50"><i class="bi bi-x-lg"></i> REJECT</button>
+                                        <button type="button" wire:click.prevent="acceptMarshall" wire:key="btn-accept-marshall" class="btn btn-sm btn-neon w-50" style="border-color: #ffdd00; color: #ffdd00;"><i class="bi bi-check-lg"></i> ACCEPT</button>
+                                        <button type="button" wire:click.prevent="rejectMarshall" wire:key="btn-reject-marshall" class="btn btn-sm btn-outline-light w-50"><i class="bi bi-x-lg"></i> REJECT</button>
                                     </div>
                                 </div>
                             @else
@@ -378,7 +378,7 @@
                                 
                                 @if($battle->status == 'pending' && $isLeaderA)
                                     @if($battle->is_full && $battle->team_b_ready)
-                                        <button class="btn btn-neon-lime" wire:click="startBattle" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
+                                        <button type="button" class="btn btn-neon-lime" wire:click.prevent="startBattle" wire:key="btn-start" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
                                             <i class="bi bi-play-fill"></i> START MATCH
                                         </button>
                                     @endif
@@ -387,12 +387,12 @@
                                             <i class="bi bi-person-plus-fill"></i> INVITE PLAYERS
                                         </button>
                                     @endif
-                                    <button class="btn btn-neon-danger" wire:click="cancelBattle">
+                                    <button type="button" class="btn btn-neon-danger" wire:click.prevent="cancelBattle" wire:key="btn-cancel">
                                         <i class="bi bi-x-circle"></i> CANCEL BATTLE
                                     </button>
                                 @elseif($battle->status == 'pending' && $isLeaderB)
                                     @if($battle->is_team_b_full && !$battle->team_b_ready)
-                                        <button class="btn btn-neon-lime" wire:click="teamBReady" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
+                                        <button type="button" class="btn btn-neon-lime" wire:click.prevent="teamBReady" wire:key="btn-ready" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);">
                                             <i class="bi bi-check2-all"></i> READY
                                         </button>
                                     @endif
@@ -405,7 +405,7 @@
                             @endif
 
                             @if($battle->status == 'pending' && Auth::id() != $battle->team_a_user_1)
-                                <button class="btn btn-outline-warning" wire:click="standUp">
+                                <button type="button" class="btn btn-outline-warning" wire:click.prevent="standUp" wire:key="btn-standup">
                                     <i class="bi bi-box-arrow-right"></i> STAND UP
                                 </button>
                             @endif
@@ -423,9 +423,9 @@
                             <i class="bi bi-gear-wide-connected section-icon" style="color: #ffdd00;"></i> MARSHALL ACTIONS
                         </h5>
                         <div id="actions-container" class="d-flex gap-3 flex-wrap align-items-center">
-                            <button class="btn btn-neon btn-sm" x-data x-on:click="window.neonConfirm('As Marshall, are you sure you want to officially declare TEAM A as the winner?').then(c => { if(c) $wire.declareWin('A') })">TEAM A WON</button>
-                            <button class="btn btn-neon-magenta btn-sm" x-data x-on:click="window.neonConfirm('As Marshall, are you sure you want to officially declare TEAM B as the winner?').then(c => { if(c) $wire.declareWin('B') })">TEAM B WON</button>
-                            <button class="btn btn-neon-danger btn-sm" x-data x-on:click="window.neonConfirm('Are you sure you want to CANCEL this match? No cards will be transferred.').then(c => { if(c) $wire.cancelBattle() })">CANCEL MATCH</button>
+                            <button type="button" class="btn btn-neon btn-sm" x-data x-on:click="window.neonConfirm('As Marshall, are you sure you want to officially declare TEAM A as the winner?').then(c => { if(c) $wire.declareWin('A') })" wire:key="btn-marshall-win-a">TEAM A WON</button>
+                            <button type="button" class="btn btn-neon-magenta btn-sm" x-data x-on:click="window.neonConfirm('As Marshall, are you sure you want to officially declare TEAM B as the winner?').then(c => { if(c) $wire.declareWin('B') })" wire:key="btn-marshall-win-b">TEAM B WON</button>
+                            <button type="button" class="btn btn-neon-danger btn-sm" x-data x-on:click="window.neonConfirm('Are you sure you want to CANCEL this match? No cards will be transferred.').then(c => { if(c) $wire.cancelBattle() })" wire:key="btn-marshall-cancel">CANCEL MATCH</button>
                         </div>
                     </div>
                 @endif
@@ -733,10 +733,10 @@
                     </p>
                     
                     <div class="d-flex gap-3">
-                        <button class="btn btn-neon-magenta w-100" wire:click="respondToCancellation(true)">
+                        <button type="button" class="btn btn-neon-magenta w-100" wire:click.prevent="respondToCancellation(true)">
                             <i class="bi bi-check-lg"></i> AGREE & CANCEL
                         </button>
-                        <button class="btn btn-outline-secondary w-100" style="border-color: #555;" wire:click="respondToCancellation(false)">
+                        <button type="button" class="btn btn-outline-secondary w-100" style="border-color: #555;" wire:click.prevent="respondToCancellation(false)">
                             <i class="bi bi-x-lg"></i> REJECT
                         </button>
                     </div>
