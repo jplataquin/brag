@@ -123,11 +123,20 @@
         </div>
 
         <!-- Team B Column -->
-        <div class="col-6">
-            <div class="text-center mb-4">
-                <h4 class="orbitron text-magenta mb-0 d-inline-block text-truncate w-100" title="{{ $battle->team_name_b }}">
-                    {{ $battle->team_name_b }}
-                </h4>
+        <div class="col-6" style="min-width: 0;">
+            <div class="text-center mb-4 team-name-container" 
+                 wire:key="team-name-b-{{ md5($battle->team_name_b) }}"
+                 x-data="{ overflowing: false }" 
+                 x-init="setTimeout(() => { overflowing = $refs.nakedB.offsetWidth > $el.clientWidth; }, 200)" 
+                 @resize.window="overflowing = $refs.nakedB.offsetWidth > $el.clientWidth">
+                <div :class="{ 'team-name-scroll': overflowing }">
+                    <h4 class="orbitron text-magenta mb-0 d-inline-block" :class="{ 'pe-5': overflowing }" title="{{ $battle->team_name_b }}">
+                        <span x-ref="nakedB">{{ $battle->team_name_b }}</span>
+                    </h4>
+                    <h4 x-show="overflowing" class="orbitron text-magenta mb-0 d-inline-block pe-5" title="{{ $battle->team_name_b }}">
+                        {{ $battle->team_name_b }}
+                    </h4>
+                </div>
             </div>
 
             <div class="d-flex flex-column gap-4 align-items-center">
