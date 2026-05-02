@@ -40,7 +40,7 @@ class PaymentTest extends TestCase
         $this->assertDatabaseHas('payments', [
             'user_id' => $user->id,
             'hitpay_id' => 'hitpay_req_123',
-            'shards_amount' => 10,
+            'diamonds_amount' => 10,
             'amount' => 50.00,
             'status' => 'pending'
         ]);
@@ -85,7 +85,7 @@ class PaymentTest extends TestCase
             'reference' => 'TEST-REF-123',
             'amount' => 50,
             'currency' => 'PHP',
-            'shards_amount' => 10,
+            'diamonds_amount' => 10,
             'status' => 'pending'
         ]);
 
@@ -114,7 +114,7 @@ class PaymentTest extends TestCase
         $this->assertEquals('completed', $payment->status);
 
         $user->refresh();
-        $this->assertEquals(10, $user->shards_balance);
+        $this->assertEquals(10, $user->diamonds_balance);
     }
 
     public function test_payment_callback_redirects_to_success_page()
@@ -141,7 +141,7 @@ class PaymentTest extends TestCase
             'hitpay_id' => 'a19ceec1-44a0-4546-9a66-4838a3b183fe',
             'amount' => 100,
             'currency' => 'PHP',
-            'shards_amount' => 25,
+            'diamonds_amount' => 10,
             'status' => 'completed'
         ]);
 

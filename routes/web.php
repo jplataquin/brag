@@ -50,6 +50,9 @@ Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleC
 Route::get('/auth/google/setup', [SocialAuthController::class, 'showSetupProfile'])->name('auth.google.setup');
 Route::post('/auth/google/setup', [SocialAuthController::class, 'saveSetupProfile']);
 
+// Webhooks
+Route::post('/payments/webhook', [PaymentController::class, 'webhook'])->name('payments.webhook');
+
 // Authenticated Routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -90,7 +93,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/payments/success', [PaymentController::class, 'success'])->name('payments.success');
     Route::get('/payments/failure', [PaymentController::class, 'failure'])->name('payments.failure');
     Route::get('/payments/callback', [PaymentController::class, 'callback'])->name('payments.callback');
-    Route::post('/payments/webhook', [PaymentController::class, 'webhook'])->name('payments.webhook')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
 
     // Feedback
     Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback.index');

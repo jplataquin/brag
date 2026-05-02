@@ -23,7 +23,7 @@ class PaymentController extends Controller
     /**
      * Initiate the checkout process for a Diamond package.
      */
-    public function checkout(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'package_id' => 'required|string',
