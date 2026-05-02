@@ -1,0 +1,5 @@
+sed -i 's/<button class="btn btn-outline-secondary w-50" wire:click="$set('\''showEditTeamA'\'', false)">/<button type="button" class="btn btn-outline-secondary w-50" wire:click.prevent="$set('\''showEditTeamA'\'', false)">/g' resources/views/livewire/battle-room.blade.php
+sed -i 's/<button class="btn btn-neon w-50 orbitron" wire:click="updateTeamName('\''A'\'')">/<button type="button" class="btn btn-neon w-50 orbitron" wire:click.prevent="updateTeamName('\''A'\'')">/g' resources/views/livewire/battle-room.blade.php
+
+sed -i 's/<button class="btn btn-outline-secondary w-50" wire:click="$set('\''showEditTeamB'\'', false)">/<button type="button" class="btn btn-outline-secondary w-50" wire:click.prevent="$set('\''showEditTeamB'\'', false)">/g' resources/views/livewire/battle-room.blade.php
+sed -i 's/<button class="btn btn-neon-magenta w-50 orbitron" wire:click="updateTeamName('\''B'\'')">/<button type="button" class="btn btn-neon-magenta w-50 orbitron" wire:click.prevent="updateTeamName('\''B'\'')">/g' resources/views/livewire/battle-room.blade.php

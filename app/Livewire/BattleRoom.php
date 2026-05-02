@@ -20,8 +20,6 @@ class BattleRoom extends Component
     public $marshallNomineeId = '';
     
     // For editing team names
-    public $showEditTeamA = false;
-    public $showEditTeamB = false;
     public $newTeamNameA = '';
     public $newTeamNameB = '';
 
@@ -70,6 +68,7 @@ class BattleRoom extends Component
     {
         if (!$this->inviteNomineeId) return;
 
+        Log::info("editTeamName triggered by user " . Auth::id());
         $user = Auth::user();
         $isLeaderA = $user->id == $this->battle->team_a_user_1;
         $isLeaderB = $user->id == $this->battle->team_b_user_1;
@@ -182,6 +181,7 @@ class BattleRoom extends Component
     {
         Log::info("Join attempt: User ".Auth::id()." Team ".$this->joiningTeam." Slot ".$this->pairingSlot." Card ".$this->selectedCardId);
 
+        Log::info("editTeamName triggered by user " . Auth::id());
         $user = Auth::user();
         $currentRoom = $user->currentBattleRoom();
         if ($currentRoom && !($currentRoom['type'] === 'team' && $currentRoom['battle']->id === $this->battle->id)) {
@@ -290,6 +290,7 @@ class BattleRoom extends Component
 
     public function standUp()
     {
+        Log::info("editTeamName triggered by user " . Auth::id());
         $user = Auth::user();
         
         if ($this->battle->status !== 'pending') {
@@ -341,6 +342,7 @@ class BattleRoom extends Component
 
     public function teamBReady()
     {
+        Log::info("editTeamName triggered by user " . Auth::id());
         $user = Auth::user();
         if ($user->id != $this->battle->team_b_user_1) {
             session()->flash('error', 'Only Team B leader can declare ready status.');
@@ -359,6 +361,7 @@ class BattleRoom extends Component
 
     public function startBattle()
     {
+        Log::info("editTeamName triggered by user " . Auth::id());
         $user = Auth::user();
         if ($user->id != $this->battle->team_a_user_1) {
             session()->flash('error', 'Only Team A leader can start the battle.');
@@ -385,6 +388,7 @@ class BattleRoom extends Component
 
     public function declareWin($team)
     {
+        Log::info("editTeamName triggered by user " . Auth::id());
         $user = Auth::user();
         $isLeaderA = $user->id == $this->battle->team_a_user_1;
         $isLeaderB = $user->id == $this->battle->team_b_user_1;
@@ -500,6 +504,7 @@ class BattleRoom extends Component
 
     public function cancelBattle()
     {
+        Log::info("editTeamName triggered by user " . Auth::id());
         $user = Auth::user();
         $isLeaderA = $user->id == $this->battle->team_a_user_1;
         $isLeaderB = $user->id == $this->battle->team_b_user_1;
@@ -540,6 +545,7 @@ class BattleRoom extends Component
 
     public function respondToCancellation($agreed)
     {
+        Log::info("editTeamName triggered by user " . Auth::id());
         $user = Auth::user();
         $isLeaderA = $user->id == $this->battle->team_a_user_1;
         $isLeaderB = $user->id == $this->battle->team_b_user_1;
@@ -582,6 +588,7 @@ class BattleRoom extends Component
         $nomineeId = $nomineeId ?: $this->marshallNomineeId;
         if (!$nomineeId) return;
 
+        Log::info("editTeamName triggered by user " . Auth::id());
         $user = Auth::user();
         $isLeaderA = $user->id == $this->battle->team_a_user_1;
         $isLeaderB = $user->id == $this->battle->team_b_user_1;
@@ -628,6 +635,7 @@ class BattleRoom extends Component
             return;
         }
 
+        Log::info("editTeamName triggered by user " . Auth::id());
         $user = Auth::user();
         if ($this->battle->team_a_marshall_elect == $user->id && $this->battle->team_b_marshall_elect == $user->id) {
             $this->battle->update([
@@ -647,6 +655,7 @@ class BattleRoom extends Component
             return; // No need for error here, just ignore
         }
 
+        Log::info("editTeamName triggered by user " . Auth::id());
         $user = Auth::user();
         if ($this->battle->team_a_marshall_elect == $user->id && $this->battle->team_b_marshall_elect == $user->id) {
             $this->battle->update([
@@ -658,27 +667,17 @@ class BattleRoom extends Component
             $this->refreshRoom();
         }
     }
-    public function editTeamName()
-    {
-        $user = Auth::user();
-        if ($user->id == $this->battle->team_a_user_1) {
-            $this->showEditTeamA = true;
-        } elseif ($user->id == $this->battle->team_b_user_1) {
-            $this->showEditTeamB = true;
-        }
-    }
+    
 
     public function updateTeamName($team)
     {
+        Log::info("editTeamName triggered by user " . Auth::id());
         $user = Auth::user();
         if ($team == 'A' && $user->id == $this->battle->team_a_user_1) {
             \Log::info("Updating Team A to " . $this->newTeamNameA);
             $this->battle->update(['team_name_a' => $this->newTeamNameA]);
-            $this->showEditTeamA = false;
-            
         } elseif ($team == 'B' && $user->id == $this->battle->team_b_user_1) {
             $this->battle->update(['team_name_b' => $this->newTeamNameB]);
-            $this->showEditTeamB = false;
         }
         $this->broadcastUpdate("Team name updated.");
         $this->refreshRoom();
@@ -701,6 +700,7 @@ class BattleRoom extends Component
 
     public function render()
     {
+        Log::info("editTeamName triggered by user " . Auth::id());
         $user = Auth::user();
         $cards = collect();
         if ($user) {

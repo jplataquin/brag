@@ -1,1 +1,1 @@
-sed -i '/$this->battle->update(\['\''team_name_a'\'' => $this->newTeamNameA\]);/i \            \\Log::info("Updating Team A to " . $this->newTeamNameA);' app/Livewire/BattleRoom.php
+sed -i '/$user = Auth::user();/i \        \Log::info("editTeamName triggered by user " . \Auth::id());' app/Livewire/BattleRoom.php

@@ -1,0 +1,1 @@
+sed -i 's/<button class="btn btn-outline-info btn-sm" wire:click="editTeamName">/<button type="button" class="btn btn-outline-info btn-sm" wire:click.prevent="editTeamName" wire:key="btn-rename">/g' resources/views/livewire/battle-room.blade.php

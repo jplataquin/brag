@@ -361,8 +361,8 @@
                                 @endif
 
                                 @if($battle->status != 'completed' && $battle->status != 'cancelled')
-                                    @if(($isLeaderA && !$showEditTeamA) || ($isLeaderB && !$showEditTeamB))
-                                        <button class="btn btn-outline-info btn-sm" wire:click="editTeamName">
+                                    @if($isLeaderA || $isLeaderB)
+                                        <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#renameTeamModal">
                                             <i class="bi bi-pencil-square"></i> RENAME TEAM
                                         </button>
                                     @endif
@@ -541,6 +541,35 @@
         </div>
     @endif
 
+        <!-- Rename Team Modal -->
+    <div class="modal fade" wire:ignore.self id="renameTeamModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
+        <div class="modal-dialog modal-dialog-centered">
+            @if(Auth::id() == $battle->team_a_user_1)
+            <div class="modal-content p-4 neon-card" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; backdrop-filter: blur(20px);">
+                <h5 class="orbitron text-cyan mb-4 text-center">RENAME TEAM A</h5>
+                <div class="mb-4">
+                    <input type="text" wire:model="newTeamNameA" class="form-control bg-dark text-white border-cyan text-center orbitron" placeholder="Enter new team name">
+                </div>
+                <div class="d-flex gap-3">
+                    <button type="button" class="btn btn-outline-secondary w-50" data-bs-dismiss="modal">CANCEL</button>
+                    <button type="button" class="btn btn-neon w-50 orbitron" wire:click.prevent="updateTeamName('A')" data-bs-dismiss="modal">SAVE</button>
+                </div>
+            </div>
+            @elseif(Auth::id() == $battle->team_b_user_1)
+            <div class="modal-content p-4 neon-card" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #ff00ff; box-shadow: 0 0 30px rgba(255, 0, 255, 0.2); backdrop-filter: blur(20px);">
+                <h5 class="orbitron text-magenta mb-4 text-center">RENAME TEAM B</h5>
+                <div class="mb-4">
+                    <input type="text" wire:model="newTeamNameB" class="form-control bg-dark text-white border-magenta text-center orbitron" placeholder="Enter new team name">
+                </div>
+                <div class="d-flex gap-3">
+                    <button type="button" class="btn btn-outline-secondary w-50" data-bs-dismiss="modal">CANCEL</button>
+                    <button type="button" class="btn btn-neon-magenta w-50 orbitron" wire:click.prevent="updateTeamName('B')" data-bs-dismiss="modal">SAVE</button>
+                </div>
+            </div>
+            @endif
+        </div>
+    </div>
+
     <!-- Elect Marshall Modal -->
     <div class="modal fade" wire:ignore.self id="electMarshallModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
         <div class="modal-dialog modal-dialog-centered">
@@ -716,37 +745,9 @@
     </div>
     @endif
 
-    <!-- Rename Team A Modal -->
-    @if($showEditTeamA)
-        <div class="custom-modal-backdrop" style="z-index: 2000;" wire:key="modal-edit-team-a">
-            <div class="custom-modal p-4 neon-card" style="max-width: 400px; width: 95%;">
-                <h5 class="orbitron text-cyan mb-4 text-center">RENAME TEAM A</h5>
-                <div class="mb-4">
-                    <input type="text" wire:model="newTeamNameA" wire:key="input-team-name-a" class="form-control bg-dark text-white border-cyan text-center orbitron" placeholder="Enter new team name">
-                </div>
-                <div class="d-flex gap-3">
-                    <button class="btn btn-outline-secondary w-50" wire:click="$set('showEditTeamA', false)">CANCEL</button>
-                    <button class="btn btn-neon w-50 orbitron" wire:click="updateTeamName('A')">SAVE</button>
-                </div>
-            </div>
-        </div>
-    @endif
+    
 
-    <!-- Rename Team B Modal -->
-    @if($showEditTeamB)
-        <div class="custom-modal-backdrop" style="z-index: 2000;" wire:key="modal-edit-team-b">
-            <div class="custom-modal p-4 neon-card" style="max-width: 400px; width: 95%; border-color: #ff00ff; box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);">
-                <h5 class="orbitron text-magenta mb-4 text-center">RENAME TEAM B</h5>
-                <div class="mb-4">
-                    <input type="text" wire:model="newTeamNameB" wire:key="input-team-name-b" class="form-control bg-dark text-white border-magenta text-center orbitron" placeholder="Enter new team name">
-                </div>
-                <div class="d-flex gap-3">
-                    <button class="btn btn-outline-secondary w-50" wire:click="$set('showEditTeamB', false)">CANCEL</button>
-                    <button class="btn btn-neon-magenta w-50 orbitron" wire:click="updateTeamName('B')">SAVE</button>
-                </div>
-            </div>
-        </div>
-    @endif
+    
 
     <style>
         @keyframes pulse-cyan {
