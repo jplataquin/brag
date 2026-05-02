@@ -99,8 +99,8 @@
                     <ul class="navbar-nav me-auto">
                         @auth
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('announcements.*') ? 'active' : '' }}" href="{{ route('announcements.list') }}">
-                                    <i class="bi bi-megaphone"></i> Announcements
+                                <a class="nav-link {{ request()->routeIs('blog.*') ? 'active' : '' }}" href="{{ route('blog.index') }}">
+                                    <i class="bi bi-journal-text"></i> Blog
                                 </a>
                             </li>
                             <li class="nav-item">

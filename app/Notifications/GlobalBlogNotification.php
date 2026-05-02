@@ -2,24 +2,24 @@
 
 namespace App\Notifications;
 
-use App\Models\Announcement;
+use App\Models\Post;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class GlobalAnnouncementNotification extends Notification implements ShouldQueue
+class GlobalBlogNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $announcement;
+    protected $post;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(Announcement $announcement)
+    public function __construct(Post $post)
     {
-        $this->announcement = $announcement;
+        $this->post = $post;
     }
 
     /**
@@ -40,10 +40,11 @@ class GlobalAnnouncementNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'title' => 'New Announcement: ' . $this->announcement->title,
-            'message' => 'A new global announcement has been posted.',
-            'action_url' => route('announcements.show', $this->announcement),
-            'type' => 'announcement',
+            'title' => 'New Blog Post: ' . $this->post->title,
+            'message' => 'A new global blog post has been published.',
+            'action_url' => route('blog.show', $this->post),
+            'type' => 'blog',
+            'icon' => 'bi-journal-text',
         ];
     }
 }
