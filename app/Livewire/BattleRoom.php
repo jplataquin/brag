@@ -671,6 +671,7 @@ class BattleRoom extends Component
             \Log::info("Updating Team A to " . $this->newTeamNameA);
             $this->battle->update(['team_name_a' => $this->newTeamNameA]);
             $this->showEditTeamA = false;
+            
         } elseif ($team == 'B' && $user->id == $this->battle->team_b_user_1) {
             $this->battle->update(['team_name_b' => $this->newTeamNameB]);
             $this->showEditTeamB = false;
