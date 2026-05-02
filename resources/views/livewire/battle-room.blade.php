@@ -22,7 +22,7 @@
     }
 </style>
 
-<div class="team-battle-room"  style="overflow: visible;">
+<div class="team-battle-room" style="overflow: visible;">
     @if(session()->has('error'))
         <div class="alert alert-danger alert-dismissible fade show mb-4 orbitron" role="alert" style="background: rgba(220, 53, 69, 0.1); border: 1px solid #dc3545; color: #ff8888;">
             <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
@@ -733,10 +733,10 @@
                     </p>
                     
                     <div class="d-flex gap-3">
-                        <button type="button" class="btn btn-neon-magenta w-100" wire:click.prevent="respondToCancellation(true)">
+                        <button type="button" class="btn btn-neon-magenta w-100" wire:click.prevent="respondToCancellation(true)" wire:key="btn-cancel-agree">
                             <i class="bi bi-check-lg"></i> AGREE & CANCEL
                         </button>
-                        <button type="button" class="btn btn-outline-secondary w-100" style="border-color: #555;" wire:click.prevent="respondToCancellation(false)">
+                        <button type="button" class="btn btn-outline-secondary w-100" style="border-color: #555;" wire:click.prevent="respondToCancellation(false)" wire:key="btn-cancel-reject">
                             <i class="bi bi-x-lg"></i> REJECT
                         </button>
                     </div>
