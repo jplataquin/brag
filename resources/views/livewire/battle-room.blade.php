@@ -20,6 +20,27 @@
     }
 </style>
 
+<style>
+    .team-name-container {
+        width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        position: relative;
+    }
+    .team-name-scroll {
+        display: inline-block;
+        white-space: nowrap;
+        animation: team-marquee 15s linear infinite;
+    }
+    .team-name-scroll:hover {
+        animation-play-state: paused;
+    }
+    @keyframes team-marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+</style>
+
 <div class="team-battle-room" wire:poll.10s style="overflow: visible;">
     @if(session()->has('error'))
         <div class="alert alert-danger alert-dismissible fade show mb-4 orbitron" role="alert" style="background: rgba(220, 53, 69, 0.1); border: 1px solid #dc3545; color: #ff8888;">
@@ -37,11 +58,27 @@
 
     <div class="row g-4">
         <!-- Team A Column -->
-        <div class="col-6">
-            <div class="text-center mb-4">
-                <h4 class="orbitron text-cyan mb-0 d-inline-block text-truncate w-100" title="{{ $battle->team_name_a }}">
-                    {{ $battle->team_name_a }}
-                </h4>
+        <div class="col-6" style="min-width: 0;">
+            <div class="text-center mb-4 team-name-container" 
+                 wire:key="team-name-b-{{ md5($battle->team_name_b) }}"
+                 x-data="{ 
+                    overflowing: false,
+                    checkOverflow() {
+                        if(this.$refs.nakedB) {
+                            this.overflowing = this.$refs.nakedB.scrollWidth > this.$el.clientWidth;
+                        }
+                    }
+                 }" 
+                 x-init="setTimeout(() => checkOverflow(), 200)"
+                 @resize.window="checkOverflow()">
+                <div :class="{ 'team-name-scroll': overflowing }">
+                    <h4 class="orbitron text-magenta mb-0 d-inline-block" :class="{ 'pe-5': overflowing }" title="{{ $battle->team_name_b }}">
+                        <span x-ref="nakedB">{{ $battle->team_name_b }}</span>
+                    </h4>
+                    <h4 x-show="overflowing" class="orbitron text-magenta mb-0 d-inline-block pe-5" title="{{ $battle->team_name_b }}">
+                        {{ $battle->team_name_b }}
+                    </h4>
+                </div>
             </div>
 
             <div class="d-flex flex-column gap-4 align-items-center">
@@ -113,7 +150,7 @@
                             <div class="empty-card-slot d-flex flex-column align-items-center justify-content-center p-3 rounded" style="border: 2px dashed rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.05); aspect-ratio: 350 / 490; width: 100%;">
                                 <div class="orbitron text-muted mb-3 fs-5">SLOT {{ $i }}</div>
                                 @if($battle->status == 'pending' && Auth::id() != $battle->team_a_user_1)
-                                    <button class="btn btn-outline-cyan btn-sm w-100" style="max-width: 150px;" wire:click="joinTeam('A', {{ $i }})">JOIN TEAM A</button>
+                                    <button class="btn btn-outline-cyan btn-sm w-100" style="max-width: 150px;" wire:click="joinTeam('A', {{ $i }})">JOIN</button>
                                 @endif
                             </div>
                         @endif
