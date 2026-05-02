@@ -61,15 +61,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     // Profiles
+    Route::get('/search', [ProfileController::class, 'search'])->name('search');
     Route::get('/profile/{username}', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Arena & Battles
     Route::get('/arena', [BattleController::class, 'index'])->name('battles.index');
     Route::get('/battles/create', [BattleController::class, 'create'])->name('battles.create');
-    Route::post('/battles', [BattleController::class, 'store'])->name('battles.store');
     Route::get('/battles/{battle}', BattleRoom::class)->name('battles.show');
     Route::get('/battles/{battle}/join', [BattleController::class, 'join'])->name('battles.join');
     Route::get('/battles/{battle}/room', [BattleController::class, 'room'])->name('battles.room');
@@ -82,6 +81,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Inventory & Cards
     Route::get('/inventory', [DigitalCardController::class, 'index'])->name('cards.index');
+    Route::post('/cards/{card}/heal', [DigitalCardController::class, 'heal'])->name('cards.heal');
     Route::get('/cards/{card}', [DigitalCardController::class, 'show'])->name('cards.show');
     Route::post('/cards/{card}/burn', [DigitalCardController::class, 'burn'])->name('cards.burn');
 
@@ -91,10 +91,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Wallet & Payments
     Route::get('/wallet', [WalletController::class, 'index'])->name('wallet.index');
-    Route::get('/diamonds/purchase', [PaymentController::class, 'create'])->name('payments.create');
     Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
     Route::get('/payments/success', [PaymentController::class, 'success'])->name('payments.success');
-    Route::get('/payments/failure', [PaymentController::class, 'failure'])->name('payments.failure');
     Route::get('/payments/callback', [PaymentController::class, 'callback'])->name('payments.callback');
 
 
@@ -127,7 +125,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('blog', AdminBlogController::class)->except(['show']);
 
         // Game Titles
-        Route::resource('game_titles', AdminGameTitleController::class);
+        Route::resource('game_titles', AdminGameTitleController::class)->except(['show']);
 
         // Template Management
         Route::resource('templates', AdminTemplateController::class)->only(['index', 'edit', 'update']);
@@ -151,6 +149,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Static Pages
+Route::view('/maintenance', 'maintenance')->name('maintenance');
 Route::get('/terms', [TermsOfServiceController::class, 'show'])->name('terms.show');
 Route::post('/terms/agree', [TermsOfServiceController::class, 'agree'])->name('terms.agree');
 Route::get('/privacy', [PrivacyPolicyController::class, 'show'])->name('privacy.show');

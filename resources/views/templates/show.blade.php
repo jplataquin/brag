@@ -77,7 +77,7 @@
 
             @if($canForge)
                 <p style="font-size: 0.85rem; color: #8888aa;">Forge a new Digital Card from this template. <strong class="text-neon-cyan">Cost: {{ config('diamonds.costs.forging') }} Diamonds</strong></p>
-                <form action="{{ route('cards.forge', $template) }}" method="POST">
+                <form action="{{ route('templates.forge', $template) }}" method="POST">
                     @csrf
                     <button type="submit" class="btn btn-neon-lime" id="btn-forge-card" data-confirm="Forge a new Digital Card for {{ config('diamonds.costs.forging') }} Diamonds? You can only keep up to 3 cards from the same template in your inventory.">
                         <i class="bi bi-lightning-charge-fill"></i> FORGE NOW

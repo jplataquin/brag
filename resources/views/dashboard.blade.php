@@ -76,29 +76,7 @@
     </div>
 </div>
 
-<!-- Pending Invites -->
-@if($pendingInvites->count() > 0)
-<div class="neon-card p-3 mb-4" style="border-color: rgba(255,221,0,0.3);">
-    <h5 class="section-header" style="color: #ffdd00; border-color: rgba(255,221,0,0.15);">
-        <i class="bi bi-envelope-fill section-icon" style="color: #ffdd00;"></i> Pending Invites
-    </h5>
-    @foreach($pendingInvites as $invite)
-    <div class="d-flex align-items-center justify-content-between mb-2 p-2" style="background: rgba(255,221,0,0.03); border-radius: 8px;">
-        <div>
-            <span style="color: #ffdd00; font-weight: 600;">{{ $invite->battle?->challenger?->username ?? 'Unknown' }}</span>
-            <span class="text-muted"> invited you as {{ $invite->role }}</span>
-        </div>
-        <div class="d-flex gap-2">
-            <form action="{{ route('battles.invites.decline', $invite) }}" method="POST" class="d-inline">
-                @csrf
-                <button type="submit" class="btn btn-outline-danger btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">Decline</button>
-            </form>
-            <a href="{{ route('battles.room', $invite->battle) }}" class="btn btn-neon btn-neon-sm" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">View</a>
-        </div>
-    </div>
-    @endforeach
-</div>
-@endif
+
 
 
 
