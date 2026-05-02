@@ -30,11 +30,19 @@ use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 
 // Base Routes
 Route::get('/', function () {
-    return view('home');
-})->name('home');
+    return view('welcome', [
+        'cardsInCirculation' => \App\Models\DigitalCard::count(),
+        'gameTitlesCount' => \App\Models\GameTitle::where('status', 'active')->count(),
+    ]);
+})->name('welcome');
 
 // Auth Routes (Standard)
 Auth::routes(['verify' => true]);
+
+// Handle old /home redirect for compatibility
+Route::get('/home', function() {
+    return redirect()->route('dashboard');
+});
 
 // Google OAuth Routes
 Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
@@ -67,7 +75,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Inventory & Cards
     Route::get('/inventory', [DigitalCardController::class, 'index'])->name('cards.index');
-    Route::get('/cards/gallery', [DigitalCardController::class, 'gallery'])->name('cards.gallery');
+    Route::get('/cards/gallery', [DigitalCardController::class, 'gallery'])->name('gallery');
     Route::get('/cards/{card}', [DigitalCardController::class, 'show'])->name('cards.show');
     Route::post('/cards/{card}/burn', [DigitalCardController::class, 'burn'])->name('cards.burn');
 

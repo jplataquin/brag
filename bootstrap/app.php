@@ -12,6 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->redirectTo(
+            guests: '/login',
+            users: '/dashboard'
+        );
+
         $middleware->web(append: [
             \App\Http\Middleware\CheckSuspension::class,
             \App\Http\Middleware\MaintenanceMode::class,

@@ -62,7 +62,7 @@ class SocialAuthController extends Controller
                 return redirect()->route('auth.google.setup');
             }
 
-            return redirect()->intended('/home');
+            return redirect()->intended('/dashboard');
         } else {
             // User doesn't exist. Store Google data in session and redirect to setup.
             session([
@@ -84,7 +84,7 @@ class SocialAuthController extends Controller
         if (Auth::check()) {
             $user = Auth::user();
             if ($user->birthdate) {
-                return redirect('/home');
+                return redirect('/dashboard');
             }
             $defaults = [
                 'username' => $user->username,
@@ -179,7 +179,7 @@ class SocialAuthController extends Controller
             Auth::setUser($user->fresh());
         }
 
-        return redirect('/home')->with('success', 'Profile setup complete! Welcome to the Arena.');
+        return redirect('/dashboard')->with('success', 'Profile setup complete! Welcome to the Arena.');
     }
 
     /**
