@@ -156,7 +156,7 @@ To serve your application on a custom domain, create a new Nginx server block.
 
 1. **Create the config file:**
    ```bash
-   sudo nano /etc/nginx/sites-available/yourdomain.com
+   sudo nano /etc/nginx/sites-available/bragarena.com
    ```
 
 2. **Paste the following configuration** (adjusting paths and domains):
@@ -164,7 +164,7 @@ To serve your application on a custom domain, create a new Nginx server block.
    server {
        listen 80;
        listen [::]:80;
-       server_name yourdomain.com www.yourdomain.com;
+       server_name bragarena.com www.bragarena.com;
        root /var/www/brag/public;
 
        add_header X-Frame-Options "SAMEORIGIN";
@@ -175,6 +175,30 @@ To serve your application on a custom domain, create a new Nginx server block.
 
        location / {
            try_files $uri $uri/ /index.php?$query_string;
+       }
+
+       # Reverb WebSocket Proxy
+       location /app {
+           proxy_pass http://127.0.0.1:8080;
+           proxy_http_version 1.1;
+           proxy_set_header Host $http_host;
+           proxy_set_header Scheme $scheme;
+           proxy_set_header SERVER_PORT $server_port;
+           proxy_set_header REMOTE_ADDR $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection "Upgrade";
+       }
+
+       # Reverb API Proxy
+       location /apps {
+           proxy_pass http://127.0.0.1:8080;
+           proxy_http_version 1.1;
+           proxy_set_header Host $http_host;
+           proxy_set_header Scheme $scheme;
+           proxy_set_header SERVER_PORT $server_port;
+           proxy_set_header REMOTE_ADDR $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
        }
 
        location = /favicon.ico { access_log off; log_not_found off; }
@@ -196,7 +220,7 @@ To serve your application on a custom domain, create a new Nginx server block.
 
 3. **Enable the site and restart Nginx:**
    ```bash
-   sudo ln -s /etc/nginx/sites-available/yourdomain.com /etc/nginx/sites-enabled/
+   sudo ln -s /etc/nginx/sites-available/bragarena.com /etc/nginx/sites-enabled/
    sudo rm /etc/nginx/sites-enabled/default
    sudo nginx -t && sudo systemctl restart nginx
    ```
@@ -207,9 +231,17 @@ To serve your application on a custom domain, create a new Nginx server block.
 Secure your domain with free SSL certificates from Let's Encrypt using Certbot.
 
 ```bash
-sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+sudo certbot --nginx -d bragarena.com -d www.bragarena.com
 ```
-Follow the prompts to finalize the SSL setup. Certbot will automatically update your Nginx configuration.
+Follow the prompts to finalize the SSL setup. Certbot will automatically update your Nginx configuration, including the Reverb proxy blocks.
+
+**Note on WSS (Secure WebSockets):** 
+Once HTTPS is enabled, ensure your `.env` is updated to use `https` and port `443` for Reverb:
+```env
+REVERB_HOST="bragarena.com"
+REVERB_PORT=443
+REVERB_SCHEME=https
+```
 
 ---
 

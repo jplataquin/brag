@@ -34,6 +34,7 @@ class CreateAdmin extends Command
         $lastname = $this->ask('Last Name', 'Admin');
         $username = $this->ask('Username');
         $email = $this->ask('Email Address');
+        $birthdate = $this->ask('Birthdate (YYYY-MM-DD)', '1990-01-01');
         $password = $this->secret('Password');
         $confirmPassword = $this->secret('Confirm Password');
 
@@ -45,10 +46,12 @@ class CreateAdmin extends Command
         $validator = Validator::make([
             'username' => $username,
             'email' => $email,
+            'birthdate' => $birthdate,
             'password' => $password,
         ], [
             'username' => ['required', 'string', 'max:30', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'birthdate' => ['required', 'date', 'date_format:Y-m-d'],
             'password' => ['required', 'string', 'min:8'],
         ]);
 
@@ -64,6 +67,7 @@ class CreateAdmin extends Command
             'lastname' => $lastname,
             'username' => $username,
             'email' => $email,
+            'birthdate' => $birthdate,
             'password' => Hash::make($password),
             'is_admin' => true,
             'email_verified_at' => now(),
