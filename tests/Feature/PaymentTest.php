@@ -31,7 +31,7 @@ class PaymentTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $response = $this->post(route('payments.checkout'), [
+        $response = $this->post(route('payments.store'), [
             'package_id' => 'package_10'
         ]);
 
@@ -70,7 +70,7 @@ class PaymentTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $response = $this->post(route('payments.checkout'), [
+        $response = $this->post(route('payments.store'), [
             'package_id' => 'package_10'
         ]);
 

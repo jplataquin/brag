@@ -56,7 +56,7 @@
                                     <i class="bi bi-gem" style="font-size: 2rem; color: #00f0ff; text-shadow: 0 0 10px rgba(0,240,255,0.5);"></i>
                                     <div class="fw-bold fs-4 mt-2">{{ $package['diamonds'] }} <small class="text-muted" style="font-size: 0.5em;">DIAMONDS</small></div>
                                 </div>
-                                <form method="POST" action="{{ route('payments.checkout') }}">
+                                <form method="POST" action="{{ route('payments.store') }}">
                                     @csrf
                                     <input type="hidden" name="package_id" value="{{ $package['id'] }}">
                                     <button type="submit" class="btn btn-outline-neon w-100" style="border-color: #39ff14; color: #39ff14;">
@@ -82,7 +82,7 @@
                                             <i class="bi bi-gem" style="font-size: 2rem; color: #00f0ff; text-shadow: 0 0 10px rgba(0,240,255,0.5);"></i>
                                             <div class="fw-bold fs-4 mt-2">{{ $package['diamonds'] }} <small class="text-muted" style="font-size: 0.5em;">DIAMONDS</small></div>
                                         </div>
-                                        <form method="POST" action="{{ route('payments.checkout') }}">
+                                        <form method="POST" action="{{ route('payments.store') }}">
                                             @csrf
                                             <input type="hidden" name="package_id" value="{{ $package['id'] }}">
                                             <button type="submit" class="btn btn-outline-neon w-100" style="border-color: #39ff14; color: #39ff14;">
