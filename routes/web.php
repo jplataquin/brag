@@ -27,6 +27,8 @@ use App\Http\Controllers\Admin\GameTitleController as AdminGameTitleController;
 use App\Http\Controllers\Admin\TemplateController as AdminTemplateController;
 use App\Http\Controllers\Admin\DigitalCardController as AdminDigitalCardController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\TermsOfServiceController as AdminTermsOfServiceController;
+use App\Http\Controllers\Admin\PrivacyPolicyController as AdminPrivacyPolicyController;
 
 // Base Routes
 Route::get('/', function () {
@@ -47,17 +49,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     // Profiles
-    Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/{username}', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Arena & Battles
-    Route::get('/arena', [BattleController::class, 'index'])->name('arena.index');
+    Route::get('/arena', [BattleController::class, 'index'])->name('battles.index');
     Route::get('/battles/create', [BattleController::class, 'create'])->name('battles.create');
     Route::post('/battles', [BattleController::class, 'store'])->name('battles.store');
     Route::get('/battles/{battle}', BattleRoom::class)->name('battles.show');
     Route::get('/battles/{battle}/join', [BattleController::class, 'join'])->name('battles.join');
+    Route::get('/battles/{battle}/room', [BattleController::class, 'room'])->name('battles.room');
 
     // Forge & Templates
     Route::resource('templates', TemplateController::class);
@@ -68,6 +71,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/inventory', [DigitalCardController::class, 'index'])->name('cards.index');
     Route::get('/cards/gallery', [DigitalCardController::class, 'gallery'])->name('cards.gallery');
     Route::get('/cards/{card}', [DigitalCardController::class, 'show'])->name('cards.show');
+    Route::post('/cards/{card}/burn', [DigitalCardController::class, 'burn'])->name('cards.burn');
 
     // Blog
     Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
@@ -79,6 +83,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
     Route::get('/payments/success', [PaymentController::class, 'success'])->name('payments.success');
     Route::get('/payments/failure', [PaymentController::class, 'failure'])->name('payments.failure');
+    Route::get('/payments/callback', [PaymentController::class, 'callback'])->name('payments.callback');
     Route::post('/payments/webhook', [PaymentController::class, 'webhook'])->name('payments.webhook')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
     // Feedback
@@ -118,12 +123,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Payments
         Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
         Route::get('/payments/{payment}', [AdminPaymentController::class, 'show'])->name('payments.show');
+
+        // Terms & Privacy Admin
+        Route::get('/terms', [AdminTermsOfServiceController::class, 'index'])->name('terms.index');
+        Route::post('/terms', [AdminTermsOfServiceController::class, 'store'])->name('terms.store');
+        Route::get('/privacy', [AdminPrivacyPolicyController::class, 'index'])->name('privacy.index');
+        Route::post('/privacy', [AdminPrivacyPolicyController::class, 'store'])->name('privacy.store');
     });
 });
 
 // Static Pages
 Route::get('/terms', [TermsOfServiceController::class, 'show'])->name('terms.show');
+Route::post('/terms/agree', [TermsOfServiceController::class, 'agree'])->name('terms.agree');
 Route::get('/privacy', [PrivacyPolicyController::class, 'show'])->name('privacy.show');
+Route::post('/privacy/agree', [PrivacyPolicyController::class, 'agree'])->name('privacy.agree');
 
 // Redirect for old announcement links (optional but good for SEO/UX)
 Route::get('/announcements', function() {
