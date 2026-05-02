@@ -21,7 +21,7 @@
     }
 </style>
 
-<div class="team-battle-room" wire:poll.10s style="overflow: visible;">
+<div class="team-battle-room" @if(!$joiningTeam) wire:poll.10s @endif style="overflow: visible;">
     @if(session()->has('error'))
         <div class="alert alert-danger alert-dismissible fade show mb-4 orbitron" role="alert" style="background: rgba(220, 53, 69, 0.1); border: 1px solid #dc3545; color: #ff8888;">
             <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
@@ -130,7 +130,7 @@
                             <div class="empty-card-slot d-flex flex-column align-items-center justify-content-center p-3 rounded" style="border: 2px dashed rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.05); aspect-ratio: 350 / 490; width: 100%;">
                                 <div class="orbitron text-muted mb-3 fs-5">SLOT {{ $i }}</div>
                                 @if($battle->status == 'pending' && Auth::id() != $battle->team_a_user_1)
-                                    <button class="btn btn-outline-cyan btn-sm w-100" style="max-width: 150px;" wire:click="joinTeam('A', {{ $i }})">JOIN</button>
+                                    <button type="button" class="btn btn-outline-cyan btn-sm w-100" style="max-width: 150px;" wire:click.prevent="joinTeam('A', {{ $i }})">JOIN</button>
                                 @endif
                             </div>
                         @endif
@@ -232,7 +232,7 @@
                             <div class="empty-card-slot d-flex flex-column align-items-center justify-content-center p-3 rounded" style="border: 2px dashed rgba(255, 0, 255, 0.4); background: rgba(255, 0, 255, 0.05); aspect-ratio: 350 / 490; width: 100%;">
                                 <div class="orbitron text-muted mb-3 fs-5">SLOT {{ $i }}</div>
                                 @if($battle->status == 'pending' && Auth::id() != $battle->team_a_user_1)
-                                    <button class="btn btn-outline-magenta btn-sm w-100" style="max-width: 150px;" wire:click="joinTeam('B', {{ $i }})">JOIN</button>
+                                    <button type="button" class="btn btn-outline-magenta btn-sm w-100" style="max-width: 150px;" wire:click.prevent="joinTeam('B', {{ $i }})">JOIN</button>
                                 @endif
                             </div>
                         @endif
@@ -449,7 +449,7 @@
 
     <!-- Join Modal (Simulated) -->
     @if($joiningTeam)
-        <div class="custom-modal-backdrop">
+        <div class="custom-modal-backdrop" style="z-index: 2000;" wire:key="join-modal">
             <div class="custom-modal p-4 neon-card" style="max-width: 800px; width: 95%;">
                 <h4 class="orbitron text-cyan mb-4 text-center">JOIN TEAM {{ $joiningTeam }}</h4>
                 

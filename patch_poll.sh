@@ -1,0 +1,1 @@
+sed -i 's/<div class="team-battle-room" wire:poll.10s style="overflow: visible;">/<div class="team-battle-room" @if(!$joiningTeam) wire:poll.10s @endif style="overflow: visible;">/g' resources/views/livewire/battle-room.blade.php
