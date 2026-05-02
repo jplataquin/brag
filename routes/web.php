@@ -3,7 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Livewire\BattleRoom;
+use App\Livewire\BattleRoom;
 use App\Http\Controllers\BattleController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\DigitalCardController;
