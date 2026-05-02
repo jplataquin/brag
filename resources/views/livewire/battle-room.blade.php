@@ -131,7 +131,7 @@
                             <div class="empty-card-slot d-flex flex-column align-items-center justify-content-center p-3 rounded" style="border: 2px dashed rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.05); aspect-ratio: 350 / 490; width: 100%;">
                                 <div class="orbitron text-muted mb-3 fs-5">SLOT {{ $i }}</div>
                                 @if($battle->status == 'pending' && Auth::id() != $battle->team_a_user_1)
-                                    <button type="button" class="btn btn-outline-cyan btn-sm w-100" style="max-width: 150px;" data-bs-toggle="modal" data-bs-target="#joinModal" wire:click.prevent="joinTeam('A', {{ $i }})">JOIN</button>
+                                    <button type="button" class="btn btn-outline-cyan btn-sm w-100" style="max-width: 150px;" wire:click.prevent="joinTeam('A', {{ $i }})">JOIN</button>
                                 @endif
                             </div>
                         @endif
@@ -233,7 +233,7 @@
                             <div class="empty-card-slot d-flex flex-column align-items-center justify-content-center p-3 rounded" style="border: 2px dashed rgba(255, 0, 255, 0.4); background: rgba(255, 0, 255, 0.05); aspect-ratio: 350 / 490; width: 100%;">
                                 <div class="orbitron text-muted mb-3 fs-5">SLOT {{ $i }}</div>
                                 @if($battle->status == 'pending' && Auth::id() != $battle->team_a_user_1)
-                                    <button type="button" class="btn btn-outline-magenta btn-sm w-100" style="max-width: 150px;" data-bs-toggle="modal" data-bs-target="#joinModal" wire:click.prevent="joinTeam('B', {{ $i }})">JOIN</button>
+                                    <button type="button" class="btn btn-outline-magenta btn-sm w-100" style="max-width: 150px;" wire:click.prevent="joinTeam('B', {{ $i }})">JOIN</button>
                                 @endif
                             </div>
                         @endif
@@ -863,6 +863,17 @@
             });
         }
     </script>
+<script>
+    document.addEventListener('livewire:initialized', () => {
+        Livewire.on('show-join-modal', () => {
+            const el = document.getElementById('joinModal');
+            if (el) {
+                const modal = new bootstrap.Modal(el);
+                modal.show();
+            }
+        });
+    });
+</script>
 </div>
 
 </div>

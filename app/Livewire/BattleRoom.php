@@ -164,7 +164,7 @@ class BattleRoom extends Component
         $this->dispatch('battle-updated');
     }
 
-    public function joinTeam($team, $slot = null) { \Log::info("Join clicked: team $team slot $slot"); $this->joiningTeam = $team; $this->pairingSlot = $slot; $this->selectedCardId = null; }
+    public function joinTeam($team, $slot = null) { $this->joiningTeam = $team; $this->pairingSlot = $slot; $this->selectedCardId = null; $this->dispatch('show-join-modal'); }
 
     public function selectCard($cardId)
     {
