@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             \App\Http\Middleware\CheckSuspension::class,
+            \App\Http\Middleware\MaintenanceMode::class,
         ]);
         
         $middleware->alias([

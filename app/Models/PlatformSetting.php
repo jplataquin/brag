@@ -10,12 +10,14 @@ class PlatformSetting extends Model
     use HasFactory;
 
     protected $fillable = [
+        'is_maintenance_mode',
         'allow_template_creation',
         'allow_card_forging',
         'allow_battle_creation'
     ];
 
     protected $casts = [
+        'is_maintenance_mode' => 'boolean',
         'allow_template_creation' => 'boolean',
         'allow_card_forging' => 'boolean',
         'allow_battle_creation' => 'boolean',
@@ -29,6 +31,7 @@ class PlatformSetting extends Model
         return self::firstOrCreate(
             ['id' => 1],
             [
+                'is_maintenance_mode' => false,
                 'allow_template_creation' => true,
                 'allow_card_forging' => true,
                 'allow_battle_creation' => true,

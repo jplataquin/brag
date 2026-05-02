@@ -185,6 +185,13 @@ Route::middleware(['auth', 'verified', 'terms.agreed', 'privacy.agreed'])->group
 // HitPay Webhook (Must be outside auth middleware and should exclude CSRF)
 Route::post('/payments/webhook', [\App\Http\Controllers\PaymentController::class, 'webhook'])->name('payments.webhook')->withoutMiddleware([\IlluminateFoundation\Http\Middleware\ValidateCsrfToken::class]);
 
+Route::get('/maintenance', function () {
+    if (!\App\Models\PlatformSetting::current()->is_maintenance_mode) {
+        return redirect('/');
+    }
+    return view('maintenance');
+})->name('maintenance');
+
 Route::get('/offline', function () {
     return view('offline');
 })->name('offline');

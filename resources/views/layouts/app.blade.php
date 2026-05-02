@@ -36,6 +36,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+    <style>
+        .animate-pulse {
+            animation: pulse-bg 2s infinite;
+        }
+        @keyframes pulse-bg {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
     @livewireStyles
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
@@ -46,6 +56,11 @@
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}" id="brand-logo">
                     <i class="bi bi-lightning-charge-fill"></i> BRAG
+                    @auth
+                        @if(Auth::user()->is_admin && \App\Models\PlatformSetting::current()->is_maintenance_mode)
+                            <span class="badge bg-danger ms-2 orbitron animate-pulse" style="font-size: 0.6rem; vertical-align: middle;">MAINTENANCE ACTIVE</span>
+                        @endif
+                    @endauth
                 </a>
                 
                 <div class="d-flex align-items-center gap-2 d-lg-none">

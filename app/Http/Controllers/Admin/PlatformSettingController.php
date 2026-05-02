@@ -19,6 +19,7 @@ class PlatformSettingController extends Controller
         $settings = PlatformSetting::current();
         
         $settings->update([
+            'is_maintenance_mode' => $request->has('is_maintenance_mode'),
             'allow_template_creation' => $request->has('allow_template_creation'),
             'allow_card_forging' => $request->has('allow_card_forging'),
             'allow_battle_creation' => $request->has('allow_battle_creation'),

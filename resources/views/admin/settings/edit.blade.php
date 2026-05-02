@@ -30,6 +30,19 @@
                         @method('PUT')
                         
                         <div class="list-group list-group-flush mb-4 bg-transparent">
+                            <!-- Maintenance Mode -->
+                            <div class="list-group-item bg-transparent text-white border-danger border-2 rounded-3 mb-4 py-3 px-3 d-flex justify-content-between align-items-center" style="background: rgba(255, 0, 0, 0.05) !important;">
+                                <div>
+                                    <h5 class="mb-1 text-uppercase fw-bold text-danger" style="font-family: 'Orbitron', sans-serif;">
+                                        <i class="bi bi-exclamation-octagon-fill"></i> Maintenance Mode
+                                    </h5>
+                                    <p class="mb-0 text-muted small">When active, only administrators can access the site. Standard users will see a maintenance page.</p>
+                                </div>
+                                <div class="form-check form-switch fs-3 mb-0">
+                                    <input class="form-check-input bg-danger border-danger" type="checkbox" role="switch" name="is_maintenance_mode" id="is_maintenance_mode" style="cursor: pointer;" {{ $settings->is_maintenance_mode ? 'checked' : '' }}>
+                                </div>
+                            </div>
+
                             <!-- Template Creation -->
                             <div class="list-group-item bg-transparent text-white border-info py-3 px-0 d-flex justify-content-between align-items-center">
                                 <div>
