@@ -61,8 +61,8 @@
 
     # 2. Basic Dependencies
     echo -e "\n${GREEN}[3/8] Installing basic dependencies...${NC}"
-    apt install -y software-properties-common curl zip unzip git sqlite3 ufw
-
+    apt install -y software-properties-common curl zip unzip git sqlite3 ufw python3-certbot-nginx supervisor
+    
     # 3. Install PHP 8.3
     echo -e "\n${GREEN}[4/8] Installing PHP 8.3 and extensions...${NC}"
     add-apt-repository ppa:ondrej/php -y

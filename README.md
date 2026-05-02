@@ -95,31 +95,125 @@ php artisan view:cache
 ```
 
 ---
+## 10. Background Services (Supervisor Setup)
 
-## 10. Background Services (Crucial for Real-Time Features)
+Brag heavily relies on real-time WebSockets and queued notifications. In a production environment, you must use **Supervisor** to keep these processes running permanently in the background.
 
-Brag heavily relies on real-time WebSockets and queued notifications. You **must** run these background processes. In a production environment, you should use **Supervisor** or **Systemd** to keep these processes running permanently.
-
-### A. Start the Reverb WebSocket Server
-This powers the real-time battle rooms and notifications.
+### A. Install Supervisor
+If not already installed, install supervisor:
 ```bash
-php artisan reverb:start
+sudo apt install supervisor -y
 ```
 
-### B. Start the Queue Worker
-This handles processing background jobs.
+### B. Configure Reverb WebSocket Server
+Create a new configuration file for Reverb:
 ```bash
-php artisan queue:work --queue=default --timeout=60
+sudo nano /etc/supervisor/conf.d/reverb.conf
+```
+Paste the following configuration:
+```ini
+[program:reverb]
+process_name=%(program_name)s
+command=php /var/www/brag/artisan reverb:start
+autostart=true
+autorestart=true
+user=www-data
+redirect_stderr=true
+stdout_logfile=/var/www/brag/storage/logs/reverb.log
+```
+
+### C. Configure Queue Worker
+Create a new configuration file for the Queue worker:
+```bash
+sudo nano /etc/supervisor/conf.d/queue.conf
+```
+Paste the following configuration:
+```ini
+[program:brag-queue]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/brag/artisan queue:work --queue=default --timeout=60 --tries=3
+autostart=true
+autorestart=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/www/brag/storage/logs/queue.log
 ```
 
 *(Note: Since you are deploying, ensure your `QUEUE_CONNECTION` in `.env` is set to `database` or `redis`, not `sync`).*
 
+### D. Start the Services
+Once the configuration files are saved, tell Supervisor to read them and start the processes:
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start all
+```
+
+---
 ## 11. Final Web Server Configuration
-Point your Nginx or Apache server block's `DocumentRoot` to the `/var/www/brag/public` directory. Restart your web server, and the application will be live.
+To serve your application on a custom domain, create a new Nginx server block.
+
+1. **Create the config file:**
+   ```bash
+   sudo nano /etc/nginx/sites-available/yourdomain.com
+   ```
+
+2. **Paste the following configuration** (adjusting paths and domains):
+   ```nginx
+   server {
+       listen 80;
+       listen [::]:80;
+       server_name yourdomain.com www.yourdomain.com;
+       root /var/www/brag/public;
+
+       add_header X-Frame-Options "SAMEORIGIN";
+       add_header X-Content-Type-Options "nosniff";
+
+       index index.php;
+       charset utf-8;
+
+       location / {
+           try_files $uri $uri/ /index.php?$query_string;
+       }
+
+       location = /favicon.ico { access_log off; log_not_found off; }
+       location = /robots.txt  { access_log off; log_not_found off; }
+
+       error_page 404 /index.php;
+
+       location ~ \.php$ {
+           fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
+           fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+           include fastcgi_params;
+       }
+
+       location ~ /\.(?!well-known).* {
+           deny all;
+       }
+   }
+   ```
+
+3. **Enable the site and restart Nginx:**
+   ```bash
+   sudo ln -s /etc/nginx/sites-available/yourdomain.com /etc/nginx/sites-enabled/
+   sudo rm /etc/nginx/sites-enabled/default
+   sudo nginx -t && sudo systemctl restart nginx
+   ```
 
 ---
 
-## 12. Task Scheduling (CRON Job)
+## 12. SSL Configuration (HTTPS)
+Secure your domain with free SSL certificates from Let's Encrypt using Certbot.
+
+```bash
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+```
+Follow the prompts to finalize the SSL setup. Certbot will automatically update your Nginx configuration.
+
+---
+
+## 13. Task Scheduling (CRON Job)
 Brag uses Laravel's task scheduler to handle automated tasks (like auto-canceling stale battles). To keep these tasks running, add the following entry to your server's crontab:
 
 1. Open the crontab for the `www-data` user (or your current user):
