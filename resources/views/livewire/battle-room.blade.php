@@ -1,4 +1,25 @@
 
+<style>
+    .team-name-container {
+        width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        position: relative;
+    }
+    .team-name-scroll {
+        display: inline-block;
+        white-space: nowrap;
+        animation: team-marquee 15s linear infinite;
+    }
+    .team-name-scroll:hover {
+        animation-play-state: paused;
+    }
+    @keyframes team-marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+</style>
+
 <div class="team-battle-room" wire:poll.10s style="overflow: visible;">
     @if(session()->has('error'))
         <div class="alert alert-danger alert-dismissible fade show mb-4 orbitron" role="alert" style="background: rgba(220, 53, 69, 0.1); border: 1px solid #dc3545; color: #ff8888;">
@@ -178,7 +199,7 @@
                             <div class="empty-card-slot d-flex flex-column align-items-center justify-content-center p-3 rounded" style="border: 2px dashed rgba(255, 0, 255, 0.4); background: rgba(255, 0, 255, 0.05); aspect-ratio: 350 / 490; width: 100%;">
                                 <div class="orbitron text-muted mb-3 fs-5">SLOT {{ $i }}</div>
                                 @if($battle->status == 'pending' && Auth::id() != $battle->team_a_user_1)
-                                    <button class="btn btn-outline-magenta btn-sm w-100" style="max-width: 150px;" wire:click="joinTeam('B', {{ $i }})">JOIN TEAM B</button>
+                                    <button class="btn btn-outline-magenta btn-sm w-100" style="max-width: 150px;" wire:click="joinTeam('B', {{ $i }})">JOIN</button>
                                 @endif
                             </div>
                         @endif
@@ -808,3 +829,12 @@
         }
     </script>
 </div>
+          window.neonAlert('Battle URL copied to clipboard!', 'LINK COPIED');
+                } else {
+                    alert('Battle URL copied!');
+                }
+            });
+        }
+    </script>
+</div>
+v>
