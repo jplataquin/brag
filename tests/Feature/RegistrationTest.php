@@ -32,6 +32,8 @@ class RegistrationTest extends TestCase
             'email' => 'newplayer@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
+            'terms' => 'on',
+            'privacy' => 'on',
             'cf-turnstile-response' => 'fake-token',
         ]);
 
@@ -40,9 +42,9 @@ class RegistrationTest extends TestCase
         $user = User::where('email', 'newplayer@example.com')->first();
         
         $this->assertNotNull($user);
-        $this->assertEquals(0, $user->shards_balance); // No shards yet
+        $this->assertEquals(0, $user->diamonds_balance); // No shards yet
         
-        $this->assertDatabaseMissing('shard_ledgers', [
+        $this->assertDatabaseMissing('diamond_ledgers', [
             'user_id' => $user->id,
             'remarks' => 'Welcome Gift',
         ]);
@@ -50,9 +52,9 @@ class RegistrationTest extends TestCase
         // Manually trigger the verified event
         event(new \Illuminate\Auth\Events\Verified($user));
 
-        $this->assertEquals(10, $user->fresh()->shards_balance); // Shards granted after verification
+        $this->assertEquals(10, $user->fresh()->diamonds_balance); // Diamonds granted after verification
 
-        $this->assertDatabaseHas('shard_ledgers', [
+        $this->assertDatabaseHas('diamond_ledgers', [
             'user_id' => $user->id,
             'credit' => 10,
             'debit' => 0,

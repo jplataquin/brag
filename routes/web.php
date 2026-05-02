@@ -53,6 +53,9 @@ Route::post('/auth/google/setup', [SocialAuthController::class, 'saveSetupProfil
 // Webhooks
 Route::post('/payments/webhook', [PaymentController::class, 'webhook'])->name('payments.webhook');
 
+// Public Gallery
+Route::get('/cards/gallery', [DigitalCardController::class, 'gallery'])->name('gallery');
+
 // Authenticated Routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -72,13 +75,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/battles/{battle}/room', [BattleController::class, 'room'])->name('battles.room');
 
     // Forge & Templates
+    Route::post('/templates/ai-preview', [TemplateController::class, 'generateAiPreview'])->name('templates.ai-preview');
     Route::resource('templates', TemplateController::class);
-    Route::post('/templates/{template}/forge', [TemplateController::class, 'forge'])->name('templates.forge');
+    Route::post('/templates/{template}/forge', [DigitalCardController::class, 'forge'])->name('templates.forge');
     Route::post('/upload-chunk', [UploadController::class, 'uploadChunk'])->name('upload.chunk');
     
     // Inventory & Cards
     Route::get('/inventory', [DigitalCardController::class, 'index'])->name('cards.index');
-    Route::get('/cards/gallery', [DigitalCardController::class, 'gallery'])->name('gallery');
     Route::get('/cards/{card}', [DigitalCardController::class, 'show'])->name('cards.show');
     Route::post('/cards/{card}/burn', [DigitalCardController::class, 'burn'])->name('cards.burn');
 

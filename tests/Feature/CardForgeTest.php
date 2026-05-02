@@ -33,18 +33,18 @@ class CardForgeTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->post(route('cards.forge', $template));
+        $response = $this->post(route('templates.forge', $template));
 
         $response->assertStatus(302);
         $response->assertSessionHas('error');
-        $this->assertStringContainsString('You need at least ' . config('shards.costs.forging') . ' Shard', session('error'));
+        $this->assertStringContainsString('You need at least ' . config('diamonds.costs.forging') . ' Diamond', session('error'));
         $this->assertEquals(0, $user->digitalCards()->count());
     }
 
     public function test_user_can_forge_with_enough_shards()
     {
         $user = User::factory()->create();
-        $user->addShards(5, 'system', 'Gift');
+        $user->addDiamonds(5, 'system', 'Gift');
         
         $gameTitle = GameTitle::create(['title' => 'Test Game']);
         $template = Template::create([
@@ -57,19 +57,19 @@ class CardForgeTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->post(route('cards.forge', $template));
+        $response = $this->post(route('templates.forge', $template));
 
         $response->assertStatus(302);
         $response->assertSessionHas('success');
         $this->assertEquals(1, $user->digitalCards()->count());
         $user->refresh();
-        $this->assertEquals(5 - config('shards.costs.forging'), $user->shards_balance);
+        $this->assertEquals(5 - config('diamonds.costs.forging'), $user->diamonds_balance);
     }
 
     public function test_forge_is_wrapped_in_transaction()
     {
         $user = User::factory()->create();
-        $user->addShards(config('shards.costs.forging'), 'system', 'Exact amount');
+        $user->addDiamonds(config('diamonds.costs.forging'), 'system', 'Exact amount');
         
         $gameTitle = GameTitle::create(['title' => 'Test Game']);
         $template = Template::create([
@@ -82,11 +82,11 @@ class CardForgeTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->post(route('cards.forge', $template));
+        $response = $this->post(route('templates.forge', $template));
         $response->assertStatus(302);
 
         $user->refresh();
-        $this->assertEquals(0, $user->shards_balance);
+        $this->assertEquals(0, $user->diamonds_balance);
         $this->assertEquals(1, $user->digitalCards()->count());
     }
 }
