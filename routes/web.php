@@ -108,7 +108,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('/pwa-instructions', 'pwa-instructions')->name('pwa.instructions');
 
     // Admin Routes
-    Route::middleware(['can:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         
         // Users
