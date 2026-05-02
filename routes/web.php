@@ -65,7 +65,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/upload-chunk', [UploadController::class, 'uploadChunk'])->name('upload.chunk');
     
     // Inventory & Cards
-    Route::get('/inventory', [DigitalCardController::class, 'index'])->name('inventory.index');
+    Route::get('/inventory', [DigitalCardController::class, 'index'])->name('cards.index');
     Route::get('/cards/gallery', [DigitalCardController::class, 'gallery'])->name('cards.gallery');
     Route::get('/cards/{card}', [DigitalCardController::class, 'show'])->name('cards.show');
 
