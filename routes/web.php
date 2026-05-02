@@ -27,8 +27,6 @@ use App\Http\Controllers\Admin\GameTitleController as AdminGameTitleController;
 use App\Http\Controllers\Admin\TemplateController as AdminTemplateController;
 use App\Http\Controllers\Admin\DigitalCardController as AdminDigitalCardController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
-use App\Http\Controllers\Admin\TermsOfServiceController as AdminTermsOfServiceController;
-use App\Http\Controllers\Admin\PrivacyPolicyController as AdminPrivacyPolicyController;
 
 // Base Routes
 Route::get('/', function () {
@@ -94,6 +92,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
 
+    // PWA
+    Route::view('/pwa-instructions', 'pwa-instructions')->name('pwa.instructions');
+
     // Admin Routes
     Route::middleware(['can:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -112,7 +113,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('blog', AdminBlogController::class)->except(['show']);
 
         // Game Titles
-        Route::resource('game-titles', AdminGameTitleController::class);
+        Route::resource('game_titles', AdminGameTitleController::class);
 
         // Template Management
         Route::resource('templates', AdminTemplateController::class)->only(['index', 'edit', 'update']);
@@ -125,10 +126,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/payments/{payment}', [AdminPaymentController::class, 'show'])->name('payments.show');
 
         // Terms & Privacy Admin
-        Route::get('/terms', [AdminTermsOfServiceController::class, 'index'])->name('terms.index');
-        Route::post('/terms', [AdminTermsOfServiceController::class, 'store'])->name('terms.store');
-        Route::get('/privacy', [AdminPrivacyPolicyController::class, 'index'])->name('privacy.index');
-        Route::post('/privacy', [AdminPrivacyPolicyController::class, 'store'])->name('privacy.store');
+        Route::get('/terms', [TermsOfServiceController::class, 'index'])->name('terms.index');
+        Route::post('/terms', [TermsOfServiceController::class, 'store'])->name('terms.store');
+        Route::get('/terms/history/{id}', [TermsOfServiceController::class, 'showPrevious'])->name('terms.show_previous');
+        
+        Route::get('/privacy', [PrivacyPolicyController::class, 'index'])->name('privacy.index');
+        Route::post('/privacy', [PrivacyPolicyController::class, 'store'])->name('privacy.store');
+        Route::get('/privacy/history/{id}', [PrivacyPolicyController::class, 'showPrevious'])->name('privacy.show_previous');
     });
 });
 
