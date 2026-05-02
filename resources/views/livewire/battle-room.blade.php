@@ -540,7 +540,6 @@
                 </div>
             </div>
         </div>
-    @endif
 
         <!-- Rename Team Modal -->
     <div class="modal fade" wire:ignore.self id="renameTeamModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
