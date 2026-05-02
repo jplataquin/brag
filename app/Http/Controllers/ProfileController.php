@@ -36,15 +36,21 @@ class ProfileController extends Controller
 
         $templates = $user->templates()->with('gameTitle')->withCount('digitalCards')->get();
 
-        $failed_count = Battle::where(function ($q) use ($user) {
-            $q->where('challenger_id', $user->id)
-              ->orWhere('opponent_id', $user->id);
-        })->where('status', 'failed')->count();
+        $failed_count = Battle::where('status', 'failed')
+            ->where(function ($q) use ($user) {
+                for ($i = 1; $i <= 6; $i++) {
+                    $q->orWhere("team_a_user_{$i}", $user->id)
+                      ->orWhere("team_b_user_{$i}", $user->id);
+                }
+            })->count();
 
-        $completed_count = Battle::where(function ($q) use ($user) {
-            $q->where('challenger_id', $user->id)
-              ->orWhere('opponent_id', $user->id);
-        })->where('status', 'completed')->count();
+        $completed_count = Battle::where('status', 'completed')
+            ->where(function ($q) use ($user) {
+                for ($i = 1; $i <= 6; $i++) {
+                    $q->orWhere("team_a_user_{$i}", $user->id)
+                      ->orWhere("team_b_user_{$i}", $user->id);
+                }
+            })->count();
 
         $total_resolved = $failed_count + $completed_count;
 
@@ -119,12 +125,13 @@ class ProfileController extends Controller
 
             if($battle){
                 
-                if($battle->challenger_id){
-                    $except[] = $battle->challenger_id;
-                }
-                
-                if($battle->opponent_id){
-                    $except[] = $battle->opponent_id;
+                for ($i = 1; $i <= 6; $i++) {
+                    if($battle->{"team_a_user_{$i}"}){
+                        $except[] = $battle->{"team_a_user_{$i}"};
+                    }
+                    if($battle->{"team_b_user_{$i}"}){
+                        $except[] = $battle->{"team_b_user_{$i}"};
+                    }
                 }
 
                 if($battle->marshall_id){

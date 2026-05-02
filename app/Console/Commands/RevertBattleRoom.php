@@ -35,27 +35,25 @@ class RevertBattleRoom extends Command
             return Command::FAILURE;
         }
 
-        if ($battle->status === 'pending' && is_null($battle->opponent_id)) {
-            $this->info("Battle room [{$roomId}] is already in a pending state without an opponent.");
+        if ($battle->status === 'pending' && is_null($battle->team_b_user_1)) {
+            $this->info("Battle room [{$roomId}] is already in a pending state without a Team B.");
             return Command::SUCCESS;
         }
 
-        $battle->update([
+        $updateData = [
             'status' => 'pending',
-            'opponent_id' => null,
-            'opponent_card_id' => null,
-            'challenger_cancel' => false,
-            'opponent_cancel' => false,
-            'challenger_cancel_timestamp' => null,
-            'opponent_cancel_timestamp' => null,
-            'challenger_declared_user_win' => null,
-            'opponent_declared_user_win' => null,
-            'marshall_declared_user_win' => null,
+            'team_b_ready' => false,
             'marshall_id' => null,
-            'challenger_marshall_id' => null,
-            'opponent_marshall_id' => null,
-            'winner_id' => null,
-        ]);
+            'winner_team' => null,
+        ];
+        
+        for ($i = 1; $i <= 6; $i++) {
+            $updateData["team_b_user_{$i}"] = null;
+            $updateData["team_a_card_{$i}"] = null;
+            $updateData["team_b_card_{$i}"] = null;
+        }
+
+        $battle->update($updateData);
 
         $this->info("Battle room [{$roomId}] has been successfully reverted to pending status.");
 
