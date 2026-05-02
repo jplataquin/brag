@@ -85,7 +85,7 @@
     @foreach($pendingInvites as $invite)
     <div class="d-flex align-items-center justify-content-between mb-2 p-2" style="background: rgba(255,221,0,0.03); border-radius: 8px;">
         <div>
-            <span style="color: #ffdd00; font-weight: 600;">{{ $invite->battle->challenger->username }}</span>
+            <span style="color: #ffdd00; font-weight: 600;">{{ $invite->battle?->challenger?->username ?? 'Unknown' }}</span>
             <span class="text-muted"> invited you as {{ $invite->role }}</span>
         </div>
         <div class="d-flex gap-2">
@@ -118,10 +118,10 @@
                     <div class="d-flex align-items-center gap-3">
                         <span class="status-badge status-{{ $battle->status }}">{{ $battle->status }}</span>
                         <span>
-                            <strong style="color: #00f0ff;">{{ $battle->challenger->username }}</strong>
+                            <strong style="color: #00f0ff;">{{ $battle->challenger?->username ?? 'Unknown' }}</strong>
                             @if($battle->opponent)
                                 <span class="text-muted">vs</span>
-                                <strong style="color: #ff00ff;">{{ $battle->opponent->username }}</strong>
+                                <strong style="color: #ff00ff;">{{ $battle->opponent?->username ?? 'Unknown' }}</strong>
                             @else
                                 <span class="text-muted">— waiting for opponent</span>
                             @endif
@@ -129,7 +129,7 @@
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         @if($battle->winner_id)
-                            <span style="color: #39ff14; font-size: 0.85rem;">🏆 {{ $battle->winner->username }}</span>
+                            <span style="color: #39ff14; font-size: 0.85rem;">🏆 {{ $battle->winner?->username ?? 'Unknown' }}</span>
                         @endif
                     </div>
                 </div>
