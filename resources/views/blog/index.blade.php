@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container py-5">
-    <h1 class="orbitron text-cyan mb-5"><i class="bi bi-journal-text"></i> ARENA BLOG</h1>
+    <h1 class="orbitron text-cyan mb-5"><i class="bi bi-megaphone-fill"></i> ARENA BLOG</h1>
 
     <div class="row">
         <div class="col-lg-8 mx-auto">
@@ -27,7 +27,7 @@
                 </div>
             @empty
                 <div class="text-center py-5">
-                    <i class="bi bi-journal-x text-muted display-1"></i>
+                    <i class="bi bi-megaphone-fill text-muted display-1"></i>
                     <p class="text-muted mt-3 orbitron">NO BLOG POSTS YET.</p>
                 </div>
             @endforelse

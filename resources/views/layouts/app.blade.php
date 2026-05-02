@@ -100,7 +100,7 @@
                         @auth
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('blog.*') ? 'active' : '' }}" href="{{ route('blog.index') }}">
-                                    <i class="bi bi-journal-text"></i> Blog
+                                    <i class="bi bi-megaphone-fill"></i> Blog
                                 </a>
                             </li>
                             <li class="nav-item">

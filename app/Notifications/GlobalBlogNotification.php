@@ -44,7 +44,7 @@ class GlobalBlogNotification extends Notification implements ShouldQueue
             'message' => 'A new global blog post has been published.',
             'action_url' => route('blog.show', $this->post),
             'type' => 'blog',
-            'icon' => 'bi-journal-text',
+            'icon' => 'bi-megaphone-fill',
         ];
     }
 }

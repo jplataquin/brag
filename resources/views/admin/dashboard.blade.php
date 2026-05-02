@@ -18,7 +18,7 @@
                 <div class="card-body d-flex gap-3 align-items-center">
                     <span class="text-uppercase fw-bold text-muted small"><i class="bi bi-link-45deg"></i> Quick Actions:</span>
                     <a href="{{ route('admin.blog.index') }}" class="btn btn-outline-danger btn-sm">
-                        <i class="bi bi-journal-text"></i> Manage Blog
+                        <i class="bi bi-megaphone-fill"></i> Manage Blog
                     </a>
                     <a href="{{ route('admin.settings.edit') }}" class="btn btn-outline-cyan btn-sm" style="color: var(--neon-cyan); border-color: var(--neon-cyan);">
                         <i class="bi bi-sliders"></i> Platform Features

@@ -5,7 +5,7 @@
 @section('content')
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="orbitron text-cyan"><i class="bi bi-journal-text"></i> BLOG POSTS</h1>
+        <h1 class="orbitron text-cyan"><i class="bi bi-megaphone-fill"></i> BLOG POSTS</h1>
         <a href="{{ route('admin.blog.create') }}" class="btn btn-neon">
             <i class="bi bi-plus-lg"></i> CREATE POST
         </a>
