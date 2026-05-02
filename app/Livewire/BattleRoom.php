@@ -49,7 +49,8 @@ class BattleRoom extends Component
         $this->inviteSearchResults = User::where('username', 'like', '%' . $this->inviteSearchQuery . '%')
             ->whereNotIn('id', $except)
             ->take(5)
-            ->get();
+            ->get()
+            ->toArray();
     }
 
     public function selectInviteNominee($userId, $username)
@@ -118,9 +119,18 @@ class BattleRoom extends Component
             return;
         }
 
+        $except = [];
+        for ($i = 1; $i <= $this->battle->no_players_per_team; $i++) {
+            if ($this->battle->{"team_a_user_{$i}"}) $except[] = $this->battle->{"team_a_user_{$i}"};
+            if ($this->battle->{"team_b_user_{$i}"}) $except[] = $this->battle->{"team_b_user_{$i}"};
+        }
+        if ($this->battle->marshall_id) $except[] = $this->battle->marshall_id;
+
         $this->marshallSearchResults = User::where('username', 'like', '%' . $this->marshallSearchQuery . '%')
+            ->whereNotIn('id', $except)
             ->take(5)
-            ->get();
+            ->get()
+            ->toArray();
     }
 
     public function selectMarshallNominee($userId, $username)

@@ -659,9 +659,9 @@
                         @if(count($inviteSearchResults) > 0 && !$inviteNomineeId)
                             <div class="position-absolute w-100 mt-1" style="z-index: 1050; max-height: 200px; overflow-y: auto; background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
                                 @foreach($inviteSearchResults as $user)
-                                    <div class="p-2 d-flex align-items-center gap-2" wire:click="selectInviteNominee({{ $user->id }}, '{{ $user->username }}')" style="cursor: pointer; border-bottom: 1px solid rgba(0, 240, 255, 0.1);">
-                                        <img src="{{ $user->avatar_url ?? asset('img/default-avatar.png') }}" alt="{{ $user->username }}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #00f0ff;">
-                                        <span class="text-white">{{ '@' . $user->username }}</span>
+                                    <div class="p-2 d-flex align-items-center gap-2" wire:click="selectInviteNominee({{ $user['id'] }}, '{{ $user['username'] }}')" style="cursor: pointer; border-bottom: 1px solid rgba(0, 240, 255, 0.1);">
+                                        <img src="{{ $user['avatar_url'] ?? asset('img/default-avatar.png') }}" alt="{{ $user['username'] }}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #00f0ff;">
+                                        <span class="text-white">{{ '@' . $user['username'] }}</span>
                                     </div>
                                 @endforeach
                             </div>
