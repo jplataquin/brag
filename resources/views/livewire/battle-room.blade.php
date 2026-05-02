@@ -829,12 +829,3 @@
         }
     </script>
 </div>
-          window.neonAlert('Battle URL copied to clipboard!', 'LINK COPIED');
-                } else {
-                    alert('Battle URL copied!');
-                }
-            });
-        }
-    </script>
-</div>
-v>
