@@ -163,9 +163,16 @@
         <div class="col-6" style="min-width: 0;">
             <div class="text-center mb-4 team-name-container" 
                  wire:key="team-name-b-{{ md5($battle->team_name_b) }}"
-                 x-data="{ overflowing: false }" 
-                 x-init="setTimeout(() => { overflowing = $refs.nakedB.offsetWidth > $el.clientWidth; }, 200)" 
-                 @resize.window="overflowing = $refs.nakedB.offsetWidth > $el.clientWidth">
+                 x-data="{ 
+                    overflowing: false,
+                    checkOverflow() {
+                        if(this.$refs.nakedB) {
+                            this.overflowing = this.$refs.nakedB.scrollWidth > this.$el.clientWidth;
+                        }
+                    }
+                 }" 
+                 x-init="setTimeout(() => checkOverflow(), 200)"
+                 @resize.window="checkOverflow()">
                 <div :class="{ 'team-name-scroll': overflowing }">
                     <h4 class="orbitron text-magenta mb-0 d-inline-block" :class="{ 'pe-5': overflowing }" title="{{ $battle->team_name_b }}">
                         <span x-ref="nakedB">{{ $battle->team_name_b }}</span>
