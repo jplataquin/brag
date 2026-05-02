@@ -41,7 +41,7 @@
     }
 </style>
 
-<div class="team-battle-room" wire:poll.10s style="overflow: visible;">
+<div class="team-battle-room" @if(!$showEditTeamA && !$showEditTeamB) wire:poll.10s @endif style="overflow: visible;">
     @if(session()->has('error'))
         <div class="alert alert-danger alert-dismissible fade show mb-4 orbitron" role="alert" style="background: rgba(220, 53, 69, 0.1); border: 1px solid #dc3545; color: #ff8888;">
             <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
@@ -738,11 +738,11 @@
 
     <!-- Rename Team A Modal -->
     @if($showEditTeamA)
-        <div class="custom-modal-backdrop" style="z-index: 2000;">
+        <div class="custom-modal-backdrop" style="z-index: 2000;" wire:key="modal-edit-team-a">
             <div class="custom-modal p-4 neon-card" style="max-width: 400px; width: 95%;">
                 <h5 class="orbitron text-cyan mb-4 text-center">RENAME TEAM A</h5>
                 <div class="mb-4">
-                    <input type="text" wire:model="newTeamNameA" class="form-control bg-dark text-white border-cyan text-center orbitron" placeholder="Enter new team name">
+                    <input type="text" wire:model="newTeamNameA" wire:key="input-team-name-a" class="form-control bg-dark text-white border-cyan text-center orbitron" placeholder="Enter new team name">
                 </div>
                 <div class="d-flex gap-3">
                     <button class="btn btn-outline-secondary w-50" wire:click="$set('showEditTeamA', false)">CANCEL</button>
@@ -754,11 +754,11 @@
 
     <!-- Rename Team B Modal -->
     @if($showEditTeamB)
-        <div class="custom-modal-backdrop" style="z-index: 2000;">
+        <div class="custom-modal-backdrop" style="z-index: 2000;" wire:key="modal-edit-team-b">
             <div class="custom-modal p-4 neon-card" style="max-width: 400px; width: 95%; border-color: #ff00ff; box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);">
                 <h5 class="orbitron text-magenta mb-4 text-center">RENAME TEAM B</h5>
                 <div class="mb-4">
-                    <input type="text" wire:model="newTeamNameB" class="form-control bg-dark text-white border-magenta text-center orbitron" placeholder="Enter new team name">
+                    <input type="text" wire:model="newTeamNameB" wire:key="input-team-name-b" class="form-control bg-dark text-white border-magenta text-center orbitron" placeholder="Enter new team name">
                 </div>
                 <div class="d-flex gap-3">
                     <button class="btn btn-outline-secondary w-50" wire:click="$set('showEditTeamB', false)">CANCEL</button>
