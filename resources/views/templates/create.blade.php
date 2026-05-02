@@ -56,7 +56,7 @@
                                 $isFull = $count >= 3;
                             @endphp
                             <option value="{{ $game->id }}" {{ old('game_title_id') == $game->id ? 'selected' : '' }} {{ $isFull ? 'disabled' : '' }}>
-                                {{ $game->title }} {{ $isFull ? '(LIMIT REACHED)' : "({$count}/3)" }}
+                                {{ $game->title }} {{ $isFull ? '(LIMIT REACHED)' : '' }}
                             </option>
                         @endforeach
                     </select>
