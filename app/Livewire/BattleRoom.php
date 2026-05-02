@@ -336,8 +336,7 @@ class BattleRoom extends Component
         });
 
         $this->broadcastUpdate("{$user->username} left their slot.");
-        og::info("updateteamname called for $team with new name: " . ($team == 'a' ? $this->newteamnamea : $this->newteamnameb));
-        $this->refreshroom();
+        $this->refreshRoom();
     }
 
     public function teamBReady()
@@ -536,8 +535,7 @@ class BattleRoom extends Component
             }
         });
         
-        og::info("updateteamname called for $team with new name: " . ($team == 'a' ? $this->newteamnamea : $this->newteamnameb));
-        $this->refreshroom();
+        $this->refreshRoom();
     }
 
     public function respondToCancellation($agreed)
@@ -571,8 +569,7 @@ class BattleRoom extends Component
             }
         });
 
-        og::info("updateteamname called for $team with new name: " . ($team == 'a' ? $this->newteamnamea : $this->newteamnameb));
-        $this->refreshroom();
+        $this->refreshRoom();
     }
 
     public function electMarshall($nomineeId = null)
@@ -621,8 +618,7 @@ class BattleRoom extends Component
         }
 
         $this->marshallNomineeId = '';
-        og::info("updateteamname called for $team with new name: " . ($team == 'a' ? $this->newteamnamea : $this->newteamnameb));
-        $this->refreshroom();
+        $this->refreshRoom();
     }
 
     public function acceptMarshall()
@@ -641,8 +637,7 @@ class BattleRoom extends Component
             ]);
             $this->logActivity($user->id, 'system', "{$user->username} accepted the Marshall role.");
             $this->broadcastUpdate("{$user->username} accepted the Marshall role.");
-            og::info("updateteamname called for $team with new name: " . ($team == 'a' ? $this->newteamnamea : $this->newteamnameb));
-        $this->refreshroom();
+            $this->refreshRoom();
         }
     }
 
@@ -660,10 +655,19 @@ class BattleRoom extends Component
             ]);
             $this->logActivity($user->id, 'system', "{$user->username} rejected the Marshall role.");
             $this->broadcastUpdate("{$user->username} rejected the Marshall role.");
-            og::info("updateteamname called for $team with new name: " . ($team == 'a' ? $this->newteamnamea : $this->newteamnameb));
-        $this->refreshroom();
+            $this->refreshRoom();
         }
     }
+    public function editTeamName()
+    {
+        $user = Auth::user();
+        if ($user->id == $this->battle->team_a_user_1) {
+            $this->showEditTeamA = true;
+        } elseif ($user->id == $this->battle->team_b_user_1) {
+            $this->showEditTeamB = true;
+        }
+    }
+
     public function updateTeamName($team)
     {
         $user = Auth::user();

@@ -1,24 +1,4 @@
 
-<style>
-    .team-name-container {
-        width: 100%;
-        overflow: hidden;
-        white-space: nowrap;
-        position: relative;
-    }
-    .team-name-scroll {
-        display: inline-block;
-        white-space: nowrap;
-        animation: team-marquee 15s linear infinite;
-    }
-    .team-name-scroll:hover {
-        animation-play-state: paused;
-    }
-    @keyframes team-marquee {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
-    }
-</style>
 
 <style>
     .team-name-container {
@@ -41,7 +21,7 @@
     }
 </style>
 
-<div class="team-battle-room" @if(!$showEditTeamA && !$showEditTeamB) wire:poll.10s @endif style="overflow: visible;">
+<div class="team-battle-room" wire:poll.10s style="overflow: visible;">
     @if(session()->has('error'))
         <div class="alert alert-danger alert-dismissible fade show mb-4 orbitron" role="alert" style="background: rgba(220, 53, 69, 0.1); border: 1px solid #dc3545; color: #ff8888;">
             <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
@@ -382,7 +362,7 @@
 
                                 @if($battle->status != 'completed' && $battle->status != 'cancelled')
                                     @if(($isLeaderA && !$showEditTeamA) || ($isLeaderB && !$showEditTeamB))
-                                        <button class="btn btn-outline-info btn-sm" wire:click="$set('{{ $isLeaderA ? 'showEditTeamA' : 'showEditTeamB' }}', true)">
+                                        <button class="btn btn-outline-info btn-sm" wire:click="editTeamName">
                                             <i class="bi bi-pencil-square"></i> RENAME TEAM
                                         </button>
                                     @endif
