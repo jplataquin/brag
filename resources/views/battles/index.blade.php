@@ -58,7 +58,7 @@
             <div class="d-flex align-items-center gap-2">
                 @if($b->status === 'completed' && $b->winner_team)
                     <span style="color: #39ff14; font-size: 0.8rem; font-weight: 600;">
-                        🏆 {{ $b->winner_team === 'team_a' ? $b->team_name_a : $b->team_name_b }} WON
+                        🏆 {{ $b->winner_team === 'A' ? $b->team_name_a : $b->team_name_b }} WON
                     </span>
                 @endif
                 @if($b->marshall)

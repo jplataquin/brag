@@ -104,7 +104,7 @@
                         }
                     @endphp
                     <div class="w-100 slot-container" id="slot-container-A-{{ $i }}" style="max-width: 350px;">
-                        @include('battles.partials.single-slot', ['team' => 'A', 'slot' => $i, 'u' => $u, 'c' => $c])
+                        @include('battles.partials.single-slot', ['team' => 'A', 'slot' => $i, 'u' => $u, 'c' => $c, 'isFinal' => $battle->status == 'completed', 'isMe' => $u && $u->id == Auth::id(), 'snapshot' => ($battle->status == 'completed' && is_array($battle->team_a_card_data) && isset($battle->team_a_card_data[$i])) ? $battle->team_a_card_data[$i] : null])
                     </div>
                 @endfor
             </div>
@@ -138,7 +138,7 @@
                         }
                     @endphp
                     <div class="w-100 slot-container" id="slot-container-B-{{ $i }}" style="max-width: 350px;">
-                        @include('battles.partials.single-slot', ['team' => 'B', 'slot' => $i, 'u' => $u, 'c' => $c])
+                        @include('battles.partials.single-slot', ['team' => 'B', 'slot' => $i, 'u' => $u, 'c' => $c, 'isFinal' => $battle->status == 'completed', 'isMe' => $u && $u->id == Auth::id(), 'snapshot' => ($battle->status == 'completed' && is_array($battle->team_b_card_data) && isset($battle->team_b_card_data[$i])) ? $battle->team_b_card_data[$i] : null])
                     </div>
                 @endfor
             </div>
