@@ -259,7 +259,7 @@
                                 @endif
                             @endif
 
-                            @if($battle->status == 'pending' && Auth::id() != $battle->team_a_user_1)
+                            @if($battle->status == 'pending' && Auth::id() != $battle->team_a_user_1 && !($battle->team_b_ready))
                                 <form action="{{ route('battles.action.standup', $battle) }}" method="POST" class="d-inline w-100" id="standUpForm">@csrf <button type="button" class="btn btn-outline-warning w-100" onclick="window.neonConfirm('Are you sure you want to stand up and leave your slot?').then(c => { if(c) handleActionSubmit('standUpForm'); })"><i class="bi bi-box-arrow-right"></i> STAND UP</button></form>
                             @endif
 

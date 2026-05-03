@@ -246,10 +246,23 @@ class BattleActionController extends Controller
             return back()->with('error', 'Team B must be ready before starting.');
         }
 
+        $allFilled = true;
         for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
-            if (!$battle->{"team_a_user_{$i}"} || !$battle->{"team_b_user_{$i}"}) {
-                return back()->with('error', 'All player slots must be filled before starting.');
+            if (!$battle->{"team_a_user_{$i}"} || !$battle->{"team_a_card_{$i}"} || 
+                !$battle->{"team_b_user_{$i}"} || !$battle->{"team_b_card_{$i}"}) {
+                $allFilled = false;
+                break;
             }
+        }
+
+        if (!$allFilled) {
+            $battle->update([
+                'status' => 'pending',
+                'team_b_ready' => false
+            ]);
+            $this->logActivity($battle->id, $user->id, 'system', "Battle start failed: Not all slots are filled. Status reset to pending.");
+            $this->broadcastUpdate($battle, "Start failed: missing players. Resetting to pending.");
+            return back()->with('error', 'All player slots must be filled with cards before starting. Team B ready status has been reset.');
         }
 
         $battle->update(['status' => 'active']);
