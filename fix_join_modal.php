@@ -1,16 +1,32 @@
 <?php
 $content = file_get_contents('resources/views/battles/room.blade.php');
 
-$content = preg_replace(
-    '/<form action="\{\{ route\(\'battles\.action\.declare_win\', \$battle\) \}\}" method="POST" class="d-inline" id="marshallDeclareWinAForm">@csrf <input type="hidden" name="team" value="A"><button type="button" class="btn btn-outline-cyan btn-sm w-100" style="max-width: 150px;" data-bs-toggle="modal" data-bs-target="#joinModal" wire:click\.prevent="\$set\(\'joiningTeam\', \'A\'\); \$set\(\'pairingSlot\', \{\{ \$i \}\}\)">JOIN<\/button>/s',
-    '<button type="button" class="btn btn-outline-cyan btn-sm w-100" style="max-width: 150px;" data-bs-toggle="modal" data-bs-target="#joinModal" onclick="document.getElementById(\'joiningTeam\').value=\'A\'; document.getElementById(\'pairingSlot\').value={{ $i }}; document.getElementById(\'join_team_name\').innerText=\'A\';">JOIN</button>',
-    $content
-);
+$bad_html = <<<'HTML'
+                    @endif
+                    <?php if(isset($errors) && $errors->has("selectedCardId")): ?><div class="text-danger small mt-2 text-center">{{ $errors->first("selectedCardId") }}</div><?php endif; ?>
+                </div>
 
-$content = preg_replace(
-    '/<button type="button" class="btn btn-outline-magenta btn-sm w-100" style="max-width: 150px;" data-bs-toggle="modal" data-bs-target="#joinModal" wire:click\.prevent="\$set\(\'joiningTeam\', \'B\'\); \$set\(\'pairingSlot\', \{\{ \$i \}\}\)">JOIN<\/button>/s',
-    '<button type="button" class="btn btn-outline-magenta btn-sm w-100" style="max-width: 150px;" data-bs-toggle="modal" data-bs-target="#joinModal" onclick="document.getElementById(\'joiningTeam\').value=\'B\'; document.getElementById(\'pairingSlot\').value={{ $i }}; document.getElementById(\'join_team_name\').innerText=\'B\';">JOIN</button>',
-    $content
-);
+                <div class="d-flex gap-3 mt-4">
+                    <button type="button" class="btn btn-outline-secondary w-50 py-2" data-bs-dismiss="modal">CANCEL</button>
+                    <button type="submit" class="btn btn-neon w-50 py-2 orbitron">CONFIRM JOIN</button></form>
+                </div>
+            </div>
+        </div>
+HTML;
 
+$good_html = <<<'HTML'
+                    @endif
+                    <?php if(isset($errors) && $errors->has("selectedCardId")): ?><div class="text-danger small mt-2 text-center">{{ $errors->first("selectedCardId") }}</div><?php endif; ?>
+
+                <div class="d-flex gap-3 mt-4">
+                    <button type="button" class="btn btn-outline-secondary w-50 py-2" data-bs-dismiss="modal">CANCEL</button>
+                    <button type="submit" class="btn btn-neon w-50 py-2 orbitron">CONFIRM JOIN</button>
+                </div>
+                </form>
+            </div>
+        </div>
+        </div>
+HTML;
+
+$content = str_replace($bad_html, $good_html, $content);
 file_put_contents('resources/views/battles/room.blade.php', $content);

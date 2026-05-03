@@ -382,6 +382,9 @@
         </div>
         
         <div class="col-lg-3 mt-4 mt-lg-0"><livewire:battle-activity-log :battle="$battle" /></div>
+    </div> <!-- Close row g-4 -->
+</div> <!-- Close team-battle-room -->
+</div> <!-- Close root div from livewire -->
 
 <!-- Join Modal (Simulated) -->
     
@@ -458,13 +461,14 @@
                         </div>
                     @endif
                     <?php if(isset($errors) && $errors->has("selectedCardId")): ?><div class="text-danger small mt-2 text-center">{{ $errors->first("selectedCardId") }}</div><?php endif; ?>
-                </div>
 
                 <div class="d-flex gap-3 mt-4">
                     <button type="button" class="btn btn-outline-secondary w-50 py-2" data-bs-dismiss="modal">CANCEL</button>
-                    <button type="submit" class="btn btn-neon w-50 py-2 orbitron">CONFIRM JOIN</button></form>
+                    <button type="submit" class="btn btn-neon w-50 py-2 orbitron">CONFIRM JOIN</button>
                 </div>
+                </form>
             </div>
+        </div>
         </div>
 
         <!-- Rename Team Modal -->
@@ -825,6 +829,4 @@ function clearMarshall() {
     document.getElementById('marshall_submit_btn').disabled = true;
 }
 </script>
-</div>
-
 @endsection
