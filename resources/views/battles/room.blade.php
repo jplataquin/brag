@@ -233,11 +233,14 @@
                                 <form action="{{ route('battles.action.standup', $battle) }}" method="POST" class="d-inline w-100" id="standUpForm">@csrf <button type="button" class="btn btn-outline-warning w-100" onclick="window.neonConfirm('Are you sure you want to stand up and leave your slot?').then(c => { if(c) handleActionSubmit('standUpForm'); })"><i class="bi bi-box-arrow-right"></i> STAND UP</button></form>
                             @endif
 
-                            <!-- Share QR (Mobile Only) -->
-                            <button type="button" class="btn btn-neon d-md-none" style="border-color: #39ff14; color: #39ff14;" data-bs-toggle="modal" data-bs-target="#shareQRModal">
-                                <i class="bi bi-qr-code"></i> SHARE QR
-                            </button>
                         </div>
+                    </div>
+                    
+                    <!-- Share QR (Mobile Only) - Moved outside actions-container so it survives AJAX replacements -->
+                    <div class="mt-3 text-center d-md-none">
+                        <button type="button" class="btn btn-neon" style="border-color: #39ff14; color: #39ff14;" data-bs-toggle="modal" data-bs-target="#shareQRModal">
+                            <i class="bi bi-qr-code"></i> SHARE QR
+                        </button>
                     </div>
             @elseif(Auth::id() == $battle->marshall_id && $battle->status == 'active')
                 @if(Auth::id())
