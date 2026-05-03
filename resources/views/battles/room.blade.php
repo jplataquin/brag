@@ -390,7 +390,7 @@
     
         <div class="modal fade" id="joinModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="custom-modal p-4 neon-card" style="max-width: 800px; width: 95%;">
+            <div class="modal-content custom-modal p-4 neon-card" style="max-width: 800px; width: 95%;">
                 <h4 class="orbitron text-cyan mb-4 text-center">JOIN TEAM <span id="join_team_name"></span></h4>
 <form action="{{ route('battles.action.join', $battle) }}" method="POST" id="joinForm">@csrf <input type="hidden" name="joiningTeam" id="joiningTeam" value=""><input type="hidden" name="pairingSlot" id="pairingSlot" value=""><input type="hidden" name="selectedCardId" id="selectedCardId" value="">
 <label class="form-label small text-center w-100 mb-3" style="color: #39ff14;"><i class="bi bi-suit-diamond-fill"></i> SELECT YOUR CARD TO BET</label>
