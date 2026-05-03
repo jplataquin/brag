@@ -747,6 +747,7 @@ function clearMarshall() {
         .then(data => {
             if (data.status === 'success') {
                 if (data.reload === true || data.consensus === true || data.conflict === true) {
+                    window.isReloading = true;
                     window.location.reload();
                 } else if (data.message && data.message.includes('ready')) {
                     form.outerHTML = '<span class="badge bg-success w-100 p-2"><i class="bi bi-check-circle"></i> YOU ARE READY</span>';
@@ -874,7 +875,18 @@ function clearMarshall() {
                             nameB.forEach(el => el.innerText = e.team_name_b);
                         }
 
-                        // 2. Handle Real-time Slot Updates
+                        // Major state changes check FIRST so we can flag isReloading
+                        if (e.message.includes('ready')) {
+                            const standUpBtn = document.getElementById('standUpForm');
+                            if (standUpBtn) standUpBtn.style.display = 'none';
+                        }
+                        if (e.message.includes('started') || e.message.includes('finalized') || e.message.includes('cancelled') || e.message.includes('ready') || e.message.includes('requested cancellation') || e.message.includes('rejected')) {
+                            window.isReloading = true;
+                            setTimeout(() => window.location.reload(), 1000);
+                            return; // Stop processing updates!
+                        }
+
+                        // 2. Handle Real-time Slot Updates ONLY if not reloading
                         const slots = document.querySelectorAll('.slot-container');
                         slots.forEach(slotEl => {
                             const idParts = slotEl.id.split('-'); 
@@ -910,14 +922,6 @@ function clearMarshall() {
                                 });
                         });
                         
-                        // Major state changes still require a reload to update buttons/permissions
-                        if (e.message.includes('ready')) {
-                            const standUpBtn = document.getElementById('standUpForm');
-                            if (standUpBtn) standUpBtn.style.display = 'none';
-                        }
-                        if (e.message.includes('started') || e.message.includes('finalized') || e.message.includes('cancelled') || e.message.includes('ready') || e.message.includes('requested cancellation') || e.message.includes('rejected the cancellation request')) {
-                            setTimeout(() => window.location.reload(), 1000);
-                        }
                     }
                 });
         }
