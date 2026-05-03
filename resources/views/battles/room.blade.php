@@ -192,7 +192,7 @@
                                     @endif
                                 @endif
 
-                                @if($battle->status != 'completed' && $battle->status != 'cancelled')
+                                @if($battle->status == 'pending')
                                     @if($isLeaderA || $isLeaderB)
                                         <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#renameTeamModal" onclick="document.getElementById('renameTeamInput').value='{{ addslashes($isLeaderA ? $battle->team_name_a : $battle->team_name_b) }}'; document.getElementById('renameTeamVal').value='{{ $isLeaderA ? "A" : "B" }}'; document.getElementById('rename_team_name').innerText='{{ $isLeaderA ? "A" : "B" }}';">
                                             <i class="bi bi-pencil-square"></i> RENAME TEAM

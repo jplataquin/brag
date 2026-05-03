@@ -54,6 +54,13 @@ class BattleActionController extends Controller
 
     public function updateTeamName(Request $request, Battle $battle)
     {
+        if ($battle->status !== 'pending') {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Team names can only be changed while the battle is pending.'], 403);
+            }
+            return back()->with('error', 'Team names can only be changed while the battle is pending.');
+        }
+
         $request->validate([
             'team' => 'required|in:A,B',
             'name' => 'required|string|max:50',
