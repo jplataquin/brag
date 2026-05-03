@@ -842,4 +842,15 @@ function clearMarshall() {
         }
     });
 </script>
+<script>
+    // Fix for Bootstrap 5 multiple modals: keep body class 'modal-open' if joinModal is still open
+    document.addEventListener('hidden.bs.modal', function (event) {
+        if (event.target.id !== 'joinModal') {
+            const joinModalEl = document.getElementById('joinModal');
+            if (joinModalEl && joinModalEl.classList.contains('show')) {
+                document.body.classList.add('modal-open');
+            }
+        }
+    });
+</script>
 @endsection

@@ -139,7 +139,7 @@ $placeholderSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.
                     <i class="bi bi-info-circle"></i> DETAILS
                 </a>
                 @endif
-                <button type="button" class="btn btn-neon-magenta" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-neon-magenta" onclick="bootstrap.Modal.getOrCreateInstance(document.getElementById('modal_{{ $id }}')).hide();">
                     <i class="bi bi-x-lg"></i> CLOSE
                 </button>
             </div>
