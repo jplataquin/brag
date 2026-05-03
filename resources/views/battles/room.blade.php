@@ -456,7 +456,7 @@
                             @endif
                         </div>
                     @endif
-                    @error('selectedCardId') <div class="text-danger small mt-2 text-center">{{ $message }}</div> @enderror
+                    <?php if(isset($errors) && $errors->has("selectedCardId")): ?><div class="text-danger small mt-2 text-center">{{ $errors->first("selectedCardId") }}</div><?php endif; ?>
                 </div>
 
                 <div class="d-flex gap-3 mt-4">
@@ -496,47 +496,27 @@
                 </div>
                 <div class="modal-body py-4">
                     <div class="mb-3 position-relative">
+                                            <form action="{{ route('battles.action.elect_marshall', $battle) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="marshall_id" id="marshall_nominee_id">
                         <label class="form-label">MARSHALL USERNAME</label>
-                        @php
-                            $existingUsername = '';
-                            if (Auth::id() === $battle->team_a_user_1 && $battle->team_a_marshall_elect) {
-                                $existingUsername = \App\Models\User::find($battle->team_a_marshall_elect)?->username;
-                            } elseif (Auth::id() === $battle->team_b_user_1 && $battle->team_b_marshall_elect) {
-                                $existingUsername = \App\Models\User::find($battle->team_b_marshall_elect)?->username;
-                            }
-                        @endphp
-                        <div class="form-control d-flex align-items-center p-1" style="min-height: 42px;">
-                            @if($marshallNomineeId)
-                                <span class="badge d-flex align-items-center gap-2 p-2" style="background: rgba(255,221,0,0.2); border: 1px solid #ffdd00; color: #ffdd00; font-size: 0.9rem;">
-                                    <i class="bi bi-person-fill"></i> 
-                                    <span>{{ \App\Models\User::find($marshallNomineeId)?->username }}</span>
-                                    <i class="bi bi-x-circle-fill ms-2" style="cursor: pointer;" wire:click="clearMarshallSelection()"></i>
-                                </span>
-                            @else
-                                <input type="text" class="border-0 bg-transparent text-white flex-grow-1 px-2" placeholder="{{ $existingUsername ? 'Currently: ' . $existingUsername : 'Search username...' }}" autocomplete="off" style="outline: none; box-shadow: none;">
-                            @endif
+                        <div class="form-control d-flex align-items-center p-1" style="min-height: 42px; position: relative;">
+                            <span class="badge d-flex align-items-center gap-2 p-2 d-none" id="marshall_selected_badge" style="background: rgba(255,221,0,0.2); border: 1px solid #ffdd00; color: #ffdd00; font-size: 0.9rem;">
+                                <i class="bi bi-person-fill"></i> 
+                                <span id="marshall_selected_username"></span>
+                                <i class="bi bi-x-circle-fill ms-2" style="cursor: pointer;" onclick="clearMarshall()"></i>
+                            </span>
+                            <input type="text" id="marshall_search_input" class="border-0 bg-transparent text-white flex-grow-1 px-2" placeholder="Search username..." autocomplete="off" style="outline: none; box-shadow: none;" oninput="searchUsers(this.value, 'marshall')">
                         </div>
-                        
-                        @if(count($marshallSearchResults) > 0 && !$marshallNomineeId)
-                            <div class="position-absolute w-100 mt-1" style="z-index: 1050; max-height: 200px; overflow-y: auto; background: rgba(10, 10, 30, 0.95); border: 1px solid #ffdd00; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-                                @foreach($marshallSearchResults as $user)
-                                    <div class="p-2 d-flex align-items-center gap-2" wire:click="selectMarshallNominee({{ $user->id }}, '{{ $user->username }}')" style="cursor: pointer; border-bottom: 1px solid rgba(255, 221, 0, 0.1);">
-                                        <img src="{{ $user->avatar_url ?? asset('img/default-avatar.png') }}" alt="{{ $user->username }}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ffdd00;">
-                                        <span class="text-white">{{ '@' . $user->username }}</span>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @elseif(strlen($marshallSearchQuery) >= 2 && !$marshallNomineeId)
-                            <div class="position-absolute w-100 mt-1 p-2 text-center text-muted small" style="z-index: 1050; background: rgba(10, 10, 30, 0.95); border: 1px solid #ffdd00; border-radius: 4px;">
-                                No players found
-                            </div>
-                        @endif
+                        <div class="position-absolute w-100 mt-1 d-none" id="marshall_search_results" style="z-index: 1050; max-height: 200px; overflow-y: auto; background: rgba(10, 10, 30, 0.95); border: 1px solid #ffdd00; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                        </div>
                     </div>
                     <p class="text-muted small">Both team leaders must elect the same user for them to be designated as the marshall.</p>
                 </div>
                 <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-neon w-100" style="border-color: #ffdd00; color: #ffdd00;" wire:click="electMarshall()" data-bs-dismiss="modal">ELECT USER</button>
+                    <button type="submit" class="btn btn-neon w-100" id="marshall_submit_btn" disabled style="border-color: #ffdd00; color: #ffdd00;">ELECT USER</button>
                 </div>
+                </form>
             </div>
         </div>
     </div>
@@ -575,39 +555,27 @@
                 </div>
                 <div class="modal-body py-4">
                     <div class="mb-3 position-relative">
+                                            <form action="{{ route('battles.action.invite', $battle) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="user_id" id="invite_nominee_id">
                         <label class="form-label">PLAYER USERNAME</label>
-                        <div class="form-control d-flex align-items-center p-1" style="min-height: 42px;">
-                            @if($inviteNomineeId)
-                                <span class="badge d-flex align-items-center gap-2 p-2" style="background: rgba(0,240,255,0.2); border: 1px solid #00f0ff; color: #00f0ff; font-size: 0.9rem;">
-                                    <i class="bi bi-person-fill"></i> 
-                                    <span>{{ \App\Models\User::find($inviteNomineeId)?->username }}</span>
-                                    <i class="bi bi-x-circle-fill ms-2" style="cursor: pointer;" wire:click="clearInviteSelection()"></i>
-                                </span>
-                            @else
-                                <input type="text" class="border-0 bg-transparent text-white flex-grow-1 px-2" placeholder="Search username..." autocomplete="off" style="outline: none; box-shadow: none;">
-                            @endif
+                        <div class="form-control d-flex align-items-center p-1" style="min-height: 42px; position: relative;">
+                            <span class="badge d-flex align-items-center gap-2 p-2 d-none" id="invite_selected_badge" style="background: rgba(0,240,255,0.2); border: 1px solid #00f0ff; color: #00f0ff; font-size: 0.9rem;">
+                                <i class="bi bi-person-fill"></i> 
+                                <span id="invite_selected_username"></span>
+                                <i class="bi bi-x-circle-fill ms-2" style="cursor: pointer;" onclick="clearInvite()"></i>
+                            </span>
+                            <input type="text" id="invite_search_input" class="border-0 bg-transparent text-white flex-grow-1 px-2" placeholder="Search username..." autocomplete="off" style="outline: none; box-shadow: none;" oninput="searchUsers(this.value, 'invite')">
                         </div>
-                        
-                        @if(count($inviteSearchResults) > 0 && !$inviteNomineeId)
-                            <div class="position-absolute w-100 mt-1" style="z-index: 1050; max-height: 200px; overflow-y: auto; background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-                                @foreach($inviteSearchResults as $user)
-                                    <div class="p-2 d-flex align-items-center gap-2" wire:click="selectInviteNominee({{ $user['id'] }}, '{{ $user['username'] }}')" style="cursor: pointer; border-bottom: 1px solid rgba(0, 240, 255, 0.1);">
-                                        <img src="{{ $user['avatar_url'] ?? asset('img/default-avatar.png') }}" alt="{{ $user['username'] }}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid #00f0ff;">
-                                        <span class="text-white">{{ '@' . $user['username'] }}</span>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @elseif(strlen($inviteSearchQuery) >= 2 && !$inviteNomineeId)
-                            <div class="position-absolute w-100 mt-1 p-2 text-center text-muted small" style="z-index: 1050; background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; border-radius: 4px;">
-                                No players found
-                            </div>
-                        @endif
+                        <div class="position-absolute w-100 mt-1 d-none" id="invite_search_results" style="z-index: 1050; max-height: 200px; overflow-y: auto; background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                        </div>
                     </div>
                     <p class="text-muted small">Invited players will receive a notification to join this battle room.</p>
                 </div>
                 <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-neon w-100" wire:click="sendInvite()" data-bs-dismiss="modal" @if(!$inviteNomineeId) disabled @endif>SEND INVITE</button>
+                    <button type="submit" class="btn btn-neon w-100" id="invite_submit_btn" disabled>SEND INVITE</button>
                 </div>
+                </form>
             </div>
         </div>
     </div>
