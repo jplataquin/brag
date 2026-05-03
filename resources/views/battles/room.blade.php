@@ -407,7 +407,7 @@
                                         <div class="row g-3 justify-content-center">
                                             @foreach($chunk as $card)
                                                 <div class="col-md-4 col-6">
-                                                    <div class="selectable-card" onclick="document.querySelectorAll('.selectable-card').forEach(e=>e.classList.remove('selected')); this.classList.add('selected'); document.getElementById('selectedCardId').value='{{$card->id}}';" style="cursor: pointer;">
+                                                    <div class="selectable-card" onclick="document.querySelectorAll('.selectable-card').forEach(e=>e.classList.remove('selected')); this.classList.add('selected'); document.getElementById('selectedCardId').value='{{$card->id}}'; document.getElementById('confirmJoinBtn').disabled=false;" style="cursor: pointer;">
                                                         <div class="card-img-wrapper" style="position: relative; cursor: pointer;">
                                                             <div style="pointer-events: none;">
                                                                 <x-digital-card 
@@ -464,7 +464,7 @@
 
                 <div class="d-flex gap-3 mt-4">
                     <button type="button" class="btn btn-outline-secondary w-50 py-2" data-bs-dismiss="modal">CANCEL</button>
-                    <button type="submit" class="btn btn-neon w-50 py-2 orbitron">CONFIRM JOIN</button>
+                    <button type="submit" class="btn btn-neon w-50 py-2 orbitron" id="confirmJoinBtn" disabled>CONFIRM JOIN</button>
                 </div>
                 </form>
             </div>
@@ -828,5 +828,18 @@ function clearMarshall() {
     document.getElementById('marshall_selected_badge').classList.add('d-none');
     document.getElementById('marshall_submit_btn').disabled = true;
 }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const joinModalEl = document.getElementById('joinModal');
+        if (joinModalEl) {
+            joinModalEl.addEventListener('hidden.bs.modal', event => {
+                document.querySelectorAll('.selectable-card').forEach(e => e.classList.remove('selected'));
+                document.getElementById('selectedCardId').value = '';
+                const btn = document.getElementById('confirmJoinBtn');
+                if (btn) btn.disabled = true;
+            });
+        }
+    });
 </script>
 @endsection
