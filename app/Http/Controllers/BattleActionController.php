@@ -199,6 +199,14 @@ class BattleActionController extends Controller
         });
 
         $this->broadcastUpdate($battle, "{$user->username} left their slot.");
+        
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'You stood up successfully. Reloading room...'
+            ]);
+        }
+        
         return back();
     }
 
@@ -216,6 +224,14 @@ class BattleActionController extends Controller
         $battle->update(['team_b_ready' => true]);
         $this->logActivity($battle->id, $user->id, 'ready', "Team B is now READY!");
         $this->broadcastUpdate($battle, "Team B is ready!");
+        
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Team B is now ready!'
+            ]);
+        }
+        
         return back();
     }
 
@@ -330,7 +346,10 @@ class BattleActionController extends Controller
              return back()->with('error', 'Unauthorized.');
         }
 
-        DB::transaction(function () use ($team, $user, $isLeaderA, $isLeaderB, $isMarshall, $battle) {
+        $consensusReached = false;
+        $conflict = false;
+        
+        DB::transaction(function () use ($team, $user, $isLeaderA, $isLeaderB, $isMarshall, $battle, &$consensusReached, &$conflict) {
             $battle = clone $battle;
             $battle = Battle::where('id', $battle->id)->lockForUpdate()->first();
             
@@ -350,18 +369,31 @@ class BattleActionController extends Controller
                 if ($battle->team_a_declare_win == $battle->team_b_declare_win) {
                     $finalWinnerTeam = $battle->team_a_declare_win;
                 } else {
+                    $conflict = true;
                     $battle->update(['status' => 'failed']);
                     $this->broadcastUpdate($battle, "Conflict in declaration!");
                 }
             }
 
             if ($finalWinnerTeam) {
+                $consensusReached = true;
                 $this->finalizeBattle($battle, $finalWinnerTeam);
             } else {
-                $this->broadcastUpdate($battle, "{$user->username} declared a winner.");
+                if (!$conflict) {
+                    $this->broadcastUpdate($battle, "{$user->username} declared a winner.");
+                }
             }
         });
         
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'consensus' => $consensusReached,
+                'conflict' => $conflict,
+                'message' => 'Vote recorded successfully.'
+            ]);
+        }
+
         return back();
     }
 

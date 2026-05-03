@@ -199,10 +199,10 @@
                                             $lostText = $votedLost ? 'VOTED LOST' : 'DECLARE LOST';
                                         @endphp
                                         
-                                        <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" class="d-inline" id="declareWin{{ $winTeam }}Form">@csrf <input type="hidden" name="team" value="{{ $winTeam }}"><button type="button" class="btn {{ $winClass }} btn-sm" onclick="window.neonConfirm('Are you sure you want to declare WIN?').then(c => { if(c) document.getElementById('declareWin{{ $winTeam }}Form').submit(); })" style="{{ $winStyle }}">
+                                        <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" class="d-inline" id="declareWin{{ $winTeam }}Form">@csrf <input type="hidden" name="team" value="{{ $winTeam }}"><button type="button" class="btn {{ $winClass }} btn-sm" onclick="window.neonConfirm('Are you sure you want to declare WIN?').then(c => { if(c) handleActionSubmit('declareWin{{ $winTeam }}Form'); })" style="{{ $winStyle }}">
                                             <i class="bi {{ $winIcon }}"></i> {{ $winText }}
                                         </button></form>
-                                        <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" class="d-inline" id="declareWin{{ $lostTeam }}Form">@csrf <input type="hidden" name="team" value="{{ $lostTeam }}"><button type="button" class="btn {{ $lostClass }} btn-sm" onclick="window.neonConfirm('Are you sure you want to declare LOST?').then(c => { if(c) document.getElementById('declareWin{{ $lostTeam }}Form').submit(); })" style="{{ $lostStyle }}">
+                                        <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" class="d-inline" id="declareWin{{ $lostTeam }}Form">@csrf <input type="hidden" name="team" value="{{ $lostTeam }}"><button type="button" class="btn {{ $lostClass }} btn-sm" onclick="window.neonConfirm('Are you sure you want to declare LOST?').then(c => { if(c) handleActionSubmit('declareWin{{ $lostTeam }}Form'); })" style="{{ $lostStyle }}">
                                             <i class="bi {{ $lostIcon }}"></i> {{ $lostText }}
                                         </button></form>
                                     @else
@@ -249,7 +249,7 @@
                                     <form action="{{ route('battles.action.cancel', $battle) }}" method="POST" class="d-inline w-100">@csrf <button type="submit" class="btn btn-neon-danger w-100"><i class="bi bi-x-circle"></i> CANCEL BATTLE</button></form>
                                 @elseif($battle->status == 'pending' && $isLeaderB)
                                     @if($battle->is_team_b_full && !$battle->team_b_ready)
-                                        <form action="{{ route('battles.action.ready', $battle) }}" method="POST" class="d-inline w-100">@csrf <button type="submit" class="btn btn-neon-lime w-100" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);"><i class="bi bi-check2-all"></i> READY</button></form>
+                                        <form action="{{ route('battles.action.ready', $battle) }}" method="POST" class="d-inline w-100" id="readyForm">@csrf <button type="button" class="btn btn-neon-lime w-100" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);" onclick="window.neonConfirm('Are you sure your team is ready? You will not be able to stand up once ready.').then(c => { if(c) handleActionSubmit('readyForm'); })"><i class="bi bi-check2-all"></i> READY</button></form>
                                     @endif
                                     @if(!$battle->is_full)
                                         <button type="button" class="btn btn-neon" data-bs-toggle="modal" data-bs-target="#invitePlayerModal">
@@ -260,7 +260,7 @@
                             @endif
 
                             @if($battle->status == 'pending' && Auth::id() != $battle->team_a_user_1)
-                                <form action="{{ route('battles.action.standup', $battle) }}" method="POST" class="d-inline w-100">@csrf <button type="submit" class="btn btn-outline-warning w-100"><i class="bi bi-box-arrow-right"></i> STAND UP</button></form>
+                                <form action="{{ route('battles.action.standup', $battle) }}" method="POST" class="d-inline w-100" id="standUpForm">@csrf <button type="button" class="btn btn-outline-warning w-100" onclick="window.neonConfirm('Are you sure you want to stand up and leave your slot?').then(c => { if(c) handleActionSubmit('standUpForm'); })"><i class="bi bi-box-arrow-right"></i> STAND UP</button></form>
                             @endif
 
                             <!-- Share QR (Mobile Only) -->
@@ -276,8 +276,8 @@
                             <i class="bi bi-gear-wide-connected section-icon" style="color: #ffdd00;"></i> MARSHALL ACTIONS
                         </h5>
                         <div id="actions-container" class="d-flex gap-3 flex-wrap align-items-center">
-                            <button type="button" class="btn btn-neon btn-sm" onclick="window.neonConfirm('As Marshall, are you sure you want to officially declare TEAM A as the winner?').then(c => { if(c) document.getElementById('marshallDeclareWinAForm').submit(); })">TEAM A WON</button></form>
-                            <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" class="d-inline" id="marshallDeclareWinBForm">@csrf <input type="hidden" name="team" value="B"><button type="button" class="btn btn-neon-magenta btn-sm" onclick="window.neonConfirm('As Marshall, are you sure you want to officially declare TEAM B as the winner?').then(c => { if(c) document.getElementById('marshallDeclareWinBForm').submit(); })">TEAM B WON</button></form>
+                            <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" class="d-inline" id="marshallDeclareWinAForm">@csrf <input type="hidden" name="team" value="A"><button type="button" class="btn btn-neon btn-sm" onclick="window.neonConfirm('As Marshall, are you sure you want to officially declare TEAM A as the winner?').then(c => { if(c) handleActionSubmit('marshallDeclareWinAForm'); })">TEAM A WON</button></form>
+                            <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" class="d-inline" id="marshallDeclareWinBForm">@csrf <input type="hidden" name="team" value="B"><button type="button" class="btn btn-neon-magenta btn-sm" onclick="window.neonConfirm('As Marshall, are you sure you want to officially declare TEAM B as the winner?').then(c => { if(c) handleActionSubmit('marshallDeclareWinBForm'); })">TEAM B WON</button></form>
                             <form action="{{ route('battles.action.cancel', $battle) }}" method="POST" class="d-inline" id="marshallCancelForm">@csrf <button type="button" class="btn btn-neon-danger btn-sm" onclick="window.neonConfirm('Are you sure you want to CANCEL this match? No cards will be transferred.').then(c => { if(c) document.getElementById('marshallCancelForm').submit(); })">CANCEL MATCH</button></form>
                         </div>
                     </div>
@@ -744,6 +744,60 @@ function clearMarshall() {
 </script>
 <script>
     // Universal AJAX Form Handler for Modals
+        // Action Button Submitter
+    function handleActionSubmit(formId) {
+        const form = document.getElementById(formId);
+        if (!form) return;
+        
+        const submitBtn = form.querySelector('button');
+        if (!submitBtn) return;
+        
+        const originalBtnHTML = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> WAIT...';
+        
+        const formData = new FormData(form);
+        
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: { 
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(async response => {
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Action failed.');
+            return data;
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                if (data.consensus === true || data.conflict === true) {
+                    window.location.reload();
+                } else if (data.message && data.message.includes('ready')) {
+                    form.outerHTML = '<span class="badge bg-success w-100 p-2"><i class="bi bi-check-circle"></i> YOU ARE READY</span>';
+                } else if (data.message && data.message.includes('stood up')) {
+                    window.location.reload();
+                } else {
+                    const container = form.closest('.d-flex.gap-3.justify-content-center') || form.closest('#actions-container');
+                    if (container) {
+                        container.innerHTML = '<div class="alert alert-info py-2 small mb-0 text-center" style="border: 1px solid #00f0ff; background: rgba(0, 240, 255, 0.1); color: #00f0ff; width: 100%; max-width: 400px;"><i class="bi bi-hourglass-split"></i> You declared a vote. Waiting for opponent...</div>';
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnHTML;
+            if (typeof window.neonAlert === 'function') {
+                window.neonAlert(error.message, "ERROR");
+            } else {
+                alert(error.message);
+            }
+        });
+    }
+
     function setupAjaxForm(formId, modalId, successCallback = null) {
         const form = document.getElementById(formId);
         if (!form) return;
