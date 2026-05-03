@@ -315,6 +315,14 @@ class BattleActionController extends Controller
             }
         });
         
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Cancellation requested. Waiting for opponent...',
+                'reload' => true
+            ]);
+        }
+
         return back();
     }
 
@@ -350,6 +358,14 @@ class BattleActionController extends Controller
                 $this->broadcastUpdate($battle, "Cancellation request rejected by {$user->username}.");
             }
         });
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => $agreed ? 'You agreed to cancel the match.' : 'You rejected the cancellation request.',
+                'reload' => true
+            ]);
+        }
 
         return back();
     }

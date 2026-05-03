@@ -186,7 +186,7 @@
                                                             ($isLeaderB && $battle->team_b_cancel_flag);
                                     @endphp
                                     @if(!$hasRequestedCancel)
-                                        <form action="{{ route('battles.action.cancel', $battle) }}" method="POST" class="d-inline">@csrf <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        <form action="{{ route('battles.action.cancel', $battle) }}" method="POST" class="d-inline" id="requestCancelForm" onsubmit="event.preventDefault(); handleActionSubmit('requestCancelForm');">@csrf <button type="submit" class="btn btn-outline-danger btn-sm" onclick="window.neonConfirm('Are you sure you want to request to CANCEL this active match?').then(c => { if(c) handleActionSubmit('requestCancelForm'); }); return false;">
                                             <i class="bi bi-x-circle"></i> REQUEST CANCEL
                                         </button></form>
                                     @endif
@@ -501,11 +501,11 @@
                     </p>
                     
                     <div class="d-flex gap-3">
-                        <form action="{{ route('battles.action.respond_cancel', $battle) }}" method="POST" class="w-100">
+                        <form action="{{ route('battles.action.respond_cancel', $battle) }}" method="POST" class="w-100" id="agreeCancelForm" onsubmit="event.preventDefault(); handleActionSubmit('agreeCancelForm');">
                             @csrf <input type="hidden" name="agreed" value="1">
                             <button type="submit" class="btn btn-neon-magenta w-100"><i class="bi bi-check-lg"></i> AGREE & CANCEL</button>
                         </form>
-                        <form action="{{ route('battles.action.respond_cancel', $battle) }}" method="POST" class="w-100">
+                        <form action="{{ route('battles.action.respond_cancel', $battle) }}" method="POST" class="w-100" id="rejectCancelForm" onsubmit="event.preventDefault(); handleActionSubmit('rejectCancelForm');">
                             @csrf <input type="hidden" name="agreed" value="0">
                             <button type="submit" class="btn btn-outline-secondary w-100" style="border-color: #555;"><i class="bi bi-x-lg"></i> REJECT</button>
                         </form>
@@ -746,7 +746,7 @@ function clearMarshall() {
         })
         .then(data => {
             if (data.status === 'success') {
-                if (data.consensus === true || data.conflict === true) {
+                if (data.reload === true || data.consensus === true || data.conflict === true) {
                     window.location.reload();
                 } else if (data.message && data.message.includes('ready')) {
                     form.outerHTML = '<span class="badge bg-success w-100 p-2"><i class="bi bi-check-circle"></i> YOU ARE READY</span>';
@@ -915,7 +915,7 @@ function clearMarshall() {
                             const standUpBtn = document.getElementById('standUpForm');
                             if (standUpBtn) standUpBtn.style.display = 'none';
                         }
-                        if (e.message.includes('started') || e.message.includes('finalized') || e.message.includes('cancelled') || e.message.includes('ready')) {
+                        if (e.message.includes('started') || e.message.includes('finalized') || e.message.includes('cancelled') || e.message.includes('ready') || e.message.includes('requested cancellation') || e.message.includes('rejected the cancellation request')) {
                             setTimeout(() => window.location.reload(), 1000);
                         }
                     }
