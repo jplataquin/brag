@@ -41,10 +41,33 @@
     @endif
 
     <div class="row g-4">
+         <div class="col-5">
+            <div class="text-center mb-2">
+                <h2 class="orbitron neon-text mb-0 text-truncate w-100">
+                   A
+                </h4>
+            </div>
+        </div>
+        <div class="col-1">
+             <div class="text-center mb-2">
+                <h4 class="orbitron neon-text-magenta mb-0 text-truncate w-100">
+                   VS
+                </h4>
+            </div>
+        </div>
+        <div class="col-5">
+            <div class="text-center mb-2">
+                <h2 class="orbitron neon-text mb-0 text-truncate w-100">
+                    B`
+                </h2>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4">
         <!-- Team A Column -->
         <div class="col-6" style="min-width: 0;">
             <div class="text-center mb-4">
-                <h2>A</h2>
+              
                 <h4 class="orbitron text-cyan mb-0 text-truncate w-100" title="{{ $battle->team_name_a }}">
                     <span x-ref="nakedA">{{ $battle->team_name_a }}</span>
                 </h4>
@@ -83,7 +106,7 @@
         <!-- Team B Column -->
         <div class="col-6" style="min-width: 0;">
             <div class="text-center mb-4">
-                <h2>B</h2>
+                
                 <h4 class="orbitron text-magenta mb-0 text-truncate w-100" title="{{ $battle->team_name_b }}">
                     <span x-ref="nakedB">{{ $battle->team_name_b }}</span>
                 </h4>
