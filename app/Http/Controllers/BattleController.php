@@ -86,7 +86,7 @@ class BattleController extends Controller
             if ($battle->marshall_id == $user->id) $isParticipant = true;
         }
 
-        return view('battles.room', compact('battle', 'myEligibleCards', 'isParticipant'));
+        return view('battles.room', compact('battle'));
     }
 
     /**
@@ -107,6 +107,6 @@ class BattleController extends Controller
             return redirect()->route('battles.room', $battle);
         }
 
-        return view('battles.join', compact('battle'));
+        return view('battles.room', compact('battle'));
     }
 }

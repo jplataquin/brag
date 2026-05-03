@@ -34,7 +34,7 @@ class BattleActionController extends Controller
             if ($battle->marshall_id == $user->id) $isParticipant = true;
         }
 
-        return view('battles.room', compact('battle', 'myEligibleCards', 'isParticipant'));
+        return view('battles.room', compact('battle'));
     }
 
     protected function logActivity($battleId, $userId, $type, $message)
