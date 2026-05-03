@@ -53,7 +53,7 @@
                     }
                  }" 
                  x-init="setTimeout(() => checkOverflow(), 200)"
-                 @resize.window="checkOverflow()">
+                 x-on:resize.window="checkOverflow()">
                 <div :class="{ 'team-name-scroll': overflowing }">
                     <h4 class="orbitron text-cyan mb-0 d-inline-block" :class="{ 'pe-5': overflowing }" title="{{ $battle->team_name_a }}">
                         <span x-ref="nakedA">{{ $battle->team_name_a }}</span>
@@ -106,7 +106,7 @@
                     }
                  }" 
                  x-init="setTimeout(() => checkOverflow(), 200)"
-                 @resize.window="checkOverflow()">
+                 x-on:resize.window="checkOverflow()">
                 <div :class="{ 'team-name-scroll': overflowing }">
                     <h4 class="orbitron text-magenta mb-0 d-inline-block" :class="{ 'pe-5': overflowing }" title="{{ $battle->team_name_b }}">
                         <span x-ref="nakedB">{{ $battle->team_name_b }}</span>
@@ -224,7 +224,7 @@
 
                                 @if($battle->status != 'completed' && $battle->status != 'cancelled')
                                     @if($isLeaderA || $isLeaderB)
-                                        <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#renameTeamModal" onclick="document.getElementById('renameTeamInput').value='{{ $isLeaderA ? $battle->team_name_a : $battle->team_name_b }}'; document.getElementById('renameTeamVal').value='{{ $isLeaderA ? "A" : "B" }}'; document.getElementById('rename_team_name').innerText='{{ $isLeaderA ? "A" : "B" }}';">
+                                        <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#renameTeamModal" onclick="document.getElementById('renameTeamInput').value='{{ addslashes($isLeaderA ? $battle->team_name_a : $battle->team_name_b) }}'; document.getElementById('renameTeamVal').value='{{ $isLeaderA ? "A" : "B" }}'; document.getElementById('rename_team_name').innerText='{{ $isLeaderA ? "A" : "B" }}';">
                                             <i class="bi bi-pencil-square"></i> RENAME TEAM
                                         </button>
                                     @endif
@@ -752,6 +752,7 @@ function clearMarshall() {
             e.preventDefault();
             
             const submitBtn = form.querySelector('button[type="submit"]');
+            if (!submitBtn) return;
             const originalBtnHTML = submitBtn.innerHTML;
             const errorDiv = form.querySelector('.form-error-display');
             const modalEl = document.getElementById(modalId);

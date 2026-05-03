@@ -1,13 +1,14 @@
 <?php
-$html = file_get_contents('resources/views/battles/room.blade.php');
-$html = preg_replace(
-    '/<input type="text"\s*class="form-control bg-dark text-white border-cyan text-center orbitron" placeholder="Enter new team name">\s*<\/div>\s*<div class="d-flex gap-3">\s*<button type="button" class="btn btn-outline-secondary w-50" data-bs-dismiss="modal">CANCEL<\/button>\s*<button type="button" class="btn btn-neon w-50 orbitron" data-bs-dismiss="modal">SAVE<\/button>/',
-    '<form action="{{ route(\'battles.action.rename\', $battle) }}" method="POST">@csrf <input type="hidden" name="team" value="A"><input type="text" name="name" class="form-control bg-dark text-white border-cyan text-center orbitron" placeholder="Enter new team name" required></div><div class="d-flex gap-3"><button type="button" class="btn btn-outline-secondary w-50" data-bs-dismiss="modal">CANCEL</button><button type="submit" class="btn btn-neon w-50 orbitron">SAVE</button></form>',
-    $html
-);
-$html = preg_replace(
-    '/<input type="text"\s*class="form-control bg-dark text-white border-magenta text-center orbitron" placeholder="Enter new team name">\s*<\/div>\s*<div class="d-flex gap-3">\s*<button type="button" class="btn btn-outline-secondary w-50" data-bs-dismiss="modal">CANCEL<\/button>\s*<button type="button" class="btn btn-neon-magenta w-50 orbitron" data-bs-dismiss="modal">SAVE<\/button>/',
-    '<form action="{{ route(\'battles.action.rename\', $battle) }}" method="POST">@csrf <input type="hidden" name="team" value="B"><input type="text" name="name" class="form-control bg-dark text-white border-magenta text-center orbitron" placeholder="Enter new team name" required></div><div class="d-flex gap-3"><button type="button" class="btn btn-outline-secondary w-50" data-bs-dismiss="modal">CANCEL</button><button type="submit" class="btn btn-neon-magenta w-50 orbitron">SAVE</button></form>',
-    $html
-);
-file_put_contents('resources/views/battles/room.blade.php', $html);
+$content = file_get_contents('resources/views/battles/room.blade.php');
+
+// Let's replace the inline script string generation with addslashes to prevent single quotes in team names breaking the JS string.
+$old = <<<'HTML'
+onclick="document.getElementById('renameTeamInput').value='{{ $isLeaderA ? $battle->team_name_a : $battle->team_name_b }}'; document.getElementById('renameTeamVal').value='{{ $isLeaderA ? "A" : "B" }}'; document.getElementById('rename_team_name').innerText='{{ $isLeaderA ? "A" : "B" }}';"
+HTML;
+
+$new = <<<'HTML'
+onclick="document.getElementById('renameTeamInput').value='{{ addslashes($isLeaderA ? $battle->team_name_a : $battle->team_name_b) }}'; document.getElementById('renameTeamVal').value='{{ $isLeaderA ? "A" : "B" }}'; document.getElementById('rename_team_name').innerText='{{ $isLeaderA ? "A" : "B" }}';"
+HTML;
+
+$content = str_replace($old, $new, $content);
+file_put_contents('resources/views/battles/room.blade.php', $content);
