@@ -57,9 +57,9 @@
         </div>
         <div class="col-2">
              <div class="text-center mb-2">
-                <h4 class="orbitron neon-text-magenta mb-0 w-100">
+                <h6 class="orbitron neon-text-magenta mb-0 w-100">
                    VS
-                </h4>
+                </h6>
             </div>
         </div>
         <div class="col-5">
