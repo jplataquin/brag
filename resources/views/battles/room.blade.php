@@ -404,9 +404,9 @@
                     <h5 class="modal-title" style="color: #ffdd00; font-family: 'Orbitron', sans-serif;">ELECT MARSHALL</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <form action="{{ route('battles.action.elect_marshall', $battle) }}" method="POST" id="electMarshallForm">
                 <div class="modal-body py-4">
                     <div class="mb-3 position-relative">
-                                            <form action="{{ route('battles.action.elect_marshall', $battle) }}" method="POST" id="electMarshallForm">
                         @csrf
                         <input type="hidden" name="marshall_id" id="marshall_nominee_id">
                         <label class="form-label">MARSHALL USERNAME</label>
@@ -464,9 +464,9 @@
                     <h5 class="modal-title neon-text">INVITE PLAYERS</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <form action="{{ route('battles.action.invite', $battle) }}" method="POST" id="invitePlayerForm">
                 <div class="modal-body py-4">
                     <div class="mb-3 position-relative">
-                                            <form action="{{ route('battles.action.invite', $battle) }}" method="POST" id="invitePlayerForm">
                         @csrf
                         <input type="hidden" name="user_id" id="invite_nominee_id">
                         <label class="form-label">PLAYER USERNAME</label>
