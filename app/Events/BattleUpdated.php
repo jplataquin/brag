@@ -49,6 +49,8 @@ class BattleUpdated implements ShouldBroadcastNow
         return [
             'battle_id' => $this->battle->id,
             'status' => $this->battle->status,
+            'team_name_a' => $this->battle->team_name_a,
+            'team_name_b' => $this->battle->team_name_b,
             'message' => $this->message,
             'type' => $this->type,
         ];

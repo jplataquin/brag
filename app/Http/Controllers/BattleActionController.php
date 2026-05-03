@@ -66,6 +66,17 @@ class BattleActionController extends Controller
             $battle->update(['team_name_b' => $request->name]);
         }
         $this->broadcastUpdate($battle, "Team name updated.");
+
+        if ($request->ajax() || $request->wantsJson()) {
+            $newName = ($request->team == 'A') ? $battle->team_name_a : $battle->team_name_b;
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Team renamed successfully.',
+                'team' => $request->team,
+                'newName' => $newName
+            ]);
+        }
+
         return back();
     }
 
@@ -456,6 +467,13 @@ class BattleActionController extends Controller
             $this->logActivity($battle->id, $user->id, 'system', "{$user->username} nominated {$nomineeName} as Marshall.");
         }
 
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Marshall nomination successful.'
+            ]);
+        }
+
         return back()->with('success', 'Marshall nominated successfully');
     }
 
@@ -510,6 +528,14 @@ class BattleActionController extends Controller
             ));
             
             $this->logActivity($battle->id, $user->id, 'invite', "{$user->username} invited @{$invitedUser->username} to join the battle.");
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => "Invite sent to @{$invitedUser->username}"
+                ]);
+            }
+
             return back()->with('success', "Invite sent to @{$invitedUser->username}");
         }
 

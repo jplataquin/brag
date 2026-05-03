@@ -378,13 +378,14 @@
         <!-- Rename Team Modal -->
     <div class="modal fade" id="renameTeamModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
         <div class="modal-dialog modal-dialog-centered">
-            <form action="{{ route('battles.action.rename', $battle) }}" method="POST" class="w-100">
+            <form action="{{ route('battles.action.rename', $battle) }}" method="POST" class="w-100" id="renameTeamForm">
             @csrf
             <input type="hidden" name="team" id="renameTeamVal" value="">
             <div class="modal-content p-4 neon-card" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; backdrop-filter: blur(20px);">
                 <h5 class="orbitron text-cyan mb-4 text-center">RENAME TEAM <span id="rename_team_name"></span></h5>
                 <div class="mb-4">
                     <input type="text" name="name" id="renameTeamInput" class="form-control bg-dark text-white border-cyan text-center orbitron" placeholder="Enter new team name" required>
+                    <div class="form-error-display d-none text-danger small mt-2 text-center"></div>
                 </div>
                 <div class="d-flex gap-3">
                     <button type="button" class="btn btn-outline-secondary w-50" data-bs-dismiss="modal">CANCEL</button>
@@ -405,7 +406,7 @@
                 </div>
                 <div class="modal-body py-4">
                     <div class="mb-3 position-relative">
-                                            <form action="{{ route('battles.action.elect_marshall', $battle) }}" method="POST">
+                                            <form action="{{ route('battles.action.elect_marshall', $battle) }}" method="POST" id="electMarshallForm">
                         @csrf
                         <input type="hidden" name="marshall_id" id="marshall_nominee_id">
                         <label class="form-label">MARSHALL USERNAME</label>
@@ -421,6 +422,7 @@
                         </div>
                     </div>
                     <p class="text-muted small">Both team leaders must elect the same user for them to be designated as the marshall.</p>
+                    <div class="form-error-display d-none text-danger small mt-2"></div>
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="submit" class="btn btn-neon w-100" id="marshall_submit_btn" disabled style="border-color: #ffdd00; color: #ffdd00;">ELECT USER</button>
@@ -464,7 +466,7 @@
                 </div>
                 <div class="modal-body py-4">
                     <div class="mb-3 position-relative">
-                                            <form action="{{ route('battles.action.invite', $battle) }}" method="POST">
+                                            <form action="{{ route('battles.action.invite', $battle) }}" method="POST" id="invitePlayerForm">
                         @csrf
                         <input type="hidden" name="user_id" id="invite_nominee_id">
                         <label class="form-label">PLAYER USERNAME</label>
@@ -480,6 +482,7 @@
                         </div>
                     </div>
                     <p class="text-muted small">Invited players will receive a notification to join this battle room.</p>
+                    <div class="form-error-display d-none text-danger small mt-2"></div>
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="submit" class="btn btn-neon w-100" id="invite_submit_btn" disabled>SEND INVITE</button>
@@ -653,107 +656,11 @@
             });
         }
     </script>
-<script>
-    // Real-time Slot Updates via Hybrid Fetch
-    document.addEventListener('DOMContentLoaded', () => {
-        if(window.Echo) {
-            window.Echo.channel('battle.{{ $battle->id }}')
-                .listen('BattleUpdated', (e) => {
-                    if (e.type === 'update') {
-                        const slots = document.querySelectorAll('.slot-container');
-                        slots.forEach(slotEl => {
-                            const idParts = slotEl.id.split('-'); 
-                            const team = idParts[2];
-                            const slotNum = idParts[3];
-                            
-                            slotEl.style.opacity = '0.5';
-                            
-                            fetch('/battles/{{ $battle->id }}/partial-slot/' + team + '/' + slotNum)
-                                .then(res => res.text())
-                                .then(html => {
-                                    slotEl.innerHTML = html;
-                                    slotEl.style.opacity = '1';
-                                    
-                                    const newCanvases = slotEl.querySelectorAll('canvas[data-card-options]:not([data-initialized="true"])');
-                                    newCanvases.forEach(canvas => {
-                                        if (typeof DigitalCardRenderer !== 'undefined') {
-                                            try {
-                                                const renderer = new DigitalCardRenderer(canvas.id);
-                                                const options = JSON.parse(canvas.getAttribute('data-card-options'));
-                                                renderer.draw(options);
-                                                canvas.dataset.initialized = 'true';
-                                            } catch (err) {
-                                                console.error("Failed to re-render card in slot", err);
-                                            }
-                                        }
-                                    });
-                                })
-                                .catch(err => {
-                                    console.error("Failed to fetch slot update", err);
-                                    slotEl.style.opacity = '1';
-                                });
-                        });
-                        
-                        if (e.message.includes('started') || e.message.includes('finalized') || e.message.includes('cancelled') || e.message.includes('Team name updated') || e.message.includes('ready')) {
-                            setTimeout(() => window.location.reload(), 1000);
-                        }
-                    }
-                });
-        }
-    });
-</script>
+
 <script>
     
 </script>
-<script>
-    // Real-time Slot Updates via Hybrid Fetch
-    document.addEventListener('DOMContentLoaded', () => {
-        if(window.Echo) {
-            window.Echo.channel('battle.{{ $battle->id }}')
-                .listen('BattleUpdated', (e) => {
-                    if (e.type === 'update') {
-                        const slots = document.querySelectorAll('.slot-container');
-                        slots.forEach(slotEl => {
-                            const idParts = slotEl.id.split('-'); 
-                            const team = idParts[2];
-                            const slotNum = idParts[3];
-                            
-                            slotEl.style.opacity = '0.5';
-                            
-                            fetch('/battles/{{ $battle->id }}/partial-slot/' + team + '/' + slotNum)
-                                .then(res => res.text())
-                                .then(html => {
-                                    slotEl.innerHTML = html;
-                                    slotEl.style.opacity = '1';
-                                    
-                                    const newCanvases = slotEl.querySelectorAll('canvas[data-card-options]:not([data-initialized="true"])');
-                                    newCanvases.forEach(canvas => {
-                                        if (typeof DigitalCardRenderer !== 'undefined') {
-                                            try {
-                                                const renderer = new DigitalCardRenderer(canvas.id);
-                                                const options = JSON.parse(canvas.getAttribute('data-card-options'));
-                                                renderer.draw(options);
-                                                canvas.dataset.initialized = 'true';
-                                            } catch (err) {
-                                                console.error("Failed to re-render card in slot", err);
-                                            }
-                                        }
-                                    });
-                                })
-                                .catch(err => {
-                                    console.error("Failed to fetch slot update", err);
-                                    slotEl.style.opacity = '1';
-                                });
-                        });
-                        
-                        if (e.message.includes('started') || e.message.includes('finalized') || e.message.includes('cancelled') || e.message.includes('Team name updated') || e.message.includes('ready')) {
-                            setTimeout(() => window.location.reload(), 1000);
-                        }
-                    }
-                });
-        }
-    });
-</script>
+
 <script>
 let searchTimeout = null;
 function searchUsers(query, type) {
@@ -832,6 +739,152 @@ function clearMarshall() {
             if (joinModalEl && joinModalEl.classList.contains('show')) {
                 document.body.classList.add('modal-open');
             }
+        }
+    });
+</script>
+<script>
+    // Universal AJAX Form Handler for Modals
+    function setupAjaxForm(formId, modalId, successCallback = null) {
+        const form = document.getElementById(formId);
+        if (!form) return;
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnHTML = submitBtn.innerHTML;
+            const errorDiv = form.querySelector('.form-error-display');
+            const modalEl = document.getElementById(modalId);
+            
+            // Loading State
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> PROCESSING...';
+            if (errorDiv) errorDiv.classList.add('d-none');
+            
+            const formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'Something went wrong. Please try again.');
+                }
+                return data;
+            })
+            .then(data => {
+                // Success
+                const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modalInstance.hide();
+                
+                if (typeof window.neonAlert === 'function') {
+                    window.neonAlert(data.message, "SUCCESS");
+                }
+                
+                if (successCallback) successCallback(data);
+                form.reset();
+            })
+            .catch(error => {
+                // Error
+                if (errorDiv) {
+                    errorDiv.innerText = error.message;
+                    errorDiv.classList.remove('d-none');
+                } else {
+                    alert(error.message);
+                }
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHTML;
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Setup Rename Form
+        setupAjaxForm('renameTeamForm', 'renameTeamModal', (data) => {
+            // Local update for immediate feedback
+            const teamId = data.team === 'A' ? 'nakedA' : 'nakedB';
+            const els = document.querySelectorAll('[x-ref="' + teamId + '"]');
+            els.forEach(el => el.innerText = data.newName);
+        });
+
+        // Setup Elect Marshall Form
+        setupAjaxForm('electMarshallForm', 'electMarshallModal', (data) => {
+            clearMarshall(); // Reset the search state
+        });
+
+        // Setup Invite Player Form
+        setupAjaxForm('invitePlayerForm', 'invitePlayerModal', (data) => {
+            clearInvite(); // Reset the search state
+        });
+    });
+</script>
+<script>
+    // Real-time Room Updates via Hybrid Fetch & AJAX
+    document.addEventListener('DOMContentLoaded', () => {
+        if(window.Echo) {
+            window.Echo.channel('battle.{{ $battle->id }}')
+                .listen('BattleUpdated', (e) => {
+                    if (e.type === 'update') {
+                        // 1. Update Team Names
+                        if (e.team_name_a) {
+                            const nameA = document.querySelectorAll('[x-ref="nakedA"]');
+                            nameA.forEach(el => el.innerText = e.team_name_a);
+                        }
+                        if (e.team_name_b) {
+                            const nameB = document.querySelectorAll('[x-ref="nakedB"]');
+                            nameB.forEach(el => el.innerText = e.team_name_b);
+                        }
+
+                        // 2. Handle Real-time Slot Updates
+                        const slots = document.querySelectorAll('.slot-container');
+                        slots.forEach(slotEl => {
+                            const idParts = slotEl.id.split('-'); 
+                            const team = idParts[2];
+                            const slotNum = idParts[3];
+                            
+                            // Visual cue that it is updating
+                            slotEl.style.opacity = '0.5';
+                            
+                            fetch('/battles/{{ $battle->id }}/partial-slot/' + team + '/' + slotNum)
+                                .then(res => res.text())
+                                .then(html => {
+                                    slotEl.innerHTML = html;
+                                    slotEl.style.opacity = '1';
+                                    
+                                    const newCanvases = slotEl.querySelectorAll('canvas[data-card-options]:not([data-initialized="true"])');
+                                    newCanvases.forEach(canvas => {
+                                        if (typeof DigitalCardRenderer !== 'undefined') {
+                                            try {
+                                                const renderer = new DigitalCardRenderer(canvas.id);
+                                                const options = JSON.parse(canvas.getAttribute('data-card-options'));
+                                                renderer.draw(options);
+                                                canvas.dataset.initialized = 'true';
+                                            } catch (err) {
+                                                console.error("Failed to re-render card in slot", err);
+                                            }
+                                        }
+                                    });
+                                })
+                                .catch(err => {
+                                    console.error("Failed to fetch slot update", err);
+                                    slotEl.style.opacity = '1';
+                                });
+                        });
+                        
+                        // Major state changes still require a reload to update buttons/permissions
+                        if (e.message.includes('started') || e.message.includes('finalized') || e.message.includes('cancelled') || e.message.includes('ready')) {
+                            setTimeout(() => window.location.reload(), 1000);
+                        }
+                    }
+                });
         }
     });
 </script>
