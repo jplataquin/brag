@@ -108,7 +108,16 @@ class BattleController extends Controller
             return redirect()->route('battles.room', $battle);
         }
 
-        
+        $myEligibleCards = collect();
+        if ($user) {
+            $myEligibleCards = $user->digitalCards()
+                ->where('life_points', '>', 0)
+                ->get()
+                ->filter(fn($c) => $c->template->game_title_id == $battle->game_title_id);
+        }
+
+        $isParticipant = false; // By definition, if they are here, they are not a participant in the UI context either
+
         return view('battles.room', compact('battle', 'myEligibleCards', 'isParticipant'));
     }
 }
