@@ -43,25 +43,10 @@
     <div class="row g-4">
         <!-- Team A Column -->
         <div class="col-6" style="min-width: 0;">
-            <div class="text-center mb-4 team-name-container"
-                 x-data="{ 
-                    overflowing: false,
-                    checkOverflow() {
-                        if(this.$refs.nakedA) {
-                            this.overflowing = this.$refs.nakedA.scrollWidth > this.$el.clientWidth;
-                        }
-                    }
-                 }" 
-                 x-init="setTimeout(() => checkOverflow(), 200)"
-                 x-on:resize.window="checkOverflow()">
-                <div :class="{ 'team-name-scroll': overflowing }">
-                    <h4 class="orbitron text-cyan mb-0 d-inline-block" :class="{ 'pe-5': overflowing }" title="{{ $battle->team_name_a }}">
-                        <span x-ref="nakedA">{{ $battle->team_name_a }}</span>
-                    </h4>
-                    <h4 x-show="overflowing" class="orbitron text-cyan mb-0 d-inline-block pe-5" title="{{ $battle->team_name_a }}">
-                        {{ $battle->team_name_a }}
-                    </h4>
-                </div>
+            <div class="text-center mb-4">
+                <h4 class="orbitron text-cyan mb-0 text-truncate w-100" title="{{ $battle->team_name_a }}">
+                    <span x-ref="nakedA">{{ $battle->team_name_a }}</span>
+                </h4>
             </div>
 
             <div class="d-flex flex-column gap-4 align-items-center">
@@ -96,25 +81,10 @@
 
         <!-- Team B Column -->
         <div class="col-6" style="min-width: 0;">
-            <div class="text-center mb-4 team-name-container"
-                 x-data="{ 
-                    overflowing: false,
-                    checkOverflow() {
-                        if(this.$refs.nakedB) {
-                            this.overflowing = this.$refs.nakedB.scrollWidth > this.$el.clientWidth;
-                        }
-                    }
-                 }" 
-                 x-init="setTimeout(() => checkOverflow(), 200)"
-                 x-on:resize.window="checkOverflow()">
-                <div :class="{ 'team-name-scroll': overflowing }">
-                    <h4 class="orbitron text-magenta mb-0 d-inline-block" :class="{ 'pe-5': overflowing }" title="{{ $battle->team_name_b }}">
-                        <span x-ref="nakedB">{{ $battle->team_name_b }}</span>
-                    </h4>
-                    <h4 x-show="overflowing" class="orbitron text-magenta mb-0 d-inline-block pe-5" title="{{ $battle->team_name_b }}">
-                        {{ $battle->team_name_b }}
-                    </h4>
-                </div>
+            <div class="text-center mb-4">
+                <h4 class="orbitron text-magenta mb-0 text-truncate w-100" title="{{ $battle->team_name_b }}">
+                    <span x-ref="nakedB">{{ $battle->team_name_b }}</span>
+                </h4>
             </div>
 
             <div class="d-flex flex-column gap-4 align-items-center">
@@ -777,6 +747,9 @@ function clearMarshall() {
                     window.location.reload();
                 } else if (data.message && data.message.includes('ready')) {
                     form.outerHTML = '<span class="badge bg-success w-100 p-2"><i class="bi bi-check-circle"></i> YOU ARE READY</span>';
+                    const standUpBtn = document.getElementById('standUpForm');
+                    if (standUpBtn) standUpBtn.style.display = 'none';
+                    setTimeout(() => window.location.reload(), 800);
                 } else if (data.message && data.message.includes('stood up')) {
                     window.location.reload();
                 } else {
@@ -935,6 +908,10 @@ function clearMarshall() {
                         });
                         
                         // Major state changes still require a reload to update buttons/permissions
+                        if (e.message.includes('ready')) {
+                            const standUpBtn = document.getElementById('standUpForm');
+                            if (standUpBtn) standUpBtn.style.display = 'none';
+                        }
                         if (e.message.includes('started') || e.message.includes('finalized') || e.message.includes('cancelled') || e.message.includes('ready')) {
                             setTimeout(() => window.location.reload(), 1000);
                         }
