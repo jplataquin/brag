@@ -1,12 +1,10 @@
 <?php
 $content = file_get_contents('resources/views/battles/room.blade.php');
 
-// Remove $joiningTeam condition
-$content = preg_replace('/@if\(\!\$joiningTeam\) @endif/', '', $content);
-$content = preg_replace('/@if\(\!\$joiningTeam\)/', '', $content);
-$content = preg_replace('/@if\(\$joiningTeam\)/', '', $content);
-$content = str_replace('JOIN TEAM {{ $joiningTeam }}', 'JOIN TEAM', $content);
+// Fix $this->isParticipant() to $isParticipant
+$content = str_replace('$this->isParticipant()', '$isParticipant', $content);
 
-// For action buttons, we must wrap them in <form> instead of just having buttons.
-// Also we need to pass CSRF token.
-file_put_contents('resources/views/battles/room.blade.php', $content);
+// Remove livewire:battle-status and livewire:battle-activity-log
+// Assuming they should be moved or just converted. For now, let's keep them if they are livewire components on their own, 
+// wait, the prompt says "transfer the livewire logic in the BattleController class" - maybe they meant the whole BattleRoom component.
+// Let's check if the child components are still Livewire.
