@@ -43,22 +43,22 @@
     <div class="row g-4">
          <div class="col-5">
             <div class="text-center mb-2">
-                <h2 class="orbitron neon-text mb-0 text-truncate w-100">
+                <h2 class="orbitron neon-text mb-0 w-100">
                    A
                 </h4>
             </div>
         </div>
         <div class="col-1">
              <div class="text-center mb-2">
-                <h4 class="orbitron neon-text-magenta mb-0 text-truncate w-100">
+                <h4 class="orbitron neon-text-magenta mb-0 w-100">
                    VS
                 </h4>
             </div>
         </div>
         <div class="col-5">
             <div class="text-center mb-2">
-                <h2 class="orbitron neon-text mb-0 text-truncate w-100">
-                    B`
+                <h2 class="orbitron neon-text mb-0 w-100">
+                    B
                 </h2>
             </div>
         </div>
