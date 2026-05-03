@@ -47,6 +47,13 @@
                    A
                 </h4>
             </div>
+             <div class="text-center mb-4">
+              
+                <h4 class="orbitron text-cyan mb-0 text-truncate w-100" title="{{ $battle->team_name_a }}">
+                    <span x-ref="nakedA">{{ $battle->team_name_a }}</span>
+                </h4>
+            </div>
+
         </div>
         <div class="col-2">
              <div class="text-center mb-2">
@@ -61,18 +68,18 @@
                     B
                 </h2>
             </div>
+            <div class="text-center mb-4">
+                
+                <h4 class="orbitron text-magenta mb-0 text-truncate w-100" title="{{ $battle->team_name_b }}">
+                    <span x-ref="nakedB">{{ $battle->team_name_b }}</span>
+                </h4>
+            </div>
         </div>
     </div>
     <div class="row g-4">
         <!-- Team A Column -->
         <div class="col-6" style="min-width: 0;">
-            <div class="text-center mb-4">
-              
-                <h4 class="orbitron text-cyan mb-0 text-truncate w-100" title="{{ $battle->team_name_a }}">
-                    <span x-ref="nakedA">{{ $battle->team_name_a }}</span>
-                </h4>
-            </div>
-
+           
             <div class="d-flex flex-column gap-4 align-items-center">
                 @for($i = 1; $i <= $battle->no_players_per_team; $i++)
                     @php 
@@ -105,12 +112,7 @@
 
         <!-- Team B Column -->
         <div class="col-6" style="min-width: 0;">
-            <div class="text-center mb-4">
-                
-                <h4 class="orbitron text-magenta mb-0 text-truncate w-100" title="{{ $battle->team_name_b }}">
-                    <span x-ref="nakedB">{{ $battle->team_name_b }}</span>
-                </h4>
-            </div>
+            
 
             <div class="d-flex flex-column gap-4 align-items-center">
                 @for($i = 1; $i <= $battle->no_players_per_team; $i++)
