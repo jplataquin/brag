@@ -72,6 +72,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/battles/{battle}', [\App\Http\Controllers\BattleActionController::class, 'show'])->name('battles.show');
     Route::get('/battles/{battle}/join', [BattleController::class, 'join'])->name('battles.join');
     Route::get('/battles/{battle}/room', [BattleController::class, 'room'])->name('battles.room');
+    Route::get('/battles/{battle}/search', [\App\Http\Controllers\UserSearchController::class, 'search'])->name('battles.search');
     Route::post('/battles/{battle}/action/rename', [\App\Http\Controllers\BattleActionController::class, 'updateTeamName'])->name('battles.action.rename');
     Route::post('/battles/{battle}/action/join', [\App\Http\Controllers\BattleActionController::class, 'join'])->name('battles.action.join');
     Route::post('/battles/{battle}/action/standup', [\App\Http\Controllers\BattleActionController::class, 'standUp'])->name('battles.action.standup');
