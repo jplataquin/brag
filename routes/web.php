@@ -146,6 +146,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Diamond Packages
         Route::resource('diamond-packages', \App\Http\Controllers\Admin\DiamondPackageController::class)->except(['show']);
 
+        // Manual Payment Agreements
+        Route::resource('manual-payment-agreements', \App\Http\Controllers\Admin\ManualPaymentAgreementController::class)->except(['show']);
+
         // Template Management
         Route::resource('templates', AdminTemplateController::class)->only(['index', 'edit', 'update']);
 

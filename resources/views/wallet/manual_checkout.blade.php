@@ -46,6 +46,21 @@
                         Please pay exactly <strong>{{ $package->currency }} {{ number_format($package->final_price, 2) }}</strong> using the QR code above.
                     </div>
 
+                    @if($agreement)
+                        <div class="text-start mb-4">
+                            <label class="form-label text-muted small text-uppercase fw-bold">Manual Payment Agreement</label>
+                            <div class="bg-dark bg-opacity-50 border border-secondary rounded-3 p-3 mb-3 text-secondary small scrollable-agreement" style="max-height: 150px; overflow-y: auto; line-height: 1.6; border-style: dashed !important;">
+                                {!! nl2br(e($agreement->content)) !!}
+                            </div>
+                            <div class="form-check custom-checkbox">
+                                <input class="form-check-input bg-dark border-warning" type="checkbox" name="i_agree" id="i_agree" required form="proof-upload-form">
+                                <label class="form-check-label text-white small" for="i_agree">
+                                    I have read and agree to the manual payment terms and conditions above.
+                                </label>
+                            </div>
+                        </div>
+                    @endif
+
                     <form id="proof-upload-form" action="{{ route('payments.manual.proof', $package->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="proof_temp_path" id="proof_temp_path">
@@ -203,13 +218,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
 
-                // Custom String Check
+                // Custom Regex Check
                 if (requiredOcrText) {
-                    const searchString = requiredOcrText.replace(/[\s,]/g, '').toLowerCase();
-                    if (!sanitizedText.includes(searchString)) {
-                        statusText.innerHTML = 'Error: Required information <strong>"' + requiredOcrText + '"</strong> not found. <br><small class="text-secondary">Please ensure the image is not blurry and all details are clearly visible.</small>';
-                        statusText.style.color = '#ff4444';
-                        return;
+                    try {
+                        const regex = new RegExp(requiredOcrText.replace(/[\s,]/g, ''), 'i');
+                        if (!regex.test(sanitizedText)) {
+                            statusText.innerHTML = 'Error: Required information matching pattern <strong>"' + requiredOcrText + '"</strong> not found. <br><small class="text-secondary">Please ensure the image is not blurry and all details are clearly visible.</small>';
+                            statusText.style.color = '#ff4444';
+                            return;
+                        }
+                    } catch (regexErr) {
+                        console.error('Invalid OCR Regex:', regexErr);
+                        // Fallback to simple inclusion if regex is invalid
+                        const searchString = requiredOcrText.replace(/[\s,]/g, '').toLowerCase();
+                        if (!sanitizedText.includes(searchString)) {
+                            statusText.innerHTML = 'Error: Required information <strong>"' + requiredOcrText + '"</strong> not found. <br><small class="text-secondary">Please ensure the image is not blurry and all details are clearly visible.</small>';
+                            statusText.style.color = '#ff4444';
+                            return;
+                        }
                     }
                 }
             } catch (err) {
@@ -280,6 +306,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     uploadForm.addEventListener('submit', function(e) {
         e.preventDefault();
+        
+        const agreeCheckbox = document.getElementById('i_agree');
+        if (agreeCheckbox && !agreeCheckbox.checked) {
+            window.neonAlert("You must agree to the manual payment terms before submitting.");
+            return;
+        }
+
         window.neonConfirm("Are you sure you want to submit this proof of payment? Please ensure the screenshot clearly shows the transaction reference and amount paid.").then(confirmed => {
             if (confirmed) {
                 btnSubmit.disabled = true;
@@ -294,6 +327,21 @@ document.addEventListener('DOMContentLoaded', function() {
 <style>
     .border-dashed {
         border-style: dashed !important;
+    }
+    .scrollable-agreement::-webkit-scrollbar {
+        width: 6px;
+    }
+    .scrollable-agreement::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+    }
+    .scrollable-agreement::-webkit-scrollbar-thumb {
+        background: var(--neon-yellow);
+        border-radius: 10px;
+    }
+    .custom-checkbox .form-check-input:checked {
+        background-color: var(--neon-yellow);
+        border-color: var(--neon-yellow);
+        box-shadow: 0 0 10px rgba(255, 221, 0, 0.4);
     }
 </style>
 @endsection

@@ -95,6 +95,7 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark shadow-lg border-info">
                     <li><a class="dropdown-item" href="{{ route('admin.blog.index') }}"><i class="bi bi-megaphone-fill me-2 text-danger"></i> Manage Blog</a></li>
+                    <li><a class="dropdown-item" href="{{ route('admin.manual-payment-agreements.index') }}"><i class="bi bi-file-earmark-lock me-2 text-warning"></i> Manual Agreements</a></li>
                     <li><a class="dropdown-item" href="{{ route('admin.terms.index') }}"><i class="bi bi-file-earmark-text me-2 text-info"></i> Manage Terms</a></li>
                     <li><a class="dropdown-item" href="{{ route('admin.privacy.index') }}"><i class="bi bi-shield-shaded me-2 text-info"></i> Manage Privacy Policy</a></li>
                 </ul>

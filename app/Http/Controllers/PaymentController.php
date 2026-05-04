@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DiamondPackage;
 use App\Models\Payment;
+use App\Models\ManualPaymentAgreement;
 use App\Services\HitPayService;
 use App\Mail\DiamondPurchaseReceipt;
 use Illuminate\Http\Request;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -114,7 +117,9 @@ class PaymentController extends Controller
             return redirect()->route('wallet.index')->with('error', 'Manual payment is not available for this package.');
         }
 
-        return view('wallet.manual_checkout', compact('package'));
+        $agreement = ManualPaymentAgreement::latest()->first();
+
+        return view('wallet.manual_checkout', compact('package', 'agreement'));
     }
 
     /**
@@ -125,6 +130,7 @@ class PaymentController extends Controller
         $request->validate([
             'proof' => 'required_without:proof_temp_path|image|max:5120',
             'proof_temp_path' => 'nullable|string',
+            'i_agree' => 'required|accepted',
         ]);
 
         $user = Auth::user();
@@ -132,6 +138,9 @@ class PaymentController extends Controller
         if (!$user->can_purchase_diamonds) {
             return redirect()->route('wallet.index')->with('error', 'Hey, Sorry! But this action was disabled by the system because your account is under review at the moment. Please contact us to expedite the process.');
         }
+
+        // Fetch latest agreement to link it to the transaction
+        $agreement = ManualPaymentAgreement::latest()->first();
 
         // Find the pending manual payment record for this user and package
         $payment = Payment::where('user_id', $user->id)
@@ -186,6 +195,7 @@ class PaymentController extends Controller
         $payment->update([
             'proof_path' => $finalPath,
             'auto_approve_at' => now()->addMinutes(10),
+            'manual_payment_agreement_id' => $agreement?->id,
         ]);
 
         return redirect()->route('wallet.index')->with('success', 'Your proof of payment has been submitted! Our team will review it within 10 minutes, or it will be auto-approved.');

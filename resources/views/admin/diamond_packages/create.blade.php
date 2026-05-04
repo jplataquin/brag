@@ -85,12 +85,15 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="ocr_match_string" class="form-label text-muted small text-uppercase fw-bold">Required OCR Text (Optional)</label>
-                            <input type="text" name="ocr_match_string" id="ocr_match_string" class="form-control form-control-lg bg-dark text-white border-info @error('ocr_match_string') is-invalid @enderror" value="{{ old('ocr_match_string') }}" placeholder="e.g. Account Number or Bank Name">
+                            <label for="ocr_match_string" class="form-label text-muted small text-uppercase fw-bold">Required OCR Pattern (Regex) (Optional)</label>
+                            <input type="text" name="ocr_match_string" id="ocr_match_string" class="form-control form-control-lg bg-dark text-white border-info @error('ocr_match_string') is-invalid @enderror" value="{{ old('ocr_match_string') }}" placeholder="e.g. (1234|234) or gcash.*1234">
                             @error('ocr_match_string')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <div class="form-text text-secondary mt-2">If set, the system will verify that this exact text exists in the uploaded proof of payment screenshot.</div>
+                            <div class="form-text text-secondary mt-2">
+                                <i class="bi bi-info-circle me-1"></i> Supports Regular Expressions. The system will verify this pattern against the text found in the screenshot (spaces and commas are removed from the image text before checking).<br>
+                                <strong>Examples:</strong> <code>(1234|234)</code> for partial account numbers, <code>bdo.*1234</code> to require both a bank name and account.
+                            </div>
                         </div>
 
                         <div class="row mb-4">

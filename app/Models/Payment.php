@@ -9,6 +9,7 @@ class Payment extends Model
     protected $fillable = [
         'user_id',
         'diamond_package_id',
+        'manual_payment_agreement_id',
         'reference',
         'hitpay_id',
         'amount',
@@ -57,6 +58,14 @@ class Payment extends Model
     public function package()
     {
         return $this->belongsTo(DiamondPackage::class, 'diamond_package_id');
+    }
+
+    /**
+     * The agreement the user signed for this payment.
+     */
+    public function agreement()
+    {
+        return $this->belongsTo(ManualPaymentAgreement::class, 'manual_payment_agreement_id');
     }
 
     /**
