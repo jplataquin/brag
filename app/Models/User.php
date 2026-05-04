@@ -127,6 +127,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get the user's payment records.
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
      * Calculate and return the user's current diamonds balance.
      */
     public function getDiamondsBalanceAttribute()
