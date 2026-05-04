@@ -163,6 +163,69 @@ class PaymentController extends Controller
     }
 
     /**
+     * Re-upload proof of payment for a flagged transaction.
+     */
+    public function reuploadProof(Request $request, Payment $payment)
+    {
+        // Security: Ensure user owns this payment and it is flagged
+        if ($payment->user_id !== auth()->id() || $payment->status !== 'flagged') {
+            abort(403);
+        }
+
+        $request->validate([
+            'proof' => 'required_without:proof_temp_path|image|max:5120',
+            'proof_temp_path' => 'nullable|string',
+        ]);
+
+        $finalPath = null;
+
+        // Handle chunked upload
+        if ($request->filled('proof_temp_path')) {
+            $tempPath = $request->input('proof_temp_path');
+            if (strpos($tempPath, 'tmp/uploads/') === 0 && Storage::disk('public')->exists($tempPath)) {
+                $extension = pathinfo($tempPath, PATHINFO_EXTENSION);
+                $filename = 'proof_' . time() . '_' . Str::random(10) . '.' . $extension;
+                $finalPath = 'proofs/' . $filename;
+                Storage::disk('public')->move($tempPath, $finalPath);
+            }
+        } 
+        elseif ($request->hasFile('proof')) {
+            $finalPath = $request->file('proof')->store('proofs', 'public');
+        }
+
+        if (!$finalPath) {
+            return back()->with('error', 'Proof of payment is required.');
+        }
+
+        // Delete old proof
+        if ($payment->proof_path) {
+            Storage::disk('public')->delete($payment->proof_path);
+        }
+
+        $payment->update([
+            'proof_path' => $finalPath,
+            'status' => 'pending',
+            'auto_approve_at' => now()->addMinutes(10),
+        ]);
+
+        // Automated comment
+        $comment = $payment->comments()->create([
+            'user_id' => auth()->id(),
+            'comment' => "User has re-uploaded the proof of payment.",
+        ]);
+
+        // Notify admins
+        try {
+            $admins = User::where('is_admin', true)->get();
+            foreach ($admins as $admin) {
+                Mail::to($admin->email)->send(new PaymentCommentAdminNotification($payment, $comment));
+            }
+        } catch (\Exception $e) {}
+
+        return redirect()->route('payments.show', $payment->id)->with('success', 'Your proof of payment has been updated! Our team will review it within 10 minutes.');
+    }
+
+    /**
      * Show manual checkout page with QR code.
      */
     public function manualCheckout(DiamondPackage $package)

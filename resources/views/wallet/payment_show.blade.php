@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -19,6 +20,9 @@
             @if(session('success'))
                 <div class="alert alert-success p-2 small mb-4"><i class="bi bi-check-circle-fill"></i> {{ session('success') }}</div>
             @endif
+            @if(session('error'))
+                <div class="alert alert-danger p-2 small mb-4"><i class="bi bi-exclamation-triangle-fill"></i> {{ session('error') }}</div>
+            @endif
 
             <!-- Payment Status Card -->
             <div class="card bg-dark border-info rounded-4 overflow-hidden mb-4 shadow-lg">
@@ -28,6 +32,8 @@
                         <span class="badge bg-success rounded-pill px-3">Completed</span>
                     @elseif($payment->status === 'pending')
                         <span class="badge bg-warning text-dark rounded-pill px-3">Pending Review</span>
+                    @elseif($payment->status === 'flagged')
+                        <span class="badge bg-danger rounded-pill px-3" style="background-color: #ff8c00 !important; border-color: #ff8c00 !important; color: #fff !important;">Flagged for Review</span>
                     @else
                         <span class="badge bg-danger rounded-pill px-3">{{ strtoupper($payment->status) }}</span>
                     @endif
@@ -46,7 +52,7 @@
 
                     @if($payment->proof_path)
                         <div class="mt-4 pt-4 border-top border-secondary">
-                            <div class="text-muted small text-uppercase fw-bold mb-2">Your Uploaded Proof</div>
+                            <div class="text-muted small text-uppercase fw-bold mb-2">Current Uploaded Proof</div>
                             <img src="{{ asset('storage/' . $payment->proof_path) }}" alt="Proof" class="img-fluid rounded-3 border border-secondary shadow-sm" style="max-height: 300px;">
                         </div>
                     @endif
@@ -88,6 +94,59 @@
                     </div>
 
                     @if($payment->status !== 'completed')
+                        <!-- Re-upload Section for Flagged Payments -->
+                        @if($payment->status === 'flagged')
+                            <div class="mt-2 mb-5 p-4 border border-warning rounded-4 bg-warning bg-opacity-5">
+                                <h5 class="text-warning text-uppercase fw-bold mb-3" style="font-family: 'Orbitron', sans-serif;">
+                                    <i class="bi bi-cloud-arrow-up me-2"></i> Action Required: Re-upload Proof
+                                </h5>
+                                <p class="text-secondary small mb-4">Please upload a clearer screenshot based on the administrator's feedback above.</p>
+                                
+                                <form id="proof-upload-form" action="{{ route('payments.reupload', $payment->id) }}" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="proof_temp_path" id="proof_temp_path">
+                                    
+                                    <div class="mb-0 text-start">
+                                        <!-- Custom Dropzone -->
+                                        <div class="position-relative" id="proof-upload-wrapper">
+                                            <input type="file" class="position-absolute w-100 h-100 opacity-0"
+                                                   style="z-index: 2; cursor: pointer; top: 0; left: 0;"
+                                                   id="proof" accept="image/*" required>
+                                            <div id="proof-dropzone" class="d-flex flex-column align-items-center justify-content-center p-5 text-center neon-card" 
+                                                 style="border: 2px dashed rgba(255, 221, 0, 0.4); background: rgba(255, 221, 0, 0.02); transition: all 0.3s ease;">
+                                                <i class="bi bi-cloud-arrow-up-fill mb-2" style="font-size: 2.5rem; color: var(--neon-yellow);"></i>
+                                                <span class="text-warning fw-bold small" style="font-family: 'Orbitron', sans-serif;">SELECT NEW SCREENSHOT</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Photo Preview -->
+                                        <div id="proof-preview" class="mt-3 text-center" style="display: none;">
+                                            <img id="preview-img" src="" alt="Preview" class="img-fluid rounded-3 border border-warning" style="max-height: 150px;">
+                                            <div class="mt-2">
+                                                <button type="button" id="btn-reset-proof" class="btn btn-xs btn-outline-danger rounded-pill px-2 py-0" style="font-size: 0.7rem;">
+                                                    <i class="bi bi-trash"></i> Reset
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Progress Bar -->
+                                        <div id="upload-progress-container" class="mt-3" style="display: none;">
+                                            <div class="progress bg-dark border border-warning" style="height: 10px; border-radius: 5px;">
+                                                <div id="upload-progress-bar" class="progress-bar bg-warning progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                                            </div>
+                                            <div id="upload-status" class="x-small text-warning mt-1 text-center fw-bold" style="line-height: 1.2;">Uploading: 0%</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-grid mt-4">
+                                        <button type="submit" id="btn-submit-proof" class="btn btn-warning fw-bold text-dark" disabled>
+                                            <i class="bi bi-check2-circle me-1"></i> Confirm Re-upload
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        @endif
+
                         <form action="{{ route('payments.comments.store', $payment->id) }}" method="POST" id="replyForm">
                             @csrf
                             <div class="mb-3">
@@ -111,10 +170,157 @@
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('replyForm');
     if (form) {
-        form.addEventListener('submit', function() {
+        form.addEventListener('submit', function(e) {
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> SENDING...';
+        });
+    }
+
+    // Re-upload Logic (Only if element exists)
+    const proofInput = document.getElementById('proof');
+    if (proofInput) {
+        const proofDropzone = document.getElementById('proof-dropzone');
+        const btnSubmitProof = document.getElementById('btn-submit-proof');
+        const progressContainer = document.getElementById('upload-progress-container');
+        const progressBar = document.getElementById('upload-progress-bar');
+        const statusText = document.getElementById('upload-status');
+        const tempInput = document.getElementById('proof_temp_path');
+        const uploadForm = document.getElementById('proof-upload-form');
+        const previewContainer = document.getElementById('proof-preview');
+        const previewImg = document.getElementById('preview-img');
+        const btnReset = document.getElementById('btn-reset-proof');
+        const proofUploadWrapper = document.getElementById('proof-upload-wrapper');
+
+        const expectedAmount = "{{ number_format($payment->amount, 2, '.', '') }}";
+        const requiredOcrText = "{{ $payment->package->ocr_match_string ?? '' }}";
+
+        btnReset.addEventListener('click', function() {
+            proofInput.value = '';
+            tempInput.value = '';
+            previewImg.src = '';
+            previewContainer.style.display = 'none';
+            progressContainer.style.display = 'none';
+            proofUploadWrapper.style.display = 'block';
+            proofInput.setAttribute('required', 'required');
+            btnSubmitProof.disabled = true;
+        });
+
+        proofInput.addEventListener('change', async function() {
+            const file = this.files[0];
+            if (file) {
+                proofUploadWrapper.style.display = 'none';
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImg.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+
+                btnSubmitProof.disabled = true;
+                progressContainer.style.display = 'block';
+                progressBar.style.width = '0%';
+                statusText.innerText = 'Initializing scanner...';
+                statusText.style.color = '#ffdd00';
+
+                const img = new Image();
+                img.src = URL.createObjectURL(file);
+                await img.decode();
+
+                const canvas = document.createElement('canvas');
+                const maxAnalysisSize = 600;
+                const scale = Math.min(maxAnalysisSize / img.width, maxAnalysisSize / img.height, 1);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // OCR Check
+                statusText.innerText = 'Scanning receipt...';
+                try {
+                    const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
+                    const sanitizedText = text.replace(/[\s,]/g, '').toLowerCase();
+                    const searchAmount = expectedAmount.replace(/[\s,]/g, '');
+                    const searchAmountInt = parseInt(searchAmount);
+
+                    if (!sanitizedText.includes(searchAmount) && !sanitizedText.includes(searchAmountInt.toString())) {
+                        statusText.innerHTML = 'Error: Amount <strong>' + expectedAmount + '</strong> not found. <br><small class="text-secondary">Please ensure the image is clear.</small>';
+                        statusText.style.color = '#ff4444';
+                        return;
+                    }
+
+                    if (requiredOcrText) {
+                        try {
+                            const regex = new RegExp(requiredOcrText.replace(/[\s,]/g, ''), 'i');
+                            if (!regex.test(sanitizedText)) {
+                                statusText.innerHTML = 'Error: Required pattern not found. <br><small class="text-secondary">Please ensure all details are visible.</small>';
+                                statusText.style.color = '#ff4444';
+                                return;
+                            }
+                        } catch (e) {
+                            if (!sanitizedText.includes(requiredOcrText.toLowerCase())) {
+                                statusText.innerHTML = 'Error: Required text not found.';
+                                statusText.style.color = '#ff4444';
+                                return;
+                            }
+                        }
+                    }
+                } catch (err) { console.error(err); }
+
+                statusText.innerText = 'Verification passed! Uploading...';
+                statusText.style.color = '#39ff14';
+
+                const CHUNK_SIZE = 256 * 1024;
+                const fileId = 'proof_re_' + Date.now();
+                const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+                const extension = file.name.split('.').pop();
+                let chunkIndex = 0;
+
+                function uploadNextChunk() {
+                    const start = chunkIndex * CHUNK_SIZE;
+                    const end = Math.min(start + CHUNK_SIZE, file.size);
+                    const chunk = file.slice(start, end);
+                    const formData = new FormData();
+                    formData.append('file', chunk);
+                    formData.append('file_id', fileId);
+                    formData.append('chunk_index', chunkIndex);
+                    formData.append('total_chunks', totalChunks);
+                    formData.append('extension', extension);
+                    formData.append('_token', '{{ csrf_token() }}');
+
+                    fetch('{{ route("upload.chunk") }}', { method: 'POST', body: formData })
+                    .then(res => res.json())
+                    .then(data => {
+                        chunkIndex++;
+                        const percent = Math.round((chunkIndex / totalChunks) * 100);
+                        progressBar.style.width = percent + '%';
+                        statusText.innerText = 'Uploading: ' + percent + '%';
+
+                        if (chunkIndex < totalChunks) {
+                            uploadNextChunk();
+                        } else {
+                            tempInput.value = data.path;
+                            statusText.innerText = 'Upload complete!';
+                            btnSubmitProof.disabled = false;
+                        }
+                    })
+                    .catch(() => {
+                        statusText.innerText = 'Upload failed!';
+                        statusText.style.color = '#ff4444';
+                    });
+                }
+                uploadNextChunk();
+            }
+        });
+
+        uploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            window.neonConfirm("Are you sure you want to RE-SUBMIT this proof? This will replace your previous upload.").then(confirmed => {
+                if (confirmed) {
+                    btnSubmitProof.disabled = true;
+                    btnSubmitProof.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> SUBMITTING...';
+                    uploadForm.submit();
+                }
+            });
         });
     }
 });

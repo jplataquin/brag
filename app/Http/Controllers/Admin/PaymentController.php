@@ -238,6 +238,32 @@ class PaymentController extends Controller
     }
 
     /**
+     * Flag a manual payment for review/re-upload.
+     */
+    public function flag(Request $request, Payment $payment)
+    {
+        $request->validate(['reason' => 'required|string|max:1000']);
+
+        if ($payment->status !== 'pending' || $payment->payment_method !== 'manual') {
+            return back()->with('error', 'Only pending manual payments can be flagged.');
+        }
+
+        $payment->update(['status' => 'flagged']);
+
+        // Add the reason as a comment (this will also trigger email notification)
+        $comment = $payment->comments()->create([
+            'user_id' => auth()->id(),
+            'comment' => "TRANSACTION FLAGGED: " . $request->reason,
+        ]);
+
+        try {
+            Mail::to($payment->user->email)->send(new PaymentCommentUserNotification($payment, $comment));
+        } catch (\Exception $e) {}
+
+        return back()->with('success', "Payment {$payment->reference} has been flagged for user review.");
+    }
+
+    /**
      * User auto-suggest for filtering.
      */
     public function usersSuggest(Request $request)

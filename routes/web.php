@@ -119,6 +119,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/payments/callback', [PaymentController::class, 'callback'])->name('payments.callback');
     Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
     Route::post('/payments/{payment}/comments', [PaymentController::class, 'addComment'])->name('payments.comments.store');
+    Route::post('/payments/{payment}/reupload', [PaymentController::class, 'reuploadProof'])->name('payments.reupload');
 
 
     // Notifications
@@ -166,6 +167,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/payments/{payment}/approve', [AdminPaymentController::class, 'approve'])->name('payments.approve');
         Route::post('/payments/{payment}/reject', [AdminPaymentController::class, 'reject'])->name('payments.reject');
         Route::post('/payments/{payment}/revert', [AdminPaymentController::class, 'revertToPending'])->name('payments.revert');
+        Route::post('/payments/{payment}/flag', [AdminPaymentController::class, 'flag'])->name('payments.flag');
         Route::post('/payments/{payment}/comments', [AdminPaymentController::class, 'addComment'])->name('payments.comments.store');
 
         // Terms & Privacy Admin

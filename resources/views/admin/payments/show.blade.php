@@ -89,11 +89,14 @@
                                     ({{ $payment->auto_approve_at ? $payment->auto_approve_at->format('g:i A') : '-' }})
                                 </div>
                                 <div class="d-flex justify-content-center gap-3">
-                                    <button type="button" onclick="confirmApproval()" class="btn btn-lg btn-success px-5 fw-bold">
-                                        <i class="bi bi-check-circle me-1"></i> Approve Payment
+                                    <button type="button" onclick="confirmApproval()" class="btn btn-lg btn-success px-4 fw-bold text-uppercase">
+                                        <i class="bi bi-check-circle me-1"></i> Approve
                                     </button>
-                                    <button type="button" onclick="promptRejection()" class="btn btn-lg btn-outline-danger px-5 fw-bold">
-                                        <i class="bi bi-x-circle me-1"></i> Reject Payment
+                                    <button type="button" onclick="promptFlagging()" class="btn btn-lg btn-warning px-4 fw-bold text-uppercase">
+                                        <i class="bi bi-flag me-1"></i> Flag
+                                    </button>
+                                    <button type="button" onclick="promptRejection()" class="btn btn-lg btn-outline-danger px-4 fw-bold text-uppercase">
+                                        <i class="bi bi-x-circle me-1"></i> Reject
                                     </button>
                                 </div>
                             </div>
@@ -239,6 +242,10 @@
     <input type="hidden" name="reason" id="rejectReasonInput">
 </form>
 <form id="revertForm" action="{{ route('admin.payments.revert', $payment->id) }}" method="POST" class="d-none">@csrf</form>
+<form id="flagForm" action="{{ route('admin.payments.flag', $payment->id) }}" method="POST" class="d-none">
+    @csrf
+    <input type="hidden" name="reason" id="flagReasonInput">
+</form>
 
 <script>
 function confirmApproval() {
@@ -255,6 +262,21 @@ function confirmRevert() {
             document.getElementById('revertForm').submit();
         }
     });
+}
+
+function promptFlagging() {
+    window.neonPrompt(
+        "Why are you flagging this transaction? (e.g., Image too blurry, Wrong amount visible). This will be sent to the user.",
+        (reason) => {
+            if (reason && reason.trim().length > 0) {
+                document.getElementById('flagReasonInput').value = reason;
+                document.getElementById('flagForm').submit();
+            } else {
+                window.neonAlert("A reason is required to flag a transaction.");
+            }
+        },
+        "Flag for Review"
+    );
 }
 
 function promptRejection() {
