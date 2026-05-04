@@ -195,10 +195,11 @@
 
 <script>
 function confirmApproval() {
-    window.neonConfirm(
-        "Are you sure you want to APPROVE this payment? This will credit {{ $payment->diamonds_amount }} diamonds to {{ $payment->user->username }}.",
-        () => document.getElementById('approveForm').submit()
-    );
+    window.neonConfirm("Are you sure you want to APPROVE this payment? This will credit {{ $payment->diamonds_amount }} diamonds to {{ $payment->user->username }}.").then(confirmed => {
+        if (confirmed) {
+            document.getElementById('approveForm').submit();
+        }
+    });
 }
 
 function promptRejection() {

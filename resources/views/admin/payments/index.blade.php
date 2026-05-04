@@ -71,7 +71,7 @@
                         </div>
 
                         <div class="col-md-3 mt-3 d-flex gap-2">
-                            <button type="submit" class="btn w-100 fw-bold" style="background-color: var(--neon-cyan); color: #111 !important; box-shadow: 0 0 10px rgba(0,240,255,0.5);">Filter</button>
+                            <button type="submit" class="btn w-100 fw-bold text-white" style="background-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,240,255,0.5);">Filter</button>
                             <a href="{{ route('admin.payments.index') }}" class="btn btn-outline-secondary w-100">Reset</a>
                         </div>
                     </form>
@@ -81,7 +81,7 @@
     </div>
 
     <!-- Mass Actions Bar -->
-    <div id="massActionsBar" class="alert bg-dark border-info d-none d-print-none mb-3 d-flex align-items-center gap-3">
+    <div id="massActionsBar" class="p-3 bg-dark border border-info rounded-3 d-none d-print-none mb-3 d-flex align-items-center gap-3 shadow-lg">
         <span class="text-info fw-bold text-uppercase small"><i class="bi bi-check2-all me-1"></i> <span id="selectedCount">0</span> Selected</span>
         <button type="button" onclick="confirmMassAction('approve')" class="btn btn-sm btn-success rounded-pill px-3 fw-bold">
             <i class="bi bi-check-circle me-1"></i> Mass Approve
@@ -285,9 +285,8 @@ function confirmMassAction(action) {
     const selectedIds = Array.from(document.querySelectorAll('.payment-checkbox:checked')).map(cb => cb.value);
     const form = action === 'approve' ? document.getElementById('massApproveForm') : document.getElementById('massRejectForm');
     
-    window.neonConfirm(
-        `Are you sure you want to mass ${action} ${selectedIds.length} payments?`,
-        () => {
+    window.neonConfirm(`Are you sure you want to mass ${action} ${selectedIds.length} payments?`).then(confirmed => {
+        if (confirmed) {
             selectedIds.forEach(id => {
                 const input = document.createElement('input');
                 input.type = 'hidden';
@@ -297,7 +296,7 @@ function confirmMassAction(action) {
             });
             form.submit();
         }
-    );
+    });
 }
 </script>
 
