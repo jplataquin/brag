@@ -242,18 +242,17 @@
 
 <script>
 function confirmApproval() {
-...
+    window.neonConfirm("Are you sure you want to APPROVE this payment? This will credit {{ $payment->diamonds_amount }} diamonds to {{ $payment->user->username }}.").then(confirmed => {
+        if (confirmed) {
+            document.getElementById('approveForm').submit();
+        }
+    });
+}
+
 function confirmRevert() {
     window.neonConfirm("Are you sure you want to REVERT this payment to pending? This will not subtract any diamonds if already credited, you must handle that separately.").then(confirmed => {
         if (confirmed) {
             document.getElementById('revertForm').submit();
-        }
-    });
-}
-</script>
-    window.neonConfirm("Are you sure you want to APPROVE this payment? This will credit {{ $payment->diamonds_amount }} diamonds to {{ $payment->user->username }}.").then(confirmed => {
-        if (confirmed) {
-            document.getElementById('approveForm').submit();
         }
     });
 }
