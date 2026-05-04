@@ -12,39 +12,92 @@
     </div>
 
     <!-- Quick Links -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card bg-dark bg-opacity-50 border-info" style="backdrop-filter: blur(10px);">
-                <div class="card-body d-flex gap-3 align-items-center">
-                    <span class="text-uppercase fw-bold text-muted small"><i class="bi bi-link-45deg"></i> Quick Actions:</span>
-                    <a href="{{ route('admin.blog.index') }}" class="btn btn-outline-danger btn-sm">
-                        <i class="bi bi-megaphone-fill"></i> Manage Blog
-                    </a>
-                    <a href="{{ route('admin.settings.edit') }}" class="btn btn-outline-cyan btn-sm" style="color: var(--neon-cyan); border-color: var(--neon-cyan);">
-                        <i class="bi bi-sliders"></i> Platform Features
-                    </a>
-                    <a href="{{ route('admin.users.index') }}" class="btn btn-outline-warning btn-sm" style="color: var(--neon-yellow); border-color: var(--neon-yellow);">
-                        <i class="bi bi-people-fill"></i> Manage Citizens
-                    </a>
-                    <a href="{{ route('admin.terms.index') }}" class="btn btn-outline-info btn-sm">
-                        <i class="bi bi-file-earmark-text"></i> Manage Terms of Service
-                    </a>
-                    <a href="{{ route('admin.privacy.index') }}" class="btn btn-outline-info btn-sm">
-                        <i class="bi bi-shield-shaded"></i> Manage Privacy Policy
-                    </a>
-                    <a href="{{ route('admin.game_titles.index') }}" class="btn btn-outline-light btn-sm" style="color: var(--neon-magenta); border-color: var(--neon-magenta);">
-                        <i class="bi bi-controller"></i> Manage Game Titles
-                    </a>
-                    <a href="{{ route('admin.templates.index') }}" class="btn btn-outline-success btn-sm">
-                        <i class="bi bi-images"></i> Manage Templates
-                    </a>
-                    <a href="{{ route('admin.cards.index') }}" class="btn btn-outline-warning btn-sm">
-                        <i class="bi bi-cpu"></i> Manage Digital Cards
-                    </a>
-                    <a href="{{ route('admin.payments.index') }}" class="btn btn-outline-primary btn-sm" style="color: var(--neon-cyan); border-color: var(--neon-cyan);">
-                        <i class="bi bi-cash-coin"></i> Sales Transactions
-                    </a>
+    <div class="row g-3 mb-5">
+        <div class="col-md-3">
+            <a href="{{ route('admin.settings.edit') }}" class="text-decoration-none">
+                <div class="card bg-dark bg-opacity-75 border-cyan h-100 neon-hover" style="border-color: var(--neon-cyan);">
+                    <div class="card-body text-center p-3">
+                        <i class="bi bi-sliders display-6 mb-2 d-block" style="color: var(--neon-cyan);"></i>
+                        <h6 class="text-white text-uppercase fw-bold mb-0">Platform Settings</h6>
+                    </div>
                 </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('admin.users.index') }}" class="text-decoration-none">
+                <div class="card bg-dark bg-opacity-75 border-yellow h-100 neon-hover" style="border-color: var(--neon-yellow);">
+                    <div class="card-body text-center p-3">
+                        <i class="bi bi-people-fill display-6 mb-2 d-block" style="color: var(--neon-yellow);"></i>
+                        <h6 class="text-white text-uppercase fw-bold mb-0">Manage Citizens</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('admin.payments.index') }}" class="text-decoration-none">
+                <div class="card bg-dark bg-opacity-75 border-green h-100 neon-hover" style="border-color: var(--neon-green);">
+                    <div class="card-body text-center p-3">
+                        <i class="bi bi-cash-coin display-6 mb-2 d-block" style="color: var(--neon-green);"></i>
+                        <h6 class="text-white text-uppercase fw-bold mb-0">Sales Transactions</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('admin.diamond-packages.index') }}" class="text-decoration-none">
+                <div class="card bg-dark bg-opacity-75 border-magenta h-100 neon-hover" style="border-color: var(--neon-magenta);">
+                    <div class="card-body text-center p-3">
+                        <i class="bi bi-gem display-6 mb-2 d-block" style="color: var(--neon-magenta);"></i>
+                        <h6 class="text-white text-uppercase fw-bold mb-0">Diamond Packages</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('admin.game_titles.index') }}" class="text-decoration-none">
+                <div class="card bg-dark bg-opacity-75 border-light h-100 neon-hover">
+                    <div class="card-body text-center p-3">
+                        <i class="bi bi-controller display-6 mb-2 d-block text-white"></i>
+                        <h6 class="text-white text-uppercase fw-bold mb-0">Game Titles</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('admin.templates.index') }}" class="text-decoration-none">
+                <div class="card bg-dark bg-opacity-75 border-secondary h-100 neon-hover">
+                    <div class="card-body text-center p-3">
+                        <i class="bi bi-images display-6 mb-2 d-block text-white"></i>
+                        <h6 class="text-white text-uppercase fw-bold mb-0">Templates</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('admin.cards.index') }}" class="text-decoration-none">
+                <div class="card bg-dark bg-opacity-75 border-secondary h-100 neon-hover">
+                    <div class="card-body text-center p-3">
+                        <i class="bi bi-cpu display-6 mb-2 d-block text-white"></i>
+                        <h6 class="text-white text-uppercase fw-bold mb-0">Digital Cards</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <div class="dropdown h-100">
+                <button class="btn p-0 border-0 w-100 h-100 text-decoration-none text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="card bg-dark bg-opacity-75 border-secondary h-100 neon-hover">
+                        <div class="card-body text-center p-3">
+                            <i class="bi bi-three-dots display-6 mb-2 d-block text-white"></i>
+                            <h6 class="text-white text-uppercase fw-bold mb-0">More Options</h6>
+                        </div>
+                    </div>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark shadow-lg border-info">
+                    <li><a class="dropdown-item" href="{{ route('admin.blog.index') }}"><i class="bi bi-megaphone-fill me-2 text-danger"></i> Manage Blog</a></li>
+                    <li><a class="dropdown-item" href="{{ route('admin.terms.index') }}"><i class="bi bi-file-earmark-text me-2 text-info"></i> Manage Terms</a></li>
+                    <li><a class="dropdown-item" href="{{ route('admin.privacy.index') }}"><i class="bi bi-shield-shaded me-2 text-info"></i> Manage Privacy Policy</a></li>
+                </ul>
             </div>
         </div>
     </div>
@@ -160,5 +213,14 @@
 
 <style>
     .tracking-wide { letter-spacing: 1px; }
+    .neon-hover {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .neon-hover:hover {
+        transform: translateY(-5px);
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 5px 15px rgba(0, 240, 255, 0.2);
+    }
 </style>
 @endsection
