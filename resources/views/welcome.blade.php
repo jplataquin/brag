@@ -29,12 +29,12 @@
         <!-- Welcome Cards -->
         <div class="row mt-5 g-4 justify-content-center">
             <div class="col-md-4 col-sm-12">
-                <div class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center">
+                <a href="{{ url('/cards/gallery') }}" class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center text-decoration-none" style="transition: transform 0.2s, box-shadow 0.2s;">
                     <div style="font-family: 'Orbitron', sans-serif; font-size: 3.5rem; font-weight: 700; color: #00f0ff; text-shadow: 0 0 20px rgba(0,240,255,0.5); line-height: 1;">
                         {{ number_format($cardsInCirculation) }}
                     </div>
                     <h5 class="mt-3" style="font-family: 'Orbitron', sans-serif; font-size: 1rem; color: #8888aa; letter-spacing: 2px;">CARDS IN CIRCULATION</h5>
-                </div>
+                </a>
             </div>
             <div class="col-md-4 col-sm-12">
                 <div class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center" style="border-color: #39ff14;">
@@ -45,9 +45,9 @@
                 </div>
             </div>
             <div class="col-md-4 col-sm-12">
-                <a href="{{ route('gallery') }}" class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center text-decoration-none" style="transition: transform 0.2s, box-shadow 0.2s; border-color: #ff00ff; background: rgba(255,0,255,0.05);">
-                    <div style="font-size: 3.5rem; margin-bottom: 0.5rem; color: #ff00ff; text-shadow: 0 0 20px rgba(255,0,255,0.5);"><i class="bi bi-images"></i></div>
-                    <h5 style="font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: #ff00ff; letter-spacing: 2px; margin-bottom: 0;">VIEW GALLERY</h5>
+                <a href="{{ route('pwa.instructions') }}" id="btn-install-pwa-welcome" class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center text-decoration-none" style="transition: transform 0.2s, box-shadow 0.2s; border-color: #ff00ff; background: rgba(255,0,255,0.05);">
+                    <div style="font-size: 3.5rem; margin-bottom: 0.5rem; color: #ff00ff; text-shadow: 0 0 20px rgba(255,0,255,0.5);"><i class="bi bi-download"></i></div>
+                    <h5 style="font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: #ff00ff; letter-spacing: 2px; margin-bottom: 0;">INSTALL APP</h5>
                 </a>
             </div>
         </div>

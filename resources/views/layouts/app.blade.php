@@ -292,6 +292,7 @@
             <div class="d-flex justify-content-center gap-3">
                 <a href="{{ route('terms.show') }}" style="font-size: 0.8rem; color: var(--neon-cyan); text-decoration: none;">Terms of Service</a>
                 <a href="{{ route('privacy.show') }}" style="font-size: 0.8rem; color: var(--neon-cyan); text-decoration: none;">Privacy Policy</a>
+                <a href="{{ route('feedback.index') }}" style="font-size: 0.8rem; color: var(--neon-cyan); text-decoration: none;">Feedback</a>
             </div>
         </footer>
     </div>
@@ -459,7 +460,7 @@
 
         // PWA Installation Logic
         let deferredPrompt;
-        const installButtons = document.querySelectorAll('#btn-install-pwa, #btn-install-pwa-mobile');
+        const installButtons = document.querySelectorAll('#btn-install-pwa, #btn-install-pwa-mobile, #btn-install-pwa-welcome');
 
         const hideInstallButtons = () => {
             installButtons.forEach(btn => {

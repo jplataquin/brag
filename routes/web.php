@@ -56,6 +56,13 @@ Route::post('/payments/webhook', [PaymentController::class, 'webhook'])->name('p
 // Public Gallery
 Route::get('/cards/gallery', [DigitalCardController::class, 'gallery'])->name('gallery');
 
+// PWA (Public)
+Route::view('/pwa-instructions', 'pwa-instructions')->name('pwa.instructions');
+
+// Feedback (Public)
+Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback.index');
+Route::post('/feedback', [FeedbackController::class, 'send'])->name('feedback.send');
+
 // Authenticated Routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -110,16 +117,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/payments/callback', [PaymentController::class, 'callback'])->name('payments.callback');
 
 
-    // Feedback
-    Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback.index');
-    Route::post('/feedback', [FeedbackController::class, 'send'])->name('feedback.send');
-
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
-
-    // PWA
-    Route::view('/pwa-instructions', 'pwa-instructions')->name('pwa.instructions');
 
     // Admin Routes
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {

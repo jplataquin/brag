@@ -18,6 +18,17 @@
                 <form action="{{ route('feedback.send') }}" method="POST" id="feedback-form">
                     @csrf
 
+                    @guest
+                    <div class="mb-4">
+                        <label for="email" class="form-label orbitron text-cyan">YOUR EMAIL ADDRESS</label>
+                        <input type="email" name="email" id="email" class="form-control bg-dark text-white border-secondary @error('email') is-invalid @enderror" 
+                               placeholder="We need this to reply to you" value="{{ old('email') }}" required>
+                        @error('email')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    @endguest
+
                     <div class="mb-4">
                         <label for="subject" class="form-label orbitron text-cyan">SUBJECT</label>
                         <input type="text" name="subject" id="subject" class="form-control bg-dark text-white border-secondary @error('subject') is-invalid @enderror" 
@@ -50,8 +61,8 @@
             </div>
             
             <div class="text-center mt-5">
-                <a href="{{ route('dashboard') }}" class="text-muted text-decoration-none small hover-cyan transition-all">
-                    <i class="bi bi-arrow-left"></i> RETURN TO ARENA
+                <a href="{{ Auth::check() ? route('dashboard') : url('/') }}" class="text-muted text-decoration-none small hover-cyan transition-all">
+                    <i class="bi bi-arrow-left"></i> {{ Auth::check() ? 'RETURN TO ARENA' : 'RETURN TO HOME' }}
                 </a>
             </div>
         </div>

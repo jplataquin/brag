@@ -17,15 +17,17 @@ class UserFeedback extends Mailable
     public $user;
     public $subjectLine;
     public $feedbackMessage;
+    public $guestEmail;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user, string $subject, string $message)
+    public function __construct(?User $user, string $subject, string $message, ?string $guestEmail = null)
     {
         $this->user = $user;
         $this->subjectLine = $subject;
         $this->feedbackMessage = $message;
+        $this->guestEmail = $guestEmail;
     }
 
     /**
@@ -33,9 +35,11 @@ class UserFeedback extends Mailable
      */
     public function envelope(): Envelope
     {
+        $replyToEmail = $this->user ? $this->user->email : $this->guestEmail;
+
         return new Envelope(
             subject: '[BRAG FEEDBACK] ' . $this->subjectLine,
-            replyTo: $this->user->email,
+            replyTo: $replyToEmail,
         );
     }
 
