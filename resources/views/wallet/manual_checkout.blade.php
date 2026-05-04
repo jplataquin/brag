@@ -66,6 +66,11 @@
                             <div id="proof-preview" class="mt-3 text-center" style="display: none;">
                                 <div class="text-secondary small mb-2 text-uppercase fw-bold">Selected Image:</div>
                                 <img id="preview-img" src="" alt="Preview" class="img-fluid rounded-4 border border-warning shadow-sm" style="max-height: 200px;">
+                                <div class="mt-2">
+                                    <button type="button" id="btn-reset-proof" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                        <i class="bi bi-trash me-1"></i> Remove & Choose Another
+                                    </button>
+                                </div>
                             </div>
                             
                             @error('proof')
@@ -111,6 +116,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const uploadForm = document.getElementById('proof-upload-form');
     const previewContainer = document.getElementById('proof-preview');
     const previewImg = document.getElementById('preview-img');
+    const btnReset = document.getElementById('btn-reset-proof');
+    const proofUploadWrapper = document.getElementById('proof-upload-wrapper');
+
+    // Reset function
+    btnReset.addEventListener('click', function() {
+        proofInput.value = '';
+        tempInput.value = '';
+        previewImg.src = '';
+        previewContainer.style.display = 'none';
+        progressContainer.style.display = 'none';
+        proofUploadWrapper.style.display = 'block';
+        proofInput.setAttribute('required', 'required');
+        proofDropzone.style.borderColor = 'rgba(255, 221, 0, 0.4)';
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="bi bi-check2-circle me-2"></i> Confirm Submission';
+    });
 
     // Drag and drop feedback
     proofInput.addEventListener('dragenter', () => proofDropzone.style.borderColor = '#ffdd00');
@@ -125,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
             reader.onload = function(e) {
                 previewImg.src = e.target.result;
                 previewContainer.style.display = 'block';
+                proofUploadWrapper.style.display = 'none'; // Hide upload area
             }
             reader.readAsDataURL(file);
 
@@ -181,6 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         statusText.innerText = 'Upload complete! You can now submit.';
                         statusText.style.color = '#39ff14';
                         btnSubmit.disabled = false;
+                        // Once we have a temp path, the actual file upload isn't required by the backend
                         proofInput.removeAttribute('required');
                         proofDropzone.style.borderColor = '#39ff14';
                     }
@@ -196,9 +219,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    uploadForm.addEventListener('submit', function() {
-        btnSubmit.disabled = true;
-        btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> SUBMITTING...';
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        window.neonConfirm("Are you sure you want to submit this proof of payment? Please ensure the screenshot clearly shows the transaction reference and amount paid.").then(confirmed => {
+            if (confirmed) {
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> SUBMITTING...';
+                uploadForm.submit();
+            }
+        });
     });
 });
 </script>
