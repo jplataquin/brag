@@ -249,7 +249,7 @@
 
 <script>
 function confirmApproval() {
-    window.neonConfirm("Are you sure you want to APPROVE this payment? This will credit {{ $payment->diamonds_amount }} diamonds to {{ $payment->user->username }}.").then(confirmed => {
+    window.neonConfirm('Are you sure you want to APPROVE this payment? This will credit {{ $payment->diamonds_amount }} diamonds to {{ $payment->user->username }}.').then(confirmed => {
         if (confirmed) {
             document.getElementById('approveForm').submit();
         }
@@ -257,7 +257,7 @@ function confirmApproval() {
 }
 
 function confirmRevert() {
-    window.neonConfirm("Are you sure you want to REVERT this payment to pending? This will not subtract any diamonds if already credited, you must handle that separately.").then(confirmed => {
+    window.neonConfirm('Are you sure you want to REVERT this payment to pending? This will not subtract any diamonds if already credited, you must handle that separately.').then(confirmed => {
         if (confirmed) {
             document.getElementById('revertForm').submit();
         }
@@ -266,28 +266,32 @@ function confirmRevert() {
 
 function promptFlagging() {
     window.neonPrompt(
-        "Why are you flagging this transaction? (e.g., Image too blurry, Wrong amount visible). This will be sent to the user.",
-        (reason) => {
-            if (reason && reason.trim().length > 0) {
+        'Why are you flagging this transaction? (e.g., Image too blurry, Wrong amount visible). This will be sent to the user.',
+        '',
+        'Flag for Review'
+    ).then(reason => {
+        if (reason !== null) {
+            if (reason.trim().length > 0) {
                 document.getElementById('flagReasonInput').value = reason;
                 document.getElementById('flagForm').submit();
             } else {
-                window.neonAlert("A reason is required to flag a transaction.");
+                window.neonAlert('A reason is required to flag a transaction.');
             }
-        },
-        "Flag for Review"
-    );
+        }
+    });
 }
 
 function promptRejection() {
     window.neonPrompt(
-        "Please provide a reason for rejection (optional):",
-        (reason) => {
+        'Please provide a reason for rejection (optional):',
+        '',
+        'Transaction Rejection'
+    ).then(reason => {
+        if (reason !== null) {
             document.getElementById('rejectReasonInput').value = reason;
             document.getElementById('rejectForm').submit();
-        },
-        "Transaction Rejection"
-    );
+        }
+    });
 }
 </script>
 
