@@ -69,6 +69,14 @@ class Payment extends Model
     }
 
     /**
+     * Discussion thread for this payment.
+     */
+    public function comments()
+    {
+        return $this->hasMany(PaymentComment::class);
+    }
+
+    /**
      * Check if the payment was made manually.
      */
     public function isManual()

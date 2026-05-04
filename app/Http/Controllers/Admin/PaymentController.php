@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\User;
+use App\Models\PaymentComment;
 use App\Mail\ManualPaymentApproved;
 use App\Mail\ManualPaymentRejected;
+use App\Mail\PaymentCommentUserNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -70,7 +72,7 @@ class PaymentController extends Controller
 
     public function show(Payment $payment)
     {
-        $payment->load(['user', 'collector', 'package']);
+        $payment->load(['user', 'collector', 'package', 'comments.user']);
         return view('admin.payments.show', compact('payment'));
     }
 
@@ -138,6 +140,42 @@ class PaymentController extends Controller
         }
 
         return back()->with('success', "Payment {$payment->reference} has been rejected.");
+    }
+
+    /**
+     * Revert a manual payment back to pending.
+     */
+    public function revertToPending(Payment $payment)
+    {
+        if ($payment->payment_method !== 'manual') {
+            return back()->with('error', 'Only manual payments can be reverted.');
+        }
+
+        $payment->update(['status' => 'pending']);
+
+        return back()->with('success', "Payment {$payment->reference} has been reverted to pending. Note: Diamond balance was not modified.");
+    }
+
+    /**
+     * Add a comment to the discussion thread.
+     */
+    public function addComment(Request $request, Payment $payment)
+    {
+        $request->validate(['comment' => 'required|string|max:1000']);
+
+        $comment = $payment->comments()->create([
+            'user_id' => auth()->id(),
+            'comment' => $request->comment,
+        ]);
+
+        // Notify user
+        try {
+            Mail::to($payment->user->email)->send(new PaymentCommentUserNotification($payment, $comment));
+        } catch (\Exception $e) {
+            Log::error("Admin Comment Notify Error: " . $e->getMessage());
+        }
+
+        return back()->with('success', 'Comment added and user notified.');
     }
 
     /**

@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\DiamondPackage;
 use App\Models\Payment;
 use App\Models\ManualPaymentAgreement;
+use App\Models\User;
+use App\Models\PaymentComment;
 use App\Services\HitPayService;
 use App\Mail\DiamondPurchaseReceipt;
+use App\Mail\PaymentCommentAdminNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -112,6 +115,51 @@ class PaymentController extends Controller
             $payment->update(['status' => 'failed']);
             return back()->with('error', 'Unable to initiate payment at this time. Please try again later.');
         }
+    }
+
+    /**
+     * Show a specific payment request (Discussion Thread).
+     */
+    public function show(Payment $payment)
+    {
+        // Security: Ensure user owns this payment
+        if ($payment->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $payment->load(['package', 'comments.user', 'agreement']);
+
+        return view('wallet.payment_show', compact('payment'));
+    }
+
+    /**
+     * Add a comment to the discussion thread (User Side).
+     */
+    public function addComment(Request $request, Payment $payment)
+    {
+        // Security: Ensure user owns this payment
+        if ($payment->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate(['comment' => 'required|string|max:1000']);
+
+        $comment = $payment->comments()->create([
+            'user_id' => auth()->id(),
+            'comment' => $request->comment,
+        ]);
+
+        // Notify all Admins
+        try {
+            $admins = User::where('is_admin', true)->get();
+            foreach ($admins as $admin) {
+                Mail::to($admin->email)->send(new PaymentCommentAdminNotification($payment, $comment));
+            }
+        } catch (\Exception $e) {
+            Log::error("User Comment Notify Admin Error: " . $e->getMessage());
+        }
+
+        return back()->with('success', 'Your message has been posted. Our team will review it soon.');
     }
 
     /**

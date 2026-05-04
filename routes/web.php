@@ -117,6 +117,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/payments/manual/{package}/proof', [PaymentController::class, 'submitManualProof'])->name('payments.manual.proof');
     Route::get('/payments/success', [PaymentController::class, 'success'])->name('payments.success');
     Route::get('/payments/callback', [PaymentController::class, 'callback'])->name('payments.callback');
+    Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
+    Route::post('/payments/{payment}/comments', [PaymentController::class, 'addComment'])->name('payments.comments.store');
 
 
     // Notifications
@@ -163,6 +165,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/payments/{payment}', [AdminPaymentController::class, 'show'])->name('payments.show');
         Route::post('/payments/{payment}/approve', [AdminPaymentController::class, 'approve'])->name('payments.approve');
         Route::post('/payments/{payment}/reject', [AdminPaymentController::class, 'reject'])->name('payments.reject');
+        Route::post('/payments/{payment}/revert', [AdminPaymentController::class, 'revertToPending'])->name('payments.revert');
+        Route::post('/payments/{payment}/comments', [AdminPaymentController::class, 'addComment'])->name('payments.comments.store');
 
         // Terms & Privacy Admin
         Route::get('/terms', [TermsOfServiceController::class, 'index'])->name('terms.index');

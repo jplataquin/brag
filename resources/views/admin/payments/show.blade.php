@@ -97,7 +97,54 @@
                                     </button>
                                 </div>
                             </div>
+                        @else
+                            <div class="mt-4 pt-4 border-top border-secondary">
+                                <button type="button" onclick="confirmRevert()" class="btn btn-outline-warning fw-bold">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Revert to Pending
+                                </button>
+                            </div>
                         @endif
+                    </div>
+                </div>
+
+                <!-- Discussion Thread -->
+                <div class="card bg-dark border-info rounded-4 overflow-hidden mb-4 shadow-lg">
+                    <div class="card-header border-info p-3 bg-transparent">
+                        <h5 class="mb-0 text-uppercase fw-bold text-white" style="font-family: 'Orbitron', sans-serif;">
+                            <i class="bi bi-chat-dots me-2 text-info"></i> Discussion Thread
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="comments-list mb-4" style="max-height: 400px; overflow-y: auto;">
+                            @forelse($payment->comments as $comment)
+                                <div class="mb-3 p-3 rounded-3 {{ $comment->user->is_admin ? 'bg-info bg-opacity-10 border border-info ms-5' : 'bg-secondary bg-opacity-10 border border-secondary me-5' }}">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-bold {{ $comment->user->is_admin ? 'text-info' : 'text-white' }}">
+                                            <i class="bi {{ $comment->user->is_admin ? 'bi-shield-check' : 'bi-person' }} me-1"></i>
+                                            {{ $comment->user->username }} 
+                                            @if($comment->user->is_admin)<small class="text-uppercase" style="font-size: 0.7em;">(Admin)</small>@endif
+                                        </span>
+                                        <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                                    </div>
+                                    <div class="text-white">{{ $comment->comment }}</div>
+                                </div>
+                            @empty
+                                <div class="text-center text-muted py-3">No messages in this thread yet.</div>
+                            @endforelse
+                        </div>
+
+                        <form action="{{ route('admin.payments.comments.store', $payment->id) }}" method="POST">
+                            @csrf
+                            <div class="mb-3">
+                                <label for="comment" class="form-label text-muted small text-uppercase fw-bold">Post a Reply</label>
+                                <textarea name="comment" id="comment" rows="3" class="form-control bg-dark text-white border-info" required placeholder="Write your message to the user here..."></textarea>
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-info fw-bold">
+                                    <i class="bi bi-send me-1"></i> Send Reply
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             @endif
@@ -185,16 +232,25 @@
         </div>
     </div>
 </div>
-
 <!-- Approval/Rejection Forms -->
 <form id="approveForm" action="{{ route('admin.payments.approve', $payment->id) }}" method="POST" class="d-none">@csrf</form>
 <form id="rejectForm" action="{{ route('admin.payments.reject', $payment->id) }}" method="POST" class="d-none">
     @csrf
     <input type="hidden" name="reason" id="rejectReasonInput">
 </form>
+<form id="revertForm" action="{{ route('admin.payments.revert', $payment->id) }}" method="POST" class="d-none">@csrf</form>
 
 <script>
 function confirmApproval() {
+...
+function confirmRevert() {
+    window.neonConfirm("Are you sure you want to REVERT this payment to pending? This will not subtract any diamonds if already credited, you must handle that separately.").then(confirmed => {
+        if (confirmed) {
+            document.getElementById('revertForm').submit();
+        }
+    });
+}
+</script>
     window.neonConfirm("Are you sure you want to APPROVE this payment? This will credit {{ $payment->diamonds_amount }} diamonds to {{ $payment->user->username }}.").then(confirmed => {
         if (confirmed) {
             document.getElementById('approveForm').submit();

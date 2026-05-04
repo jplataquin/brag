@@ -1,47 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'My Wallet')
-
 @section('content')
 <div class="container py-4">
-    <h1 class="page-title mb-4">
-        <span class="page-title-accent"><i class="bi bi-wallet2"></i></span> MY WALLET
-    </h1>
-
-    <div class="row g-4 mb-5">
-        <!-- Balance Card -->
+    <div class="row g-4">
+        <!-- Balance Overview -->
         <div class="col-md-4">
-            <div class="neon-card text-center p-4 h-100 d-flex flex-column justify-content-center" style="border-color: #00f0ff;">
-                <h5 class="text-muted small mb-2" style="font-family: 'Orbitron', sans-serif; letter-spacing: 2px;">CURRENT BALANCE</h5>
-                <h2 class="display-4 mb-0" style="color: #00f0ff; text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);">
-                    <i class="bi bi-gem"></i> {{ number_format($balance, 2) }}
-                </h2>
-                <div class="mt-3">
-                    <span class="badge" style="background-color: rgba(0,240,255,0.1); border: 1px solid #00f0ff; color: #00f0ff;">DIAMONDS</span>
+            <div class="neon-card text-center p-5 h-100" style="border-color: var(--neon-magenta); background: rgba(255, 0, 255, 0.05);">
+                <div class="mb-3">
+                    <i class="bi bi-gem display-1" style="color: var(--neon-magenta); text-shadow: 0 0 20px rgba(255, 0, 255, 0.5);"></i>
                 </div>
+                <h4 class="text-uppercase text-secondary tracking-wide mb-2" style="font-family: 'Orbitron', sans-serif;">Diamond Balance</h4>
+                <h1 class="display-3 fw-bold text-white mb-0">{{ number_format($balance) }}</h1>
             </div>
         </div>
 
-        <!-- Info/Action Card -->
+        <!-- Buy Diamonds Section -->
         <div class="col-md-8">
-            <div class="neon-card p-4 h-100" style="border-color: rgba(255, 255, 255, 0.1);">
-                <h4 style="font-family: 'Orbitron', sans-serif; color: #fff;"><i class="bi bi-info-circle me-2"></i> DIAMONDS CURRENCY</h4>
-                <p class="text-muted mt-3 mb-0" style="line-height: 1.6;">
-                    Diamonds are the official in-game currency of Brag. You can use Diamonds to forge new Digital Cards, purchase premium templates, special borders, or trade them for services. 
-                    <br><br>
-                    <i class="bi bi-shield-lock text-warning me-1"></i> <em>Player-to-player transfers are currently disabled but will be arriving in a future update.</em>
-                </p>
-                <div class="mt-4">
-                    <button class="btn btn-outline-secondary disabled" title="Coming Soon">
-                        <i class="bi bi-arrow-left-right me-1"></i> TRANSFER DIAMONDS
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mb-5">
-        <div class="col-12">
             <h5 class="section-header mb-4">
                 <i class="bi bi-cart section-icon"></i> PURCHASE DIAMONDS
             </h5>
@@ -49,6 +23,11 @@
             @if(session('error'))
                 <div class="alert alert-danger mb-4 border-danger bg-danger bg-opacity-10 text-white rounded-3 shadow-sm">
                     <i class="bi bi-exclamation-octagon-fill me-2"></i> {{ session('error') }}
+                </div>
+            @endif
+            @if(session('success'))
+                <div class="alert alert-success mb-4 border-success bg-success bg-opacity-10 text-white rounded-3 shadow-sm">
+                    <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
                 </div>
             @endif
 
@@ -149,6 +128,122 @@
             @endif
         </div>
     </div>
+
+    <!-- My Ledger Table -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h5 class="section-header mb-4">
+                <i class="bi bi-clock-history section-icon"></i> MY LEDGER
+            </h5>
+
+            <div class="neon-card overflow-hidden mb-5">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0" style="background: transparent;">
+                        <thead>
+                            <tr>
+                                <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Date</th>
+                                <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Type</th>
+                                <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Remarks</th>
+                                <th class="py-3 px-4 text-end" style="border-bottom-color: rgba(255,255,255,0.1);">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($transactions as $txn)
+                                <tr>
+                                    <td class="py-3 px-4 text-white-50 small">{{ $txn->created_at->format('M d, Y H:i') }}</td>
+                                    <td class="py-3 px-4">
+                                        <span class="badge bg-{{ $txn->amount > 0 ? 'success' : 'danger' }} bg-opacity-10 text-{{ $txn->amount > 0 ? 'success' : 'danger' }} border border-{{ $txn->amount > 0 ? 'success' : 'danger' }} text-uppercase" style="font-size: 0.7rem;">
+                                            {{ str_replace('_', ' ', $txn->type) }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4 small">
+                                        {{ $txn->remarks }}
+                                        @if($txn->from_user_id)
+                                            <span class="text-info">(From: {{ $txn->fromUser->username }})</span>
+                                        @elseif($txn->transfer_user_id)
+                                            <span class="text-info">(To: {{ $txn->transferUser->username }})</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3 px-4 text-end fw-bold {{ $txn->amount > 0 ? 'text-success' : 'text-danger' }}">
+                                        {{ $txn->amount > 0 ? '+' : '' }}{{ number_format($txn->amount) }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="py-5 text-center text-muted">No diamond transactions found.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                @if($transactions->hasPages())
+                    <div class="p-3 border-top border-secondary border-opacity-25">
+                        {{ $transactions->appends(['purchase_page' => $purchaseHistory->currentPage()])->links('pagination::bootstrap-5') }}
+                    </div>
+                @endif
+            </div>
+
+            <!-- Purchase History Table -->
+            <h5 class="section-header mb-4">
+                <i class="bi bi-cart-check section-icon"></i> PURCHASE HISTORY
+            </h5>
+
+            <div class="neon-card overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0" style="background: transparent;">
+                        <thead>
+                            <tr>
+                                <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Date</th>
+                                <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Package</th>
+                                <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Method</th>
+                                <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Status</th>
+                                <th class="py-3 px-4 text-end" style="border-bottom-color: rgba(255,255,255,0.1);">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($purchaseHistory as $purchase)
+                                <tr @if($purchase->payment_method === 'manual') onclick="window.location='{{ route('payments.show', $purchase->id) }}'" style="cursor: pointer;" @endif class="{{ $purchase->payment_method === 'manual' ? 'clickable-row' : '' }}">
+                                    <td class="py-3 px-4 text-white-50 small">{{ $purchase->created_at->format('M d, Y H:i') }}</td>
+                                    <td class="py-3 px-4 small fw-bold text-info">
+                                        {{ $purchase->package->name ?? 'Custom Package' }}
+                                        @if($purchase->payment_method === 'manual')
+                                            <i class="bi bi-chat-dots ms-2 text-warning" title="Open Discussion Thread"></i>
+                                        @endif
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <span class="badge bg-secondary bg-opacity-25 text-white small px-2">
+                                            {{ strtoupper($purchase->payment_method) }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        @if($purchase->status === 'completed')
+                                            <span class="badge rounded-pill bg-success small px-3">Completed</span>
+                                        @elseif($purchase->status === 'pending')
+                                            <span class="badge rounded-pill bg-warning text-dark small px-3">Pending</span>
+                                        @else
+                                            <span class="badge rounded-pill bg-danger small px-3">{{ strtoupper($purchase->status) }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3 px-4 text-end fw-bold text-white">
+                                        {{ $purchase->currency }} {{ number_format($purchase->amount, 2) }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="py-5 text-center text-muted">No purchase attempts found.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                @if($purchaseHistory->hasPages())
+                    <div class="p-3 border-top border-secondary border-opacity-25">
+                        {{ $purchaseHistory->appends(['ledger_page' => $transactions->currentPage()])->links('pagination::bootstrap-5') }}
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
 </div>
 
 @push('modals')
@@ -196,7 +291,8 @@
                                 <div class="x-small fw-normal mt-1 opacity-75">Scan QR & Upload Receipt</div>
                             </a>
                         @endif
-                    </div>                </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer border-info bg-dark bg-opacity-50">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Maybe Later</button>
@@ -237,82 +333,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <style>
     .x-small { font-size: 0.75rem; }
+    .clickable-row:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+    }
 </style>
-
-<!-- Ledger Table -->
-<div class="container">
-    <h5 class="section-header mb-4">
-        <i class="bi bi-clock-history section-icon"></i> TRANSACTION HISTORY
-    </h5>
-
-    <div class="neon-card overflow-hidden">
-        <div class="table-responsive">
-            <table class="table table-dark table-hover mb-0" style="background: transparent;">
-                <thead>
-                    <tr>
-                        <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Date</th>
-                        <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Type</th>
-                        <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Remarks</th>
-                        <th class="py-3 px-4 text-end" style="border-bottom-color: rgba(255,255,255,0.1);">Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($transactions as $txn)
-                        <tr>
-                            <td class="py-3 px-4 text-muted small align-middle">
-                                {{ $txn->created_at->format('M d, Y h:i A') }}
-                            </td>
-                            <td class="py-3 px-4 align-middle">
-                                @if($txn->type === 'system')
-                                    <span class="badge bg-secondary text-light">System</span>
-                                @elseif($txn->type === 'transfer')
-                                    <span class="badge bg-info text-dark">Transfer</span>
-                                @elseif($txn->type === 'purchased')
-                                    <span class="badge bg-warning text-dark">Purchased</span>
-                                @else
-                                    <span class="badge bg-light text-dark">User</span>
-                                @endif
-                            </td>
-                            <td class="py-3 px-4 align-middle text-light" style="max-width: 300px;">
-                                {{ $txn->remarks ?? '-' }}
-                                
-                                {{-- Show related user info if it was a transfer --}}
-                                @if($txn->type === 'transfer')
-                                    @if($txn->fromUser && $txn->fromUser->id !== auth()->id())
-                                        <br><small class="text-muted">From: {{ $txn->fromUser->username }}</small>
-                                    @endif
-                                    @if($txn->transferUser && $txn->transferUser->id !== auth()->id())
-                                        <br><small class="text-muted">To: {{ $txn->transferUser->username }}</small>
-                                    @endif
-                                @endif
-                            </td>
-                            <td class="py-3 px-4 text-end align-middle fw-bold" style="font-family: monospace; font-size: 1.1rem;">
-                                @if($txn->credit > 0)
-                                    <span class="text-success">+{{ number_format($txn->credit, 2) }}</span>
-                                @elseif($txn->debit > 0)
-                                    <span class="text-danger">-{{ number_format($txn->debit, 2) }}</span>
-                                @else
-                                    <span class="text-muted">0.00</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="text-center py-5 text-muted">
-                                <div class="empty-state">
-                                    <div class="empty-icon fs-1 mb-3"><i class="bi bi-inbox"></i></div>
-                                    <div class="empty-text">No transactions found</div>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-    
-    <div class="mt-4 d-flex justify-content-center">
-        {{ $transactions->links() }}
-    </div>
-</div>
 @endsection

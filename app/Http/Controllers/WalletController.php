@@ -20,12 +20,18 @@ class WalletController extends Controller
         $transactions = $user->diamondTransactions()
             ->with(['fromUser', 'transferUser'])
             ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->paginate(15, ['*'], 'ledger_page');
             
         // Get the computed diamonds balance from the model accessor
         $balance = $user->diamonds_balance;
         
         $packages = DiamondPackage::active()->orderBy('diamonds', 'asc')->get();
+
+        // Purchase history (Manual & HitPay)
+        $purchaseHistory = $user->payments()
+            ->with('package')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10, ['*'], 'purchase_page');
 
         // Check manual payment limit (max 3 per day)
         $manualPaymentsToday = Payment::where('user_id', $user->id)
@@ -35,6 +41,6 @@ class WalletController extends Controller
         
         $reachedManualLimit = $manualPaymentsToday >= 3;
 
-        return view('wallet.index', compact('transactions', 'balance', 'packages', 'reachedManualLimit'));
+        return view('wallet.index', compact('transactions', 'balance', 'packages', 'reachedManualLimit', 'purchaseHistory'));
     }
 }
