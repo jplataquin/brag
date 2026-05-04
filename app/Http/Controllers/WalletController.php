@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DiamondPackage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,7 +24,7 @@ class WalletController extends Controller
         // Get the computed diamonds balance from the model accessor
         $balance = $user->diamonds_balance;
         
-        $packages = config('diamonds.packages', []);
+        $packages = DiamondPackage::active()->orderBy('diamonds', 'asc')->get();
 
         return view('wallet.index', compact('transactions', 'balance', 'packages'));
     }

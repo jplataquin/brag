@@ -33,6 +33,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'terms_version_agreed',
         'privacy_version_agreed',
         'suspended_until',
+        'can_purchase_diamonds',
     ];
 
     /**
@@ -65,6 +66,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'birthdate' => 'date',
             'is_admin' => 'boolean',
             'suspended_until' => 'datetime',
+            'can_purchase_diamonds' => 'boolean',
         ];
     }
 

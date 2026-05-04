@@ -16,41 +16,50 @@
         </div>
     </div>
 
+    @if(session('success'))
+        <div class="alert alert-success p-2 small mb-4"><i class="bi bi-check-circle-fill"></i> {{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger p-2 small mb-4"><i class="bi bi-exclamation-triangle-fill"></i> {{ session('error') }}</div>
+    @endif
+
     <div class="row g-4">
         <!-- Main Transaction Info -->
         <div class="col-md-8">
-            <div class="card bg-dark border-info rounded-4 overflow-hidden mb-4" style="box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);">
-                <div class="card-header border-info p-3 border-bottom-0 bg-transparent">
+            <!-- Payment Summary -->
+            <div class="card bg-dark border-info rounded-4 overflow-hidden mb-4 shadow-lg">
+                <div class="card-header border-info p-3 bg-transparent d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 text-uppercase fw-bold text-white" style="font-family: 'Orbitron', sans-serif;">Payment Information</h5>
+                    @if($payment->payment_method === 'manual')
+                        <span class="badge bg-warning text-dark text-uppercase small fw-bold">Manual Payment</span>
+                    @else
+                        <span class="badge bg-primary text-uppercase small fw-bold">HitPay Payment</span>
+                    @endif
                 </div>
                 <div class="card-body p-4">
                     <div class="row g-4">
                         <div class="col-sm-6">
                             <div class="text-muted small text-uppercase fw-bold mb-1">Status</div>
                             @if($payment->status === 'completed')
-                                <span class="badge bg-success fs-6 text-uppercase tracking-wide px-3 py-2">Completed</span>
+                                <span class="badge bg-success fs-6 text-uppercase px-3 py-2">Completed</span>
                             @elseif($payment->status === 'pending')
-                                <span class="badge bg-warning text-dark fs-6 text-uppercase tracking-wide px-3 py-2">Pending</span>
+                                <span class="badge bg-warning text-dark fs-6 text-uppercase px-3 py-2">Pending</span>
                             @else
-                                <span class="badge bg-danger fs-6 text-uppercase tracking-wide px-3 py-2">{{ ucfirst($payment->status) }}</span>
+                                <span class="badge bg-danger fs-6 text-uppercase px-3 py-2">{{ ucfirst($payment->status) }}</span>
                             @endif
                         </div>
                         <div class="col-sm-6">
-                            <div class="text-muted small text-uppercase fw-bold mb-1">Date</div>
+                            <div class="text-muted small text-uppercase fw-bold mb-1">Transaction Date</div>
                             <div class="text-white fs-5">{{ $payment->created_at->format('F j, Y, g:i a') }}</div>
                         </div>
 
                         <div class="col-sm-6">
-                            <div class="text-muted small text-uppercase fw-bold mb-1">Payment Method</div>
-                            <div class="text-info fs-5 fw-bold">{{ $payment->payment_type ?: 'Unknown/Pending' }}</div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="text-muted small text-uppercase fw-bold mb-1">HitPay ID</div>
-                            <div class="text-white font-monospace">{{ $payment->hitpay_id ?: 'N/A' }}</div>
+                            <div class="text-muted small text-uppercase fw-bold mb-1">Diamond Package</div>
+                            <div class="text-info fs-5 fw-bold">{{ $payment->package->name ?? 'Custom Amount' }}</div>
                         </div>
                         
                         <div class="col-sm-6">
-                            <div class="text-muted small text-uppercase fw-bold mb-1">Diamonds Purchased</div>
+                            <div class="text-muted small text-uppercase fw-bold mb-1">Diamonds Credited</div>
                             <div class="fs-4 fw-bold" style="color: var(--neon-magenta); text-shadow: 0 0 5px rgba(255,0,255,0.5);">
                                 <i class="bi bi-gem"></i> {{ number_format($payment->diamonds_amount) }}
                             </div>
@@ -59,9 +68,43 @@
                 </div>
             </div>
 
+            @if($payment->payment_method === 'manual' && $payment->proof_path)
+                <!-- Manual Payment Proof -->
+                <div class="card bg-dark border-warning rounded-4 overflow-hidden mb-4 shadow-lg">
+                    <div class="card-header border-warning p-3 bg-transparent">
+                        <h5 class="mb-0 text-uppercase fw-bold text-white" style="font-family: 'Orbitron', sans-serif;">
+                            <i class="bi bi-image me-2 text-warning"></i> Proof of Payment
+                        </h5>
+                    </div>
+                    <div class="card-body p-4 text-center">
+                        <a href="{{ asset('storage/' . $payment->proof_path) }}" target="_blank" title="Click to enlarge">
+                            <img src="{{ asset('storage/' . $payment->proof_path) }}" alt="Proof of Payment" class="img-fluid rounded border border-secondary" style="max-height: 400px; cursor: zoom-in;">
+                        </a>
+                        
+                        @if($payment->status === 'pending')
+                            <div class="mt-4 pt-4 border-top border-secondary">
+                                <div class="alert bg-warning bg-opacity-10 border-warning text-warning small mb-3">
+                                    <i class="bi bi-clock-history"></i> Auto-approval timer: 
+                                    <strong>{{ $payment->auto_approve_at ? $payment->auto_approve_at->diffForHumans() : 'N/A' }}</strong>
+                                    ({{ $payment->auto_approve_at ? $payment->auto_approve_at->format('g:i A') : '-' }})
+                                </div>
+                                <div class="d-flex justify-content-center gap-3">
+                                    <button type="button" onclick="confirmApproval()" class="btn btn-lg btn-success px-5 fw-bold">
+                                        <i class="bi bi-check-circle me-1"></i> Approve Payment
+                                    </button>
+                                    <button type="button" onclick="promptRejection()" class="btn btn-lg btn-outline-danger px-5 fw-bold">
+                                        <i class="bi bi-x-circle me-1"></i> Reject Payment
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
             <!-- Financial Breakdown -->
-            <div class="card bg-dark border-info rounded-4 overflow-hidden" style="box-shadow: 0 0 15px rgba(57, 255, 20, 0.1);">
-                <div class="card-header border-info p-3 border-bottom-0 bg-transparent">
+            <div class="card bg-dark border-info rounded-4 overflow-hidden shadow-lg">
+                <div class="card-header border-info p-3 bg-transparent">
                     <h5 class="mb-0 text-uppercase fw-bold text-white" style="font-family: 'Orbitron', sans-serif;">Financial Breakdown</h5>
                 </div>
                 <div class="card-body p-4">
@@ -71,61 +114,106 @@
                             <span class="fs-5">{{ $payment->currency }} {{ number_format($payment->amount, 2) }}</span>
                         </li>
                         <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 py-3 border-info">
-                            <span class="text-muted text-uppercase fw-bold">HitPay Fees</span>
-                            <span class="fs-5 text-danger">{{ $payment->fees !== null ? '- ' . $payment->currency . ' ' . number_format($payment->fees, 2) : 'Pending' }}</span>
+                            <span class="text-muted text-uppercase fw-bold">Payment Fees</span>
+                            <span class="fs-5 text-danger">{{ $payment->fees !== null ? '- ' . $payment->currency . ' ' . number_format($payment->fees, 2) : '0.00' }}</span>
                         </li>
                         <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 py-3 border-info border-bottom-0 mt-2 rounded">
-                            <span class="text-uppercase fw-bold" style="color: var(--neon-green);">Net Amount (To Bank)</span>
+                            <span class="text-uppercase fw-bold" style="color: var(--neon-green);">Net Amount</span>
                             <span class="fs-3 fw-bold" style="color: var(--neon-green); text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);">
-                                {{ $payment->net_amount !== null ? $payment->currency . ' ' . number_format($payment->net_amount, 2) : 'Pending' }}
+                                {{ $payment->net_amount !== null ? $payment->currency . ' ' . number_format($payment->net_amount, 2) : $payment->currency . ' ' . number_format($payment->amount - ($payment->fees ?? 0), 2) }}
                             </span>
                         </li>
                     </ul>
+                </div>
+                <div class="card-footer border-info border-top p-3 bg-info bg-opacity-10">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="text-muted x-small text-uppercase fw-bold">Collection Status</div>
+                            <div class="{{ $payment->collected_at ? 'text-success' : 'text-warning' }} fw-bold">
+                                <i class="bi {{ $payment->collected_at ? 'bi-check-circle' : 'bi-hourglass' }}"></i>
+                                {{ $payment->collected_at ? 'Collected' : 'Uncollected' }}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted x-small text-uppercase fw-bold">Collected By</div>
+                            <div class="text-white fw-bold">{{ $payment->collector->username ?? ($payment->collected_at ? 'System' : '-') }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- User Info Sidebar -->
         <div class="col-md-4">
-            <div class="card bg-dark border-info rounded-4 overflow-hidden h-100" style="box-shadow: 0 0 15px rgba(255, 221, 0, 0.1);">
-                <div class="card-header border-info p-3 border-bottom-0 bg-transparent">
+            <div class="card bg-dark border-info rounded-4 overflow-hidden h-100 shadow-lg">
+                <div class="card-header border-info p-3 bg-transparent">
                     <h5 class="mb-0 text-uppercase fw-bold text-white" style="font-family: 'Orbitron', sans-serif;">Customer Info</h5>
                 </div>
                 <div class="card-body p-4 text-center">
-                    <img src="{{ $payment->user->avatar_url }}" alt="{{ $payment->user->username }}" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover; border: 3px solid var(--neon-cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);">
+                    <img src="{{ $payment->user->avatar_url }}" alt="{{ $payment->user->username }}" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover; border: 3px solid var(--neon-cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);">
                     <h4 class="text-white fw-bold mb-1">{{ $payment->user->username }}</h4>
-                    <p class="text-muted mb-4">{{ $payment->user->email }}</p>
+                    <p class="text-muted mb-4 small">{{ $payment->user->email }}</p>
                     
                     <hr class="border-info">
                     
                     <div class="text-start mt-4">
-                        <div class="mb-3">
-                            <div class="text-muted small text-uppercase fw-bold mb-1">User ID</div>
-                            <div class="text-white">#{{ $payment->user->id }}</div>
+                        <div class="mb-3 d-flex justify-content-between">
+                            <span class="text-muted small text-uppercase">Account ID:</span>
+                            <span class="text-white small">#{{ $payment->user->id }}</span>
                         </div>
-                        <div class="mb-3">
-                            <div class="text-muted small text-uppercase fw-bold mb-1">Joined Date</div>
-                            <div class="text-white">{{ $payment->user->created_at->format('M j, Y') }}</div>
+                        <div class="mb-3 d-flex justify-content-between">
+                            <span class="text-muted small text-uppercase">Joined:</span>
+                            <span class="text-white small">{{ $payment->user->created_at->format('M j, Y') }}</span>
                         </div>
-                        <div>
-                            <div class="text-muted small text-uppercase fw-bold mb-1">Current Balance</div>
-                            <div class="text-white fw-bold" style="color: var(--neon-magenta);">
-                                <i class="bi bi-gem"></i> {{ number_format($payment->user->diamonds) }} Diamonds
-                            </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted small text-uppercase">Balance:</span>
+                            <span class="text-white fw-bold" style="color: var(--neon-magenta);">
+                                <i class="bi bi-gem"></i> {{ number_format($payment->user->diamonds_balance) }}
+                            </span>
                         </div>
                     </div>
                 </div>
                 <div class="card-footer border-info border-top p-3 bg-transparent text-center">
-                    <a href="{{ route('profile.show', $payment->user->username) }}" class="btn btn-outline-cyan w-100" style="color: var(--neon-cyan); border-color: var(--neon-cyan);">
-                        View Full Profile
-                    </a>
+                    <div class="d-grid gap-2">
+                        <a href="{{ route('admin.users.edit', $payment->user->id) }}" class="btn btn-outline-info">
+                            <i class="bi bi-person-gear"></i> Manage User
+                        </a>
+                        <a href="{{ route('profile.show', $payment->user->username) }}" class="btn btn-sm btn-link text-info">View Public Profile</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Approval/Rejection Forms -->
+<form id="approveForm" action="{{ route('admin.payments.approve', $payment->id) }}" method="POST" class="d-none">@csrf</form>
+<form id="rejectForm" action="{{ route('admin.payments.reject', $payment->id) }}" method="POST" class="d-none">
+    @csrf
+    <input type="hidden" name="reason" id="rejectReasonInput">
+</form>
+
+<script>
+function confirmApproval() {
+    window.neonConfirm(
+        "Are you sure you want to APPROVE this payment? This will credit {{ $payment->diamonds_amount }} diamonds to {{ $payment->user->username }}.",
+        () => document.getElementById('approveForm').submit()
+    );
+}
+
+function promptRejection() {
+    window.neonPrompt(
+        "Please provide a reason for rejection (optional):",
+        (reason) => {
+            document.getElementById('rejectReasonInput').value = reason;
+            document.getElementById('rejectForm').submit();
+        },
+        "Transaction Rejection"
+    );
+}
+</script>
+
 <style>
-    .tracking-wide { letter-spacing: 1px; }
+    .x-small { font-size: 0.7rem; }
 </style>
 @endsection

@@ -41,22 +41,27 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'is_admin' => 'boolean',
             'suspended_until' => 'nullable|date',
+            'can_purchase_diamonds' => 'boolean',
         ]);
+
+        $userData = $request->only(['firstname', 'lastname', 'username', 'email', 'is_admin']);
+        $userData['can_purchase_diamonds'] = $request->has('can_purchase_diamonds');
 
         // Process suspension
         if ($request->filled('suspended_until')) {
-            $validated['suspended_until'] = Carbon::parse($request->suspended_until);
+            $userData['suspended_until'] = Carbon::parse($request->suspended_until);
         } else {
-            $validated['suspended_until'] = null;
+            $userData['suspended_until'] = null;
         }
 
         // Prevent self-suspension or un-admining if the admin is editing themselves
         if (auth()->id() === $user->id) {
-            unset($validated['is_admin']);
-            unset($validated['suspended_until']);
+            unset($userData['is_admin']);
+            unset($userData['suspended_until']);
+            unset($userData['can_purchase_diamonds']);
         }
 
-        $user->update($validated);
+        $user->update($userData);
 
         return redirect()->route('admin.users.index')
                          ->with('success', "User '{$user->username}' updated successfully.");

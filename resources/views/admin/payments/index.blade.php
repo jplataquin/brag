@@ -7,7 +7,7 @@
             <h1 class="display-5 fw-bold text-uppercase" style="color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); font-family: 'Orbitron', sans-serif;">
                 <i class="bi bi-cash-coin"></i> Sales Transactions
             </h1>
-            <p class="text-secondary lead">View and filter all diamond purchases via HitPay.</p>
+            <p class="text-secondary lead">Manage diamond purchases, manual payments, and collections.</p>
         </div>
     </div>
 
@@ -38,10 +38,11 @@
                     </h5>
                 </div>
                 <div class="card-body p-3">
-                    <form action="{{ route('admin.payments.index') }}" method="GET" class="row g-3 align-items-end">
-                        <div class="col-md-3">
-                            <label class="form-label text-muted small text-uppercase fw-bold">Search User</label>
-                            <input type="text" name="user_search" class="form-control bg-dark text-white border-info" placeholder="Username or Email" value="{{ request('user_search') }}">
+                    <form action="{{ route('admin.payments.index') }}" method="GET" class="row g-3 align-items-end" id="filterForm">
+                        <div class="col-md-3 position-relative">
+                            <label class="form-label text-muted small text-uppercase fw-bold">Username</label>
+                            <input type="text" name="username" id="usernameInput" class="form-control bg-dark text-white border-info" placeholder="Auto-suggest..." value="{{ request('username') }}" autocomplete="off">
+                            <div id="userSuggestions" class="position-absolute w-100 bg-dark border border-info rounded-bottom d-none shadow-lg" style="z-index: 1000; top: 100%;"></div>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label text-muted small text-uppercase fw-bold">Status</label>
@@ -53,12 +54,11 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label text-muted small text-uppercase fw-bold">Payment Type</label>
-                            <select name="payment_type" class="form-select bg-dark text-white border-info">
-                                <option value="">All Types</option>
-                                @foreach($paymentTypes as $pt)
-                                    <option value="{{ $pt }}" {{ request('payment_type') == $pt ? 'selected' : '' }}>{{ $pt }}</option>
-                                @endforeach
+                            <label class="form-label text-muted small text-uppercase fw-bold">Method</label>
+                            <select name="payment_method" class="form-select bg-dark text-white border-info">
+                                <option value="">All Methods</option>
+                                <option value="hitpay" {{ request('payment_method') == 'hitpay' ? 'selected' : '' }}>HitPay</option>
+                                <option value="manual" {{ request('payment_method') == 'manual' ? 'selected' : '' }}>Manual</option>
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -68,22 +68,6 @@
                         <div class="col-md-2">
                             <label class="form-label text-muted small text-uppercase fw-bold">Date To</label>
                             <input type="date" name="date_to" class="form-control bg-dark text-white border-info" value="{{ request('date_to') }}">
-                        </div>
-                        
-                        <div class="col-md-2 mt-3">
-                            <label class="form-label text-muted small text-uppercase fw-bold">Sort By</label>
-                            <select name="sort_by" class="form-select bg-dark text-white border-info">
-                                <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Date</option>
-                                <option value="amount" {{ request('sort_by') == 'amount' ? 'selected' : '' }}>Amount</option>
-                                <option value="status" {{ request('sort_by') == 'status' ? 'selected' : '' }}>Status</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2 mt-3">
-                            <label class="form-label text-muted small text-uppercase fw-bold">Sort Dir</label>
-                            <select name="sort_dir" class="form-select bg-dark text-white border-info">
-                                <option value="desc" {{ request('sort_dir', 'desc') == 'desc' ? 'selected' : '' }}>Desc</option>
-                                <option value="asc" {{ request('sort_dir') == 'asc' ? 'selected' : '' }}>Asc</option>
-                            </select>
                         </div>
 
                         <div class="col-md-3 mt-3 d-flex gap-2">
@@ -96,52 +80,97 @@
         </div>
     </div>
 
+    <!-- Mass Actions Bar -->
+    <div id="massActionsBar" class="alert bg-dark border-info d-none d-print-none mb-3 d-flex align-items-center gap-3">
+        <span class="text-info fw-bold text-uppercase small"><i class="bi bi-check2-all me-1"></i> <span id="selectedCount">0</span> Selected</span>
+        <button type="button" onclick="confirmMassAction('approve')" class="btn btn-sm btn-success rounded-pill px-3 fw-bold">
+            <i class="bi bi-check-circle me-1"></i> Mass Approve
+        </button>
+        <button type="button" onclick="confirmMassAction('reject')" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold">
+            <i class="bi bi-x-circle me-1"></i> Mass Reject
+        </button>
+    </div>
+
+    @if(session('success'))
+        <div class="alert alert-success p-2 small mb-3"><i class="bi bi-check-circle-fill"></i> {{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger p-2 small mb-3"><i class="bi bi-exclamation-triangle-fill"></i> {{ session('error') }}</div>
+    @endif
+
     <!-- Payments Table -->
     <div class="row">
         <div class="col-12">
-            <div class="card bg-dark bg-opacity-75 border-info rounded-4" style="backdrop-filter: blur(10px);">
+            <div class="card bg-dark bg-opacity-75 border-info rounded-4 shadow-lg" style="backdrop-filter: blur(10px);">
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-dark table-hover mb-0 align-middle text-nowrap">
                             <thead>
                                 <tr>
-                                    <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold px-4 py-3">Date</th>
+                                    <th scope="col" class="bg-transparent px-4 py-3 d-print-none">
+                                        <input type="checkbox" id="selectAll" class="form-check-input bg-dark border-info">
+                                    </th>
+                                    <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Date</th>
                                     <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Ref</th>
                                     <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">User</th>
-                                    <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Gross</th>
-                                    <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Fees</th>
-                                    <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Net</th>
+                                    <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Package</th>
+                                    <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Amount</th>
                                     <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Method</th>
                                     <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Status</th>
+                                    <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3">Collection</th>
                                     <th scope="col" class="bg-transparent text-muted small text-uppercase fw-bold py-3 text-end px-4">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($payments as $payment)
-                                    <tr onclick="window.location='{{ route('admin.payments.show', $payment->id) }}'" style="cursor: pointer;">
-                                        <td class="px-4 py-3 text-secondary">{{ $payment->created_at->format('Y-m-d H:i') }}</td>
-                                        <td class="py-3 text-white">{{ $payment->reference }}</td>
+                                    <tr>
+                                        <td class="px-4 py-3 d-print-none">
+                                            @if($payment->status === 'pending' && $payment->payment_method === 'manual')
+                                                <input type="checkbox" name="payment_ids[]" value="{{ $payment->id }}" class="form-check-input payment-checkbox bg-dark border-info">
+                                            @endif
+                                        </td>
+                                        <td class="py-3 text-secondary small">{{ $payment->created_at->format('Y-m-d H:i') }}</td>
+                                        <td class="py-3 text-white small">{{ $payment->reference }}</td>
                                         <td class="py-3">
                                             <div class="d-flex align-items-center gap-2">
-                                                <img src="{{ $payment->user->avatar_url }}" alt="{{ $payment->user->username }}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
-                                                <div>
-                                                    <div class="fw-bold text-white small">{{ $payment->user->username }}</div>
-                                                </div>
+                                                <img src="{{ $payment->user->avatar_url }}" alt="{{ $payment->user->username }}" class="rounded-circle" style="width: 25px; height: 25px; object-fit: cover;">
+                                                <span class="fw-bold text-white small">{{ $payment->user->username }}</span>
                                             </div>
                                         </td>
-                                        <td class="py-3 text-white">{{ $payment->currency }} {{ number_format($payment->amount, 2) }}</td>
-                                        <td class="py-3 text-danger">{{ $payment->fees !== null ? $payment->currency . ' ' . number_format($payment->fees, 2) : '-' }}</td>
-                                        <td class="py-3" style="color: var(--neon-green);">
-                                            {{ $payment->net_amount !== null ? $payment->currency . ' ' . number_format($payment->net_amount, 2) : '-' }}
+                                        <td class="py-3 small text-white-50">
+                                            @if($payment->package)
+                                                {{ $payment->package->name }}
+                                            @else
+                                                <span class="text-muted">N/A</span>
+                                            @endif
                                         </td>
-                                        <td class="py-3 text-info">{{ $payment->payment_type ?: '-' }}</td>
+                                        <td class="py-3 fw-bold text-white">{{ $payment->currency }} {{ number_format($payment->amount, 2) }}</td>
+                                        <td class="py-3">
+                                            @if($payment->payment_method === 'hitpay')
+                                                <span class="badge bg-primary bg-opacity-25 text-primary border border-primary small px-2 py-1">HitPay</span>
+                                            @else
+                                                <span class="badge bg-warning bg-opacity-25 text-warning border border-warning small px-2 py-1">Manual</span>
+                                            @endif
+                                        </td>
                                         <td class="py-3">
                                             @if($payment->status === 'completed')
-                                                <span class="badge rounded-pill bg-success text-uppercase tracking-wide">Completed</span>
+                                                <span class="badge rounded-pill bg-success small px-2">Completed</span>
                                             @elseif($payment->status === 'pending')
-                                                <span class="badge rounded-pill bg-warning text-dark text-uppercase tracking-wide">Pending</span>
+                                                <span class="badge rounded-pill bg-warning text-dark small px-2">Pending</span>
                                             @else
-                                                <span class="badge rounded-pill bg-danger text-uppercase tracking-wide">{{ ucfirst($payment->status) }}</span>
+                                                <span class="badge rounded-pill bg-danger small px-2">{{ strtoupper($payment->status) }}</span>
+                                            @endif
+                                        </td>
+                                        <td class="py-3 small">
+                                            @if($payment->collected_at)
+                                                <div class="text-success d-flex align-items-center gap-1">
+                                                    <i class="bi bi-check2-circle"></i> Collected
+                                                </div>
+                                                <div class="text-muted x-small" style="font-size: 0.8em;">
+                                                    {{ $payment->collected_at->format('m/d H:i') }} by {{ $payment->collector->username ?? 'Auto' }}
+                                                </div>
+                                            @else
+                                                <div class="text-muted">Uncollected</div>
                                             @endif
                                         </td>
                                         <td class="py-3 text-end px-4">
@@ -152,17 +181,15 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="text-center text-muted py-5">No transactions found.</td>
+                                        <td colspan="10" class="text-center text-muted py-5">No transactions found for the selected criteria.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
                             <tfoot style="border-top: 2px solid var(--neon-cyan); background-color: rgba(255, 255, 255, 0.03);">
                                 <tr>
-                                    <td colspan="3" class="text-end fw-bold text-uppercase py-3 text-muted tracking-wide">Grand Total:</td>
-                                    <td class="fw-bold text-white py-3">{{ number_format($totalsData->total_gross, 2) }}</td>
-                                    <td class="fw-bold text-danger py-3">{{ number_format($totalsData->total_fees, 2) }}</td>
-                                    <td class="fw-bold py-3" style="color: var(--neon-green);">{{ number_format($totalsData->total_net, 2) }}</td>
-                                    <td colspan="3"></td>
+                                    <td colspan="5" class="text-end fw-bold text-uppercase py-3 text-muted tracking-wide">Grand Total (Uncollected Only):</td>
+                                    <td class="fw-bold py-3 fs-5" style="color: var(--neon-cyan);">PHP {{ number_format($grandTotal, 2) }}</td>
+                                    <td colspan="4"></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -178,70 +205,118 @@
     </div>
 </div>
 
+<!-- Mass Action Forms (Hidden) -->
+<form id="massApproveForm" action="{{ route('admin.payments.mass_approve') }}" method="POST" class="d-none">@csrf</form>
+<form id="massRejectForm" action="{{ route('admin.payments.mass_reject') }}" method="POST" class="d-none">@csrf</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.payment-checkbox');
+    const massActionsBar = document.getElementById('massActionsBar');
+    const selectedCount = document.getElementById('selectedCount');
+
+    function updateMassActionsBar() {
+        const checkedCount = document.querySelectorAll('.payment-checkbox:checked').length;
+        selectedCount.textContent = checkedCount;
+        if (checkedCount > 0) {
+            massActionsBar.classList.remove('d-none');
+        } else {
+            massActionsBar.classList.add('d-none');
+        }
+    }
+
+    selectAll.addEventListener('change', function() {
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        updateMassActionsBar();
+    });
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateMassActionsBar);
+    });
+
+    // Username Auto-suggest
+    const usernameInput = document.getElementById('usernameInput');
+    const suggestionsBox = document.getElementById('userSuggestions');
+    let debounceTimer;
+
+    usernameInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const term = this.value;
+
+        if (term.length < 2) {
+            suggestionsBox.classList.add('d-none');
+            return;
+        }
+
+        debounceTimer = setTimeout(() => {
+            fetch(`{{ route('admin.payments.users_suggest') }}?term=${term}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        suggestionsBox.innerHTML = '';
+                        data.forEach(username => {
+                            const item = document.createElement('div');
+                            item.className = 'p-2 border-bottom border-secondary text-white cursor-pointer hover-bg-dark';
+                            item.style.cursor = 'pointer';
+                            item.textContent = username;
+                            item.onclick = () => {
+                                usernameInput.value = username;
+                                suggestionsBox.classList.add('d-none');
+                            };
+                            suggestionsBox.appendChild(item);
+                        });
+                        suggestionsBox.classList.remove('d-none');
+                    } else {
+                        suggestionsBox.classList.add('d-none');
+                    }
+                });
+        }, 300);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!usernameInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+            suggestionsBox.classList.add('d-none');
+        }
+    });
+});
+
+function confirmMassAction(action) {
+    const selectedIds = Array.from(document.querySelectorAll('.payment-checkbox:checked')).map(cb => cb.value);
+    const form = action === 'approve' ? document.getElementById('massApproveForm') : document.getElementById('massRejectForm');
+    
+    window.neonConfirm(
+        `Are you sure you want to mass ${action} ${selectedIds.length} payments?`,
+        () => {
+            selectedIds.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids[]';
+                input.value = id;
+                form.appendChild(input);
+            });
+            form.submit();
+        }
+    );
+}
+</script>
+
 <style>
+    .hover-bg-dark:hover { background-color: rgba(255,255,255,0.1); }
     .tracking-wide { letter-spacing: 1px; }
-
+    .x-small { font-size: 0.75rem; }
+    
     @media print {
-        /* Hide layout and UI controls */
-        nav, header, footer, .d-print-none, form, .pagination, .card-footer {
+        nav, header, footer, .d-print-none, form, .pagination, .card-footer, #massActionsBar {
             display: none !important;
         }
-
-        /* Override dark theme for printing (save ink) */
         body, .container, .card, .card-body {
-            background-color: transparent !important;
-            background: none !important;
-            color: #000 !important;
-            box-shadow: none !important;
-            border: none !important;
-        }
-
-        /* Clean up table for paper */
-        .table {
-            border-color: #000 !important;
-            width: 100% !important;
-            color: #000 !important;
-        }
-        .table th, .table td {
-            background-color: transparent !important;
-            color: #000 !important;
-            border-bottom: 1px solid #ccc !important;
-        }
-        
-        /* Remove neon glowing effects and custom colors */
-        h1, h2, h3, h4, h5, span, div, th, td, i {
-            color: #000 !important;
-            text-shadow: none !important;
-        }
-
-        /* Outline badges for clarity instead of background colors */
-        .badge {
-            border: 1px solid #000 !important;
-            color: #000 !important;
             background: transparent !important;
+            color: #000 !important;
         }
-
-        /* Format headers and footers */
-        thead {
-            display: table-header-group;
-        }
-        tfoot {
-            display: table-footer-group;
-            border-top: 2px solid #000 !important;
-        }
-        tr {
-            page-break-inside: avoid;
-        }
-
-        /* Make Action column disappear */
-        th:last-child, td:last-child {
-            display: none !important;
-        }
-
-        /* Show the currently applied filter as a subtitle if needed, or hide the filter card */
-        .card-header:has(.bi-funnel-fill) {
-            display: none !important;
-        }
+        .table { color: #000 !important; border: 1px solid #000 !important; }
+        .table th, .table td { border-bottom: 1px solid #000 !important; color: #000 !important; }
+        .badge { border: 1px solid #000 !important; color: #000 !important; background: transparent !important; }
     }
 </style>
 @endsection

@@ -45,6 +45,13 @@
             <h5 class="section-header mb-4">
                 <i class="bi bi-cart section-icon"></i> PURCHASE DIAMONDS
             </h5>
+            
+            @if(session('error'))
+                <div class="alert alert-danger mb-4 border-danger bg-danger bg-opacity-10 text-white rounded-3 shadow-sm">
+                    <i class="bi bi-exclamation-octagon-fill me-2"></i> {{ session('error') }}
+                </div>
+            @endif
+
             @if(isset($packages) && count($packages) > 0)
                 <!-- Desktop View -->
                 <div class="row g-3 d-none d-md-flex">
@@ -55,14 +62,34 @@
                                 <div class="my-3">
                                     <i class="bi bi-gem" style="font-size: 2rem; color: #00f0ff; text-shadow: 0 0 10px rgba(0,240,255,0.5);"></i>
                                     <div class="fw-bold fs-4 mt-2">{{ $package['diamonds'] }} <small class="text-muted" style="font-size: 0.5em;">DIAMONDS</small></div>
+                                    <div class="text-white mt-1">
+                                        @if($package['promo_price'])
+                                            <span class="text-decoration-line-through text-muted small">{{ $package['currency'] }} {{ number_format($package['price'], 0) }}</span> 
+                                            <span class="text-warning fw-bold">{{ $package['currency'] }} {{ number_format($package['promo_price'], 0) }}</span>
+                                        @else
+                                            {{ $package['currency'] }} {{ number_format($package['price'], 0) }}
+                                        @endif
+                                    </div>
                                 </div>
-                                <form method="POST" action="{{ route('payments.store') }}">
-                                    @csrf
-                                    <input type="hidden" name="package_id" value="{{ $package['id'] }}">
-                                    <button type="submit" class="btn btn-outline-neon w-100" style="border-color: #39ff14; color: #39ff14;">
-                                        Buy for {{ $package['currency'] }} {{ number_format($package['price'], 0) }}
-                                    </button>
-                                </form>
+                                
+                                <div class="d-flex flex-column gap-2 mt-auto">
+                                    @if($package['allow_hitpay'])
+                                        <form method="POST" action="{{ route('payments.store') }}">
+                                            @csrf
+                                            <input type="hidden" name="package_id" value="{{ $package['id'] }}">
+                                            <input type="hidden" name="payment_method" value="hitpay">
+                                            <button type="submit" class="btn btn-outline-neon w-100" style="border-color: #39ff14; color: #39ff14;">
+                                                <i class="bi bi-credit-card me-1"></i> Pay via HitPay
+                                            </button>
+                                        </form>
+                                    @endif
+
+                                    @if($package['allow_manual'])
+                                        <a href="{{ route('payments.manual', $package['id']) }}" class="btn btn-outline-warning w-100 fw-bold">
+                                            <i class="bi bi-qr-code me-1"></i> Manual Payment
+                                        </a>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     @endforeach
@@ -81,14 +108,34 @@
                                         <div class="my-3">
                                             <i class="bi bi-gem" style="font-size: 2rem; color: #00f0ff; text-shadow: 0 0 10px rgba(0,240,255,0.5);"></i>
                                             <div class="fw-bold fs-4 mt-2">{{ $package['diamonds'] }} <small class="text-muted" style="font-size: 0.5em;">DIAMONDS</small></div>
+                                            <div class="text-white mt-1">
+                                                @if($package['promo_price'])
+                                                    <span class="text-decoration-line-through text-muted small">{{ $package['currency'] }} {{ number_format($package['price'], 0) }}</span> 
+                                                    <span class="text-warning fw-bold">{{ $package['currency'] }} {{ number_format($package['promo_price'], 0) }}</span>
+                                                @else
+                                                    {{ $package['currency'] }} {{ number_format($package['price'], 0) }}
+                                                @endif
+                                            </div>
                                         </div>
-                                        <form method="POST" action="{{ route('payments.store') }}">
-                                            @csrf
-                                            <input type="hidden" name="package_id" value="{{ $package['id'] }}">
-                                            <button type="submit" class="btn btn-outline-neon w-100" style="border-color: #39ff14; color: #39ff14;">
-                                                Buy for {{ $package['currency'] }} {{ number_format($package['price'], 0) }}
-                                            </button>
-                                        </form>
+                                        
+                                        <div class="d-flex flex-column gap-2">
+                                            @if($package['allow_hitpay'])
+                                                <form method="POST" action="{{ route('payments.store') }}">
+                                                    @csrf
+                                                    <input type="hidden" name="package_id" value="{{ $package['id'] }}">
+                                                    <input type="hidden" name="payment_method" value="hitpay">
+                                                    <button type="submit" class="btn btn-outline-neon w-100" style="border-color: #39ff14; color: #39ff14;">
+                                                        <i class="bi bi-credit-card me-1"></i> Pay via HitPay
+                                                    </button>
+                                                </form>
+                                            @endif
+
+                                            @if($package['allow_manual'])
+                                                <a href="{{ route('payments.manual', $package['id']) }}" class="btn btn-outline-warning w-100 fw-bold">
+                                                    <i class="bi bi-qr-code me-1"></i> Manual Payment
+                                                </a>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach

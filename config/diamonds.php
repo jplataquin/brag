@@ -31,6 +31,7 @@ return [
             'id' => 'package_100',
             'diamonds' => 100,
             'price' => 130,
+            'promo_price' => 110,
             'currency' => 'PHP',
             'name' => 'Rich Kid Pack',
         ],

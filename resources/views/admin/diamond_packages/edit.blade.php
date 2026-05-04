@@ -1,0 +1,129 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-5 fw-bold text-uppercase mb-1" style="color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); font-family: 'Orbitron', sans-serif;">
+                <i class="bi bi-pencil-square"></i> Edit Package
+            </h1>
+            <p class="text-secondary lead mb-0">Update diamond purchasing package details.</p>
+        </div>
+        <a href="{{ route('admin.diamond-packages.index') }}" class="btn btn-outline-info">
+            <i class="bi bi-arrow-left"></i> Back to Packages
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card bg-dark bg-opacity-75 border-info rounded-4 p-4 shadow-lg" style="backdrop-filter: blur(10px);">
+                <div class="card-body">
+                    <form action="{{ route('admin.diamond-packages.update', $diamondPackage->id) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
+                        
+                        <div class="row">
+                            <div class="col-md-12 mb-4">
+                                <label for="name" class="form-label text-muted small text-uppercase fw-bold">Package Name <span class="text-danger">*</span></label>
+                                <input type="text" name="name" id="name" class="form-control form-control-lg bg-dark text-white border-info @error('name') is-invalid @enderror" value="{{ old('name', $diamondPackage->name) }}" required autofocus placeholder="e.g. Starter Pack">
+                                @error('name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="diamonds" class="form-label text-muted small text-uppercase fw-bold">Diamonds Amount <span class="text-danger">*</span></label>
+                                <input type="number" name="diamonds" id="diamonds" class="form-control form-control-lg bg-dark text-white border-info @error('diamonds') is-invalid @enderror" value="{{ old('diamonds', $diamondPackage->diamonds) }}" required min="1">
+                                @error('diamonds')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="currency" class="form-label text-muted small text-uppercase fw-bold">Currency <span class="text-danger">*</span></label>
+                                <input type="text" name="currency" id="currency" class="form-control form-control-lg bg-dark text-white border-info @error('currency') is-invalid @enderror" value="{{ old('currency', $diamondPackage->currency) }}" required>
+                                @error('currency')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="price" class="form-label text-muted small text-uppercase fw-bold">Regular Price <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" name="price" id="price" class="form-control form-control-lg bg-dark text-white border-info @error('price') is-invalid @enderror" value="{{ old('price', $diamondPackage->price) }}" required min="0">
+                                @error('price')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="promo_price" class="form-label text-muted small text-uppercase fw-bold">Promo Price (Optional)</label>
+                                <input type="number" step="0.01" name="promo_price" id="promo_price" class="form-control form-control-lg bg-dark text-white border-info @error('promo_price') is-invalid @enderror" value="{{ old('promo_price', $diamondPackage->promo_price) }}" min="0">
+                                @error('promo_price')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="qr_code" class="form-label text-muted small text-uppercase fw-bold">Manual Payment QR Code</label>
+                            @if($diamondPackage->qr_path)
+                                <div class="mb-3">
+                                    <div class="text-secondary small mb-1">Current QR Code:</div>
+                                    <img src="{{ asset('storage/' . $diamondPackage->qr_path) }}" alt="QR Code" class="img-thumbnail bg-dark border-info" style="max-height: 150px;">
+                                </div>
+                            @endif
+                            <input type="file" name="qr_code" id="qr_code" class="form-control bg-dark text-white border-info @error('qr_code') is-invalid @enderror" accept="image/*">
+                            @error('qr_code')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text text-secondary mt-2">Upload a new QR code image to replace the current one.</div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="form-check form-switch custom-switch">
+                                    <input class="form-check-input bg-dark border-info" type="checkbox" name="is_active" id="is_active" {{ old('is_active', $diamondPackage->is_active) ? 'checked' : '' }} value="1">
+                                    <label class="form-check-label text-white small text-uppercase fw-bold" for="is_active">Active Package</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check form-switch custom-switch">
+                                    <input class="form-check-input bg-dark border-info" type="checkbox" name="allow_hitpay" id="allow_hitpay" {{ old('allow_hitpay', $diamondPackage->allow_hitpay) ? 'checked' : '' }} value="1">
+                                    <label class="form-check-label text-white small text-uppercase fw-bold" for="allow_hitpay">Allow HitPay</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check form-switch custom-switch">
+                                    <input class="form-check-input bg-dark border-info" type="checkbox" name="allow_manual" id="allow_manual" {{ old('allow_manual', $diamondPackage->allow_manual) ? 'checked' : '' }} value="1">
+                                    <label class="form-check-label text-white small text-uppercase fw-bold" for="allow_manual">Allow Manual</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-5">
+                            <button type="submit" class="btn btn-lg btn-neon-cyan fw-bold">
+                                <i class="bi bi-check-lg"></i> Update Package
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-switch .form-check-input {
+        width: 3em;
+        height: 1.5em;
+        cursor: pointer;
+    }
+    .custom-switch .form-check-input:checked {
+        background-color: var(--neon-cyan);
+        border-color: var(--neon-cyan);
+        box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+    }
+</style>
+@endsection

@@ -120,7 +120,28 @@
                                     <div class="form-text text-warning mt-1">You cannot suspend your own account.</div>
                                 @endif
                             </div>
+
+                            <div class="col-md-12 mt-3">
+                                <div class="form-check form-switch custom-switch">
+                                    <input class="form-check-input bg-dark border-info" type="checkbox" name="can_purchase_diamonds" id="can_purchase_diamonds" {{ old('can_purchase_diamonds', $user->can_purchase_diamonds) ? 'checked' : '' }} value="1">
+                                    <label class="form-check-label text-white small text-uppercase fw-bold" for="can_purchase_diamonds">Allow Diamond Purchases</label>
+                                </div>
+                                <div class="form-text text-secondary mt-1">If disabled, the user will see a notice that their account is under review when attempting to buy diamonds.</div>
+                            </div>
                         </div>
+
+<style>
+    .custom-switch .form-check-input {
+        width: 3em;
+        height: 1.5em;
+        cursor: pointer;
+    }
+    .custom-switch .form-check-input:checked {
+        background-color: var(--neon-cyan);
+        border-color: var(--neon-cyan);
+        box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+    }
+</style>
 
                         <div class="d-flex justify-content-end gap-2 mt-4">
                             <button type="submit" class="btn btn-lg fw-bold text-white px-5" style="background-color: var(--neon-magenta); border-color: var(--neon-magenta); box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);">

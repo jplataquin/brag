@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DiamondPackage;
 use App\Models\Payment;
 use App\Services\HitPayService;
 use App\Mail\DiamondPurchaseReceipt;
@@ -26,56 +27,69 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'package_id' => 'required|string',
+            'package_id' => 'required|exists:diamond_packages,id',
+            'payment_method' => 'required|in:hitpay,manual',
         ]);
 
-        $packageId = $request->input('package_id');
-        $packages = config('diamonds.packages');
-
-        if (!array_key_exists($packageId, $packages)) {
-            return back()->with('error', 'Invalid Diamond package selected.');
-        }
-
-        $package = $packages[$packageId];
         $user = Auth::user();
 
-        // Create a unique reference for our system
+        // Check if user is allowed to purchase diamonds
+        if (!$user->can_purchase_diamonds) {
+            return back()->with('error', 'Hey, Sorry! But this action was disabled by the system because your account is under review at the moment. Please contact us to expedite the process.');
+        }
+
+        $package = DiamondPackage::findOrFail($request->package_id);
+
+        // Validate if payment method is allowed for this package
+        if ($request->payment_method === 'hitpay' && !$package->allow_hitpay) {
+            return back()->with('error', 'HitPay is not allowed for this package.');
+        }
+
+        if ($request->payment_method === 'manual' && !$package->allow_manual) {
+            return back()->with('error', 'Manual payment is not allowed for this package.');
+        }
+
+        // Determine the final price
+        $amount = $package->final_price;
+
+        // Create a unique reference
         $reference = 'BRAG-' . strtoupper(uniqid()) . '-' . time();
 
-        // Save pending payment record in DB
+        // Save pending payment record
         $payment = Payment::create([
             'user_id' => $user->id,
+            'diamond_package_id' => $package->id,
             'reference' => $reference,
-            'amount' => $package['price'],
-            'currency' => $package['currency'],
-            'diamonds_amount' => $package['diamonds'],
+            'amount' => $amount,
+            'currency' => $package->currency,
+            'diamonds_amount' => $package->diamonds,
             'status' => 'pending',
+            'payment_method' => $request->payment_method,
         ]);
 
+        if ($request->payment_method === 'manual') {
+            return redirect()->route('payments.manual', $package->id);
+        }
+
         try {
-            // Get enabled payment methods from config
             $allMethods = config('hitpay.payment_methods', []);
-            // Filter the array to only keep the keys where the value is true
             $paymentMethods = array_keys(array_filter($allMethods));
 
-            // Generate HitPay Request
             $hitPayResponse = $this->hitPayService->createPaymentRequest(
                 $payment->amount,
                 $payment->currency,
                 $payment->reference,
                 $user->email,
                 $user->username,
-                route('payments.callback'), // User redirected here after
-                route('payments.webhook'),  // Server-to-server webhook
+                route('payments.callback'),
+                route('payments.webhook'),
                 $paymentMethods
             );
 
-            // Update with HitPay ID if we want
             if (isset($hitPayResponse['id'])) {
                 $payment->update(['hitpay_id' => $hitPayResponse['id']]);
             }
 
-            // Redirect to HitPay Checkout URL
             return redirect()->away($hitPayResponse['url']);
 
         } catch (\Exception $e) {
@@ -83,6 +97,74 @@ class PaymentController extends Controller
             $payment->update(['status' => 'failed']);
             return back()->with('error', 'Unable to initiate payment at this time. Please try again later.');
         }
+    }
+
+    /**
+     * Show manual checkout page with QR code.
+     */
+    public function manualCheckout(DiamondPackage $package)
+    {
+        $user = Auth::user();
+        
+        if (!$user->can_purchase_diamonds) {
+            return redirect()->route('wallet.index')->with('error', 'Hey, Sorry! But this action was disabled by the system because your account is under review at the moment. Please contact us to expedite the process.');
+        }
+
+        if (!$package->allow_manual || !$package->is_active) {
+            return redirect()->route('wallet.index')->with('error', 'Manual payment is not available for this package.');
+        }
+
+        return view('wallet.manual_checkout', compact('package'));
+    }
+
+    /**
+     * Submit proof of payment for manual transaction.
+     */
+    public function submitManualProof(Request $request, DiamondPackage $package)
+    {
+        $request->validate([
+            'proof' => 'required|image|max:5120', // 5MB max
+        ]);
+
+        $user = Auth::user();
+
+        if (!$user->can_purchase_diamonds) {
+            return redirect()->route('wallet.index')->with('error', 'Hey, Sorry! But this action was disabled by the system because your account is under review at the moment. Please contact us to expedite the process.');
+        }
+
+        // Find the pending manual payment record for this user and package
+        $payment = Payment::where('user_id', $user->id)
+            ->where('diamond_package_id', $package->id)
+            ->where('payment_method', 'manual')
+            ->where('status', 'pending')
+            ->whereNull('proof_path')
+            ->latest()
+            ->first();
+
+        // If no record exists, create one (safety net)
+        if (!$payment) {
+            $reference = 'BRAG-MAN-' . strtoupper(uniqid()) . '-' . time();
+            $payment = Payment::create([
+                'user_id' => $user->id,
+                'diamond_package_id' => $package->id,
+                'reference' => $reference,
+                'amount' => $package->final_price,
+                'currency' => $package->currency,
+                'diamonds_amount' => $package->diamonds,
+                'status' => 'pending',
+                'payment_method' => 'manual',
+            ]);
+        }
+
+        // Store the proof image
+        $path = $request->file('proof')->store('proofs', 'public');
+
+        $payment->update([
+            'proof_path' => $path,
+            'auto_approve_at' => now()->addMinutes(10),
+        ]);
+
+        return redirect()->route('wallet.index')->with('success', 'Your proof of payment has been submitted! Our team will review it within 10 minutes, or it will be auto-approved.');
     }
 
     /**

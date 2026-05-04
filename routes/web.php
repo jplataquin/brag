@@ -113,6 +113,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Wallet & Payments
     Route::get('/wallet', [WalletController::class, 'index'])->name('wallet.index');
     Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
+    Route::get('/payments/manual/{package}', [PaymentController::class, 'manualCheckout'])->name('payments.manual');
+    Route::post('/payments/manual/{package}/proof', [PaymentController::class, 'submitManualProof'])->name('payments.manual.proof');
     Route::get('/payments/success', [PaymentController::class, 'success'])->name('payments.success');
     Route::get('/payments/callback', [PaymentController::class, 'callback'])->name('payments.callback');
 
@@ -141,6 +143,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Game Titles
         Route::resource('game_titles', AdminGameTitleController::class)->except(['show']);
 
+        // Diamond Packages
+        Route::resource('diamond-packages', \App\Http\Controllers\Admin\DiamondPackageController::class)->except(['show']);
+
         // Template Management
         Route::resource('templates', AdminTemplateController::class)->only(['index', 'edit', 'update']);
 
@@ -149,7 +154,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Payments
         Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
+        Route::get('/payments/users-suggest', [AdminPaymentController::class, 'usersSuggest'])->name('payments.users_suggest');
+        Route::post('/payments/mass-approve', [AdminPaymentController::class, 'massApprove'])->name('payments.mass_approve');
+        Route::post('/payments/mass-reject', [AdminPaymentController::class, 'massReject'])->name('payments.mass_reject');
         Route::get('/payments/{payment}', [AdminPaymentController::class, 'show'])->name('payments.show');
+        Route::post('/payments/{payment}/approve', [AdminPaymentController::class, 'approve'])->name('payments.approve');
+        Route::post('/payments/{payment}/reject', [AdminPaymentController::class, 'reject'])->name('payments.reject');
 
         // Terms & Privacy Admin
         Route::get('/terms', [TermsOfServiceController::class, 'index'])->name('terms.index');

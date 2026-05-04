@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             GameTitleSeeder::class,
             TermsOfServiceSeeder::class,
             PrivacyPolicySeeder::class,
+            DiamondPackageSeeder::class,
         ]);
         // User::factory(10)->create();
 
