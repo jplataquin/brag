@@ -598,6 +598,13 @@
             border-color: #00f0ff;
             background: rgba(0,240,255,0.1);
         }
+        #confirmJoinBtn:disabled {
+            border: none !important;
+            opacity: 0.5;
+        }
+        #confirmJoinBtn:not(:disabled) {
+            border: 1px solid #00f0ff !important;
+        }
         .cursor-pointer { cursor: pointer; }
         .activity-log-container::-webkit-scrollbar {
             width: 4px;
