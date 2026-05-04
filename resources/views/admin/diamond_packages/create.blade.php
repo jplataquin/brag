@@ -71,6 +71,16 @@
                             @error('qr_code')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <input type="hidden" name="temporary_qr_path" id="temporary_qr_path">
+                            
+                            <!-- Progress Bar -->
+                            <div id="upload-progress-container" class="mt-3" style="display: none;">
+                                <div class="progress bg-dark border border-info" style="height: 10px;">
+                                    <div id="upload-progress-bar" class="progress-bar bg-info progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <div id="upload-status" class="small text-info mt-1 text-center">Uploading: 0%</div>
+                            </div>
+                            
                             <div class="form-text text-secondary mt-2">Upload a QR code image to be displayed for manual payments.</div>
                         </div>
 
@@ -96,7 +106,7 @@
                         </div>
 
                         <div class="d-grid gap-2 mt-5">
-                            <button type="submit" class="btn btn-lg btn-neon-cyan fw-bold">
+                            <button type="submit" id="btn-submit-package" class="btn btn-lg btn-neon-cyan fw-bold">
                                 <i class="bi bi-check-lg"></i> Create Package
                             </button>
                         </div>
@@ -106,6 +116,86 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const qrInput = document.getElementById('qr_code');
+    const btnSubmit = document.getElementById('btn-submit-package');
+    const progressContainer = document.getElementById('upload-progress-container');
+    const progressBar = document.getElementById('upload-progress-bar');
+    const statusText = document.getElementById('upload-status');
+    const tempInput = document.getElementById('temporary_qr_path');
+
+    qrInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            btnSubmit.disabled = true;
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            statusText.innerText = 'Uploading: 0%';
+            statusText.style.color = '#00f0ff';
+
+            const CHUNK_SIZE = 256 * 1024; // 256KB
+            const fileId = 'qr_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+            const extension = file.name.split('.').pop();
+            let chunkIndex = 0;
+
+            function uploadNextChunk() {
+                const start = chunkIndex * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, file.size);
+                const chunk = file.slice(start, end);
+
+                const formData = new FormData();
+                formData.append('file', chunk);
+                formData.append('file_id', fileId);
+                formData.append('chunk_index', chunkIndex);
+                formData.append('total_chunks', totalChunks);
+                formData.append('extension', extension);
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+                fetch('{{ route("upload.chunk") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        statusText.innerText = 'Upload failed!';
+                        statusText.style.color = 'red';
+                        btnSubmit.disabled = false;
+                        return;
+                    }
+                    
+                    chunkIndex++;
+                    const percent = Math.round((chunkIndex / totalChunks) * 100);
+                    progressBar.style.width = percent + '%';
+                    statusText.innerText = 'Uploading: ' + percent + '%';
+
+                    if (chunkIndex < totalChunks) {
+                        uploadNextChunk();
+                    } else if (data.success && data.path) {
+                        tempInput.value = data.path;
+                        statusText.innerText = 'Upload complete!';
+                        statusText.style.color = '#39ff14';
+                        btnSubmit.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    console.error('Upload Error:', err);
+                    statusText.innerText = 'Upload error!';
+                    statusText.style.color = 'red';
+                    btnSubmit.disabled = false;
+                });
+            }
+            uploadNextChunk();
+        }
+    });
+});
+</script>
 
 <style>
     .custom-switch .form-check-input {

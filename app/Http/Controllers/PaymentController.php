@@ -123,7 +123,8 @@ class PaymentController extends Controller
     public function submitManualProof(Request $request, DiamondPackage $package)
     {
         $request->validate([
-            'proof' => 'required|image|max:5120', // 5MB max
+            'proof' => 'required_without:proof_temp_path|image|max:5120',
+            'proof_temp_path' => 'nullable|string',
         ]);
 
         $user = Auth::user();
@@ -141,7 +142,7 @@ class PaymentController extends Controller
             ->latest()
             ->first();
 
-        // If no record exists, create one (safety net)
+        // If no record exists, create one
         if (!$payment) {
             $reference = 'BRAG-MAN-' . strtoupper(uniqid()) . '-' . time();
             $payment = Payment::create([
@@ -156,11 +157,34 @@ class PaymentController extends Controller
             ]);
         }
 
-        // Store the proof image
-        $path = $request->file('proof')->store('proofs', 'public');
+        $finalPath = null;
+
+        // Handle chunked upload
+        if ($request->filled('proof_temp_path')) {
+            $tempPath = $request->input('proof_temp_path');
+            
+            // Security: Ensure the file is actually in the tmp/uploads directory
+            if (strpos($tempPath, 'tmp/uploads/') === 0 && Storage::disk('public')->exists($tempPath)) {
+                $extension = pathinfo($tempPath, PATHINFO_EXTENSION);
+                $filename = 'proof_' . time() . '_' . Str::random(10) . '.' . $extension;
+                $finalPath = 'proofs/' . $filename;
+                
+                Storage::disk('public')->move($tempPath, $finalPath);
+            } else {
+                return back()->with('error', 'Invalid or expired upload. Please try again.');
+            }
+        } 
+        // Fallback for direct upload
+        elseif ($request->hasFile('proof')) {
+            $finalPath = $request->file('proof')->store('proofs', 'public');
+        }
+
+        if (!$finalPath) {
+            return back()->with('error', 'Proof of payment is required.');
+        }
 
         $payment->update([
-            'proof_path' => $path,
+            'proof_path' => $finalPath,
             'auto_approve_at' => now()->addMinutes(10),
         ]);
 

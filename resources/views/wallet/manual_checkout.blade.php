@@ -42,18 +42,28 @@
                         Please pay exactly <strong>{{ $package->currency }} {{ number_format($package->final_price, 2) }}</strong> using the QR code above.
                     </div>
 
-                    <form action="{{ route('payments.manual.proof', $package->id) }}" method="POST" enctype="multipart/form-data">
+                    <form id="proof-upload-form" action="{{ route('payments.manual.proof', $package->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
+                        <input type="hidden" name="proof_temp_path" id="proof_temp_path">
+                        
                         <div class="mb-4 text-start">
                             <label for="proof" class="form-label text-muted small text-uppercase fw-bold">Upload Proof of Payment (Screenshot)</label>
                             <input type="file" name="proof" id="proof" class="form-control bg-dark text-white border-warning @error('proof') is-invalid @enderror" accept="image/*" required>
                             @error('proof')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            
+                            <!-- Progress Bar -->
+                            <div id="upload-progress-container" class="mt-3" style="display: none;">
+                                <div class="progress bg-dark border border-warning" style="height: 10px;">
+                                    <div id="upload-progress-bar" class="progress-bar bg-warning progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <div id="upload-status" class="small text-warning mt-1 text-center">Uploading: 0%</div>
+                            </div>
                         </div>
 
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-lg btn-warning fw-bold text-dark" style="box-shadow: 0 0 15px rgba(255, 221, 0, 0.4);">
+                            <button type="submit" id="btn-submit-proof" class="btn btn-lg btn-warning fw-bold text-dark" style="box-shadow: 0 0 15px rgba(255, 221, 0, 0.4);">
                                 <i class="bi bi-cloud-upload me-2"></i> Submit Proof
                             </button>
                         </div>
@@ -69,6 +79,94 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const proofInput = document.getElementById('proof');
+    const btnSubmit = document.getElementById('btn-submit-proof');
+    const progressContainer = document.getElementById('upload-progress-container');
+    const progressBar = document.getElementById('upload-progress-bar');
+    const statusText = document.getElementById('upload-status');
+    const tempInput = document.getElementById('proof_temp_path');
+    const uploadForm = document.getElementById('proof-upload-form');
+
+    proofInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            btnSubmit.disabled = true;
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            statusText.innerText = 'Uploading: 0%';
+            statusText.style.color = '#ffdd00';
+
+            const CHUNK_SIZE = 256 * 1024; // 256KB
+            const fileId = 'proof_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+            const extension = file.name.split('.').pop();
+            let chunkIndex = 0;
+
+            function uploadNextChunk() {
+                const start = chunkIndex * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, file.size);
+                const chunk = file.slice(start, end);
+
+                const formData = new FormData();
+                formData.append('file', chunk);
+                formData.append('file_id', fileId);
+                formData.append('chunk_index', chunkIndex);
+                formData.append('total_chunks', totalChunks);
+                formData.append('extension', extension);
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+                fetch('{{ route("upload.chunk") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        statusText.innerText = 'Upload failed!';
+                        statusText.style.color = 'red';
+                        btnSubmit.disabled = false;
+                        return;
+                    }
+                    
+                    chunkIndex++;
+                    const percent = Math.round((chunkIndex / totalChunks) * 100);
+                    progressBar.style.width = percent + '%';
+                    statusText.innerText = 'Uploading: ' + percent + '%';
+
+                    if (chunkIndex < totalChunks) {
+                        uploadNextChunk();
+                    } else if (data.success && data.path) {
+                        tempInput.value = data.path;
+                        statusText.innerText = 'Upload complete!';
+                        statusText.style.color = '#39ff14';
+                        btnSubmit.disabled = false;
+                        // Once we have a temp path, the actual file upload isn't required by the backend
+                        proofInput.removeAttribute('required');
+                    }
+                })
+                .catch(err => {
+                    console.error('Upload Error:', err);
+                    statusText.innerText = 'Upload error!';
+                    statusText.style.color = 'red';
+                    btnSubmit.disabled = false;
+                });
+            }
+            uploadNextChunk();
+        }
+    });
+
+    uploadForm.addEventListener('submit', function() {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> SUBMITTING...';
+    });
+});
+</script>
 
 <style>
     .border-dashed {

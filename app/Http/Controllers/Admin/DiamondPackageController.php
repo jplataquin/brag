@@ -7,6 +7,8 @@ use App\Models\DiamondPackage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+use Illuminate\Support\Str;
+
 class DiamondPackageController extends Controller
 {
     public function index()
@@ -29,17 +31,30 @@ class DiamondPackageController extends Controller
             'promo_price' => 'nullable|numeric|min:0',
             'currency' => 'required|string|max:10',
             'qr_code' => 'nullable|image|max:2048',
+            'temporary_qr_path' => 'nullable|string',
             'is_active' => 'boolean',
             'allow_manual' => 'boolean',
             'allow_hitpay' => 'boolean',
         ]);
 
-        $packageData = $request->except('qr_code');
+        $packageData = $request->except(['qr_code', 'temporary_qr_path']);
         $packageData['is_active'] = $request->has('is_active');
         $packageData['allow_manual'] = $request->has('allow_manual');
         $packageData['allow_hitpay'] = $request->has('allow_hitpay');
 
-        if ($request->hasFile('qr_code')) {
+        // Handle chunked upload
+        if ($request->filled('temporary_qr_path')) {
+            $tempPath = $request->input('temporary_qr_path');
+            if (strpos($tempPath, 'tmp/uploads/') === 0 && Storage::disk('public')->exists($tempPath)) {
+                $extension = pathinfo($tempPath, PATHINFO_EXTENSION);
+                $filename = 'qr_' . time() . '_' . Str::random(10) . '.' . $extension;
+                $finalPath = 'qr/' . $filename;
+                Storage::disk('public')->move($tempPath, $finalPath);
+                $packageData['qr_path'] = $finalPath;
+            }
+        } 
+        // Fallback for direct upload
+        elseif ($request->hasFile('qr_code')) {
             $path = $request->file('qr_code')->store('qr', 'public');
             $packageData['qr_path'] = $path;
         }
@@ -63,17 +78,35 @@ class DiamondPackageController extends Controller
             'promo_price' => 'nullable|numeric|min:0',
             'currency' => 'required|string|max:10',
             'qr_code' => 'nullable|image|max:2048',
+            'temporary_qr_path' => 'nullable|string',
             'is_active' => 'boolean',
             'allow_manual' => 'boolean',
             'allow_hitpay' => 'boolean',
         ]);
 
-        $packageData = $request->except('qr_code');
+        $packageData = $request->except(['qr_code', 'temporary_qr_path']);
         $packageData['is_active'] = $request->has('is_active');
         $packageData['allow_manual'] = $request->has('allow_manual');
         $packageData['allow_hitpay'] = $request->has('allow_hitpay');
 
-        if ($request->hasFile('qr_code')) {
+        // Handle chunked upload
+        if ($request->filled('temporary_qr_path')) {
+            $tempPath = $request->input('temporary_qr_path');
+            if (strpos($tempPath, 'tmp/uploads/') === 0 && Storage::disk('public')->exists($tempPath)) {
+                // Delete old QR code
+                if ($diamondPackage->qr_path) {
+                    Storage::disk('public')->delete($diamondPackage->qr_path);
+                }
+                
+                $extension = pathinfo($tempPath, PATHINFO_EXTENSION);
+                $filename = 'qr_' . time() . '_' . Str::random(10) . '.' . $extension;
+                $finalPath = 'qr/' . $filename;
+                Storage::disk('public')->move($tempPath, $finalPath);
+                $packageData['qr_path'] = $finalPath;
+            }
+        }
+        // Fallback for direct upload
+        elseif ($request->hasFile('qr_code')) {
             // Delete old QR code if exists
             if ($diamondPackage->qr_path) {
                 Storage::disk('public')->delete($diamondPackage->qr_path);
