@@ -29,7 +29,7 @@
         <!-- Welcome Cards -->
         <div class="row mt-5 g-4 justify-content-center">
             <div class="col-md-4 col-sm-12">
-                <a href="{{ url('/cards/gallery') }}" class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center text-decoration-none" style="transition: transform 0.2s, box-shadow 0.2s;">
+                <a href="{{ url('/cards/gallery') }}" class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center text-decoration-none" style="transition: transform 0.2s, box-shadow 0.2s; border-color: #00f0ff;">
                     <div style="font-family: 'Orbitron', sans-serif; font-size: 3.5rem; font-weight: 700; color: #00f0ff; text-shadow: 0 0 20px rgba(0,240,255,0.5); line-height: 1;">
                         {{ number_format($cardsInCirculation) }}
                     </div>
