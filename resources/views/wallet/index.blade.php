@@ -129,66 +129,14 @@
         </div>
     </div>
 
-    <!-- My Ledger Table -->
+    <!-- Purchase History Table -->
     <div class="row mt-5">
         <div class="col-12">
-            <h5 class="section-header mb-4">
-                <i class="bi bi-clock-history section-icon"></i> MY LEDGER
-            </h5>
-
-            <div class="neon-card overflow-hidden mb-5">
-                <div class="table-responsive">
-                    <table class="table table-dark table-hover mb-0" style="background: transparent;">
-                        <thead>
-                            <tr>
-                                <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Date</th>
-                                <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Type</th>
-                                <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Remarks</th>
-                                <th class="py-3 px-4 text-end" style="border-bottom-color: rgba(255,255,255,0.1);">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($transactions as $txn)
-                                <tr>
-                                    <td class="py-3 px-4 text-white-50 small">{{ $txn->created_at->format('M d, Y H:i') }}</td>
-                                    <td class="py-3 px-4">
-                                        <span class="badge bg-{{ $txn->amount > 0 ? 'success' : 'danger' }} bg-opacity-10 text-{{ $txn->amount > 0 ? 'success' : 'danger' }} border border-{{ $txn->amount > 0 ? 'success' : 'danger' }} text-uppercase" style="font-size: 0.7rem;">
-                                            {{ str_replace('_', ' ', $txn->type) }}
-                                        </span>
-                                    </td>
-                                    <td class="py-3 px-4 small">
-                                        {{ $txn->remarks }}
-                                        @if($txn->from_user_id)
-                                            <span class="text-info">(From: {{ $txn->fromUser->username }})</span>
-                                        @elseif($txn->transfer_user_id)
-                                            <span class="text-info">(To: {{ $txn->transferUser->username }})</span>
-                                        @endif
-                                    </td>
-                                    <td class="py-3 px-4 text-end fw-bold {{ $txn->amount > 0 ? 'text-success' : 'text-danger' }}">
-                                        {{ $txn->amount > 0 ? '+' : '' }}{{ number_format($txn->amount) }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="py-5 text-center text-muted">No diamond transactions found.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-                @if($transactions->hasPages())
-                    <div class="p-3 border-top border-secondary border-opacity-25">
-                        {{ $transactions->appends(['purchase_page' => $purchaseHistory->currentPage()])->links('pagination::bootstrap-5') }}
-                    </div>
-                @endif
-            </div>
-
-            <!-- Purchase History Table -->
             <h5 class="section-header mb-4">
                 <i class="bi bi-cart-check section-icon"></i> PURCHASE HISTORY
             </h5>
 
-            <div class="neon-card overflow-hidden">
+            <div class="neon-card overflow-hidden mb-5">
                 <div class="table-responsive">
                     <table class="table table-dark table-hover mb-0" style="background: transparent;">
                         <thead>
@@ -239,6 +187,58 @@
                 @if($purchaseHistory->hasPages())
                     <div class="p-3 border-top border-secondary border-opacity-25">
                         {{ $purchaseHistory->appends(['ledger_page' => $transactions->currentPage()])->links('pagination::bootstrap-5') }}
+                    </div>
+                @endif
+            </div>
+
+            <!-- My Ledger Table -->
+            <h5 class="section-header mb-4">
+                <i class="bi bi-clock-history section-icon"></i> MY LEDGER
+            </h5>
+
+            <div class="neon-card overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0" style="background: transparent;">
+                        <thead>
+                            <tr>
+                                <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Date</th>
+                                <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Type</th>
+                                <th class="py-3 px-4" style="border-bottom-color: rgba(255,255,255,0.1);">Remarks</th>
+                                <th class="py-3 px-4 text-end" style="border-bottom-color: rgba(255,255,255,0.1);">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($transactions as $txn)
+                                <tr>
+                                    <td class="py-3 px-4 text-white-50 small">{{ $txn->created_at->format('M d, Y H:i') }}</td>
+                                    <td class="py-3 px-4">
+                                        <span class="badge bg-{{ $txn->amount > 0 ? 'success' : 'danger' }} bg-opacity-10 text-{{ $txn->amount > 0 ? 'success' : 'danger' }} border border-{{ $txn->amount > 0 ? 'success' : 'danger' }} text-uppercase" style="font-size: 0.7rem;">
+                                            {{ str_replace('_', ' ', $txn->type) }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4 small">
+                                        {{ $txn->remarks }}
+                                        @if($txn->from_user_id)
+                                            <span class="text-info">(From: {{ $txn->fromUser->username }})</span>
+                                        @elseif($txn->transfer_user_id)
+                                            <span class="text-info">(To: {{ $txn->transferUser->username }})</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3 px-4 text-end fw-bold {{ $txn->amount > 0 ? 'text-success' : 'text-danger' }}">
+                                        {{ $txn->amount > 0 ? '+' : '' }}{{ number_format($txn->amount) }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="py-5 text-center text-muted">No diamond transactions found.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                @if($transactions->hasPages())
+                    <div class="p-3 border-top border-secondary border-opacity-25">
+                        {{ $transactions->appends(['purchase_page' => $purchaseHistory->currentPage()])->links('pagination::bootstrap-5') }}
                     </div>
                 @endif
             </div>

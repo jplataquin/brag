@@ -20,6 +20,14 @@ class DiamondLedger extends Model
     ];
 
     /**
+     * Get the net amount of the transaction.
+     */
+    public function getAmountAttribute()
+    {
+        return $this->credit - $this->debit;
+    }
+
+    /**
      * The user this ledger entry belongs to.
      */
     public function user()
