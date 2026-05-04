@@ -16,6 +16,7 @@ class DiamondPackage extends Model
         'promo_price',
         'currency',
         'qr_path',
+        'ocr_match_string',
         'is_active',
         'allow_manual',
         'allow_hitpay',

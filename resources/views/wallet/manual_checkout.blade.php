@@ -124,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const proofUploadWrapper = document.getElementById('proof-upload-wrapper');
 
     const expectedAmount = "{{ number_format($package->final_price, 2, '.', '') }}";
+    const requiredOcrText = "{{ $package->ocr_match_string }}";
 
     // Reset function
     btnReset.addEventListener('click', function() {
@@ -138,39 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = '<i class="bi bi-check2-circle me-2"></i> Confirm Submission';
     });
-
-    // Blur Detection Logic (Laplacian Variance)
-    function getLaplacianVariance(canvas) {
-        const ctx = canvas.getContext('2d');
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        const width = imageData.width;
-        const height = imageData.height;
-
-        // Convert to grayscale
-        const gray = new Float32Array(width * height);
-        for (let i = 0; i < data.length; i += 4) {
-            gray[i / 4] = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-        }
-
-        const laplacian = [0, -1, 0, -1, 4, -1, 0, -1, 0];
-        let sum = 0, sumSq = 0;
-        const count = (width - 2) * (height - 2);
-
-        for (let y = 1; y < height - 1; y++) {
-            for (let x = 1; x < width - 1; x++) {
-                let res = 0;
-                for (let ky = -1; ky <= 1; ky++) {
-                    for (let kx = -1; kx <= 1; kx++) {
-                        res += gray[(y + ky) * width + (x + kx)] * laplacian[(ky + 1) * 3 + (kx + 1)];
-                    }
-                }
-                sum += res;
-                sumSq += res * res;
-            }
-        }
-        return (sumSq / count) - ((sum / count) ** 2);
-    }
 
     // Drag and drop feedback
     proofInput.addEventListener('dragenter', () => proofDropzone.style.borderColor = '#ffdd00');
@@ -194,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
             btnSubmit.disabled = true;
             progressContainer.style.display = 'block';
             progressBar.style.width = '0%';
-            statusText.innerText = 'Verifying image clarity...';
+            statusText.innerText = 'Initializing scanner...';
             statusText.style.color = '#ffdd00';
 
             // Load image for analysis
@@ -210,37 +178,46 @@ document.addEventListener('DOMContentLoaded', function() {
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-            // 1. Blur Check
-            const variance = getLaplacianVariance(canvas);
-            console.log('Image Variance:', variance);
-            
-            if (variance < 20) {
-                statusText.innerText = 'Error: Image is too blurry. Please upload a clearer screenshot.';
-                statusText.style.color = '#ff4444';
-                return;
+            // OCR Check
+            let scanMessage = 'Scanning for payment amount: {{ $package->currency }} ' + expectedAmount;
+            if (requiredOcrText) {
+                scanMessage += ' and key information...';
+            } else {
+                scanMessage += '...';
             }
+            statusText.innerText = scanMessage;
 
-            // 2. OCR Check
-            statusText.innerText = 'Scanning for payment amount: {{ $package->currency }} ' + expectedAmount + '...';
             try {
                 const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
                 console.log('Extracted Text:', text);
                 
-                const sanitizedText = text.replace(/[\s,]/g, '');
+                const sanitizedText = text.replace(/[\s,]/g, '').toLowerCase();
+                
+                // Amount Check
                 const searchAmount = expectedAmount.replace(/[\s,]/g, '');
                 const searchAmountInt = parseInt(searchAmount);
 
                 if (!sanitizedText.includes(searchAmount) && !sanitizedText.includes(searchAmountInt.toString())) {
-                    statusText.innerText = 'Error: Could not find amount ' + expectedAmount + ' in screenshot.';
+                    statusText.innerHTML = 'Error: Could not find amount <strong>' + expectedAmount + '</strong> in screenshot. <br><small class="text-secondary">Please ensure the image is not blurry and the amount is clearly visible.</small>';
                     statusText.style.color = '#ff4444';
                     return;
+                }
+
+                // Custom String Check
+                if (requiredOcrText) {
+                    const searchString = requiredOcrText.replace(/[\s,]/g, '').toLowerCase();
+                    if (!sanitizedText.includes(searchString)) {
+                        statusText.innerHTML = 'Error: Required information <strong>"' + requiredOcrText + '"</strong> not found. <br><small class="text-secondary">Please ensure the image is not blurry and all details are clearly visible.</small>';
+                        statusText.style.color = '#ff4444';
+                        return;
+                    }
                 }
             } catch (err) {
                 console.error('OCR Error:', err);
                 // Fail silently on OCR error to avoid blocking users if Tesseract fails
             }
 
-            // 3. Start Chunked Upload
+            // Start Chunked Upload
             statusText.innerText = 'Verification passed! Starting upload...';
             statusText.style.color = '#39ff14';
 

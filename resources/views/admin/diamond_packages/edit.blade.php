@@ -91,6 +91,15 @@
                             <div class="form-text text-secondary mt-2">Upload a new QR code image to replace the current one.</div>
                         </div>
 
+                        <div class="mb-4">
+                            <label for="ocr_match_string" class="form-label text-muted small text-uppercase fw-bold">Required OCR Text (Optional)</label>
+                            <input type="text" name="ocr_match_string" id="ocr_match_string" class="form-control form-control-lg bg-dark text-white border-info @error('ocr_match_string') is-invalid @enderror" value="{{ old('ocr_match_string', $diamondPackage->ocr_match_string) }}" placeholder="e.g. Account Number or Bank Name">
+                            @error('ocr_match_string')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text text-secondary mt-2">If set, the system will verify that this exact text exists in the uploaded proof of payment screenshot.</div>
+                        </div>
+
                         <div class="row mb-4">
                             <div class="col-md-4">
                                 <div class="form-check form-switch custom-switch">
