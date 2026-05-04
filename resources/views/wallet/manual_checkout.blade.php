@@ -47,31 +47,50 @@
                         <input type="hidden" name="proof_temp_path" id="proof_temp_path">
                         
                         <div class="mb-4 text-start">
-                            <label for="proof" class="form-label text-muted small text-uppercase fw-bold">Upload Proof of Payment (Screenshot)</label>
-                            <input type="file" name="proof" id="proof" class="form-control bg-dark text-white border-warning @error('proof') is-invalid @enderror" accept="image/*" required>
+                            <label class="form-label text-muted small text-uppercase fw-bold">Upload Proof of Payment (Screenshot)</label>
+                            
+                            <!-- Custom Dropzone -->
+                            <div class="position-relative" id="proof-upload-wrapper">
+                                <input type="file" class="position-absolute w-100 h-100 opacity-0"
+                                       style="z-index: 2; cursor: pointer; top: 0; left: 0;"
+                                       id="proof" accept="image/*" required>
+                                <div id="proof-dropzone" class="d-flex flex-column align-items-center justify-content-center p-5 text-center neon-card" 
+                                     style="border: 2px dashed rgba(255, 221, 0, 0.4); background: rgba(255, 221, 0, 0.02); transition: all 0.3s ease;">
+                                    <i class="bi bi-cloud-arrow-up-fill mb-2" style="font-size: 3rem; color: var(--neon-yellow); text-shadow: 0 0 10px rgba(255, 221, 0, 0.4);"></i>
+                                    <span class="text-warning fw-bold" style="font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">CLICK OR DRAG SCREENSHOT HERE</span>
+                                    <small class="mt-2 text-secondary" style="font-size: 0.8rem;">Supports JPEG, PNG, GIF, WebP</small>
+                                </div>
+                            </div>
+
+                            <!-- Photo Preview -->
+                            <div id="proof-preview" class="mt-3 text-center" style="display: none;">
+                                <div class="text-secondary small mb-2 text-uppercase fw-bold">Selected Image:</div>
+                                <img id="preview-img" src="" alt="Preview" class="img-fluid rounded-4 border border-warning shadow-sm" style="max-height: 200px;">
+                            </div>
+                            
                             @error('proof')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-danger mt-2 small">{{ $message }}</div>
                             @enderror
                             
                             <!-- Progress Bar -->
-                            <div id="upload-progress-container" class="mt-3" style="display: none;">
-                                <div class="progress bg-dark border border-warning" style="height: 10px;">
+                            <div id="upload-progress-container" class="mt-4" style="display: none;">
+                                <div class="progress bg-dark border border-warning" style="height: 12px; border-radius: 6px;">
                                     <div id="upload-progress-bar" class="progress-bar bg-warning progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
                                 </div>
-                                <div id="upload-status" class="small text-warning mt-1 text-center">Uploading: 0%</div>
+                                <div id="upload-status" class="small text-warning mt-2 text-center fw-bold">Uploading: 0%</div>
                             </div>
                         </div>
 
-                        <div class="d-grid">
-                            <button type="submit" id="btn-submit-proof" class="btn btn-lg btn-warning fw-bold text-dark" style="box-shadow: 0 0 15px rgba(255, 221, 0, 0.4);">
-                                <i class="bi bi-cloud-upload me-2"></i> Submit Proof
+                        <div class="d-grid mt-5">
+                            <button type="submit" id="btn-submit-proof" class="btn btn-lg btn-warning fw-bold text-dark py-3" style="box-shadow: 0 0 15px rgba(255, 221, 0, 0.4);">
+                                <i class="bi bi-check2-circle me-2"></i> Confirm Submission
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <div class="card bg-dark bg-opacity-50 border-info rounded-4 border-dashed">
+            <div class="card bg-dark bg-opacity-50 border-info rounded-4 border-dashed mt-4">
                 <div class="card-body p-3 text-center small text-secondary">
                     <i class="bi bi-clock me-1"></i> After submission, our team has 10 minutes to validate your payment. If not reviewed, it will be automatically approved.
                 </div>
@@ -83,16 +102,32 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const proofInput = document.getElementById('proof');
+    const proofDropzone = document.getElementById('proof-dropzone');
     const btnSubmit = document.getElementById('btn-submit-proof');
     const progressContainer = document.getElementById('upload-progress-container');
     const progressBar = document.getElementById('upload-progress-bar');
     const statusText = document.getElementById('upload-status');
     const tempInput = document.getElementById('proof_temp_path');
     const uploadForm = document.getElementById('proof-upload-form');
+    const previewContainer = document.getElementById('proof-preview');
+    const previewImg = document.getElementById('preview-img');
+
+    // Drag and drop feedback
+    proofInput.addEventListener('dragenter', () => proofDropzone.style.borderColor = '#ffdd00');
+    proofInput.addEventListener('dragleave', () => proofDropzone.style.borderColor = 'rgba(255, 221, 0, 0.4)');
+    proofInput.addEventListener('drop', () => proofDropzone.style.borderColor = 'rgba(255, 221, 0, 0.4)');
 
     proofInput.addEventListener('change', function() {
         const file = this.files[0];
         if (file) {
+            // Local Preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewContainer.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+
             btnSubmit.disabled = true;
             progressContainer.style.display = 'block';
             progressBar.style.width = '0%';
@@ -129,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     if (data.error) {
                         statusText.innerText = 'Upload failed!';
-                        statusText.style.color = 'red';
+                        statusText.style.color = '#ff4444';
                         btnSubmit.disabled = false;
                         return;
                     }
@@ -143,17 +178,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         uploadNextChunk();
                     } else if (data.success && data.path) {
                         tempInput.value = data.path;
-                        statusText.innerText = 'Upload complete!';
+                        statusText.innerText = 'Upload complete! You can now submit.';
                         statusText.style.color = '#39ff14';
                         btnSubmit.disabled = false;
-                        // Once we have a temp path, the actual file upload isn't required by the backend
                         proofInput.removeAttribute('required');
+                        proofDropzone.style.borderColor = '#39ff14';
                     }
                 })
                 .catch(err => {
                     console.error('Upload Error:', err);
                     statusText.innerText = 'Upload error!';
-                    statusText.style.color = 'red';
+                    statusText.style.color = '#ff4444';
                     btnSubmit.disabled = false;
                 });
             }
