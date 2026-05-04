@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -23,6 +24,9 @@
                         <span class="badge bg-info rounded-pill px-3 py-2 fs-6">
                             <i class="bi bi-gem me-1"></i> {{ $package->diamonds }} DIAMONDS
                         </span>
+                        <div class="text-white mt-2 fs-4 fw-bold" style="font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">
+                            {{ $package->currency }} {{ number_format($package->final_price, 2) }}
+                        </div>
                     </div>
                     
                     <div class="mb-4 p-3 bg-white rounded-3 d-inline-block shadow-sm">
@@ -119,6 +123,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnReset = document.getElementById('btn-reset-proof');
     const proofUploadWrapper = document.getElementById('proof-upload-wrapper');
 
+    const expectedAmount = "{{ number_format($package->final_price, 2, '.', '') }}";
+
     // Reset function
     btnReset.addEventListener('click', function() {
         proofInput.value = '';
@@ -133,30 +139,112 @@ document.addEventListener('DOMContentLoaded', function() {
         btnSubmit.innerHTML = '<i class="bi bi-check2-circle me-2"></i> Confirm Submission';
     });
 
+    // Blur Detection Logic (Laplacian Variance)
+    function getLaplacianVariance(canvas) {
+        const ctx = canvas.getContext('2d');
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        const width = imageData.width;
+        const height = imageData.height;
+
+        // Convert to grayscale
+        const gray = new Float32Array(width * height);
+        for (let i = 0; i < data.length; i += 4) {
+            gray[i / 4] = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        }
+
+        const laplacian = [0, -1, 0, -1, 4, -1, 0, -1, 0];
+        let sum = 0, sumSq = 0;
+        const count = (width - 2) * (height - 2);
+
+        for (let y = 1; y < height - 1; y++) {
+            for (let x = 1; x < width - 1; x++) {
+                let res = 0;
+                for (let ky = -1; ky <= 1; ky++) {
+                    for (let kx = -1; kx <= 1; kx++) {
+                        res += gray[(y + ky) * width + (x + kx)] * laplacian[(ky + 1) * 3 + (kx + 1)];
+                    }
+                }
+                sum += res;
+                sumSq += res * res;
+            }
+        }
+        return (sumSq / count) - ((sum / count) ** 2);
+    }
+
     // Drag and drop feedback
     proofInput.addEventListener('dragenter', () => proofDropzone.style.borderColor = '#ffdd00');
     proofInput.addEventListener('dragleave', () => proofDropzone.style.borderColor = 'rgba(255, 221, 0, 0.4)');
     proofInput.addEventListener('drop', () => proofDropzone.style.borderColor = 'rgba(255, 221, 0, 0.4)');
 
-    proofInput.addEventListener('change', function() {
+    proofInput.addEventListener('change', async function() {
         const file = this.files[0];
         if (file) {
+            // Hide upload area
+            proofUploadWrapper.style.display = 'none';
+
             // Local Preview
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = (e) => {
                 previewImg.src = e.target.result;
                 previewContainer.style.display = 'block';
-                proofUploadWrapper.style.display = 'none'; // Hide upload area
-            }
+            };
             reader.readAsDataURL(file);
 
             btnSubmit.disabled = true;
             progressContainer.style.display = 'block';
             progressBar.style.width = '0%';
-            statusText.innerText = 'Uploading: 0%';
+            statusText.innerText = 'Verifying image clarity...';
             statusText.style.color = '#ffdd00';
 
-            const CHUNK_SIZE = 256 * 1024; // 256KB
+            // Load image for analysis
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+            await img.decode();
+
+            const canvas = document.createElement('canvas');
+            const maxAnalysisSize = 600;
+            const scale = Math.min(maxAnalysisSize / img.width, maxAnalysisSize / img.height, 1);
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // 1. Blur Check
+            const variance = getLaplacianVariance(canvas);
+            console.log('Image Variance:', variance);
+            
+            if (variance < 20) {
+                statusText.innerText = 'Error: Image is too blurry. Please upload a clearer screenshot.';
+                statusText.style.color = '#ff4444';
+                return;
+            }
+
+            // 2. OCR Check
+            statusText.innerText = 'Scanning for payment amount: {{ $package->currency }} ' + expectedAmount + '...';
+            try {
+                const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
+                console.log('Extracted Text:', text);
+                
+                const sanitizedText = text.replace(/[\s,]/g, '');
+                const searchAmount = expectedAmount.replace(/[\s,]/g, '');
+                const searchAmountInt = parseInt(searchAmount);
+
+                if (!sanitizedText.includes(searchAmount) && !sanitizedText.includes(searchAmountInt.toString())) {
+                    statusText.innerText = 'Error: Could not find amount ' + expectedAmount + ' in screenshot.';
+                    statusText.style.color = '#ff4444';
+                    return;
+                }
+            } catch (err) {
+                console.error('OCR Error:', err);
+                // Fail silently on OCR error to avoid blocking users if Tesseract fails
+            }
+
+            // 3. Start Chunked Upload
+            statusText.innerText = 'Verification passed! Starting upload...';
+            statusText.style.color = '#39ff14';
+
+            const CHUNK_SIZE = 256 * 1024;
             const fileId = 'proof_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
             const extension = file.name.split('.').pop();
@@ -173,21 +261,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 formData.append('chunk_index', chunkIndex);
                 formData.append('total_chunks', totalChunks);
                 formData.append('extension', extension);
-                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                formData.append('_token', '{{ csrf_token() }}');
 
                 fetch('{{ route("upload.chunk") }}', {
                     method: 'POST',
-                    headers: {
-                        'Accept': 'application/json'
-                    },
                     body: formData
                 })
-                .then(response => response.json())
+                .then(res => res.json())
                 .then(data => {
                     if (data.error) {
                         statusText.innerText = 'Upload failed!';
                         statusText.style.color = '#ff4444';
-                        btnSubmit.disabled = false;
                         return;
                     }
                     
@@ -203,13 +287,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         statusText.innerText = 'Upload complete! You can now submit.';
                         statusText.style.color = '#39ff14';
                         btnSubmit.disabled = false;
-                        // Once we have a temp path, the actual file upload isn't required by the backend
                         proofInput.removeAttribute('required');
                         proofDropzone.style.borderColor = '#39ff14';
                     }
                 })
                 .catch(err => {
-                    console.error('Upload Error:', err);
                     statusText.innerText = 'Upload error!';
                     statusText.style.color = '#ff4444';
                     btnSubmit.disabled = false;
