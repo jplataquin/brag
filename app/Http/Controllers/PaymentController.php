@@ -48,8 +48,20 @@ class PaymentController extends Controller
             return back()->with('error', 'HitPay is not allowed for this package.');
         }
 
-        if ($request->payment_method === 'manual' && !$package->allow_manual) {
-            return back()->with('error', 'Manual payment is not allowed for this package.');
+        if ($request->payment_method === 'manual') {
+            if (!$package->allow_manual) {
+                return back()->with('error', 'Manual payment is not allowed for this package.');
+            }
+
+            // Enforce daily limit (3 per day)
+            $manualPaymentsToday = Payment::where('user_id', $user->id)
+                ->where('payment_method', 'manual')
+                ->whereDate('created_at', now()->today())
+                ->count();
+            
+            if ($manualPaymentsToday >= 3) {
+                return back()->with('error', 'Hello!, we are currently limiting each user to only 3 manual payments per day.');
+            }
         }
 
         // Determine the final price
@@ -115,6 +127,16 @@ class PaymentController extends Controller
 
         if (!$package->allow_manual || !$package->is_active) {
             return redirect()->route('wallet.index')->with('error', 'Manual payment is not available for this package.');
+        }
+
+        // Enforce daily limit (3 per day)
+        $manualPaymentsToday = Payment::where('user_id', $user->id)
+            ->where('payment_method', 'manual')
+            ->whereDate('created_at', now()->today())
+            ->count();
+        
+        if ($manualPaymentsToday >= 3) {
+            return redirect()->route('wallet.index')->with('error', 'Hello!, we are currently limiting each user to only 3 manual payments per day.');
         }
 
         $agreement = ManualPaymentAgreement::latest()->first();

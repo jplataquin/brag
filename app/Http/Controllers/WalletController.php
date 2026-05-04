@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DiamondPackage;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -26,6 +27,14 @@ class WalletController extends Controller
         
         $packages = DiamondPackage::active()->orderBy('diamonds', 'asc')->get();
 
-        return view('wallet.index', compact('transactions', 'balance', 'packages'));
+        // Check manual payment limit (max 3 per day)
+        $manualPaymentsToday = Payment::where('user_id', $user->id)
+            ->where('payment_method', 'manual')
+            ->whereDate('created_at', now()->today())
+            ->count();
+        
+        $reachedManualLimit = $manualPaymentsToday >= 3;
+
+        return view('wallet.index', compact('transactions', 'balance', 'packages', 'reachedManualLimit'));
     }
 }

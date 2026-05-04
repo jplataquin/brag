@@ -182,12 +182,21 @@
                     </div>
 
                     <div id="manualOption" class="d-none">
-                        <a href="#" id="manualPaymentLink" class="btn btn-lg btn-outline-warning w-100 py-3 fw-bold">
-                            <i class="bi bi-qr-code me-2"></i> MANUAL PAYMENT
-                            <div class="x-small fw-normal mt-1 opacity-75">Scan QR & Upload Receipt</div>
-                        </a>
-                    </div>
-                </div>
+                        @if($reachedManualLimit)
+                            <button type="button" class="btn btn-lg btn-outline-secondary w-100 py-3 fw-bold border-dashed" disabled>
+                                <i class="bi bi-qr-code me-2"></i> MANUAL PAYMENT
+                                <div class="x-small fw-normal mt-1 opacity-75">Daily limit reached</div>
+                            </button>
+                            <div class="text-danger small mt-2 fw-bold">
+                                <i class="bi bi-exclamation-circle me-1"></i> Hello!, we are currently limiting each user to only 3 manual payments per day.
+                            </div>
+                        @else
+                            <a href="#" id="manualPaymentLink" class="btn btn-lg btn-outline-warning w-100 py-3 fw-bold">
+                                <i class="bi bi-qr-code me-2"></i> MANUAL PAYMENT
+                                <div class="x-small fw-normal mt-1 opacity-75">Scan QR & Upload Receipt</div>
+                            </a>
+                        @endif
+                    </div>                </div>
             </div>
             <div class="modal-footer border-info bg-dark bg-opacity-50">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Maybe Later</button>

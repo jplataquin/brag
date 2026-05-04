@@ -43,24 +43,36 @@ class DiamondPackageController extends Controller
         $packageData['allow_manual'] = $request->has('allow_manual');
         $packageData['allow_hitpay'] = $request->has('allow_hitpay');
 
+        $finalPath = null;
+        $tempFileToClean = null;
+
         // Handle chunked upload
         if ($request->filled('temporary_qr_path')) {
             $tempPath = $request->input('temporary_qr_path');
             if (strpos($tempPath, 'tmp/uploads/') === 0 && Storage::disk('public')->exists($tempPath)) {
-                $extension = pathinfo($tempPath, PATHINFO_EXTENSION);
-                $filename = 'qr_' . time() . '_' . Str::random(10) . '.' . $extension;
-                $finalPath = 'qr/' . $filename;
-                Storage::disk('public')->move($tempPath, $finalPath);
-                $packageData['qr_path'] = $finalPath;
+                $finalPath = 'qr/qr_' . time() . '_' . Str::random(10) . '.jpg';
+                if ($this->convertToJpeg(Storage::disk('public')->path($tempPath), Storage::disk('public')->path($finalPath))) {
+                    $packageData['qr_path'] = $finalPath;
+                    $tempFileToClean = $tempPath;
+                }
             }
         } 
         // Fallback for direct upload
         elseif ($request->hasFile('qr_code')) {
-            $path = $request->file('qr_code')->store('qr', 'public');
-            $packageData['qr_path'] = $path;
+            $tempPath = $request->file('qr_code')->store('tmp', 'public');
+            $finalPath = 'qr/qr_' . time() . '_' . Str::random(10) . '.jpg';
+            if ($this->convertToJpeg(Storage::disk('public')->path($tempPath), Storage::disk('public')->path($finalPath))) {
+                $packageData['qr_path'] = $finalPath;
+                $tempFileToClean = $tempPath;
+            }
         }
 
         DiamondPackage::create($packageData);
+
+        // Cleanup temp file if conversion was successful
+        if ($tempFileToClean) {
+            Storage::disk('public')->delete($tempFileToClean);
+        }
 
         return redirect()->route('admin.diamond-packages.index')->with('success', 'Diamond package created successfully.');
     }
@@ -91,33 +103,41 @@ class DiamondPackageController extends Controller
         $packageData['allow_manual'] = $request->has('allow_manual');
         $packageData['allow_hitpay'] = $request->has('allow_hitpay');
 
+        $tempFileToClean = null;
+        $newQrPath = null;
+
         // Handle chunked upload
         if ($request->filled('temporary_qr_path')) {
             $tempPath = $request->input('temporary_qr_path');
             if (strpos($tempPath, 'tmp/uploads/') === 0 && Storage::disk('public')->exists($tempPath)) {
-                // Delete old QR code
-                if ($diamondPackage->qr_path) {
-                    Storage::disk('public')->delete($diamondPackage->qr_path);
+                $newQrPath = 'qr/qr_' . time() . '_' . Str::random(10) . '.jpg';
+                if ($this->convertToJpeg(Storage::disk('public')->path($tempPath), Storage::disk('public')->path($newQrPath))) {
+                    $packageData['qr_path'] = $newQrPath;
+                    $tempFileToClean = $tempPath;
                 }
-                
-                $extension = pathinfo($tempPath, PATHINFO_EXTENSION);
-                $filename = 'qr_' . time() . '_' . Str::random(10) . '.' . $extension;
-                $finalPath = 'qr/' . $filename;
-                Storage::disk('public')->move($tempPath, $finalPath);
-                $packageData['qr_path'] = $finalPath;
             }
         }
         // Fallback for direct upload
         elseif ($request->hasFile('qr_code')) {
-            // Delete old QR code if exists
-            if ($diamondPackage->qr_path) {
-                Storage::disk('public')->delete($diamondPackage->qr_path);
+            $tempPath = $request->file('qr_code')->store('tmp', 'public');
+            $newQrPath = 'qr/qr_' . time() . '_' . Str::random(10) . '.jpg';
+            if ($this->convertToJpeg(Storage::disk('public')->path($tempPath), Storage::disk('public')->path($newQrPath))) {
+                $packageData['qr_path'] = $newQrPath;
+                $tempFileToClean = $tempPath;
             }
-            $path = $request->file('qr_code')->store('qr', 'public');
-            $packageData['qr_path'] = $path;
+        }
+
+        // If a new QR was successfully converted, delete the old one
+        if ($newQrPath && $diamondPackage->qr_path) {
+            Storage::disk('public')->delete($diamondPackage->qr_path);
         }
 
         $diamondPackage->update($packageData);
+
+        // Cleanup temp file
+        if ($tempFileToClean) {
+            Storage::disk('public')->delete($tempFileToClean);
+        }
 
         return redirect()->route('admin.diamond-packages.index')->with('success', 'Diamond package updated successfully.');
     }
@@ -129,5 +149,56 @@ class DiamondPackageController extends Controller
         }
         $diamondPackage->delete();
         return redirect()->route('admin.diamond-packages.index')->with('success', 'Diamond package deleted successfully.');
+    }
+
+    /**
+     * Convert an image to JPEG with a white background.
+     */
+    private function convertToJpeg($sourcePath, $destPath)
+    {
+        $info = getimagesize($sourcePath);
+        if (!$info) return false;
+
+        $mime = $info['mime'];
+
+        switch ($mime) {
+            case 'image/jpeg':
+                $image = imagecreatefromjpeg($sourcePath);
+                break;
+            case 'image/png':
+                $image = imagecreatefrompng($sourcePath);
+                break;
+            case 'image/gif':
+                $image = imagecreatefromgif($sourcePath);
+                break;
+            case 'image/webp':
+                $image = imagecreatefromwebp($sourcePath);
+                break;
+            default:
+                return false;
+        }
+
+        if (!$image) return false;
+
+        // Create a new true color image with the same dimensions
+        $width = imagesx($image);
+        $height = imagesy($image);
+        $finalImage = imagecreatetruecolor($width, $height);
+
+        // Fill with white background (important for transparent PNG/WEBP)
+        $white = imagecolorallocate($finalImage, 255, 255, 255);
+        imagefill($finalImage, 0, 0, $white);
+
+        // Copy the source image onto the white background
+        imagecopy($finalImage, $image, 0, 0, 0, 0, $width, $height);
+
+        // Save as JPEG
+        $success = imagejpeg($finalImage, $destPath, 90); // 90 quality
+
+        // Free memory
+        imagedestroy($image);
+        imagedestroy($finalImage);
+
+        return $success;
     }
 }
