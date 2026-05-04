@@ -73,22 +73,18 @@
                                 </div>
                                 
                                 <div class="d-flex flex-column gap-2 mt-auto">
-                                    @if($package['allow_hitpay'])
-                                        <form method="POST" action="{{ route('payments.store') }}">
-                                            @csrf
-                                            <input type="hidden" name="package_id" value="{{ $package['id'] }}">
-                                            <input type="hidden" name="payment_method" value="hitpay">
-                                            <button type="submit" class="btn btn-outline-neon w-100" style="border-color: #39ff14; color: #39ff14;">
-                                                <i class="bi bi-credit-card me-1"></i> Pay via HitPay
-                                            </button>
-                                        </form>
-                                    @endif
-
-                                    @if($package['allow_manual'])
-                                        <a href="{{ route('payments.manual', $package['id']) }}" class="btn btn-outline-warning w-100 fw-bold">
-                                            <i class="bi bi-qr-code me-1"></i> Manual Payment
-                                        </a>
-                                    @endif
+                                    <button type="button" class="btn btn-outline-neon w-100 buy-now-btn" 
+                                            style="border-color: #39ff14; color: #39ff14;"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#paymentModal"
+                                            data-id="{{ $package->id }}"
+                                            data-name="{{ $package->name }}"
+                                            data-diamonds="{{ $package->diamonds }}"
+                                            data-price="{{ $package->currency }} {{ number_format($package->final_price, 2) }}"
+                                            data-allow-hitpay="{{ $package->allow_hitpay ? 'true' : 'false' }}"
+                                            data-allow-manual="{{ $package->allow_manual ? 'true' : 'false' }}">
+                                        <i class="bi bi-cart-plus me-1"></i> Buy Now
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -119,22 +115,18 @@
                                         </div>
                                         
                                         <div class="d-flex flex-column gap-2">
-                                            @if($package['allow_hitpay'])
-                                                <form method="POST" action="{{ route('payments.store') }}">
-                                                    @csrf
-                                                    <input type="hidden" name="package_id" value="{{ $package['id'] }}">
-                                                    <input type="hidden" name="payment_method" value="hitpay">
-                                                    <button type="submit" class="btn btn-outline-neon w-100" style="border-color: #39ff14; color: #39ff14;">
-                                                        <i class="bi bi-credit-card me-1"></i> Pay via HitPay
-                                                    </button>
-                                                </form>
-                                            @endif
-
-                                            @if($package['allow_manual'])
-                                                <a href="{{ route('payments.manual', $package['id']) }}" class="btn btn-outline-warning w-100 fw-bold">
-                                                    <i class="bi bi-qr-code me-1"></i> Manual Payment
-                                                </a>
-                                            @endif
+                                            <button type="button" class="btn btn-outline-neon w-100 buy-now-btn" 
+                                                    style="border-color: #39ff14; color: #39ff14;"
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#paymentModal"
+                                                    data-id="{{ $package->id }}"
+                                                    data-name="{{ $package->name }}"
+                                                    data-diamonds="{{ $package->diamonds }}"
+                                                    data-price="{{ $package->currency }} {{ number_format($package->final_price, 2) }}"
+                                                    data-allow-hitpay="{{ $package->allow_hitpay ? 'true' : 'false' }}"
+                                                    data-allow-manual="{{ $package->allow_manual ? 'true' : 'false' }}">
+                                                <i class="bi bi-cart-plus me-1"></i> Buy Now
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -157,6 +149,83 @@
             @endif
         </div>
     </div>
+
+    <!-- Payment Selection Modal -->
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border-info shadow-lg" style="backdrop-filter: blur(15px);">
+                <div class="modal-header border-info">
+                    <h5 class="modal-title text-white text-uppercase fw-bold" id="paymentModalLabel" style="font-family: 'Orbitron', sans-serif;">
+                        <i class="bi bi-credit-card-2-front me-2 text-info"></i> Select Payment Method
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <h4 id="modalPackageName" class="text-white mb-2"></h4>
+                    <div id="modalPackagePrice" class="text-info fs-5 fw-bold mb-4"></div>
+                    
+                    <p class="text-secondary small mb-4">Choose how you want to complete your purchase:</p>
+
+                    <div class="d-grid gap-3">
+                        <div id="hitpayOption" class="d-none">
+                            <form method="POST" action="{{ route('payments.store') }}">
+                                @csrf
+                                <input type="hidden" name="package_id" id="modalPackageId">
+                                <input type="hidden" name="payment_method" value="hitpay">
+                                <button type="submit" class="btn btn-lg btn-neon-cyan w-100 py-3 fw-bold">
+                                    <i class="bi bi-credit-card me-2"></i> PAY VIA HITPAY
+                                    <div class="x-small fw-normal mt-1 opacity-75">Credit Card, GCash, GrabPay, Maya</div>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div id="manualOption" class="d-none">
+                            <a href="#" id="manualPaymentLink" class="btn btn-lg btn-outline-warning w-100 py-3 fw-bold">
+                                <i class="bi bi-qr-code me-2"></i> MANUAL PAYMENT
+                                <div class="x-small fw-normal mt-1 opacity-75">Scan QR & Upload Receipt</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-info bg-dark bg-opacity-50">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Maybe Later</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const paymentModal = document.getElementById('paymentModal');
+        if (paymentModal) {
+            paymentModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const id = button.getAttribute('data-id');
+                const name = button.getAttribute('data-name');
+                const diamonds = button.getAttribute('data-diamonds');
+                const price = button.getAttribute('data-price');
+                const allowHitpay = button.getAttribute('data-allow-hitpay') === 'true';
+                const allowManual = button.getAttribute('data-allow-manual') === 'true';
+
+                // Update text
+                document.getElementById('modalPackageName').textContent = `${name} (${diamonds} Diamonds)`;
+                document.getElementById('modalPackagePrice').textContent = price;
+                
+                // Update forms/links
+                document.getElementById('modalPackageId').value = id;
+                document.getElementById('manualPaymentLink').href = `{{ url('/payments/manual') }}/${id}`;
+
+                // Toggle visibility
+                document.getElementById('hitpayOption').classList.toggle('d-none', !allowHitpay);
+                document.getElementById('manualOption').classList.toggle('d-none', !allowManual);
+            });
+        }
+    });
+    </script>
+
+    <style>
+        .x-small { font-size: 0.75rem; }
+    </style>
 
     <!-- Ledger Table -->
     <h5 class="section-header mb-4">
