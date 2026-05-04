@@ -88,14 +88,14 @@
                     </div>
 
                     @if($payment->status !== 'completed')
-                        <form action="{{ route('payments.comments.store', $payment->id) }}" method="POST">
+                        <form action="{{ route('payments.comments.store', $payment->id) }}" method="POST" id="replyForm">
                             @csrf
                             <div class="mb-3">
                                 <label for="comment" class="form-label text-muted small text-uppercase fw-bold">Post a Reply</label>
                                 <textarea name="comment" id="comment" rows="3" class="form-control bg-dark text-white border-info" required placeholder="Write your message to the administrator..."></textarea>
                             </div>
                             <div class="text-end">
-                                <button type="submit" class="btn btn-neon-cyan fw-bold">
+                                <button type="submit" id="submitBtn" class="btn btn-neon fw-bold">
                                     <i class="bi bi-send me-1"></i> Send Reply
                                 </button>
                             </div>
@@ -106,4 +106,17 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('replyForm');
+    if (form) {
+        form.addEventListener('submit', function() {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> SENDING...';
+        });
+    }
+});
+</script>
 @endsection
