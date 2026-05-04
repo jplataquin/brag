@@ -143,17 +143,17 @@ class PaymentController extends Controller
     }
 
     /**
-     * Revert a manual payment back to pending.
+     * Revert a manual payment back to flagged.
      */
-    public function revertToPending(Payment $payment)
+    public function revertToFlagged(Payment $payment)
     {
         if ($payment->payment_method !== 'manual') {
             return back()->with('error', 'Only manual payments can be reverted.');
         }
 
-        $payment->update(['status' => 'pending']);
+        $payment->update(['status' => 'flagged']);
 
-        return back()->with('success', "Payment {$payment->reference} has been reverted to pending. Note: Diamond balance was not modified.");
+        return back()->with('success', "Payment {$payment->reference} has been reverted to flagged. Note: Diamond balance was not modified.");
     }
 
     /**

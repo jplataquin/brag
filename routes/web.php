@@ -166,7 +166,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/payments/{payment}', [AdminPaymentController::class, 'show'])->name('payments.show');
         Route::post('/payments/{payment}/approve', [AdminPaymentController::class, 'approve'])->name('payments.approve');
         Route::post('/payments/{payment}/reject', [AdminPaymentController::class, 'reject'])->name('payments.reject');
-        Route::post('/payments/{payment}/revert', [AdminPaymentController::class, 'revertToPending'])->name('payments.revert');
+        Route::post('/payments/{payment}/revert', [AdminPaymentController::class, 'revertToFlagged'])->name('payments.revert');
         Route::post('/payments/{payment}/flag', [AdminPaymentController::class, 'flag'])->name('payments.flag');
         Route::post('/payments/{payment}/comments', [AdminPaymentController::class, 'addComment'])->name('payments.comments.store');
 

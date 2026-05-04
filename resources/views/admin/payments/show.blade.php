@@ -81,20 +81,24 @@
                             <img src="{{ asset('storage/' . $payment->proof_path) }}" alt="Proof of Payment" class="img-fluid rounded border border-secondary" style="max-height: 400px; cursor: zoom-in;">
                         </a>
                         
-                        @if($payment->status === 'pending')
+                        @if($payment->status === 'pending' || $payment->status === 'flagged')
                             <div class="mt-4 pt-4 border-top border-secondary">
-                                <div class="alert bg-warning bg-opacity-10 border-warning text-warning small mb-3">
-                                    <i class="bi bi-clock-history"></i> Auto-approval timer: 
-                                    <strong>{{ $payment->auto_approve_at ? $payment->auto_approve_at->diffForHumans() : 'N/A' }}</strong>
-                                    ({{ $payment->auto_approve_at ? $payment->auto_approve_at->format('g:i A') : '-' }})
-                                </div>
+                                @if($payment->status === 'pending')
+                                    <div class="alert bg-warning bg-opacity-10 border-warning text-warning small mb-3">
+                                        <i class="bi bi-clock-history"></i> Auto-approval timer: 
+                                        <strong>{{ $payment->auto_approve_at ? $payment->auto_approve_at->diffForHumans() : 'N/A' }}</strong>
+                                        ({{ $payment->auto_approve_at ? $payment->auto_approve_at->format('g:i A') : '-' }})
+                                    </div>
+                                @endif
                                 <div class="d-flex justify-content-center gap-3">
                                     <button type="button" onclick="confirmApproval()" class="btn btn-lg btn-success px-4 fw-bold text-uppercase">
                                         <i class="bi bi-check-circle me-1"></i> Approve
                                     </button>
-                                    <button type="button" onclick="promptFlagging()" class="btn btn-lg btn-warning px-4 fw-bold text-uppercase">
-                                        <i class="bi bi-flag me-1"></i> Flag
-                                    </button>
+                                    @if($payment->status === 'pending')
+                                        <button type="button" onclick="promptFlagging()" class="btn btn-lg btn-warning px-4 fw-bold text-uppercase">
+                                            <i class="bi bi-flag me-1"></i> Flag
+                                        </button>
+                                    @endif
                                     <button type="button" onclick="promptRejection()" class="btn btn-lg btn-outline-danger px-4 fw-bold text-uppercase">
                                         <i class="bi bi-x-circle me-1"></i> Reject
                                     </button>
@@ -103,7 +107,7 @@
                         @else
                             <div class="mt-4 pt-4 border-top border-secondary">
                                 <button type="button" onclick="confirmRevert()" class="btn btn-outline-warning fw-bold">
-                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Revert to Pending
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Revert to Flagged
                                 </button>
                             </div>
                         @endif
@@ -257,7 +261,7 @@ function confirmApproval() {
 }
 
 function confirmRevert() {
-    window.neonConfirm('Are you sure you want to REVERT this payment to pending? This will not subtract any diamonds if already credited, you must handle that separately.').then(confirmed => {
+    window.neonConfirm('Are you sure you want to REVERT this payment to FLAGGED? This will not subtract any diamonds if already credited, you must handle that separately.').then(confirmed => {
         if (confirmed) {
             document.getElementById('revertForm').submit();
         }
