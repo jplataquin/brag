@@ -81,7 +81,7 @@ class PaymentController extends Controller
      */
     public function approve(Request $request, Payment $payment)
     {
-        if ($payment->status !== 'pending' || $payment->payment_method !== 'manual') {
+        if (!in_array($payment->status, ['pending', 'flagged']) || $payment->payment_method !== 'manual') {
             return back()->with('error', 'This payment cannot be approved.');
         }
 
@@ -126,7 +126,7 @@ class PaymentController extends Controller
     {
         $request->validate(['reason' => 'nullable|string|max:255']);
 
-        if ($payment->status !== 'pending' || $payment->payment_method !== 'manual') {
+        if (!in_array($payment->status, ['pending', 'flagged']) || $payment->payment_method !== 'manual') {
             return back()->with('error', 'This payment cannot be rejected.');
         }
 
@@ -187,7 +187,7 @@ class PaymentController extends Controller
         if (empty($ids)) return back()->with('error', 'No payments selected.');
 
         $payments = Payment::whereIn('id', $ids)
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending', 'flagged'])
             ->where('payment_method', 'manual')
             ->get();
 
@@ -196,7 +196,7 @@ class PaymentController extends Controller
             // Reusing the same logic (ideally refactor to a service)
             DB::transaction(function () use ($payment, &$count) {
                 $payment->lockForUpdate();
-                if ($payment->status !== 'pending') return;
+                if (!in_array($payment->status, ['pending', 'flagged'])) return;
 
                 $payment->update([
                     'status' => 'completed',
@@ -227,7 +227,7 @@ class PaymentController extends Controller
         if (empty($ids)) return back()->with('error', 'No payments selected.');
 
         $count = Payment::whereIn('id', $ids)
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending', 'flagged'])
             ->where('payment_method', 'manual')
             ->update(['status' => 'failed']);
 
