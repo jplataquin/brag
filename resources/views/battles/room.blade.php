@@ -3,6 +3,11 @@
 @section('content')
 <div>
 
+@if($battle->rematch_battle_id)
+<script>
+    window.location.href = "{{ route('battles.room', $battle->rematch_battle_id) }}";
+</script>
+@endif
 
 <style>
     .team-name-container {
@@ -260,6 +265,25 @@
                                 <form action="{{ route('battles.action.standup', $battle) }}" method="POST" class="d-inline w-100" id="standUpForm">@csrf <button type="button" class="btn btn-outline-warning w-100" onclick="window.neonConfirm('Are you sure you want to stand up and leave your slot?').then(c => { if(c) handleActionSubmit('standUpForm'); })"><i class="bi bi-box-arrow-right"></i> STAND UP</button></form>
                             @endif
 
+                            @if($battle->status == 'completed' && !$battle->rematch_battle_id)
+                                @php
+                                    $rematchVoted = ($isLeaderA && $battle->team_a_rematch_user_id) || ($isLeaderB && $battle->team_b_rematch_user_id);
+                                    $opponentVoted = ($isLeaderA && $battle->team_b_rematch_user_id) || ($isLeaderB && $battle->team_a_rematch_user_id);
+                                @endphp
+
+                                @if(!$rematchVoted)
+                                    <form action="{{ route('battles.action.rematch', $battle) }}" method="POST" class="d-inline w-100" id="rematchForm">
+                                        @csrf
+                                        <button type="button" class="btn btn-neon w-100" onclick="window.neonConfirm('{{ $opponentVoted ? "Opponent has proposed a rematch. Accept?" : "Propose a rematch to the opponent?" }}').then(c => { if(c) handleActionSubmit('rematchForm'); })">
+                                            <i class="bi bi-arrow-repeat"></i> {{ $opponentVoted ? 'ACCEPT REMATCH' : 'PROPOSE REMATCH' }}
+                                        </button>
+                                    </form>
+                                @else
+                                    <div class="alert alert-info py-2 small mb-0 text-center w-100" style="border: 1px solid #00f0ff; background: rgba(0, 240, 255, 0.1); color: #00f0ff;">
+                                        <i class="bi bi-hourglass-split"></i> Rematch proposed. Waiting for opponent...
+                                    </div>
+                                @endif
+                            @endif
                         </div>
                     </div>
                     
@@ -914,6 +938,13 @@ function clearMarshall() {
                             const standUpBtn = document.getElementById('standUpForm');
                             if (standUpBtn) standUpBtn.style.display = 'none';
                         }
+                        if (e.message.includes('Rematch accepted')) {
+                            window.isReloading = true;
+                            // Small delay to ensure DB is ready, then fetch redirect URL or reload
+                            setTimeout(() => window.location.reload(), 1500);
+                            return;
+                        }
+
                         if (e.message.includes('started') || e.message.includes('finalized') || e.message.includes('cancelled') || e.message.includes('ready') || e.message.includes('requested cancellation') || e.message.includes('rejected')) {
                             window.isReloading = true;
                             setTimeout(() => window.location.reload(), 1000);

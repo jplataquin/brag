@@ -614,4 +614,85 @@ class BattleActionController extends Controller
 
         return back();
     }
+
+    public function rematch(Request $request, Battle $battle)
+    {
+        $user = Auth::user();
+        if ($battle->status != 'completed') {
+            return back()->with('error', 'Rematch can only be initiated for completed battles.');
+        }
+
+        $isLeaderA = ($user->id == $battle->team_a_user_1);
+        $isLeaderB = ($user->id == $battle->team_b_user_1);
+
+        if (!$isLeaderA && !$isLeaderB) {
+            return back()->with('error', 'Only team leaders can propose a rematch.');
+        }
+
+        DB::transaction(function () use ($battle, $user, $isLeaderA, $isLeaderB) {
+            $battle = Battle::where('id', $battle->id)->lockForUpdate()->first();
+            
+            if ($isLeaderA) {
+                $battle->team_a_rematch_user_id = $user->id;
+            } else {
+                $battle->team_b_rematch_user_id = $user->id;
+            }
+            $battle->save();
+
+            $this->logActivity($battle->id, $user->id, 'rematch_proposal', "{$user->username} proposed a rematch.");
+
+            if ($battle->team_a_rematch_user_id && $battle->team_b_rematch_user_id) {
+                // Both leaders agreed, create new battle
+                $newBattle = Battle::create([
+                    'game_title_id' => $battle->game_title_id,
+                    'team_name_a' => $battle->team_name_a,
+                    'team_name_b' => $battle->team_name_b,
+                    'battle_terms' => $battle->battle_terms,
+                    'no_players_per_team' => $battle->no_players_per_team,
+                    'status' => 'pending',
+                    'marshall_id' => $battle->marshall_id,
+                ]);
+
+                // Copy players and attempt to copy cards
+                for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
+                    // Team A
+                    $uAId = $battle->{"team_a_user_{$i}"};
+                    $cAId = $battle->{"team_a_card_{$i}"};
+                    $newBattle->{"team_a_user_{$i}"} = $uAId;
+                    if ($cAId) {
+                        $cardA = DigitalCard::find($cAId);
+                        if ($cardA && $cardA->owner_id == $uAId && $cardA->life_points > 0) {
+                            $newBattle->{"team_a_card_{$i}"} = $cAId;
+                        }
+                    }
+
+                    // Team B
+                    $uBId = $battle->{"team_b_user_{$i}"};
+                    $cBId = $battle->{"team_b_card_{$i}"};
+                    $newBattle->{"team_b_user_{$i}"} = $uBId;
+                    if ($cBId) {
+                        $cardB = DigitalCard::find($cBId);
+                        if ($cardB && $cardB->owner_id == $uBId && $cardB->life_points > 0) {
+                            $newBattle->{"team_b_card_{$i}"} = $cBId;
+                        }
+                    }
+                }
+                $newBattle->save();
+
+                $battle->rematch_battle_id = $newBattle->id;
+                $battle->save();
+
+                $this->logActivity($battle->id, $user->id, 'rematch_accepted', "Rematch accepted! New battle room created: #{$newBattle->id}");
+                $this->broadcastUpdate($battle, "Rematch accepted!");
+            } else {
+                $this->broadcastUpdate($battle, "{$user->username} proposed a rematch.");
+            }
+        });
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['status' => 'success']);
+        }
+
+        return back();
+    }
 }

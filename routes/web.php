@@ -93,6 +93,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/battles/{battle}/action/accept-marshall', [\App\Http\Controllers\BattleActionController::class, 'acceptMarshall'])->name('battles.action.accept_marshall');
     Route::post('/battles/{battle}/action/reject-marshall', [\App\Http\Controllers\BattleActionController::class, 'rejectMarshall'])->name('battles.action.reject_marshall');
     Route::post('/battles/{battle}/action/invite', [\App\Http\Controllers\BattleActionController::class, 'invite'])->name('battles.action.invite');
+    Route::post('/battles/{battle}/action/rematch', [\App\Http\Controllers\BattleActionController::class, 'rematch'])->name('battles.action.rematch');
 
     // Forge & Templates
     Route::post('/templates/ai-preview', [TemplateController::class, 'generateAiPreview'])->name('templates.ai-preview');
