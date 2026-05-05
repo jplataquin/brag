@@ -15,6 +15,11 @@
     } elseif (old('image_mode', 'upload') == 'upload' && old('temporary_photo_path')) {
         $initialPreviewImage = asset('storage/' . old('temporary_photo_path'));
     }
+
+    $baseCost = config('diamonds.costs.template_creation');
+    $forgeCost = config('diamonds.costs.forging');
+    $isAutoForgeDefault = old('auto_forge', '1') == '1';
+    $initialTotalCost = $isAutoForgeDefault ? ($baseCost + $forgeCost) : $baseCost;
 @endphp
 
 @section('content')
@@ -24,9 +29,9 @@
 
 <div class="row justify-content-center">
     <div class="col-lg-7">
-        @if(Auth::user()->diamonds_balance < config('diamonds.costs.template_creation'))
+        @if(Auth::user()->diamonds_balance < $baseCost)
             <div class="alert alert-danger mb-4" style="background: rgba(255, 0, 0, 0.1); border: 1px solid #ff0000; color: #ff0000;">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>INSUFFICIENT DIAMONDS:</strong> You need at least {{ config('diamonds.costs.template_creation') }} Diamonds to create a template. Please acquire more Diamonds before proceeding.
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>INSUFFICIENT DIAMONDS:</strong> You need at least {{ $baseCost }} Diamonds to create a template. Please acquire more Diamonds before proceeding.
             </div>
         @endif
         
@@ -231,25 +236,25 @@
             </div>
 
             <p class="text-center mt-3 mb-1" style="color: #00f0ff; font-size: 0.85rem;">
-                <i class="bi bi-gem"></i> Cost: <span id="display-total-cost">{{ config('diamonds.costs.template_creation') }}</span> Diamonds
+                <i class="bi bi-gem"></i> Cost: <span id="display-total-cost">{{ $initialTotalCost }}</span> Diamonds
             </p>
 
             <div class="mb-3 d-flex justify-content-center">
                 <div class="form-check form-switch neon-switch">
-                    <input class="form-check-input" type="checkbox" name="auto_forge" id="auto_forge" value="1" {{ old('auto_forge') ? 'checked' : '' }} form="template-form">
+                    <input class="form-check-input" type="checkbox" name="auto_forge" id="auto_forge" value="1" {{ $isAutoForgeDefault ? 'checked' : '' }} form="template-form">
                     <label class="form-check-label small ms-2" for="auto_forge" style="color: #bbbbd0; cursor: pointer;">
-                        Auto-forge first card (+{{ config('diamonds.costs.forging') }} <i class="bi bi-gem"></i>)
+                        Auto-forge first card (+{{ $forgeCost }} <i class="bi bi-gem"></i>)
                     </label>
                 </div>
             </div>
 
             <div class="d-flex gap-2 justify-content-center">
-                @if(Auth::user()->diamonds_balance < config('diamonds.costs.template_creation'))
+                @if(Auth::user()->diamonds_balance < $baseCost)
                     <button type="button" class="btn btn-secondary" disabled>
                         <i class="bi bi-x-circle"></i> INSUFFICIENT DIAMONDS
                     </button>
                 @else
-                    <button type="submit" form="template-form" class="btn btn-neon" id="btn-submit-template" data-confirm="Create a new template for {{ config('diamonds.costs.template_creation') }} Diamonds?">
+                    <button type="submit" form="template-form" class="btn btn-neon" id="btn-submit-template" data-confirm="Create a new template {{ $isAutoForgeDefault ? 'and forge your first card ' : '' }}for {{ $initialTotalCost }} Diamonds?">
                         <i class="bi bi-check-lg"></i> CREATE TEMPLATE
                     </button>
                 @endif
