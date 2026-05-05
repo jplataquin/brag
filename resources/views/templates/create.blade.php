@@ -230,9 +230,19 @@
                 </div>
             </div>
 
-            <p class="text-center mt-3 mb-2" style="color: #00f0ff; font-size: 0.85rem;">
-                <i class="bi bi-gem"></i> Cost: {{ config('diamonds.costs.template_creation') }} Diamonds
+            <p class="text-center mt-3 mb-1" style="color: #00f0ff; font-size: 0.85rem;">
+                <i class="bi bi-gem"></i> Cost: <span id="display-total-cost">{{ config('diamonds.costs.template_creation') }}</span> Diamonds
             </p>
+
+            <div class="mb-3 d-flex justify-content-center">
+                <div class="form-check form-switch neon-switch">
+                    <input class="form-check-input" type="checkbox" name="auto_forge" id="auto_forge" value="1" {{ old('auto_forge') ? 'checked' : '' }} form="template-form">
+                    <label class="form-check-label small ms-2" for="auto_forge" style="color: #bbbbd0; cursor: pointer;">
+                        Auto-forge first card (+{{ config('diamonds.costs.forging') }} <i class="bi bi-gem"></i>)
+                    </label>
+                </div>
+            </div>
+
             <div class="d-flex gap-2 justify-content-center">
                 @if(Auth::user()->diamonds_balance < config('diamonds.costs.template_creation'))
                     <button type="button" class="btn btn-secondary" disabled>
@@ -248,6 +258,23 @@
         </div>
     </div>
 </div>
+
+<style>
+    .neon-switch .form-check-input {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: rgba(0, 240, 255, 0.3);
+        cursor: pointer;
+    }
+    .neon-switch .form-check-input:checked {
+        background-color: #00f0ff;
+        border-color: #00f0ff;
+        box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+    }
+    .neon-switch .form-check-input:focus {
+        box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        border-color: #00f0ff;
+    }
+</style>
 @endsection
 
 @section('scripts')
@@ -285,13 +312,48 @@
             window.updateDigitalCard_live_preview_card(updates);
         }
     }
+const ts = new TomSelect("#game_title_id",{
+    create: false,
+    sortField: {
+        field: "text",
+        direction: "asc"
+    }
+});
 
-    const ts = new TomSelect("#game_title_id",{
-        create: false,
-        sortField: {
-            field: "text",
-            direction: "asc"
-        },
+document.addEventListener('DOMContentLoaded', function() {
+    const autoForgeCheckbox = document.getElementById('auto_forge');
+    const displayCost = document.getElementById('display-total-cost');
+    const submitBtn = document.getElementById('btn-submit-template');
+    const userBalance = {{ Auth::user()->diamonds_balance }};
+    const baseCost = {{ config('diamonds.costs.template_creation') }};
+    const forgeCost = {{ config('diamonds.costs.forging') }};
+
+    function updateUI() {
+        const isChecked = autoForgeCheckbox.checked;
+        const total = isChecked ? (baseCost + forgeCost) : baseCost;
+
+        displayCost.innerText = total;
+
+        if (submitBtn) {
+            if (userBalance < total) {
+                submitBtn.disabled = true;
+                submitBtn.classList.replace('btn-neon', 'btn-secondary');
+                submitBtn.innerHTML = '<i class="bi bi-x-circle"></i> INSUFFICIENT DIAMONDS';
+                submitBtn.removeAttribute('data-confirm');
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.classList.replace('btn-secondary', 'btn-neon');
+                submitBtn.innerHTML = '<i class="bi bi-check-lg"></i> CREATE TEMPLATE';
+                submitBtn.setAttribute('data-confirm', `Create a new template ${isChecked ? 'and forge your first card ' : ''}for ${total} Diamonds?`);
+            }
+        }
+    }
+
+    if (autoForgeCheckbox) {
+        autoForgeCheckbox.addEventListener('change', updateUI);
+        updateUI(); // Initial check
+    }
+});
         onChange: function(value) {
             // Clear validation error on change
             const selectEl = this.control.closest('.ts-wrapper');

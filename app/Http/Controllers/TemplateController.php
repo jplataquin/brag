@@ -83,6 +83,7 @@ class TemplateController extends Controller
             'section_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'primary_text_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'secondary_text_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'auto_forge' => 'nullable|boolean',
         ], [
             'game_title_id.required' => 'The game title field is required.',
             'game_title_id.exists' => 'The selected game title is invalid.',
@@ -107,9 +108,13 @@ class TemplateController extends Controller
             return back()->with('error', "You can only create a maximum of 3 templates per game title.")->withInput();
         }
 
-        $cost = config('diamonds.costs.template_creation');
-        if ($user->diamonds_balance < $cost) {
-            return back()->with('error', "You need at least {$cost} Diamonds to create a template. You currently have " . $user->diamonds_balance . '.')->withInput();
+        $baseCost = config('diamonds.costs.template_creation');
+        $forgeCost = config('diamonds.costs.forging');
+        $isAutoForge = $request->boolean('auto_forge');
+        $totalCost = $isAutoForge ? ($baseCost + $forgeCost) : $baseCost;
+
+        if ($user->diamonds_balance < $totalCost) {
+            return back()->with('error', "You need at least {$totalCost} Diamonds. You currently have " . $user->diamonds_balance . '.')->withInput();
         }
 
         $data = $request->only(['card_title', 'game_title_id', 'quote', 'image_position_y', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
@@ -131,11 +136,20 @@ class TemplateController extends Controller
              $data['photo'] = $request->generated_ai_photo; // Set as main photo as well
         }
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($user, $data) {
-            $cost = config('diamonds.costs.template_creation');
-            $user->deductDiamonds($cost, 'system', "Created new template: {$data['card_title']}");
-            Template::create($data);
+        $template = null;
+        \Illuminate\Support\Facades\DB::transaction(function () use ($user, $data, $isAutoForge, $baseCost, &$template) {
+            $user->deductDiamonds($baseCost, 'system', "Created new template: {$data['card_title']}");
+            $template = Template::create($data);
+
+            if ($isAutoForge) {
+                app(\App\Services\CardForgeService::class)->forge($user, $template);
+            }
         });
+
+        if ($isAutoForge) {
+            return redirect()->route('templates.show', $template)
+                ->with('success', 'Template created and first card forged successfully!');
+        }
 
         return redirect()->route('templates.index')
             ->with('success', 'Template created successfully! You can now forge Digital Cards from it.');
@@ -185,7 +199,16 @@ class TemplateController extends Controller
             'quote' => 'required|string|max:500',
             'image_mode' => 'required|in:upload,ai',
             'temporary_photo_path' => 'nullable|string',
-            'ai_prompt' => 'nullable|string|max:200|required_if:image_mode,ai',
+            'ai_prompt' => [
+                'nullable',
+                'string',
+                'max:200',
+                function ($attribute, $value, $fail) use ($request, $template) {
+                    if ($request->image_mode === 'ai' && empty($value) && empty($template->ai_photo)) {
+                        $fail('An art style prompt is required for AI generation.');
+                    }
+                },
+            ],
             'generated_ai_photo' => 'nullable|string',
             'image_position_y' => 'nullable|integer|min:0|max:100',
             'background_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
