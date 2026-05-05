@@ -253,7 +253,7 @@ class DigitalCardController extends Controller
                     }
                 }
 
-                $isWin = ($isTeamA && $battle->winner_team === 'team_a') || (!$isTeamA && $battle->winner_team === 'team_b');
+                $isWin = ($isTeamA && $battle->winner_team === 'A') || (!$isTeamA && $battle->winner_team === 'B');
                 
                 // Identify the specific opponent in the opposing team's same slot
                 $opponentId = $isTeamA ? $battle->{"team_b_user_{$slotIndex}"} : $battle->{"team_a_user_{$slotIndex}"};

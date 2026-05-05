@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div style="font-family: 'Orbitron', sans-serif; font-weight: 700; color: ${battle.result_color}; font-size: 1.1rem; letter-spacing: 1px;">
                                 ${battle.result}
                             </div>
-                            <a href="/battles/room/${battle.room_id}" class="btn btn-outline-neon btn-sm mt-1" style="font-size: 0.7rem; padding: 0.1rem 0.4rem;">View Match</a>
+                            <a href="/battles/${battle.room_id}" class="btn btn-outline-neon btn-sm mt-1" style="font-size: 0.7rem; padding: 0.1rem 0.4rem;">View Match</a>
                         </div>
                     `;
                     container.appendChild(battleEl);
