@@ -322,6 +322,18 @@ const ts = new TomSelect("#game_title_id",{
     sortField: {
         field: "text",
         direction: "asc"
+    },
+    onChange: function(value) {
+        // Clear validation error on change
+        const selectEl = this.control.closest('.ts-wrapper');
+        if (selectEl) {
+            selectEl.classList.remove('is-invalid');
+            const feedback = selectEl.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.style.display = 'none';
+        }
+
+        const opt = this.options[value];
+        updateLivePreview({ game: opt ? opt.text.trim() : 'GAME' });
     }
 });
 
@@ -359,19 +371,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateUI(); // Initial check
     }
 });
-        onChange: function(value) {
-            // Clear validation error on change
-            const selectEl = this.control.closest('.ts-wrapper');
-            if (selectEl) {
-                selectEl.classList.remove('is-invalid');
-                const feedback = selectEl.parentNode.querySelector('.invalid-feedback');
-                if (feedback) feedback.style.display = 'none';
-            }
-
-            const opt = this.options[value];
-            updateLivePreview({ game: opt ? opt.text.trim() : 'GAME' });
-        }
-    });
 
     // Clear validation errors on input for all standard fields
     document.querySelectorAll('.form-control').forEach(function(input) {
