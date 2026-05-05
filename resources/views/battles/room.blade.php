@@ -285,8 +285,8 @@
                         </div>
                     </div>
                     
-                    <!-- Share QR (Mobile Only) - Moved outside actions-container so it survives AJAX replacements -->
-                    <div class="mt-3 text-center d-md-none">
+                    <!-- Share QR - Moved outside actions-container so it survives AJAX replacements -->
+                    <div class="mt-3 text-center">
                         <button type="button" class="btn btn-neon" style="border-color: #39ff14; color: #39ff14;" data-bs-toggle="modal" data-bs-target="#shareQRModal">
                             <i class="bi bi-qr-code"></i> SHARE QR
                         </button>
@@ -746,6 +746,28 @@ function clearMarshall() {
     document.getElementById('marshall_selected_badge').classList.add('d-none');
     document.getElementById('marshall_submit_btn').disabled = true;
 }
+</script>
+@section('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const qrModalEl = document.getElementById('shareQRModal');
+        const qrContainer = document.getElementById('qrcode');
+        let qrcode = null;
+
+        qrModalEl.addEventListener('shown.bs.modal', function() {
+            if (!qrcode) {
+                qrcode = new QRCode(qrContainer, {
+                    text: "{{ route('battles.room', $battle) }}",
+                    width: 200,
+                    height: 200,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
+        });
+    });
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
