@@ -55,53 +55,82 @@
 @endsection
 
 @section('scripts')
-<script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        let editorInstance;
+<link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.0.0/ckeditor5.css">
+<style>
+    :root {
+        --ck-color-base-background: #111122;
+        --ck-color-base-border: rgba(0, 240, 255, 0.2);
+        --ck-color-base-text: #fff;
+        --ck-color-text: #fff;
+        --ck-color-toolbar-background: #0a0a1a;
+        --ck-color-toolbar-border: rgba(0, 240, 255, 0.2);
+        --ck-color-button-default-hover-background: rgba(0, 240, 255, 0.1);
+        --ck-color-button-on-background: rgba(0, 240, 255, 0.2);
+        --ck-color-button-on-color: #00f0ff;
+        --ck-color-list-background: #0a0a1a;
+        --ck-color-list-button-hover-background: rgba(0, 240, 255, 0.1);
+        --ck-color-panel-background: #0a0a1a;
+        --ck-color-panel-border: rgba(0, 240, 255, 0.2);
+        --ck-color-dropdown-panel-background: #0a0a1a;
+        --ck-color-dropdown-panel-border: rgba(0, 240, 255, 0.2);
+        --ck-color-input-background: #111122;
+        --ck-color-input-border: rgba(0, 240, 255, 0.2);
+        --ck-color-input-text: #fff;
+        --ck-color-list-button-on-background: rgba(0, 240, 255, 0.2);
+        --ck-color-list-button-on-text: #00f0ff;
+    }
+    .ck-editor__editable {
+        min-height: 400px;
+    }
+    .ck.ck-editor__main>.ck-editor__editable:not(.ck-focused) {
+        border-color: rgba(0, 240, 255, 0.1);
+    }
+</style>
+<script type="importmap">
+{
+    "imports": {
+        "ckeditor5": "https://cdn.ckeditor.com/ckeditor5/43.0.0/ckeditor5.js",
+        "ckeditor5/": "https://cdn.ckeditor.com/ckeditor5/43.0.0/"
+    }
+}
+</script>
+<script type="module">
+    import {
+        ClassicEditor,
+        Essentials,
+        Paragraph,
+        Heading,
+        Bold,
+        Italic,
+        Link,
+        List,
+        Indent,
+        IndentBlock,
+        BlockQuote,
+        Undo
+    } from 'ckeditor5';
 
-        ClassicEditor
-            .create(document.querySelector('#editor'), {
-                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'outdent', 'indent', 'blockQuote', 'undo', 'redo'],
-            })
-            .then(editor => {
-                editorInstance = editor;
-            })
-            .catch(error => {
-                console.error(error);
-            });
+    let editorInstance;
 
-        const form = document.querySelector('form');
+    ClassicEditor
+        .create(document.querySelector('#editor'), {
+            plugins: [ Essentials, Paragraph, Heading, Bold, Italic, Link, List, Indent, IndentBlock, BlockQuote, Undo ],
+            toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'outdent', 'indent', 'blockQuote', 'undo', 'redo' ]
+        })
+        .then(editor => {
+            editorInstance = editor;
+        })
+        .catch(error => {
+            console.error(error);
+        });
+
+    const form = document.querySelector('form');
+    if (form) {
         form.addEventListener('submit', function() {
             if (editorInstance) {
                 editorInstance.updateSourceElement();
             }
         });
-    });
+    }
 </script>
-<style>
-    .ck-editor__editable {
-        min-height: 400px;
-        background-color: #111122 !important;
-        color: #fff !important;
-        border: 1px solid rgba(0, 240, 255, 0.2) !important;
-    }
-    .ck.ck-editor__main>.ck-editor__editable:not(.ck-focused) {
-        border-color: rgba(0, 240, 255, 0.1);
-    }
-    .ck.ck-toolbar {
-        background-color: #0a0a1a !important;
-        border: 1px solid rgba(0, 240, 255, 0.2) !important;
-    }
-    .ck.ck-button {
-        color: #fff !important;
-    }
-    .ck.ck-button:hover {
-        background-color: rgba(0, 240, 255, 0.1) !important;
-    }
-    .ck.ck-button.ck-on {
-        background-color: rgba(0, 240, 255, 0.2) !important;
-        color: #00f0ff !important;
-    }
-</style>
 @endsection
