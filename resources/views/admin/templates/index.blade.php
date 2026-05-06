@@ -116,7 +116,9 @@
         @endif
     </div>
 </div>
+@endsection
 
+@push('modals')
 <!-- Premium Upload Modal -->
 <div class="modal fade" id="premiumUploadModal" tabindex="-1" aria-labelledby="premiumUploadModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -211,6 +213,7 @@
         </div>
     </div>
 </div>
+@endpush
 
 <style>
     .border-neon-magenta { border-color: #ff00ff !important; box-shadow: 0 0 15px rgba(255, 0, 255, 0.2); }
@@ -224,6 +227,7 @@
     .text-neon-lime { color: #39ff14; }
 </style>
 
+@section('scripts')
 <script>
     // Simplified StudioRenderer for Preview
     class PreviewRenderer {

@@ -34,3 +34,8 @@ The application strictly adheres to a **Gamer Neon Aesthetic**. The design feels
   - **Alerts & Prompts:** Standard browser alerts and confirms are forbidden. All prompts are routed through a globally accessible, custom neon modal system (`window.neonAlert`, `window.neonConfirm`, `window.neonPrompt`).
   - **Icons:** Heavy use of Bootstrap Icons (`bi`) to add visual flair to headers, buttons, and activity logs.
 - **Responsiveness:** The UI is mobile-first. Complex desktop grids (like card selections or battle stakes) automatically convert into swipeable Bootstrap Carousels on smaller screens to ensure a premium mobile experience. QR codes are also heavily utilized to facilitate easy mobile sharing of battle rooms.
+
+## Development Notes & Gotchas
+### Bootstrap Modals
+- **Z-Index & Backdrop Issues:** To avoid the "invisible div" bug (where the modal backdrop covers the modal itself), ALWAYS place modal HTML inside the `@push('modals')` stack. This ensures the modal is rendered at the end of the `<body>`, outside of any containers with `relative` positioning or `backdrop-filter`.
+
