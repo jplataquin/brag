@@ -357,7 +357,7 @@
         };
 
         function uploadFileInChunks(file) {
-            const chunkSize = 1 * 1024 * 1024; // 1MB chunks
+            const chunkSize = 512 * 1024; // 512KB chunks
             const totalChunks = Math.ceil(file.size / chunkSize);
             const fileId = 'json_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             const extension = 'json';

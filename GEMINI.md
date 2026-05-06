@@ -38,5 +38,5 @@ The application strictly adheres to a **Gamer Neon Aesthetic**. The design feels
 ## Development Notes & Gotchas
 ### Bootstrap Modals
 - **Z-Index & Backdrop Issues:** To avoid the "invisible div" bug (where the modal backdrop covers the modal itself), ALWAYS place modal HTML inside the `@push('modals')` stack. This ensures the modal is rendered at the end of the `<body>`, outside of any containers with `relative` positioning or `backdrop-filter`.
-- **Large JSON Uploads:** Premium template JSON files can be large due to embedded Base64 images. ALWAYS use the chunked upload method (via `/upload-chunk`) for these files. The backend will merge chunks into a temporary file, which should be processed and then deleted immediately after use to save disk space.
+- **Large JSON Uploads:** Premium template JSON files can be large due to embedded Base64 images. ALWAYS use the chunked upload method (via `/upload-chunk`) for these files. Use a maximum chunk size of **512KB** to ensure compatibility with strict server configurations (Nginx default `client_max_body_size` is often 1MB). The backend will merge chunks into a temporary file, which should be processed and then deleted immediately after use to save disk space.
 
