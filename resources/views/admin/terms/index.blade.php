@@ -90,7 +90,7 @@
 
         ClassicEditor
             .create(document.querySelector('#editor'), {
-                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'undo', 'redo'],
+                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'outdent', 'indent', 'blockQuote', 'undo', 'redo'],
             })
             .then(editor => {
                 editorInstance = editor;

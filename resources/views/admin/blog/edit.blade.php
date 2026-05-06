@@ -53,3 +53,55 @@
     </div>
 </div>
 @endsection
+
+@section('scripts')
+<script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let editorInstance;
+
+        ClassicEditor
+            .create(document.querySelector('#editor'), {
+                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'outdent', 'indent', 'blockQuote', 'undo', 'redo'],
+            })
+            .then(editor => {
+                editorInstance = editor;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function() {
+            if (editorInstance) {
+                editorInstance.updateSourceElement();
+            }
+        });
+    });
+</script>
+<style>
+    .ck-editor__editable {
+        min-height: 400px;
+        background-color: #111122 !important;
+        color: #fff !important;
+        border: 1px solid rgba(0, 240, 255, 0.2) !important;
+    }
+    .ck.ck-editor__main>.ck-editor__editable:not(.ck-focused) {
+        border-color: rgba(0, 240, 255, 0.1);
+    }
+    .ck.ck-toolbar {
+        background-color: #0a0a1a !important;
+        border: 1px solid rgba(0, 240, 255, 0.2) !important;
+    }
+    .ck.ck-button {
+        color: #fff !important;
+    }
+    .ck.ck-button:hover {
+        background-color: rgba(0, 240, 255, 0.1) !important;
+    }
+    .ck.ck-button.ck-on {
+        background-color: rgba(0, 240, 255, 0.2) !important;
+        color: #00f0ff !important;
+    }
+</style>
+@endsection

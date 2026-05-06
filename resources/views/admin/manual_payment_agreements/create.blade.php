@@ -22,8 +22,8 @@
                         @csrf
                         
                         <div class="mb-4">
-                            <label for="content" class="form-label text-muted small text-uppercase fw-bold">Agreement Content <span class="text-danger">*</span></label>
-                            <textarea name="content" id="content" rows="12" class="form-control bg-dark text-white border-info @error('content') is-invalid @enderror" required placeholder="Enter the terms, conditions, and disclaimers users must agree to before submitting manual payments...">{{ old('content') }}</textarea>
+                            <label for="editor" class="form-label text-muted small text-uppercase fw-bold">Agreement Content <span class="text-danger">*</span></label>
+                            <textarea name="content" id="editor" rows="12" class="form-control bg-dark text-white border-info @error('content') is-invalid @enderror" required placeholder="Enter the terms, conditions, and disclaimers users must agree to before submitting manual payments...">{{ old('content') }}</textarea>
                             @error('content')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -43,4 +43,56 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let editorInstance;
+
+        ClassicEditor
+            .create(document.querySelector('#editor'), {
+                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'outdent', 'indent', 'blockQuote', 'undo', 'redo'],
+            })
+            .then(editor => {
+                editorInstance = editor;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function() {
+            if (editorInstance) {
+                editorInstance.updateSourceElement();
+            }
+        });
+    });
+</script>
+<style>
+    .ck-editor__editable {
+        min-height: 400px;
+        background-color: #111122 !important;
+        color: #fff !important;
+        border: 1px solid rgba(0, 240, 255, 0.2) !important;
+    }
+    .ck.ck-editor__main>.ck-editor__editable:not(.ck-focused) {
+        border-color: rgba(0, 240, 255, 0.1);
+    }
+    .ck.ck-toolbar {
+        background-color: #0a0a1a !important;
+        border: 1px solid rgba(0, 240, 255, 0.2) !important;
+    }
+    .ck.ck-button {
+        color: #fff !important;
+    }
+    .ck.ck-button:hover {
+        background-color: rgba(0, 240, 255, 0.1) !important;
+    }
+    .ck.ck-button.ck-on {
+        background-color: rgba(0, 240, 255, 0.2) !important;
+        color: #00f0ff !important;
+    }
+</style>
 @endsection
