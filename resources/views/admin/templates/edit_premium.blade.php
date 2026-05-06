@@ -142,6 +142,7 @@
         </div>
     </div>
 </div>
+@endsection
 
 @push('modals')
 <div class="modal fade" id="fullscreenPreviewModal" tabindex="-1" aria-hidden="true">
@@ -158,6 +159,7 @@
 </div>
 @endpush
 
+@push('styles')
 <style>
     .border-neon-magenta { border-color: #ff00ff !important; box-shadow: 0 0 15px rgba(255, 0, 255, 0.1); }
     .text-neon-magenta { color: #ff00ff; }
@@ -166,6 +168,7 @@
     .btn-neon-cyan:hover { background: #00d9e6; box-shadow: 0 0 10px #00f0ff; }
     .text-neon-lime { color: #39ff14; }
 </style>
+@endpush
 
 @section('scripts')
 <script>
