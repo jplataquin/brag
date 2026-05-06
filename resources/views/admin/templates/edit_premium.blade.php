@@ -111,9 +111,30 @@
 
                     <div class="d-flex justify-content-end gap-3 mt-4">
                         <a href="{{ route('admin.templates.index') }}" class="btn btn-outline-secondary px-4">Cancel</a>
-                        <button type="submit" class="btn btn-neon-cyan px-5 fw-bold">SAVE CHANGES</button>
+                        <button type="submit" class="btn btn-neon-cyan px-5 fw-bold">SAVE METADATA</button>
                     </div>
                 </form>
+            </div>
+
+            <!-- User Experience Test Panel -->
+            <div class="card bg-dark bg-opacity-75 border-neon-magenta rounded-4 p-4 shadow-lg mt-4" style="backdrop-filter: blur(10px);">
+                <h4 class="text-neon-magenta mb-4" style="font-family: 'Orbitron', sans-serif;"><i class="bi bi-controller"></i> USER EXPERIENCE TEST</h4>
+                <p class="text-muted small mb-4">Test how this template behaves when a user purchases it and applies their own content. <em>These inputs only affect the live preview on the left and are NOT saved to the database.</em></p>
+
+                <div class="row g-3">
+                    <div class="col-md-6 mb-3">
+                        <label for="test_card_title" class="form-label text-white-50">Test Card Title</label>
+                        <input type="text" id="test_card_title" class="form-control bg-dark text-white border-secondary" placeholder="e.g. THE IMMORTAL ONE">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="test_quote" class="form-label text-white-50">Test Quote</label>
+                        <textarea id="test_quote" class="form-control bg-dark text-white border-secondary" rows="1" placeholder="e.g. Victory is my only option."></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label for="test_photo" class="form-label text-white-50">Test Personal Photo</label>
+                        <input type="file" id="test_photo" class="form-control bg-dark text-white border-secondary" accept="image/*">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -143,7 +164,7 @@
             this.ctx.clearRect(0, 0, this.width, this.height);
         }
 
-        async draw(config) {
+        async draw(config, testData) {
             this.clear();
             if (!config || !config.layers) return;
             // Iterate backwards for painter's algorithm
@@ -156,10 +177,10 @@
                         await this.drawAsset(layer);
                         break;
                     case 'photo':
-                        this.drawPhotoPlaceholder(layer);
+                        await this.drawPhoto(layer, testData.photo);
                         break;
                     case 'text':
-                        this.drawTextElements(layer);
+                        this.drawTextElements(layer, testData);
                         break;
                 }
             }
@@ -181,6 +202,37 @@
             });
         }
 
+        async drawPhoto(layer, customPhoto) {
+            const { x, y, width, height, shape } = layer;
+            
+            if (customPhoto) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        this.ctx.save();
+                        this.ctx.beginPath();
+                        if (shape === 'circle') {
+                            const radius = Math.min(width, height) / 2;
+                            this.ctx.arc(x + width / 2, y + height / 2, radius, 0, Math.PI * 2);
+                        } else {
+                            this.ctx.rect(x, y, width, height);
+                        }
+                        this.ctx.clip();
+                        this.ctx.drawImage(img, x, y, width, height);
+                        this.ctx.restore();
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        this.drawPhotoPlaceholder(layer);
+                        resolve();
+                    };
+                    img.src = customPhoto;
+                });
+            } else {
+                this.drawPhotoPlaceholder(layer);
+            }
+        }
+
         drawPhotoPlaceholder(layer) {
             const { x, y, width, height, shape } = layer;
             this.ctx.setLineDash([5, 5]);
@@ -199,15 +251,26 @@
             this.ctx.setLineDash([]);
         }
 
-        drawTextElements(layer) {
+        drawTextElements(layer, testData) {
             if (!layer.elements) return;
             Object.entries(layer.elements).forEach(([key, el]) => {
                 if (!el.visible) return;
                 this.ctx.fillStyle = el.color || '#ffffff';
                 this.ctx.font = `${el.weight || 'normal'} ${el.size || 16}px Orbitron, sans-serif`;
                 this.ctx.textAlign = el.align || 'left';
-                const text = el.content ? el.content.replace(/\{(\w+)\}/g, '$1').toUpperCase() : key.toUpperCase();
-                this.ctx.fillText(text, el.x, el.y);
+                
+                let text = el.content || '';
+                // Replace placeholders with test data or fallback to generic placeholder
+                if (key === 'title') {
+                    text = testData.title || 'YOUR CARD TITLE';
+                } else if (key === 'quote') {
+                    text = testData.quote || 'YOUR QUOTE GOES HERE...';
+                } else {
+                    // Generic replacement for other stats
+                    text = text.replace(/\{(\w+)\}/g, '$1').toUpperCase();
+                }
+                
+                this.ctx.fillText(text.toUpperCase(), el.x, el.y);
             });
         }
     }
@@ -215,18 +278,51 @@
     document.addEventListener('DOMContentLoaded', () => {
         const renderer = new PreviewRenderer('preview-canvas');
         const currentConfig = {!! json_encode($premiumTemplate->premium_config) !!};
+        
+        // UX Test State
+        const uxTest = {
+            title: '',
+            quote: '',
+            photo: null
+        };
 
         const renderPreview = (level) => {
             if (currentConfig && currentConfig.levels && currentConfig.levels[level]) {
-                renderer.draw(currentConfig.levels[level]);
+                renderer.draw(currentConfig.levels[level], uxTest);
             }
         };
 
         // Initial Draw
         renderPreview("1");
 
+        // UI Listeners
         document.querySelectorAll('input[name="preview-level"]').forEach(radio => {
             radio.onchange = (e) => renderPreview(e.target.value);
+        });
+
+        document.getElementById('test_card_title').addEventListener('input', (e) => {
+            uxTest.title = e.target.value;
+            const currentLevel = document.querySelector('input[name="preview-level"]:checked').value;
+            renderPreview(currentLevel);
+        });
+
+        document.getElementById('test_quote').addEventListener('input', (e) => {
+            uxTest.quote = e.target.value;
+            const currentLevel = document.querySelector('input[name="preview-level"]:checked').value;
+            renderPreview(currentLevel);
+        });
+
+        document.getElementById('test_photo').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    uxTest.photo = event.target.result;
+                    const currentLevel = document.querySelector('input[name="preview-level"]:checked').value;
+                    renderPreview(currentLevel);
+                };
+                reader.readAsDataURL(file);
+            }
         });
     });
 </script>

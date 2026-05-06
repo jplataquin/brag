@@ -202,10 +202,10 @@
                                 <input type="file" id="config_file" class="form-control bg-dark text-white border-secondary" accept=".json">
                                 <input type="hidden" name="temporary_json_path" id="temporary_json_path">
                                 
-                                <div class="progress mt-2" style="height: 6px; display: none; background: rgba(255,255,255,0.1);" id="json-progress-wrapper">
-                                    <div id="json-progress-bar" class="progress-bar bg-neon-magenta" role="progressbar" style="width: 0%"></div>
+                                <div class="progress mt-2 d-none" style="height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);" id="json-progress-wrapper">
+                                    <div id="json-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-neon-magenta" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
-                                <div id="json-status" class="small mt-1" style="font-size: 0.7rem;"></div>
+                                <div id="json-status" class="small mt-1 fw-bold" style="font-size: 0.7rem; color: var(--neon-cyan);"></div>
                                 
                                 <div class="form-text text-muted small">Exported from the Card Designer Studio.</div>
                             </div>
@@ -407,9 +407,10 @@
             const extension = 'json';
             let chunkIndex = 0;
 
-            progressWrapper.style.display = 'block';
+            progressWrapper.classList.remove('d-none');
             progressBar.style.width = '0%';
-            statusText.innerText = 'Starting upload...';
+            progressBar.setAttribute('aria-valuenow', 0);
+            statusText.innerText = 'STARTING UPLOAD... (0%)';
             statusText.style.color = '#00f0ff';
             btnSubmit.disabled = true;
 
@@ -444,15 +445,21 @@
                     chunkIndex++;
                     const percent = Math.round((chunkIndex / totalChunks) * 100);
                     progressBar.style.width = percent + '%';
-                    statusText.innerText = 'Uploading: ' + percent + '%';
-
+                    progressBar.setAttribute('aria-valuenow', percent);
+                    
                     if (chunkIndex < totalChunks) {
+                        statusText.innerText = `UPLOADING DESIGN... ${percent}%`;
                         uploadNextChunk();
                     } else if (data.success && data.path) {
                         tempPathInput.value = data.path;
-                        statusText.innerText = 'Upload complete!';
+                        statusText.innerText = 'UPLOAD COMPLETE! VERIFYING ON SERVER...';
                         statusText.style.color = '#39ff14';
-                        btnSubmit.disabled = false;
+                        
+                        // Small delay to let user see "100%" before allowing submission
+                        setTimeout(() => {
+                            btnSubmit.disabled = false;
+                            statusText.innerText = 'READY FOR PROCESSING';
+                        }, 500);
                     }
                 })
                 .catch(err => {
