@@ -138,7 +138,7 @@
                             <label class="form-label text-secondary small fw-bold mb-2">LIVE PREVIEW</label>
                             <div class="preview-container bg-black border border-secondary rounded overflow-hidden shadow-sm" style="width: 250px; height: 350px; position: relative;">
                                 <canvas id="preview-canvas" width="500" height="700" style="width: 100%; height: 100%;"></canvas>
-                                <div id="preview-placeholder" class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center text-center p-3 text-muted" style="background: rgba(0,0,0,0.8);">
+                                <div id="preview-placeholder" class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center text-center p-3 text-muted" style="background: rgba(0,0,0,0.8); z-index: 5;">
                                     <i class="bi bi-file-earmark-code display-4 mb-2"></i>
                                     <small>Select a JSON file to see a preview</small>
                                 </div>
@@ -326,7 +326,8 @@
                     try {
                         currentConfig = JSON.parse(event.target.result);
                         if (currentConfig.levels) {
-                            placeholder.style.display = 'none';
+                            placeholder.classList.add('d-none');
+                            placeholder.classList.remove('d-flex');
                             levelGroup.style.display = 'flex';
                             renderPreview("1");
                         }
