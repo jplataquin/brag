@@ -50,7 +50,7 @@ class TemplateController extends Controller
         set_time_limit(300);
 
         $request->validate([
-            'card_title' => 'required|string|max:255|unique:templates,card_title',
+            'template_title' => 'required|string|max:255|unique:premium_templates,template_title',
             'game_title_id' => 'required|exists:game_titles,id',
             'designer_name' => 'nullable|string|max:255',
             'description' => 'nullable|string',
@@ -72,7 +72,7 @@ class TemplateController extends Controller
             return back()->with('error', 'Invalid JSON template format.');
         }
 
-        $slug = Str::slug($request->card_title);
+        $slug = Str::slug($request->template_title);
         $timestamp = time();
         $savedFiles = [];
 
@@ -118,7 +118,7 @@ class TemplateController extends Controller
 
             PremiumTemplate::create([
                 'game_title_id' => $request->game_title_id,
-                'card_title' => $request->card_title,
+                'template_title' => $request->template_title,
                 'price' => $request->price,
                 'status' => $request->status,
                 'designer_name' => $request->designer_name,

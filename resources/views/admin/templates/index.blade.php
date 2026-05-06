@@ -45,7 +45,7 @@
                             <thead>
                                 <tr class="border-neon-magenta" style="border-bottom: 1px solid rgba(255,0,255,0.3) !important;">
                                     <th scope="col" class="py-3 px-4 text-start">ID</th>
-                                    <th scope="col" class="py-3">Card Title</th>
+                                    <th scope="col" class="py-3">Template Title</th>
                                     <th scope="col" class="py-3">Game Title</th>
                                     <th scope="col" class="py-3">Price</th>
                                     <th scope="col" class="py-3">Status</th>
@@ -58,7 +58,7 @@
                                         <td class="px-4 text-start">
                                             <span class="fw-bold" style="color: var(--neon-magenta);">#{{ $pt->id }}</span>
                                         </td>
-                                        <td>{{ $pt->card_title }}</td>
+                                        <td>{{ $pt->template_title }}</td>
                                         <td>{{ $pt->gameTitle->title ?? 'Deleted Game' }}</td>
                                         <td><span class="text-neon-lime"><i class="bi bi-gem"></i> {{ $pt->price }}</span></td>
                                         <td>
@@ -211,8 +211,8 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="card_title" class="form-label text-neon-cyan small fw-bold">2. CARD TITLE</label>
-                                <input type="text" name="card_title" id="card_title" class="form-control bg-dark text-white border-secondary" placeholder="e.g. Neon Dragon" required>
+                                <label for="template_title" class="form-label text-neon-cyan small fw-bold">2. TEMPLATE TITLE</label>
+                                <input type="text" name="template_title" id="template_title" class="form-control bg-dark text-white border-secondary" placeholder="e.g. Neon Dragon" required>
                             </div>
 
                             <div class="mb-3">

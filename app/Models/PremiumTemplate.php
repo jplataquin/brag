@@ -12,7 +12,7 @@ class PremiumTemplate extends Model
 
     protected $fillable = [
         'game_title_id',
-        'card_title',
+        'template_title',
         'price',
         'status',
         'designer_name',
