@@ -49,10 +49,15 @@ class TemplateController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|integer|min:0',
             'status' => 'required|in:active,inactive',
-            'config_file' => 'required|file|mimes:json',
+            'temporary_json_path' => 'required|string',
         ]);
 
-        $jsonContent = file_get_contents($request->file('config_file')->getRealPath());
+        $tempPath = $request->input('temporary_json_path');
+        if (!Storage::disk('public')->exists($tempPath)) {
+            return back()->with('error', 'Temporary template file not found.');
+        }
+
+        $jsonContent = Storage::disk('public')->get($tempPath);
         $config = json_decode($jsonContent, true);
 
         if (!$config || !isset($config['levels'])) {
@@ -112,6 +117,9 @@ class TemplateController extends Controller
             'admin_editor_id' => auth()->id(),
             'admin_edited_at' => now(),
         ]);
+
+        // Cleanup temporary JSON file
+        Storage::disk('public')->delete($tempPath);
 
         return back()->with('success', 'Premium template uploaded successfully!');
     }

@@ -155,7 +155,14 @@
                         <div class="col-md-7">
                             <div class="mb-3">
                                 <label for="config_file" class="form-label text-neon-cyan small fw-bold">1. TEMPLATE JSON FILE</label>
-                                <input type="file" name="config_file" id="config_file" class="form-control bg-dark text-white border-secondary" accept=".json" required>
+                                <input type="file" id="config_file" class="form-control bg-dark text-white border-secondary" accept=".json">
+                                <input type="hidden" name="temporary_json_path" id="temporary_json_path">
+                                
+                                <div class="progress mt-2" style="height: 6px; display: none; background: rgba(255,255,255,0.1);" id="json-progress-wrapper">
+                                    <div id="json-progress-bar" class="progress-bar bg-neon-magenta" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <div id="json-status" class="small mt-1" style="font-size: 0.7rem;"></div>
+                                
                                 <div class="form-text text-muted small">Exported from the Card Designer Studio.</div>
                             </div>
 
@@ -205,7 +212,7 @@
                 </div>
                 <div class="modal-footer border-secondary bg-black bg-opacity-25">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-neon-magenta px-4 fw-bold">
+                    <button type="submit" id="btn-submit-premium" class="btn btn-neon-magenta px-4 fw-bold" disabled>
                         <i class="bi bi-check2-circle"></i> PROCESS & UPLOAD
                     </button>
                 </div>
@@ -316,28 +323,100 @@
         const fileInput = document.getElementById('config_file');
         const placeholder = document.getElementById('preview-placeholder');
         const levelGroup = document.getElementById('level-toggle-group');
+        const tempPathInput = document.getElementById('temporary_json_path');
+        const progressWrapper = document.getElementById('json-progress-wrapper');
+        const progressBar = document.getElementById('json-progress-bar');
+        const statusText = document.getElementById('json-status');
+        const btnSubmit = document.getElementById('btn-submit-premium');
+        
         let currentConfig = null;
 
         fileInput.onchange = (e) => {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    try {
-                        currentConfig = JSON.parse(event.target.result);
-                        if (currentConfig.levels) {
-                            placeholder.classList.add('d-none');
-                            placeholder.classList.remove('d-flex');
-                            levelGroup.style.display = 'flex';
-                            renderPreview("1");
-                        }
-                    } catch (err) {
-                        alert('Invalid JSON file.');
+            if (!file) return;
+
+            // 1. Preview Logic
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    currentConfig = JSON.parse(event.target.result);
+                    if (currentConfig.levels) {
+                        placeholder.classList.add('d-none');
+                        placeholder.classList.remove('d-flex');
+                        levelGroup.style.display = 'flex';
+                        renderPreview("1");
                     }
-                };
-                reader.readAsText(file);
-            }
+                } catch (err) {
+                    alert('Invalid JSON file.');
+                }
+            };
+            reader.readAsText(file);
+
+            // 2. Chunk Upload Logic
+            uploadFileInChunks(file);
         };
+
+        function uploadFileInChunks(file) {
+            const chunkSize = 1 * 1024 * 1024; // 1MB chunks
+            const totalChunks = Math.ceil(file.size / chunkSize);
+            const fileId = 'json_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            const extension = 'json';
+            let chunkIndex = 0;
+
+            progressWrapper.style.display = 'block';
+            progressBar.style.width = '0%';
+            statusText.innerText = 'Starting upload...';
+            statusText.style.color = '#00f0ff';
+            btnSubmit.disabled = true;
+
+            const uploadNextChunk = () => {
+                const start = chunkIndex * chunkSize;
+                const end = Math.min(start + chunkSize, file.size);
+                const chunk = file.slice(start, end);
+
+                const formData = new FormData();
+                formData.append('file', chunk);
+                formData.append('file_id', fileId);
+                formData.append('chunk_index', chunkIndex);
+                formData.append('total_chunks', totalChunks);
+                formData.append('extension', extension);
+                formData.append('_token', '{{ csrf_token() }}');
+
+                fetch('{{ route("upload.chunk") }}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        statusText.innerText = 'Upload failed!';
+                        statusText.style.color = 'red';
+                        return;
+                    }
+
+                    chunkIndex++;
+                    const percent = Math.round((chunkIndex / totalChunks) * 100);
+                    progressBar.style.width = percent + '%';
+                    statusText.innerText = 'Uploading: ' + percent + '%';
+
+                    if (chunkIndex < totalChunks) {
+                        uploadNextChunk();
+                    } else if (data.success && data.path) {
+                        tempPathInput.value = data.path;
+                        statusText.innerText = 'Upload complete!';
+                        statusText.style.color = '#39ff14';
+                        btnSubmit.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    console.error('Upload Error:', err);
+                    statusText.innerText = 'Upload error!';
+                    statusText.style.color = 'red';
+                });
+            };
+
+            uploadNextChunk();
+        }
 
         const renderPreview = (level) => {
             if (currentConfig && currentConfig.levels[level]) {
