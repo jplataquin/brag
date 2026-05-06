@@ -30,8 +30,11 @@
                 <h5 class="text-neon-magenta mb-4" style="font-family: 'Orbitron', sans-serif;">LIVE PREVIEW</h5>
                 
                 <div class="d-flex flex-column align-items-center">
-                    <div class="preview-container bg-black border border-secondary rounded overflow-hidden shadow-sm mb-3" style="width: 250px; height: 350px; position: relative;">
+                    <div class="preview-container bg-black border border-secondary rounded overflow-hidden shadow-sm mb-3" style="width: 250px; height: 350px; position: relative; cursor: zoom-in;" id="btn-fullscreen-trigger">
                         <canvas id="preview-canvas" width="500" height="700" style="width: 100%; height: 100%;"></canvas>
+                        <div class="position-absolute bottom-0 end-0 p-2 text-white-50" style="pointer-events: none;">
+                            <i class="bi bi-fullscreen"></i>
+                        </div>
                     </div>
                     
                     <div class="btn-group btn-group-sm w-100 shadow-sm" id="level-toggle-group">
@@ -139,6 +142,21 @@
         </div>
     </div>
 </div>
+
+@push('modals')
+<div class="modal fade" id="fullscreenPreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered d-flex justify-content-center" style="max-width: 95vw;">
+        <div class="modal-content bg-transparent border-0 w-auto">
+            <div class="modal-body p-0 shadow-lg">
+                <canvas id="fullscreen-canvas" width="500" height="700" style="max-height: 85vh; width: auto; border-radius: 15px; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 0 30px rgba(0,0,0,0.8);"></canvas>
+            </div>
+            <div class="modal-footer border-0 justify-content-center mt-3">
+                <button type="button" class="btn btn-neon-magenta px-5 rounded-pill fw-bold shadow" data-bs-dismiss="modal">CLOSE PREVIEW</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endpush
 
 <style>
     .border-neon-magenta { border-color: #ff00ff !important; box-shadow: 0 0 15px rgba(255, 0, 255, 0.1); }
@@ -260,14 +278,19 @@
                 this.ctx.textAlign = el.align || 'left';
                 
                 let text = el.content || '';
-                // Replace placeholders with test data or fallback to generic placeholder
+                
+                // Robust Placeholder Replacement
                 if (key === 'title') {
                     text = testData.title || 'YOUR CARD TITLE';
                 } else if (key === 'quote') {
                     text = testData.quote || 'YOUR QUOTE GOES HERE...';
                 } else {
-                    // Generic replacement for other stats
-                    text = text.replace(/\{(\w+)\}/g, '$1').toUpperCase();
+                    // Replace variables in curly braces
+                    text = text.replace(/\{title\}/gi, testData.title || 'TITLE');
+                    text = text.replace(/\{quote\}/gi, testData.quote || 'QUOTE');
+                    text = text.replace(/\{(\w+)\}/g, (match, p1) => {
+                        return p1.toUpperCase();
+                    });
                 }
                 
                 this.ctx.fillText(text.toUpperCase(), el.x, el.y);
@@ -276,7 +299,12 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        const previewCanvas = document.getElementById('preview-canvas');
+        const fullscreenCanvas = document.getElementById('fullscreen-canvas');
+        
         const renderer = new PreviewRenderer('preview-canvas');
+        const fsRenderer = new PreviewRenderer('fullscreen-canvas');
+        
         const currentConfig = {!! json_encode($premiumTemplate->premium_config) !!};
         
         // UX Test State
@@ -289,6 +317,7 @@
         const renderPreview = (level) => {
             if (currentConfig && currentConfig.levels && currentConfig.levels[level]) {
                 renderer.draw(currentConfig.levels[level], uxTest);
+                fsRenderer.draw(currentConfig.levels[level], uxTest);
             }
         };
 
@@ -324,7 +353,15 @@
                 reader.readAsDataURL(file);
             }
         });
+
+        // Fullscreen Modal Logic
+        const fsModal = new bootstrap.Modal(document.getElementById('fullscreenPreviewModal'));
+        document.getElementById('btn-fullscreen-trigger').onclick = () => {
+            fsModal.show();
+            // Re-render specifically for FS to ensure dimensions are correct
+            const currentLevel = document.querySelector('input[name="preview-level"]:checked').value;
+            setTimeout(() => renderPreview(currentLevel), 150); 
+        };
     });
 </script>
-@endsection
 @endsection
