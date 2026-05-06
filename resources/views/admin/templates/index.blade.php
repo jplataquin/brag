@@ -386,14 +386,17 @@
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        statusText.innerText = 'Upload failed!';
-                        statusText.style.color = 'red';
-                        return;
-                    }
+                .then(async response => {
+                    const isJson = response.headers.get('content-type')?.includes('application/json');
+                    const data = isJson ? await response.json() : null;
 
+                    if (!response.ok) {
+                        const errorMsg = data?.error || data?.message || `Server error (${response.status})`;
+                        throw new Error(errorMsg);
+                    }
+                    return data;
+                })
+                .then(data => {
                     chunkIndex++;
                     const percent = Math.round((chunkIndex / totalChunks) * 100);
                     progressBar.style.width = percent + '%';
@@ -410,7 +413,7 @@
                 })
                 .catch(err => {
                     console.error('Upload Error:', err);
-                    statusText.innerText = 'Upload error!';
+                    statusText.innerText = 'Upload failed: ' + err.message;
                     statusText.style.color = 'red';
                 });
             };

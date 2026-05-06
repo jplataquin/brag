@@ -48,9 +48,7 @@ class UploadController extends Controller
 
         // Store current chunk
         $chunkPath = $tempDirPath . '/' . $chunkIndex . '.part';
-
-       
-        file_put_contents(Storage::disk('public')->path($chunkPath), file_get_contents($file->path()));
+        Storage::disk('public')->put($chunkPath, fopen($file->path(), 'r'));
 
         // Check if this is the last chunk
         if ($chunkIndex == $totalChunks - 1) {
@@ -59,6 +57,11 @@ class UploadController extends Controller
                 if (!Storage::disk('public')->exists($tempDirPath . '/' . $i . '.part')) {
                     return response()->json(['error' => 'Missing chunks'], 400);
                 }
+            }
+
+            // Ensure final directory exists
+            if (!Storage::disk('public')->exists($finalDirPath)) {
+                Storage::disk('public')->makeDirectory($finalDirPath);
             }
 
             // Merge chunks
