@@ -94,14 +94,6 @@
         border-color: rgba(0, 240, 255, 0.1);
     }
 </style>
-<script type="importmap">
-{
-    "imports": {
-        "ckeditor5": "https://cdn.ckeditor.com/ckeditor5/43.0.0/ckeditor5.js",
-        "ckeditor5/": "https://cdn.ckeditor.com/ckeditor5/43.0.0/"
-    }
-}
-</script>
 <script type="module">
     import {
         ClassicEditor,
@@ -116,7 +108,7 @@
         IndentBlock,
         BlockQuote,
         Undo
-    } from 'ckeditor5';
+    } from 'https://cdn.ckeditor.com/ckeditor5/43.0.0/ckeditor5.js';
 
     let editorInstance;
 

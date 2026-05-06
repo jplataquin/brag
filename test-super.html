@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        :root {
+            --ck-color-base-background: #111122;
+            --ck-color-base-text: #fff;
+        }
+    </style>
+</head>
+<body>
+    <textarea id="editor"></textarea>
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/super-build/ckeditor.js"></script>
+    <script>
+        window.onload = () => {
+            CKEDITOR.ClassicEditor.create(document.getElementById('editor'), {
+                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'outdent', 'indent', 'blockQuote', 'undo', 'redo']
+            }).then(e => console.log('SUCCESS')).catch(e => console.log('ERR', e));
+        };
+    </script>
+</body>
+</html>

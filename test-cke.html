@@ -1,48 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.0.0/ckeditor5.css">
-<style>
-    :root {
-        --ck-color-base-background: #111122;
-        --ck-color-base-border: rgba(0, 240, 255, 0.2);
-        --ck-color-base-text: #fff;
-        --ck-color-text: #fff;
-        --ck-color-toolbar-background: #0a0a1a;
-        --ck-color-toolbar-border: rgba(0, 240, 255, 0.2);
-        --ck-color-button-default-hover-background: rgba(0, 240, 255, 0.1);
-        --ck-color-button-on-background: rgba(0, 240, 255, 0.2);
-        --ck-color-button-on-color: #00f0ff;
-        --ck-color-list-background: #0a0a1a;
-        --ck-color-list-button-hover-background: rgba(0, 240, 255, 0.1);
-        --ck-color-panel-background: #0a0a1a;
-        --ck-color-panel-border: rgba(0, 240, 255, 0.2);
-        --ck-color-dropdown-panel-background: #0a0a1a;
-        --ck-color-dropdown-panel-border: rgba(0, 240, 255, 0.2);
-        --ck-color-input-background: #111122;
-        --ck-color-input-border: rgba(0, 240, 255, 0.2);
-        --ck-color-input-text: #fff;
-        --ck-color-list-button-on-background: rgba(0, 240, 255, 0.2);
-        --ck-color-list-button-on-text: #00f0ff;
-    }
-    .ck-editor__editable {
-        min-height: 400px;
-    }
-    .ck.ck-editor__main>.ck-editor__editable:not(.ck-focused) {
-        border-color: rgba(0, 240, 255, 0.1);
-    }
-</style>
 </head>
 <body>
 <textarea id="editor"></textarea>
-<script type="importmap">
-{
-    "imports": {
-        "ckeditor5": "https://cdn.ckeditor.com/ckeditor5/43.0.0/ckeditor5.js",
-        "ckeditor5/": "https://cdn.ckeditor.com/ckeditor5/43.0.0/"
-    }
-}
-</script>
 <script type="module">
     import {
         ClassicEditor,
@@ -57,7 +18,7 @@
         IndentBlock,
         BlockQuote,
         Undo
-    } from 'ckeditor5';
+    } from 'https://cdn.ckeditor.com/ckeditor5/43.0.0/ckeditor5.js';
 
     ClassicEditor
         .create(document.querySelector('#editor'), {
