@@ -33,87 +33,131 @@
         </form>
     </div>
 
-    <!-- Templates Table -->
-    <div class="card bg-dark bg-opacity-75 border-info rounded-4 shadow-lg" style="backdrop-filter: blur(10px);">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-dark table-hover align-middle mb-0 text-center">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="py-3 px-4 text-start">ID</th>
-                            <th scope="col" class="py-3">Card Title</th>
-                            <th scope="col" class="py-3">Type</th>
-                            <th scope="col" class="py-3">Game Title</th>
-                            <th scope="col" class="py-3">Status</th>
-                            <th scope="col" class="py-3 text-end px-4">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($templates as $template)
-                            <tr>
-                                <td class="px-4 text-start">
-                                    <span class="fw-bold" style="color: var(--neon-cyan);">#{{ $template->id }}</span>
-                                </td>
-                                <td>
-                                    {{ $template->card_title }}
-                                </td>
-                                <td>
-                                    @if($template->is_premium)
-                                        <span class="badge bg-neon-magenta text-white">PREMIUM</span>
-                                    @else
-                                        <span class="badge bg-secondary">Standard</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    {{ $template->gameTitle->title ?? 'Deleted Game' }}
-                                </td>
-                                <td>
-                                    @if($template->trashed())
-                                        <span class="badge bg-danger">Deleted</span>
-                                    @elseif($template->is_premium)
-                                        @if($template->status === 'active')
-                                            <span class="badge bg-success">Active</span>
-                                        @else
-                                            <span class="badge bg-warning text-dark">Inactive</span>
-                                        @endif
-                                    @else
-                                        <span class="badge bg-success">Active</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 text-end">
-                                    <div class="btn-group">
-                                        @if($template->is_premium && !$template->trashed())
-                                            <form action="{{ route('admin.templates.toggle_status', $template->id) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm {{ $template->status === 'active' ? 'btn-outline-warning' : 'btn-outline-success' }}" title="Toggle Status">
-                                                    <i class="bi {{ $template->status === 'active' ? 'bi-toggle-on' : 'bi-toggle-off' }}"></i>
-                                                </button>
-                                            </form>
-                                        @endif
-                                        <a href="{{ route('admin.templates.edit', $template->id) }}" class="btn btn-sm btn-outline-info">
-                                            <i class="bi bi-pencil-square"></i> Edit
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="text-center text-muted py-5">
-                                    <i class="bi bi-inbox display-4 d-block mb-3"></i>
-                                    No templates found.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+    <!-- Templates Tables -->
+    <div class="row g-4">
+        <!-- Premium Shop Catalog -->
+        <div class="col-12">
+            <h4 class="text-neon-magenta mb-3" style="font-family: 'Orbitron', sans-serif;"><i class="bi bi-shop me-2"></i> PREMIUM SHOP CATALOG</h4>
+            <div class="card bg-dark bg-opacity-75 border-neon-magenta rounded-4 shadow-lg mb-4" style="backdrop-filter: blur(10px);">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle mb-0 text-center">
+                            <thead>
+                                <tr class="border-neon-magenta" style="border-bottom: 1px solid rgba(255,0,255,0.3) !important;">
+                                    <th scope="col" class="py-3 px-4 text-start">ID</th>
+                                    <th scope="col" class="py-3">Card Title</th>
+                                    <th scope="col" class="py-3">Game Title</th>
+                                    <th scope="col" class="py-3">Price</th>
+                                    <th scope="col" class="py-3">Status</th>
+                                    <th scope="col" class="py-3 text-end px-4">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($premiumTemplates as $pt)
+                                    <tr>
+                                        <td class="px-4 text-start">
+                                            <span class="fw-bold" style="color: var(--neon-magenta);">#{{ $pt->id }}</span>
+                                        </td>
+                                        <td>{{ $pt->card_title }}</td>
+                                        <td>{{ $pt->gameTitle->title ?? 'Deleted Game' }}</td>
+                                        <td><span class="text-neon-lime"><i class="bi bi-gem"></i> {{ $pt->price }}</span></td>
+                                        <td>
+                                            @if($pt->status === 'active')
+                                                <span class="badge bg-success shadow-sm">ACTIVE</span>
+                                            @else
+                                                <span class="badge bg-secondary">INACTIVE</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 text-end">
+                                            <div class="btn-group">
+                                                <form action="{{ route('admin.templates.toggle_status', $pt->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm {{ $pt->status === 'active' ? 'btn-outline-warning' : 'btn-outline-success' }}" title="Toggle Status">
+                                                        <i class="bi {{ $pt->status === 'active' ? 'bi-toggle-on' : 'bi-toggle-off' }}"></i>
+                                                    </button>
+                                                </form>
+                                                <a href="#" class="btn btn-sm btn-outline-info disabled" title="Edit Catalog Entry">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">No premium templates in catalog.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        @if($templates->hasPages())
-            <div class="card-footer border-info border-top p-3 d-flex justify-content-center">
-                {{ $templates->links() }}
+
+        <!-- User Generated Templates -->
+        <div class="col-12">
+            <h4 class="text-neon-cyan mb-3" style="font-family: 'Orbitron', sans-serif;"><i class="bi bi-person-badge me-2"></i> USER INVENTORY TEMPLATES</h4>
+            <div class="card bg-dark bg-opacity-75 border-info rounded-4 shadow-lg" style="backdrop-filter: blur(10px);">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle mb-0 text-center">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="py-3 px-4 text-start">ID</th>
+                                    <th scope="col" class="py-3">Card Title</th>
+                                    <th scope="col" class="py-3">Owner</th>
+                                    <th scope="col" class="py-3">Game Title</th>
+                                    <th scope="col" class="py-3">Status</th>
+                                    <th scope="col" class="py-3 text-end px-4">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($templates as $template)
+                                    <tr>
+                                        <td class="px-4 text-start">
+                                            <span class="fw-bold" style="color: var(--neon-cyan);">#{{ $template->id }}</span>
+                                        </td>
+                                        <td>{{ $template->card_title }}</td>
+                                        <td>
+                                            @if($template->user)
+                                                <span class="text-white">{{ $template->user->username }}</span>
+                                            @else
+                                                <span class="text-muted">Deleted User</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $template->gameTitle->title ?? 'Deleted Game' }}</td>
+                                        <td>
+                                            @if($template->trashed())
+                                                <span class="badge bg-danger">Deleted</span>
+                                            @else
+                                                <span class="badge bg-success">Active</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 text-end">
+                                            <a href="{{ route('admin.templates.edit', $template->id) }}" class="btn btn-sm btn-outline-info">
+                                                <i class="bi bi-pencil-square"></i> Edit
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-5">
+                                            <i class="bi bi-inbox display-4 d-block mb-3"></i>
+                                            No user templates found.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @if($templates->hasPages())
+                    <div class="card-footer border-info border-top p-3 d-flex justify-content-center">
+                        {{ $templates->links() }}
+                    </div>
+                @endif
             </div>
-        @endif
+        </div>
     </div>
 </div>
 @endsection

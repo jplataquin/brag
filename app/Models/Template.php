@@ -14,11 +14,6 @@ class Template extends Model
         'user_id',
         'card_title',
         'game_title_id',
-        'is_premium',
-        'price',
-        'status',
-        'designer_name',
-        'description',
         'premium_config',
         'quote',
         'photo',
@@ -35,7 +30,6 @@ class Template extends Model
 
     protected $casts = [
         'admin_edited_at' => 'datetime',
-        'is_premium' => 'boolean',
         'premium_config' => 'array',
     ];
 

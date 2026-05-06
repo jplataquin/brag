@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Template;
+use App\Models\PremiumTemplate;
 use App\Models\GameTitle;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class TemplateController extends Controller
 {
@@ -32,9 +34,10 @@ class TemplateController extends Controller
         }
 
         $templates = $query->orderBy('id', 'desc')->paginate(15)->withQueryString();
+        $premiumTemplates = PremiumTemplate::with(['gameTitle', 'adminEditor'])->orderBy('id', 'desc')->get();
         $gameTitles = GameTitle::where('status', 'active')->orderBy('title')->get();
 
-        return view('admin.templates.index', compact('templates', 'gameTitles'));
+        return view('admin.templates.index', compact('templates', 'premiumTemplates', 'gameTitles'));
     }
 
     /**
@@ -71,73 +74,87 @@ class TemplateController extends Controller
 
         $slug = Str::slug($request->card_title);
         $timestamp = time();
+        $savedFiles = [];
 
-        // Iterate levels and layers to extract base64 images and convert to WebP
-        foreach ($config['levels'] as $levelKey => &$level) {
-            foreach ($level['layers'] as $layerIndex => &$layer) {
-                if ($layer['type'] === 'image' && !empty($layer['data'])) {
-                    $base64Data = $layer['data'];
-                    
-                    // Basic check for base64
-                    if (str_contains($base64Data, ';base64,')) {
-                        $parts = explode(';base64,', $base64Data);
-                        $data = base64_decode($parts[1]);
+        DB::beginTransaction();
+
+        try {
+            // Iterate levels and layers to extract base64 images and convert to WebP
+            foreach ($config['levels'] as $levelKey => &$level) {
+                foreach ($level['layers'] as $layerIndex => &$layer) {
+                    if ($layer['type'] === 'image' && !empty($layer['data'])) {
+                        $base64Data = $layer['data'];
                         
-                        // Create image from string
-                        $img = imagecreatefromstring($data);
-                        if ($img) {
-                            $filename = "premium-templates/{$slug}_lv{$levelKey}_layer{$layerIndex}_{$timestamp}.webp";
+                        // Basic check for base64
+                        if (str_contains($base64Data, ';base64,')) {
+                            $parts = explode(';base64,', $base64Data);
+                            $data = base64_decode($parts[1]);
                             
-                            // Enable alpha blending and save as WebP
-                            imagealphablending($img, false);
-                            imagesavealpha($img, true);
-                            
-                            ob_start();
-                            imagewebp($img, null, 90);
-                            $webpData = ob_get_clean();
-                            
-                            Storage::disk('public')->put($filename, $webpData);
-                            imagedestroy($img);
-                            
-                            // Replace base64 with asset path
-                            $layer['asset_path'] = $filename;
-                            unset($layer['data']); // Crucial: free the base64 string from the array
+                            // Create image from string
+                            $img = @imagecreatefromstring($data);
+                            if ($img) {
+                                $filename = "premium-templates/{$slug}_lv{$levelKey}_layer{$layerIndex}_{$timestamp}.webp";
+                                
+                                // Enable alpha blending and save as WebP
+                                imagealphablending($img, false);
+                                imagesavealpha($img, true);
+                                
+                                ob_start();
+                                imagewebp($img, null, 90);
+                                $webpData = ob_get_clean();
+                                
+                                Storage::disk('public')->put($filename, $webpData);
+                                $savedFiles[] = $filename; // Track for potential rollback
+                                imagedestroy($img);
+                                
+                                // Replace base64 with asset path
+                                $layer['asset_path'] = $filename;
+                                unset($layer['data']); // Crucial: free the base64 string from the array
+                            }
                         }
                     }
                 }
             }
+
+            PremiumTemplate::create([
+                'game_title_id' => $request->game_title_id,
+                'card_title' => $request->card_title,
+                'price' => $request->price,
+                'status' => $request->status,
+                'designer_name' => $request->designer_name,
+                'description' => $request->description,
+                'premium_config' => $config,
+                'admin_editor_id' => auth()->id(),
+            ]);
+
+            DB::commit();
+
+            // Cleanup temporary JSON file only on success
+            Storage::disk('public')->delete($tempPath);
+
+            return back()->with('success', 'Premium template uploaded successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // Cleanup any files saved during the failed attempt
+            foreach ($savedFiles as $file) {
+                Storage::disk('public')->delete($file);
+            }
+
+            return back()->with('error', 'Error processing template: ' . $e->getMessage());
         }
-
-        Template::create([
-            'user_id' => auth()->id(), // Admin as owner
-            'card_title' => $request->card_title,
-            'game_title_id' => $request->game_title_id,
-            'is_premium' => true,
-            'price' => $request->price,
-            'status' => $request->status,
-            'designer_name' => $request->designer_name,
-            'description' => $request->description,
-            'premium_config' => $config,
-            'quote' => 'Premium Card', // Default quote
-            'admin_editor_id' => auth()->id(),
-            'admin_edited_at' => now(),
-        ]);
-
-        // Cleanup temporary JSON file
-        Storage::disk('public')->delete($tempPath);
-
-        return back()->with('success', 'Premium template uploaded successfully!');
     }
 
     /**
-     * Toggle template status.
+     * Toggle premium template status.
      */
-    public function toggleStatus(Template $template)
+    public function toggleStatus(PremiumTemplate $template)
     {
         $template->status = $template->status === 'active' ? 'inactive' : 'active';
         $template->save();
 
-        return back()->with('success', "Template status updated to {$template->status}.");
+        return back()->with('success', "Premium template status updated to {$template->status}.");
     }
 
     /**
