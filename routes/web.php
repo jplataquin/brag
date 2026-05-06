@@ -156,7 +156,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Template Management
         Route::post('/templates/premium', [AdminTemplateController::class, 'storePremium'])->name('templates.store_premium');
-        Route::post('/templates/{template}/toggle-status', [AdminTemplateController::class, 'toggleStatus'])->name('templates.toggle_status');
+        Route::get('/premium-templates/{premiumTemplate}/edit', [AdminTemplateController::class, 'editPremium'])->name('premium-templates.edit');
+        Route::put('/premium-templates/{premiumTemplate}', [AdminTemplateController::class, 'updatePremium'])->name('premium-templates.update');
+        Route::post('/templates/{premiumTemplate}/toggle-status', [AdminTemplateController::class, 'toggleStatus'])->name('templates.toggle_status');
         Route::resource('templates', AdminTemplateController::class)->only(['index', 'edit', 'update']);
 
         // Card Management

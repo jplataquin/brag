@@ -158,6 +158,44 @@ class TemplateController extends Controller
     }
 
     /**
+     * Show the form for editing the specified premium template.
+     */
+    public function editPremium(PremiumTemplate $premiumTemplate)
+    {
+        $premiumTemplate->load(['gameTitle', 'adminEditor']);
+        $gameTitles = GameTitle::where('status', 'active')->orderBy('title')->get();
+
+        return view('admin.templates.edit_premium', compact('premiumTemplate', 'gameTitles'));
+    }
+
+    /**
+     * Update the specified premium template in storage.
+     */
+    public function updatePremium(Request $request, PremiumTemplate $premiumTemplate)
+    {
+        $request->validate([
+            'template_title' => 'required|string|max:255|unique:premium_templates,template_title,' . $premiumTemplate->id,
+            'game_title_id' => 'required|exists:game_titles,id',
+            'designer_name' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|integer|min:0',
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $premiumTemplate->update([
+            'template_title' => $request->template_title,
+            'game_title_id' => $request->game_title_id,
+            'designer_name' => $request->designer_name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'status' => $request->status,
+            'admin_editor_id' => auth()->id(),
+        ]);
+
+        return redirect()->route('admin.templates.index')->with('success', 'Premium template updated successfully!');
+    }
+
+    /**
      * Show the form for editing the specified template.
      */
     public function edit($id)

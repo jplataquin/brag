@@ -76,7 +76,7 @@
                                                         <i class="bi {{ $pt->status === 'active' ? 'bi-toggle-on' : 'bi-toggle-off' }}"></i>
                                                     </button>
                                                 </form>
-                                                <a href="#" class="btn btn-sm btn-outline-info disabled" title="Edit Catalog Entry">
+                                                <a href="{{ route('admin.premium-templates.edit', $pt->id) }}" class="btn btn-sm btn-outline-info" title="Edit Catalog Entry">
                                                     <i class="bi bi-pencil-square"></i>
                                                 </a>
                                             </div>
