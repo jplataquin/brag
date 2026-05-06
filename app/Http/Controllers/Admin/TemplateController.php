@@ -42,6 +42,10 @@ class TemplateController extends Controller
      */
     public function storePremium(Request $request)
     {
+        // Increase limits for processing large JSON with base64 images
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+
         $request->validate([
             'card_title' => 'required|string|max:255|unique:templates,card_title',
             'game_title_id' => 'required|exists:game_titles,id',
@@ -59,6 +63,7 @@ class TemplateController extends Controller
 
         $jsonContent = Storage::disk('public')->get($tempPath);
         $config = json_decode($jsonContent, true);
+        unset($jsonContent); // Free up raw string memory immediately
 
         if (!$config || !isset($config['levels'])) {
             return back()->with('error', 'Invalid JSON template format.');
@@ -96,7 +101,7 @@ class TemplateController extends Controller
                             
                             // Replace base64 with asset path
                             $layer['asset_path'] = $filename;
-                            unset($layer['data']);
+                            unset($layer['data']); // Crucial: free the base64 string from the array
                         }
                     }
                 }
