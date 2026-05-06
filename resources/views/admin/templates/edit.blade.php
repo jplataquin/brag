@@ -63,8 +63,34 @@
 
                     <div class="mb-3">
                         <label for="quote" class="form-label text-white-50">Quote</label>
-                        <textarea name="quote" id="quote" class="form-control bg-dark text-white border-info" rows="3" required maxlength="500">{{ $template->quote }}</textarea>
+                        <textarea name="quote" id="quote" class="form-control bg-dark text-white border-info" rows="2" required maxlength="500">{{ $template->quote }}</textarea>
                     </div>
+
+                    @if($template->is_premium)
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="price" class="form-label text-neon-cyan small fw-bold">Price (Diamonds)</label>
+                            <input type="number" name="price" id="price" class="form-control bg-dark text-white border-info" value="{{ old('price', $template->price) }}" min="0" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label text-neon-cyan small fw-bold">Status</label>
+                            <select name="status" id="status" class="form-select bg-dark text-white border-info" required>
+                                <option value="inactive" {{ $template->status === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                <option value="active" {{ $template->status === 'active' ? 'selected' : '' }}>Active</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="designer_name" class="form-label text-neon-cyan small fw-bold">Designer Name</label>
+                        <input type="text" name="designer_name" id="designer_name" class="form-control bg-dark text-white border-info" value="{{ old('designer_name', $template->designer_name) }}" placeholder="Credit the artist">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label text-neon-cyan small fw-bold">Description</label>
+                        <textarea name="description" id="description" class="form-control bg-dark text-white border-info" rows="3" placeholder="Marketing description for the shop">{{ old('description', $template->description) }}</textarea>
+                    </div>
+                    @endif
 
                     <div class="mb-4">
                         <label class="form-label text-neon-yellow">CARD IMAGE SOURCE (OPTIONAL)</label>

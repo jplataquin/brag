@@ -7,6 +7,8 @@ use App\Models\Template;
 use App\Models\GameTitle;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TemplateController extends Controller
 {
@@ -30,8 +32,99 @@ class TemplateController extends Controller
         }
 
         $templates = $query->orderBy('id', 'desc')->paginate(15)->withQueryString();
+        $gameTitles = GameTitle::where('status', 'active')->orderBy('title')->get();
 
-        return view('admin.templates.index', compact('templates'));
+        return view('admin.templates.index', compact('templates', 'gameTitles'));
+    }
+
+    /**
+     * Store a newly created premium template.
+     */
+    public function storePremium(Request $request)
+    {
+        $request->validate([
+            'card_title' => 'required|string|max:255|unique:templates,card_title',
+            'game_title_id' => 'required|exists:game_titles,id',
+            'designer_name' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|integer|min:0',
+            'status' => 'required|in:active,inactive',
+            'config_file' => 'required|file|mimes:json',
+        ]);
+
+        $jsonContent = file_get_contents($request->file('config_file')->getRealPath());
+        $config = json_decode($jsonContent, true);
+
+        if (!$config || !isset($config['levels'])) {
+            return back()->with('error', 'Invalid JSON template format.');
+        }
+
+        $slug = Str::slug($request->card_title);
+        $timestamp = time();
+
+        // Iterate levels and layers to extract base64 images and convert to WebP
+        foreach ($config['levels'] as $levelKey => &$level) {
+            foreach ($level['layers'] as $layerIndex => &$layer) {
+                if ($layer['type'] === 'image' && !empty($layer['data'])) {
+                    $base64Data = $layer['data'];
+                    
+                    // Basic check for base64
+                    if (str_contains($base64Data, ';base64,')) {
+                        $parts = explode(';base64,', $base64Data);
+                        $data = base64_decode($parts[1]);
+                        
+                        // Create image from string
+                        $img = imagecreatefromstring($data);
+                        if ($img) {
+                            $filename = "premium-templates/{$slug}_lv{$levelKey}_layer{$layerIndex}_{$timestamp}.webp";
+                            
+                            // Enable alpha blending and save as WebP
+                            imagealphablending($img, false);
+                            imagesavealpha($img, true);
+                            
+                            ob_start();
+                            imagewebp($img, null, 90);
+                            $webpData = ob_get_clean();
+                            
+                            Storage::disk('public')->put($filename, $webpData);
+                            imagedestroy($img);
+                            
+                            // Replace base64 with asset path
+                            $layer['asset_path'] = $filename;
+                            unset($layer['data']);
+                        }
+                    }
+                }
+            }
+        }
+
+        Template::create([
+            'user_id' => auth()->id(), // Admin as owner
+            'card_title' => $request->card_title,
+            'game_title_id' => $request->game_title_id,
+            'is_premium' => true,
+            'price' => $request->price,
+            'status' => $request->status,
+            'designer_name' => $request->designer_name,
+            'description' => $request->description,
+            'premium_config' => $config,
+            'quote' => 'Premium Card', // Default quote
+            'admin_editor_id' => auth()->id(),
+            'admin_edited_at' => now(),
+        ]);
+
+        return back()->with('success', 'Premium template uploaded successfully!');
+    }
+
+    /**
+     * Toggle template status.
+     */
+    public function toggleStatus(Template $template)
+    {
+        $template->status = $template->status === 'active' ? 'inactive' : 'active';
+        $template->save();
+
+        return back()->with('success', "Template status updated to {$template->status}.");
     }
 
     /**
@@ -67,6 +160,10 @@ class TemplateController extends Controller
             'primary_text_color' => 'nullable|string|max:50',
             'secondary_text_color' => 'nullable|string|max:50',
             'image_position_y' => 'nullable|integer|min:0|max:100',
+            'price' => 'nullable|integer|min:0',
+            'status' => 'nullable|in:active,inactive',
+            'designer_name' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
         ]);
 
         $dataToUpdate = [
@@ -80,6 +177,10 @@ class TemplateController extends Controller
             'primary_text_color' => $request->primary_text_color,
             'secondary_text_color' => $request->secondary_text_color,
             'image_position_y' => $request->image_position_y,
+            'price' => $request->price ?? 0,
+            'status' => $request->status ?? 'inactive',
+            'designer_name' => $request->designer_name,
+            'description' => $request->description,
             'admin_editor_id' => auth()->id(),
             'admin_edited_at' => now(),
         ];

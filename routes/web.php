@@ -155,6 +155,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('manual-payment-agreements', \App\Http\Controllers\Admin\ManualPaymentAgreementController::class)->except(['show']);
 
         // Template Management
+        Route::post('/templates/premium', [AdminTemplateController::class, 'storePremium'])->name('templates.store_premium');
+        Route::post('/templates/{template}/toggle-status', [AdminTemplateController::class, 'toggleStatus'])->name('templates.toggle_status');
         Route::resource('templates', AdminTemplateController::class)->only(['index', 'edit', 'update']);
 
         // Card Management
