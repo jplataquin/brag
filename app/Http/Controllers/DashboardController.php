@@ -47,11 +47,11 @@ class DashboardController extends Controller
             'total_cards' => $user->digitalCards()->count(),
             'total_trophies' => $user->trophies()->count(),
             'total_templates' => $user->templates()->count(),
-            'total_wins' => Battle::where(function($q) use ($user) {
-                    $q->where('winner_team', 'team_a')->where(function($sq) use ($user) {
+            'total_wins' => Battle::where('status', 'completed')->where(function($q) use ($user) {
+                    $q->where('winner_team', 'A')->where(function($sq) use ($user) {
                         for ($i = 1; $i <= 6; $i++) { $sq->orWhere("team_a_user_{$i}", $user->id); }
                     })->orWhere(function($q2) use ($user) {
-                        $q2->where('winner_team', 'team_b')->where(function($sq2) use ($user) {
+                        $q2->where('winner_team', 'B')->where(function($sq2) use ($user) {
                             for ($i = 1; $i <= 6; $i++) { $sq2->orWhere("team_b_user_{$i}", $user->id); }
                         });
                     });

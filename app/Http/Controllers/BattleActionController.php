@@ -28,8 +28,8 @@ class BattleActionController extends Controller
         $isParticipant = false;
         if ($user) {
             for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
-                if ($battle->{"team_a_user_{$i}"} == $user->id && $battle->{"team_a_card_{$i}"}) $isParticipant = true;
-                if ($battle->{"team_b_user_{$i}"} == $user->id && $battle->{"team_b_card_{$i}"}) $isParticipant = true;
+                if ($battle->{"team_a_user_{$i}"} == $user->id) $isParticipant = true;
+                if ($battle->{"team_b_user_{$i}"} == $user->id) $isParticipant = true;
             }
             if ($battle->marshall_id == $user->id) $isParticipant = true;
         }
@@ -395,12 +395,14 @@ class BattleActionController extends Controller
             
             $battle->save();
 
-            $this->logActivity($battle->id, $user->id, 'declare', "{$user->username} declared Team {$team} as winner.");
+            $declarationText = ($team === 'T') ? "a TIE" : "Team {$team} as winner";
+            $this->logActivity($battle->id, $user->id, 'declare', "{$user->username} declared {$declarationText}.");
 
             $finalWinnerTeam = null;
             if ($isMarshall) {
                 $finalWinnerTeam = $team;
-                $this->logActivity($battle->id, $user->id, 'marshall_decision', "Marshall {$user->username} has made the final decision: Team {$team} wins.");
+                $activityText = ($team === 'T') ? "a TIE" : "Team {$team} wins";
+                $this->logActivity($battle->id, $user->id, 'marshall_decision', "Marshall {$user->username} has made the final decision: {$activityText}.");
             } elseif ($battle->team_a_declare_win && $battle->team_b_declare_win) {
                 if ($battle->team_a_declare_win == $battle->team_b_declare_win) {
                     $finalWinnerTeam = $battle->team_a_declare_win;
@@ -416,7 +418,8 @@ class BattleActionController extends Controller
                 $this->finalizeBattle($battle, $finalWinnerTeam);
             } else {
                 if (!$conflict) {
-                    $this->broadcastUpdate($battle, "{$user->username} declared a winner.");
+                    $declText = ($team === 'T') ? "a tie" : "a winner";
+                    $this->broadcastUpdate($battle, "{$user->username} declared {$declText}.");
                 }
             }
         });
@@ -435,25 +438,27 @@ class BattleActionController extends Controller
 
     protected function finalizeBattle($battle, $winnerTeam)
     {
-        $loserTeam = $winnerTeam == 'A' ? 'B' : 'A';
         $winnerTeamLower = strtolower($winnerTeam);
-        $loserTeamLower = strtolower($loserTeam);
-
         $overrides = [];
 
-        for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
-            $winnerUserId = $battle->{"team_{$winnerTeamLower}_user_{$i}"};
-            $winnerCardId = $battle->{"team_{$winnerTeamLower}_card_{$i}"};
-            $loserCardId = $battle->{"team_{$loserTeamLower}_card_{$i}"};
-            
-            $winnerUser = User::find($winnerUserId);
-            $winnerCard = DigitalCard::find($winnerCardId);
-            $loserCard = DigitalCard::find($loserCardId);
-            
-            if ($winnerCard && $loserCard && $winnerUser) {
-                $result = $battle->processBattleResult($winnerCard, $loserCard, $winnerUser);
-                if ($result['cardTransferred']) {
-                    $overrides[$loserCardId] = ['life_points' => 0];
+        if ($winnerTeam !== 'T') {
+            $loserTeam = $winnerTeam == 'A' ? 'B' : 'A';
+            $loserTeamLower = strtolower($loserTeam);
+
+            for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
+                $winnerUserId = $battle->{"team_{$winnerTeamLower}_user_{$i}"};
+                $winnerCardId = $battle->{"team_{$winnerTeamLower}_card_{$i}"};
+                $loserCardId = $battle->{"team_{$loserTeamLower}_card_{$i}"};
+                
+                $winnerUser = User::find($winnerUserId);
+                $winnerCard = DigitalCard::find($winnerCardId);
+                $loserCard = DigitalCard::find($loserCardId);
+                
+                if ($winnerCard && $loserCard && $winnerUser) {
+                    $result = $battle->processBattleResult($winnerCard, $loserCard, $winnerUser);
+                    if ($result['cardTransferred']) {
+                        $overrides[$loserCardId] = ['life_points' => 0];
+                    }
                 }
             }
         }
@@ -473,7 +478,8 @@ class BattleActionController extends Controller
             'team_b_card_data' => $teamBSnapshots,
         ]);
 
-        $this->logActivity($battle->id, null, 'completed', "Battle finalized. Team {$winnerTeam} won!");
+        $completionText = ($winnerTeam === 'T') ? "It's a TIE!" : "Team {$winnerTeam} won!";
+        $this->logActivity($battle->id, null, 'completed', "Battle finalized. {$completionText}");
         $this->broadcastUpdate($battle, "Battle finalized!");
     }
 

@@ -253,7 +253,8 @@ class DigitalCardController extends Controller
                     }
                 }
 
-                $isWin = ($isTeamA && $battle->winner_team === 'A') || (!$isTeamA && $battle->winner_team === 'B');
+                $isTie = $battle->winner_team === 'T';
+                $isWin = !$isTie && (($isTeamA && $battle->winner_team === 'A') || (!$isTeamA && $battle->winner_team === 'B'));
                 
                 // Identify the specific opponent in the opposing team's same slot
                 $opponentId = $isTeamA ? $battle->{"team_b_user_{$slotIndex}"} : $battle->{"team_a_user_{$slotIndex}"};
@@ -261,11 +262,11 @@ class DigitalCardController extends Controller
 
                 return [
                     'id' => $battle->id,
-                    'room_id' => $battle->id, // Assuming room_id is now just id or similar
+                    'room_id' => $battle->room_slug,
                     'date' => $battle->updated_at->format('M j, Y H:i'),
                     'opponent_name' => $opponent ? $opponent->username : 'Unknown',
-                    'result' => $isWin ? 'WIN' : 'LOSS',
-                    'result_color' => $isWin ? '#39ff14' : '#ff0000',
+                    'result' => $isTie ? 'TIE' : ($isWin ? 'WIN' : 'LOSS'),
+                    'result_color' => $isTie ? '#ffdd00' : ($isWin ? '#39ff14' : '#ff0000'),
                 ];
             }),
             'has_more' => $battles->count() == $limit

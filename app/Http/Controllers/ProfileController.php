@@ -121,7 +121,7 @@ class ProfileController extends Controller
         $except = [];
 
         if($battle_id != ''){
-            $battle = Battle::where('room_id',$battle_id)->first();
+            $battle = Battle::where('room_slug',$battle_id)->first();
 
             if($battle){
                 

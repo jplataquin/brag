@@ -91,23 +91,58 @@
 
     @if($recentBattles->count() > 0)
         @foreach($recentBattles as $battle)
+            @php
+                $myId = Auth::id();
+                $isMarshall = $battle->marshall_id == $myId;
+                $myTeam = '';
+                $mySlot = 0;
+                
+                if (!$isMarshall) {
+                    for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
+                        if ($battle->{"team_a_user_{$i}"} == $myId) { $myTeam = 'A'; $mySlot = $i; break; }
+                        if ($battle->{"team_b_user_{$i}"} == $myId) { $myTeam = 'B'; $mySlot = $i; break; }
+                    }
+                }
+
+                $opponentUsername = 'Unknown';
+                if (!$isMarshall && $myTeam && $mySlot) {
+                    $oppTeam = $myTeam == 'A' ? 'b' : 'a';
+                    $oppId = $battle->{"team_{$oppTeam}_user_{$mySlot}"};
+                    $oppUser = $oppId ? \App\Models\User::find($oppId) : null;
+                    $opponentUsername = $oppUser ? $oppUser->username : 'waiting for opponent';
+                }
+            @endphp
             <a href="{{ route('battles.room', $battle) }}" class="neon-card p-3 mb-2 text-decoration-none d-block" style="color: inherit; transition: all 0.2s ease;">
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                     <div class="d-flex align-items-center gap-3">
-                        <span class="status-badge status-{{ $battle->status }}">{{ $battle->status }}</span>
+                        <span class="status-badge status-{{ $battle->status }}">{{ strtoupper($battle->status) }}</span>
                         <span>
-                            <strong style="color: #00f0ff;">{{ $battle->challenger?->username ?? 'Unknown' }}</strong>
-                            @if($battle->opponent)
+                            @if($isMarshall)
+                                <strong style="color: #00f0ff;">{{ $battle->team_name_a }}</strong>
                                 <span class="text-muted">vs</span>
-                                <strong style="color: #ff00ff;">{{ $battle->opponent?->username ?? 'Unknown' }}</strong>
+                                <strong style="color: #ff00ff;">{{ $battle->team_name_b }}</strong>
+                                <span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">MARSHALLED</span>
                             @else
-                                <span class="text-muted">— waiting for opponent</span>
+                                <strong style="color: #00f0ff;">{{ Auth::user()->username }}</strong>
+                                <span class="text-muted">vs</span>
+                                <strong style="color: #ff00ff;">{{ $opponentUsername }}</strong>
                             @endif
+                            <span class="text-muted small ms-1">({{ $battle->no_players_per_team }} on {{ $battle->no_players_per_team }})</span>
                         </span>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        @if($battle->winner_id)
-                            <span style="color: #39ff14; font-size: 0.85rem;">🏆 {{ $battle->winner?->username ?? 'Unknown' }}</span>
+                        @if($battle->status === 'completed' && $battle->winner_team)
+                            @if($battle->winner_team === 'T')
+                                <span style="color: #ffdd00; font-size: 0.85rem;">🤝 TIE</span>
+                            @elseif($isMarshall)
+                                <span style="color: #39ff14; font-size: 0.85rem;">🏆 {{ $battle->winner_team == 'A' ? $battle->team_name_a : $battle->team_name_b }} WON</span>
+                            @else
+                                @if($battle->winner_team == $myTeam)
+                                    <span style="color: #39ff14; font-size: 0.85rem;">🏆 YOU WON</span>
+                                @else
+                                    <span style="color: #ff4444; font-size: 0.85rem;">❌ YOU LOST</span>
+                                @endif
+                            @endif
                         @endif
                     </div>
                 </div>

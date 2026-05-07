@@ -14,6 +14,7 @@ class Battle extends Model
 
     protected $fillable = [
         'game_title_id',
+        'room_slug',
         'team_name_a',
         'team_name_b',
         'battle_terms',
@@ -51,6 +52,26 @@ class Battle extends Model
         'team_a_card_data' => 'array',
         'team_b_card_data' => 'array',
     ];
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'room_slug';
+    }
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted()
+    {
+        static::creating(function ($battle) {
+            if (empty($battle->room_slug)) {
+                $battle->room_slug = \Illuminate\Support\Str::random(10);
+            }
+        });
+    }
 
     public function gameTitle()
     {

@@ -160,7 +160,7 @@
                             <i class="bi bi-gear-wide-connected section-icon" style="color: #00f0ff;"></i> BATTLE ACTIONS
                         </h5>
                         
-                        <div id="actions-container" class="d-flex gap-3 flex-wrap align-items-center">
+                        <div id="participant-actions" class="d-flex gap-2 flex-wrap align-items-center">
                             @php
                                 $userTeam = '';
                                 for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
@@ -184,9 +184,9 @@
                                     
                                     @if(!$myVote || $battle->status == 'failed')
                                         @php
-                                            // Determine styles based on what was voted
                                             $votedWin = ($myVote == $winTeam);
                                             $votedLost = ($myVote == $lostTeam);
+                                            $votedTie = ($myVote == 'T');
                                             
                                             $winClass = $votedWin ? 'btn-neon' : ($myVote ? 'btn-outline-info text-muted' : 'btn-neon');
                                             $winStyle = $votedWin ? 'box-shadow: 0 0 20px #00f0ff; border: 2px solid white;' : '';
@@ -197,17 +197,30 @@
                                             $lostStyle = $votedLost ? 'box-shadow: 0 0 20px #ff0000; border: 2px solid white;' : '';
                                             $lostIcon = $votedLost ? 'bi-check-circle-fill' : 'bi-x-circle';
                                             $lostText = $votedLost ? 'VOTED LOST' : 'DECLARE LOST';
+
+                                            $tieClass = $votedTie ? 'btn-neon-yellow' : ($myVote ? 'btn-outline-warning text-muted' : 'btn-neon-yellow');
+                                            $tieStyle = $votedTie ? 'box-shadow: 0 0 20px #ffdd00; border: 2px solid white;' : '';
+                                            $tieIcon = $votedTie ? 'bi-check-circle-fill' : 'bi-slash-circle';
+                                            $tieText = $votedTie ? 'VOTED TIE' : 'DECLARE TIE';
                                         @endphp
                                         
-                                        <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" class="d-inline" id="declareWin{{ $winTeam }}Form">@csrf <input type="hidden" name="team" value="{{ $winTeam }}"><button type="button" class="btn {{ $winClass }} btn-sm" onclick="window.neonConfirm('Are you sure you want to declare WIN?').then(c => { if(c) handleActionSubmit('declareWin{{ $winTeam }}Form'); })" style="{{ $winStyle }}">
+                                        <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" id="declareWin{{ $winTeam }}Form">@csrf <input type="hidden" name="team" value="{{ $winTeam }}"><button type="button" class="btn {{ $winClass }} btn-sm" onclick="window.neonConfirm('Are you sure you want to declare WIN?').then(c => { if(c) handleActionSubmit('declareWin{{ $winTeam }}Form'); })" style="{{ $winStyle }}">
                                             <i class="bi {{ $winIcon }}"></i> {{ $winText }}
                                         </button></form>
-                                        <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" class="d-inline" id="declareWin{{ $lostTeam }}Form">@csrf <input type="hidden" name="team" value="{{ $lostTeam }}"><button type="button" class="btn {{ $lostClass }} btn-sm" onclick="window.neonConfirm('Are you sure you want to declare LOST?').then(c => { if(c) handleActionSubmit('declareWin{{ $lostTeam }}Form'); })" style="{{ $lostStyle }}">
+                                        <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" id="declareWin{{ $lostTeam }}Form">@csrf <input type="hidden" name="team" value="{{ $lostTeam }}"><button type="button" class="btn {{ $lostClass }} btn-sm" onclick="window.neonConfirm('Are you sure you want to declare LOST?').then(c => { if(c) handleActionSubmit('declareWin{{ $lostTeam }}Form'); })" style="{{ $lostStyle }}">
                                             <i class="bi {{ $lostIcon }}"></i> {{ $lostText }}
                                         </button></form>
+                                        <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" id="declareWinTForm">@csrf <input type="hidden" name="team" value="T"><button type="button" class="btn {{ $tieClass }} btn-sm" onclick="window.neonConfirm('Are you sure you want to declare a TIE?').then(c => { if(c) handleActionSubmit('declareWinTForm'); })" style="{{ $tieStyle }}">
+                                            <i class="bi {{ $tieIcon }}"></i> {{ $tieText }}
+                                        </button></form>
                                     @else
-                                        <div class="alert alert-info py-2 small mb-0 text-center" style="border: 1px solid #00f0ff; background: rgba(0, 240, 255, 0.1); color: #00f0ff; width: 100%; max-width: 400px;">
-                                            <i class="bi bi-hourglass-split"></i> You declared {{ $myVote == $userTeam ? 'a win' : 'a loss' }}. Waiting for opponent...
+                                        <div class="alert alert-info py-2 small mb-0 text-center w-100" style="border: 1px solid #00f0ff; background: rgba(0, 240, 255, 0.1); color: #00f0ff;">
+                                            <i class="bi bi-hourglass-split"></i> 
+                                            @if($myVote == 'T')
+                                                You declared a tie. Waiting for opponent...
+                                            @else
+                                                You declared {{ $myVote == $userTeam ? 'a win' : 'a loss' }}. Waiting for opponent...
+                                            @endif
                                         </div>
                                     @endif
                                     
@@ -216,18 +229,16 @@
                                                             ($isLeaderB && $battle->team_b_cancel_flag);
                                     @endphp
                                     @if(!$hasRequestedCancel)
-                                        <form action="{{ route('battles.action.cancel', $battle) }}" method="POST" class="d-inline" id="requestCancelForm" onsubmit="event.preventDefault(); handleActionSubmit('requestCancelForm');">@csrf <button type="submit" class="btn btn-outline-danger btn-sm" onclick="window.neonConfirm('Are you sure you want to request to CANCEL this active match?').then(c => { if(c) handleActionSubmit('requestCancelForm'); }); return false;">
+                                        <form action="{{ route('battles.action.cancel', $battle) }}" method="POST" id="requestCancelForm" onsubmit="event.preventDefault(); handleActionSubmit('requestCancelForm');">@csrf <button type="submit" class="btn btn-outline-danger btn-sm" onclick="window.neonConfirm('Are you sure you want to request to CANCEL this active match?').then(c => { if(c) handleActionSubmit('requestCancelForm'); }); return false;">
                                             <i class="bi bi-x-circle"></i> REQUEST CANCEL
                                         </button></form>
                                     @endif
                                 @endif
 
                                 @if($battle->status == 'pending')
-                                    @if($isLeaderA || $isLeaderB)
-                                        <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#renameTeamModal" onclick="document.getElementById('renameTeamInput').value='{{ addslashes($isLeaderA ? $battle->team_name_a : $battle->team_name_b) }}'; document.getElementById('renameTeamVal').value='{{ $isLeaderA ? "A" : "B" }}'; document.getElementById('rename_team_name').innerText='{{ $isLeaderA ? "A" : "B" }}';">
-                                            <i class="bi bi-pencil-square"></i> RENAME TEAM
-                                        </button>
-                                    @endif
+                                    <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#renameTeamModal" onclick="document.getElementById('renameTeamInput').value='{{ addslashes($isLeaderA ? $battle->team_name_a : $battle->team_name_b) }}'; document.getElementById('renameTeamVal').value='{{ $isLeaderA ? "A" : "B" }}'; document.getElementById('rename_team_name').innerText='{{ $isLeaderA ? "A" : "B" }}';">
+                                        <i class="bi bi-pencil-square"></i> RENAME TEAM
+                                    </button>
                                 @endif
                                 
                                 @if(!$battle->marshall_id && in_array($battle->status, ['pending', 'ready', 'active', 'failed']))
@@ -237,30 +248,34 @@
                                     </button>
                                 @endif
                                 
-                                @if($battle->status == 'pending' && $isLeaderA)
-                                    @if($battle->is_full && $battle->team_b_ready)
-                                        <form action="{{ route('battles.action.start', $battle) }}" method="POST" class="d-inline w-100">@csrf <button type="submit" class="btn btn-neon-lime w-100" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);"><i class="bi bi-play-fill"></i> START MATCH</button></form>
+                                @if($battle->status == 'pending')
+                                    @if($isLeaderA)
+                                        @if($battle->is_full && $battle->team_b_ready)
+                                            <form action="{{ route('battles.action.start', $battle) }}" method="POST" class="w-100 mb-2">@csrf <button type="submit" class="btn btn-neon-lime w-100" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);"><i class="bi bi-play-fill"></i> START MATCH</button></form>
+                                        @endif
+                                        @if(!$battle->is_full)
+                                            <button type="button" class="btn btn-neon" data-bs-toggle="modal" data-bs-target="#invitePlayerModal">
+                                                <i class="bi bi-person-plus-fill"></i> INVITE PLAYERS
+                                            </button>
+                                        @endif
+                                        <form action="{{ route('battles.action.cancel', $battle) }}" method="POST" class="w-100">@csrf <button type="submit" class="btn btn-neon-danger w-100"><i class="bi bi-x-circle"></i> CANCEL BATTLE</button></form>
                                     @endif
-                                    @if(!$battle->is_full)
-                                        <button type="button" class="btn btn-neon" data-bs-toggle="modal" data-bs-target="#invitePlayerModal">
-                                            <i class="bi bi-person-plus-fill"></i> INVITE PLAYERS
-                                        </button>
-                                    @endif
-                                    <form action="{{ route('battles.action.cancel', $battle) }}" method="POST" class="d-inline w-100">@csrf <button type="submit" class="btn btn-neon-danger w-100"><i class="bi bi-x-circle"></i> CANCEL BATTLE</button></form>
-                                @elseif($battle->status == 'pending' && $isLeaderB)
-                                    @if($battle->is_team_b_full && !$battle->team_b_ready)
-                                        <form action="{{ route('battles.action.ready', $battle) }}" method="POST" class="d-inline w-100" id="readyForm">@csrf <button type="button" class="btn btn-neon-lime w-100" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);" onclick="window.neonConfirm('Are you sure your team is ready? You will not be able to stand up once ready.').then(c => { if(c) handleActionSubmit('readyForm'); })"><i class="bi bi-check2-all"></i> READY</button></form>
-                                    @endif
-                                    @if(!$battle->is_full)
-                                        <button type="button" class="btn btn-neon" data-bs-toggle="modal" data-bs-target="#invitePlayerModal">
-                                            <i class="bi bi-person-plus-fill"></i> INVITE PLAYERS
-                                        </button>
+
+                                    @if($isLeaderB)
+                                        @if($battle->is_team_b_full && !$battle->team_b_ready)
+                                            <form action="{{ route('battles.action.ready', $battle) }}" method="POST" class="w-100 mb-2" id="readyForm">@csrf <button type="button" class="btn btn-neon-lime w-100" style="box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);" onclick="window.neonConfirm('Are you sure your team is ready? You will not be able to stand up once ready.').then(c => { if(c) handleActionSubmit('readyForm'); })"><i class="bi bi-check2-all"></i> READY</button></form>
+                                        @endif
+                                        @if(!$battle->is_full)
+                                            <button type="button" class="btn btn-neon" data-bs-toggle="modal" data-bs-target="#invitePlayerModal">
+                                                <i class="bi bi-person-plus-fill"></i> INVITE PLAYERS
+                                            </button>
+                                        @endif
                                     @endif
                                 @endif
                             @endif
 
                             @if($battle->status == 'pending' && Auth::id() != $battle->team_a_user_1 && !($battle->team_b_ready))
-                                <form action="{{ route('battles.action.standup', $battle) }}" method="POST" class="d-inline w-100" id="standUpForm">@csrf <button type="button" class="btn btn-outline-warning w-100" onclick="window.neonConfirm('Are you sure you want to stand up and leave your slot?').then(c => { if(c) handleActionSubmit('standUpForm'); })"><i class="bi bi-box-arrow-right"></i> STAND UP</button></form>
+                                <form action="{{ route('battles.action.standup', $battle) }}" method="POST" class="w-100" id="standUpForm">@csrf <button type="button" class="btn btn-outline-warning w-100" onclick="window.neonConfirm('Are you sure you want to stand up and leave your slot?').then(c => { if(c) handleActionSubmit('standUpForm'); })"><i class="bi bi-box-arrow-right"></i> STAND UP</button></form>
                             @endif
 
                             @if($battle->status == 'completed' && !$battle->rematch_battle_id)
@@ -270,7 +285,7 @@
                                 @endphp
 
                                 @if(!$rematchVoted)
-                                    <form action="{{ route('battles.action.rematch', $battle) }}" method="POST" class="d-inline w-100" id="rematchForm">
+                                    <form action="{{ route('battles.action.rematch', $battle) }}" method="POST" class="w-100" id="rematchForm">
                                         @csrf
                                         <button type="button" class="btn btn-neon w-100" onclick="window.neonConfirm('{{ $opponentVoted ? "Opponent has proposed a rematch. Accept?" : "Propose a rematch to the opponent?" }}').then(c => { if(c) handleActionSubmit('rematchForm'); })">
                                             <i class="bi bi-arrow-repeat"></i> {{ $opponentVoted ? 'ACCEPT REMATCH' : 'PROPOSE REMATCH' }}
@@ -291,17 +306,74 @@
                             <i class="bi bi-qr-code"></i> SHARE QR
                         </button>
                     </div>
-            @elseif(Auth::id() == $battle->marshall_id && $battle->status == 'active')
+            @elseif(Auth::id() == $battle->marshall_id && in_array($battle->status, ['active', 'failed']))
                 @if(Auth::id())
                     <div class="mt-4 mb-5 pt-4" style="border-top: 1px solid rgba(255, 221, 0, 0.1);">
-                        <h5 class="section-header mb-3">
-                            <i class="bi bi-gear-wide-connected section-icon" style="color: #ffdd00;"></i> MARSHALL ACTIONS
-                        </h5>
-                        <div id="actions-container" class="d-flex gap-3 flex-wrap align-items-center">
-                            <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" class="d-inline" id="marshallDeclareWinAForm">@csrf <input type="hidden" name="team" value="A"><button type="button" class="btn btn-neon btn-sm" onclick="window.neonConfirm('As Marshall, are you sure you want to officially declare TEAM A as the winner?').then(c => { if(c) handleActionSubmit('marshallDeclareWinAForm'); })">TEAM A WON</button></form>
-                            <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" class="d-inline" id="marshallDeclareWinBForm">@csrf <input type="hidden" name="team" value="B"><button type="button" class="btn btn-neon-magenta btn-sm" onclick="window.neonConfirm('As Marshall, are you sure you want to officially declare TEAM B as the winner?').then(c => { if(c) handleActionSubmit('marshallDeclareWinBForm'); })">TEAM B WON</button></form>
-                            <form action="{{ route('battles.action.cancel', $battle) }}" method="POST" class="d-inline" id="marshallCancelForm">@csrf <button type="button" class="btn btn-neon-danger btn-sm" onclick="window.neonConfirm('Are you sure you want to CANCEL this match? No cards will be transferred.').then(c => { if(c) document.getElementById('marshallCancelForm').submit(); })">CANCEL MATCH</button></form>
+                        <div class="d-flex align-items-center justify-content-between flex-wrap mb-3">
+                            <h5 class="section-header mb-0">
+                                <i class="bi bi-gear-wide-connected section-icon" style="color: #ffdd00;"></i> MARSHALL ACTIONS
+                            </h5>
+                            @if($battle->status == 'failed')
+                                <div id="marshall-countdown" class="badge bg-dark border border-warning text-warning p-2" style="font-family: 'Orbitron', sans-serif;">
+                                    <i class="bi bi-clock-history me-1"></i> RESOLUTION TIME: <span id="countdown-timer">--:--</span>
+                                </div>
+                            @endif
                         </div>
+                        
+                        <div id="marshall-actions" class="d-flex gap-3 flex-wrap align-items-center">
+                            <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" id="marshallDeclareWinAForm">@csrf <input type="hidden" name="team" value="A"><button type="button" class="btn btn-neon btn-sm marshall-btn" onclick="window.neonConfirm('As Marshall, are you sure you want to officially declare TEAM A as the winner?').then(c => { if(c) handleActionSubmit('marshallDeclareWinAForm'); })">TEAM A WON</button></form>
+                            <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" id="marshallDeclareWinBForm">@csrf <input type="hidden" name="team" value="B"><button type="button" class="btn btn-neon-magenta btn-sm marshall-btn" onclick="window.neonConfirm('As Marshall, are you sure you want to officially declare TEAM B as the winner?').then(c => { if(c) handleActionSubmit('marshallDeclareWinBForm'); })">TEAM B WON</button></form>
+                            <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" id="marshallDeclareTieForm">@csrf <input type="hidden" name="team" value="T"><button type="button" class="btn btn-neon-yellow btn-sm marshall-btn" onclick="window.neonConfirm('As Marshall, are you sure you want to officially declare this match as a TIE?').then(c => { if(c) handleActionSubmit('marshallDeclareTieForm'); })">DECLARE TIE</button></form>
+                            <form action="{{ route('battles.action.cancel', $battle) }}" method="POST" id="marshallCancelForm">@csrf <button type="button" class="btn btn-neon-danger btn-sm marshall-btn" onclick="window.neonConfirm('Are you sure you want to CANCEL this match? No cards will be transferred.').then(c => { if(c) document.getElementById('marshallCancelForm').submit(); })">CANCEL MATCH</button></form>
+                        </div>
+
+                        @if($battle->status == 'failed')
+                            <p class="text-warning small mt-2 mb-0">
+                                <i class="bi bi-exclamation-triangle-fill"></i> Leaders have declared conflicting results. Please make a final decision within 1 hour.
+                            </p>
+                            
+                            <script>
+                                (function() {
+                                    const targetDate = new Date({{ $battle->updated_at->addHour()->timestamp * 1000 }});
+                                    const timerEl = document.getElementById('countdown-timer');
+                                    const countdownContainer = document.getElementById('marshall-countdown');
+                                    
+                                    function updateTimer() {
+                                        const now = new Date();
+                                        const diff = targetDate - now;
+                                        
+                                        if (diff <= 0) {
+                                            timerEl.innerText = "EXPIRED";
+                                            countdownContainer.classList.replace('text-warning', 'text-danger');
+                                            countdownContainer.classList.replace('border-warning', 'border-danger');
+                                            document.querySelectorAll('.marshall-btn').forEach(btn => btn.disabled = true);
+                                            return;
+                                        }
+                                        
+                                        const minutes = Math.floor(diff / 60000);
+                                        const seconds = Math.floor((diff % 60000) / 1000);
+                                        timerEl.innerText = `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+                                        
+                                        if (diff < 300000) { // Less than 5 mins
+                                            countdownContainer.classList.add('animate-pulse');
+                                        }
+                                    }
+                                    
+                                    setInterval(updateTimer, 1000);
+                                    updateTimer();
+                                })();
+                            </script>
+                            <style>
+                                @keyframes pulse-yellow {
+                                    0% { box-shadow: 0 0 0 0 rgba(255, 221, 0, 0.4); }
+                                    70% { box-shadow: 0 0 0 10px rgba(255, 221, 0, 0); }
+                                    100% { box-shadow: 0 0 0 0 rgba(255, 221, 0, 0); }
+                                }
+                                .animate-pulse {
+                                    animation: pulse-yellow 2s infinite;
+                                }
+                            </style>
+                        @endif
                     </div>
                 @endif
             @endif

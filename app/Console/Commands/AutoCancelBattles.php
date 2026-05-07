@@ -31,27 +31,27 @@ class AutoCancelBattles extends Command
     public function handle()
     {
         $fiveMinutesAgo = Carbon::now()->subMinutes(5);
+        $oneHourAgo = Carbon::now()->subHour();
 
-        $battles = Battle::whereIn('status', ['active', 'ready'])
-            ->where(function ($query) use ($fiveMinutesAgo) {
-                $query->where(function ($q) use ($fiveMinutesAgo) {
-                    $q->where('challenger_cancel', true)
-                      ->where('opponent_cancel', false)
-                      ->where('challenger_cancel_timestamp', '<=', $fiveMinutesAgo);
-                })->orWhere(function ($q) use ($fiveMinutesAgo) {
-                    $q->where('opponent_cancel', true)
-                      ->where('challenger_cancel', false)
-                      ->where('opponent_cancel_timestamp', '<=', $fiveMinutesAgo);
+        // 1. Handle unanswered cancellation requests (5 mins)
+        $cancellationBattles = Battle::whereIn('status', ['active', 'ready', 'failed'])
+            ->where(function ($query) {
+                $query->where(function ($q) {
+                    $q->where('team_a_cancel_flag', true)->where('team_b_cancel_flag', false);
+                })->orWhere(function ($q) {
+                    $q->where('team_b_cancel_flag', true)->where('team_a_cancel_flag', false);
                 });
             })
+            ->where('updated_at', '<=', $fiveMinutesAgo)
             ->get();
 
-        foreach ($battles as $battle) {
+        foreach ($cancellationBattles as $battle) {
             DB::transaction(function () use ($battle) {
                 $battle->update([
                     'status' => 'cancelled',
-                    'challenger_cancel' => false,
-                    'opponent_cancel' => false,
+                    'team_a_cancel_flag' => false,
+                    'team_b_cancel_flag' => false,
+                    'marshall_cancel_flag' => false,
                 ]);
 
                 BattleActivity::create([
@@ -64,7 +64,34 @@ class AutoCancelBattles extends Command
                 event(new BattleUpdated($battle, "Battle cancelled due to no response.", 'cancel'));
             });
 
-            $this->info("Cancelled battle ID: {$battle->id}");
+            $this->info("Cancelled battle ID (No response): {$battle->id}");
+        }
+
+        // 2. Handle failed battles without Marshall resolution (1 hour)
+        $failedBattles = Battle::where('status', 'failed')
+            ->where('updated_at', '<=', $oneHourAgo)
+            ->get();
+
+        foreach ($failedBattles as $battle) {
+            DB::transaction(function () use ($battle) {
+                $battle->update([
+                    'status' => 'cancelled',
+                    'team_a_cancel_flag' => false,
+                    'team_b_cancel_flag' => false,
+                    'marshall_cancel_flag' => false,
+                ]);
+
+                BattleActivity::create([
+                    'battle_id' => $battle->id,
+                    'user_id' => null,
+                    'type' => 'cancel',
+                    'message' => 'Battle cancelled automatically. The Marshall did not resolve the conflict within 1 hour.',
+                ]);
+
+                event(new BattleUpdated($battle, "Battle cancelled automatically due to Marshall inactivity.", 'cancel'));
+            });
+
+            $this->info("Cancelled battle ID (Marshall timeout): {$battle->id}");
         }
 
         return Command::SUCCESS;

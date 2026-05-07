@@ -54,13 +54,13 @@
                     <span style="color: #ff00ff; font-family: 'Orbitron', sans-serif; font-size: 0.8rem;"> VS </span>
                     <strong style="color: #ff00ff;">{{ $b->team_name_b }}</strong>
                 </div>
-            </div>
             <div class="d-flex align-items-center gap-2">
                 @if($b->status === 'completed' && $b->winner_team)
-                    <span style="color: #39ff14; font-size: 0.8rem; font-weight: 600;">
-                        🏆 {{ $b->winner_team === 'A' ? $b->team_name_a : $b->team_name_b }} WON
+                    <span style="color: #39ff14; font-size: 0.85rem;">
+                        🏆 {{ $b->winner_team === 'T' ? 'TIE' : ($b->winner_team === 'A' ? $b->team_name_a : $b->team_name_b) . ' WON' }}
                     </span>
                 @endif
+            </div>
                 @if($b->marshall)
                     <span style="color: #8888aa; font-size: 0.75rem;">
                         ⚖️ {{ $b->marshall->username }}

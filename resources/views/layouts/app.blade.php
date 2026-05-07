@@ -420,7 +420,7 @@
                             resultsEl.innerHTML = '<div class="p-3 text-center" style="color:#555577;font-size:0.85rem;">No players found</div>';
                         } else {
                             resultsEl.innerHTML = users.map(u => `
-                                <a href="/user/${u.username}" class="search-item">
+                                <a href="/profile/${u.username}" class="search-item">
                                     <img src="${u.avatar_url}" alt="${u.username}">
                                     <div class="search-user-info">
                                         <div class="username">@${u.username}</div>

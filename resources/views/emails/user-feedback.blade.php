@@ -8,7 +8,7 @@
 **Message:**
 {{ $feedbackMessage }}
 
-<x-mail::button :url="config('app.url') . '/user/' . $user->username">
+<x-mail::button :url="config('app.url') . '/profile/' . $user->username">
 View User Profile
 </x-mail::button>
 
