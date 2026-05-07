@@ -45,34 +45,34 @@
 <!-- Stats Row -->
 <div class="row g-3 mb-4">
     <div class="col-6 col-md">
-        <div class="stat-box">
+        <a href="{{ route('cards.index') }}" class="stat-box d-block text-decoration-none">
             <div class="stat-value">{{ $stats['total_cards'] }}</div>
             <div class="stat-label">Cards</div>
-        </div>
+        </a>
     </div>
     <div class="col-6 col-md">
-        <div class="stat-box">
+        <a href="{{ route('cards.trophies') }}" class="stat-box d-block text-decoration-none">
             <div class="stat-value" style="color: #ffdd00;">{{ $stats['total_trophies'] }}</div>
             <div class="stat-label">Trophies</div>
-        </div>
+        </a>
     </div>
     <div class="col-6 col-md">
-        <div class="stat-box">
-            <div class="stat-value" style="color: #39ff14;">{{ $stats['total_wins'] }}</div>
-            <div class="stat-label">Wins</div>
-        </div>
-    </div>
-    <div class="col-6 col-md">
-        <div class="stat-box">
+        <a href="{{ route('templates.index') }}" class="stat-box d-block text-decoration-none">
             <div class="stat-value" style="color: #ff00ff;">{{ $stats['total_templates'] }}</div>
             <div class="stat-label">Templates</div>
-        </div>
+        </a>
     </div>
     <div class="col-6 col-md">
-        <div class="stat-box">
-            <div class="stat-value" style="color: #ff6600;">{{ $stats['total_battles'] }}</div>
-            <div class="stat-label">Battles</div>
-        </div>
+        <a href="{{ route('battles.index', ['filter' => 'wins']) }}" class="stat-box d-block text-decoration-none">
+            <div class="stat-value" style="color: #39ff14;">{{ $stats['total_wins'] }}</div>
+            <div class="stat-label">Wins</div>
+        </a>
+    </div>
+    <div class="col-6 col-md">
+        <a href="{{ route('battles.index', ['filter' => 'losses']) }}" class="stat-box d-block text-decoration-none">
+            <div class="stat-value" style="color: #ff6600;">{{ $stats['total_losses'] }}</div>
+            <div class="stat-label">Losses</div>
+        </a>
     </div>
 </div>
 

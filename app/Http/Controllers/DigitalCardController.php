@@ -72,13 +72,14 @@ class DigitalCardController extends Controller
         $user = Auth::user();
         $sortBy = $request->query('sort', 'latest');
         $gameId = $request->query('game');
-        $direction = $request->query('dir', 'asc'); // Default to ascending as requested
+        $direction = $request->query('dir', 'asc');
 
         if (!in_array($direction, ['asc', 'desc'])) {
             $direction = 'asc';
         }
 
         $query = $user->digitalCards()
+            ->where('is_trophy', false)
             ->with(['template.gameTitle', 'originalOwner']);
 
         if ($gameId) {
@@ -96,24 +97,67 @@ class DigitalCardController extends Controller
         } elseif ($sortBy === 'serial') {
             $query->orderBy('id', $direction);
         } else {
-            // For 'latest', if the user asks for 'asc', it should mean "show me newest first" logically.
-            // But we'll map 'asc' -> 'desc' (latest first) and 'desc' -> 'asc' (oldest first).
             $query->orderBy('updated_at', $direction === 'asc' ? 'desc' : 'asc');
         }
 
         $cards = $query->get();
 
-        // Get unique games the user has cards for to populate the filter dropdown
         $games = $user->digitalCards()
+            ->where('is_trophy', false)
             ->with('template.gameTitle')
             ->get()
-            ->map(function ($card) {
-                return $card->template->gameTitle;
-            })
+            ->map(fn($c) => $c->template->gameTitle)
             ->unique('id')
             ->values();
 
         return view('cards.index', compact('cards', 'sortBy', 'direction', 'games', 'gameId'));
+    }
+
+    /**
+     * Display a listing of the user's trophies.
+     */
+    public function trophies(Request $request)
+    {
+        $user = Auth::user();
+        $sortBy = $request->query('sort', 'latest');
+        $gameId = $request->query('game');
+        $direction = $request->query('dir', 'asc');
+
+        if (!in_array($direction, ['asc', 'desc'])) {
+            $direction = 'asc';
+        }
+
+        $query = $user->trophies()
+            ->with(['template.gameTitle', 'originalOwner']);
+
+        if ($gameId) {
+            $query->whereHas('template', function ($q) use ($gameId) {
+                $q->where('game_title_id', $gameId);
+            });
+        }
+
+        if ($sortBy === 'level') {
+            $query->orderBy('level', $direction);
+        } elseif ($sortBy === 'name') {
+            $query->select('digital_cards.*')
+                ->join('templates', 'digital_cards.template_id', '=', 'templates.id')
+                ->orderBy('templates.card_title', $direction);
+        } elseif ($sortBy === 'serial') {
+            $query->orderBy('id', $direction);
+        } else {
+            $query->orderBy('updated_at', $direction === 'asc' ? 'desc' : 'asc');
+        }
+
+        $cards = $query->get();
+
+        $games = $user->trophies()
+            ->with('template.gameTitle')
+            ->get()
+            ->map(fn($c) => $c->template->gameTitle)
+            ->unique('id')
+            ->values();
+
+        return view('cards.trophies', compact('cards', 'sortBy', 'direction', 'games', 'gameId'));
     }
 
     /**

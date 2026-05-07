@@ -13,24 +13,62 @@ class BattleController extends Controller
     /**
      * Display a listing of battles.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
+        $filter = $request->query('filter');
         
-        $myBattles = Battle::where(function($q) use ($user) {
+        $query = Battle::where(function($q) use ($user) {
             for ($i = 1; $i <= 6; $i++) {
                 $q->orWhere("team_a_user_{$i}", $user->id)
                   ->orWhere("team_b_user_{$i}", $user->id);
             }
             $q->orWhere('marshall_id', $user->id);
-        })
-        ->with(['gameTitle', 'marshall'])
-        ->orderBy('updated_at', 'desc')
-        ->paginate(15);
+        });
+
+        if ($filter) {
+            if ($filter === 'wins') {
+                $query->where('status', 'completed')->where(function($q) use ($user) {
+                    $q->where(function($qA) use ($user) {
+                        $qA->where('winner_team', 'A')->where(function($sq) use ($user) {
+                            for ($i = 1; $i <= 6; $i++) { $sq->orWhere("team_a_user_{$i}", $user->id); }
+                        });
+                    })->orWhere(function($qB) use ($user) {
+                        $qB->where('winner_team', 'B')->where(function($sq) use ($user) {
+                            for ($i = 1; $i <= 6; $i++) { $sq->orWhere("team_b_user_{$i}", $user->id); }
+                        });
+                    });
+                });
+            } elseif ($filter === 'losses') {
+                $query->where('status', 'completed')
+                    ->where('winner_team', '!=', 'T')
+                    ->where('marshall_id', '!=', $user->id)
+                    ->where(function($q) use ($user) {
+                        $q->where(function($qA) use ($user) {
+                            $qA->where('winner_team', 'B')->where(function($sq) use ($user) {
+                                for ($i = 1; $i <= 6; $i++) { $sq->orWhere("team_a_user_{$i}", $user->id); }
+                            });
+                        })->orWhere(function($qB) use ($user) {
+                            $qB->where('winner_team', 'A')->where(function($sq) use ($user) {
+                                for ($i = 1; $i <= 6; $i++) { $sq->orWhere("team_b_user_{$i}", $user->id); }
+                            });
+                        });
+                    });
+            } elseif ($filter === 'ties') {
+                $query->where('status', 'completed')->where('winner_team', 'T');
+            } elseif ($filter === 'marshalled') {
+                $query->where('marshall_id', $user->id);
+            }
+        }
+
+        $myBattles = $query->with(['gameTitle', 'marshall'])
+            ->orderBy('updated_at', 'desc')
+            ->paginate(15)
+            ->appends($request->query());
 
         $pendingInvites = collect(); // Legacy feature removed
 
-        return view('battles.index', compact('myBattles', 'pendingInvites'));
+        return view('battles.index', compact('myBattles', 'pendingInvites', 'filter'));
     }
 
     /**

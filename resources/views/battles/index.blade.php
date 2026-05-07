@@ -39,9 +39,19 @@
 @endif
 
 <!-- My Battles -->
-<h5 class="section-header">
-    <i class="bi bi-list-ul section-icon"></i> MY BATTLES
-</h5>
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <h5 class="section-header mb-0">
+        <i class="bi bi-list-ul section-icon"></i> MY BATTLES
+    </h5>
+    
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ route('battles.index') }}" class="btn btn-sm {{ !$filter ? 'btn-neon' : 'btn-outline-info' }}" style="font-size: 0.7rem;">ALL</a>
+        <a href="{{ route('battles.index', ['filter' => 'wins']) }}" class="btn btn-sm {{ $filter === 'wins' ? 'btn-neon' : 'btn-outline-info' }}" style="font-size: 0.7rem;">WINS</a>
+        <a href="{{ route('battles.index', ['filter' => 'losses']) }}" class="btn btn-sm {{ $filter === 'losses' ? 'btn-neon-danger' : 'btn-outline-danger' }}" style="font-size: 0.7rem;">LOSSES</a>
+        <a href="{{ route('battles.index', ['filter' => 'ties']) }}" class="btn btn-sm {{ $filter === 'ties' ? 'btn-neon-yellow text-dark' : 'btn-outline-warning' }}" style="font-size: 0.7rem;">TIES</a>
+        <a href="{{ route('battles.index', ['filter' => 'marshalled']) }}" class="btn btn-sm {{ $filter === 'marshalled' ? 'btn-neon' : 'btn-outline-info' }}" style="font-size: 0.7rem; border-color: #ffdd00; color: {{ $filter === 'marshalled' ? '#000' : '#ffdd00' }}; background-color: {{ $filter === 'marshalled' ? '#ffdd00' : 'transparent' }};">MARSHALLED</a>
+    </div>
+</div>
 
 @if($myBattles->count() > 0)
     @foreach($myBattles as $b)

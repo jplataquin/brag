@@ -272,6 +272,11 @@
                                         @endif
                                     @endif
                                 @endif
+                            @elseif(in_array($battle->status, ['active', 'failed']))
+                                <div class="alert alert-info py-3 small mb-0 text-center w-100" style="border: 1px solid #00f0ff; background: rgba(0, 240, 255, 0.1); color: #00f0ff;">
+                                    <i class="bi bi-info-circle-fill me-2"></i> 
+                                    Your team leader is responsible for declaring the match outcome. Please coordinate with them for team decisions.
+                                </div>
                             @endif
 
                             @if($battle->status == 'pending' && Auth::id() != $battle->team_a_user_1 && !($battle->team_b_ready))

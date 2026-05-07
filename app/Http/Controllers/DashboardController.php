@@ -56,13 +56,18 @@ class DashboardController extends Controller
                         });
                     });
                 })->count(),
-            'total_battles' => Battle::where('status', 'completed')
+            'total_losses' => Battle::where('status', 'completed')
+                ->where('winner_team', '!=', 'T')
                 ->where(function($q) use ($user) {
-                    for ($i = 1; $i <= 6; $i++) {
-                        $q->orWhere("team_a_user_{$i}", $user->id)
-                          ->orWhere("team_b_user_{$i}", $user->id);
-                    }
-                    $q->orWhere('marshall_id', $user->id);
+                    $q->where(function($qA) use ($user) {
+                        $qA->where('winner_team', 'B')->where(function($sq) use ($user) {
+                            for ($i = 1; $i <= 6; $i++) { $sq->orWhere("team_a_user_{$i}", $user->id); }
+                        });
+                    })->orWhere(function($qB) use ($user) {
+                        $qB->where('winner_team', 'A')->where(function($sq) use ($user) {
+                            for ($i = 1; $i <= 6; $i++) { $sq->orWhere("team_b_user_{$i}", $user->id); }
+                        });
+                    });
                 })->count(),
         ];
 

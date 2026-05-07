@@ -103,6 +103,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Inventory & Cards
     Route::get('/inventory', [DigitalCardController::class, 'index'])->name('cards.index');
+    Route::get('/trophies', [DigitalCardController::class, 'trophies'])->name('cards.trophies');
     Route::get('/cards/{card}/history', [DigitalCardController::class, 'history'])->name('cards.history');
     Route::post('/cards/{card}/heal', [DigitalCardController::class, 'heal'])->name('cards.heal');
     Route::get('/cards/{card}', [DigitalCardController::class, 'show'])->name('cards.show');
