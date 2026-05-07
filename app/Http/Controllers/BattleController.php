@@ -41,16 +41,16 @@ class BattleController extends Controller
                 });
             } elseif ($filter === 'losses') {
                 $query->where('status', 'completed')
-                    ->where('winner_team', '!=', 'T')
+                    ->whereIn('winner_team', ['A', 'B'])
                     ->where('marshall_id', '!=', $user->id)
                     ->where(function($q) use ($user) {
                         $q->where(function($qA) use ($user) {
-                            $qA->where('winner_team', 'B')->where(function($sq) use ($user) {
-                                for ($i = 1; $i <= 6; $i++) { $sq->orWhere("team_a_user_{$i}", $user->id); }
+                            $qA->where('winner_team', 'A')->where(function($sq) use ($user) {
+                                for ($i = 1; $i <= 6; $i++) { $sq->where("team_a_user_{$i}", '!=', $user->id); }
                             });
                         })->orWhere(function($qB) use ($user) {
-                            $qB->where('winner_team', 'A')->where(function($sq) use ($user) {
-                                for ($i = 1; $i <= 6; $i++) { $sq->orWhere("team_b_user_{$i}", $user->id); }
+                            $qB->where('winner_team', 'B')->where(function($sq) use ($user) {
+                                for ($i = 1; $i <= 6; $i++) { $sq->where("team_b_user_{$i}", '!=', $user->id); }
                             });
                         });
                     });
