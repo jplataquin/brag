@@ -23,29 +23,22 @@ class AutoCancelBattles extends Command
      *
      * @var string
      */
-    protected $description = 'Automatically cancel battles with unresponsive cancellation requests after 5 minutes';
+    protected $description = 'Automatically cancel inactive battles (stale rooms, 3-hour session limits)';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $fiveMinutesAgo = Carbon::now()->subMinutes(5);
-        $oneHourAgo = Carbon::now()->subHour();
+        $fifteenMinutesAgo = Carbon::now()->subMinutes(15);
+        $threeHoursAgo = Carbon::now()->subHours(3);
 
-        // 1. Handle unanswered cancellation requests (5 mins)
-        $cancellationBattles = Battle::whereIn('status', ['active', 'ready', 'failed'])
-            ->where(function ($query) {
-                $query->where(function ($q) {
-                    $q->where('team_a_cancel_flag', true)->where('team_b_cancel_flag', false);
-                })->orWhere(function ($q) {
-                    $q->where('team_b_cancel_flag', true)->where('team_a_cancel_flag', false);
-                });
-            })
-            ->where('updated_at', '<=', $fiveMinutesAgo)
+        // 1. Handle pending/ready battles inactive for 15 minutes
+        $staleRooms = Battle::whereIn('status', ['pending', 'ready'])
+            ->where('updated_at', '<=', $fifteenMinutesAgo)
             ->get();
 
-        foreach ($cancellationBattles as $battle) {
+        foreach ($staleRooms as $battle) {
             DB::transaction(function () use ($battle) {
                 $battle->update([
                     'status' => 'cancelled',
@@ -58,21 +51,21 @@ class AutoCancelBattles extends Command
                     'battle_id' => $battle->id,
                     'user_id' => null,
                     'type' => 'cancel',
-                    'message' => 'Battle cancelled automatically due to no response to the cancellation request for more than 5 minutes.',
+                    'message' => 'Battle cancelled automatically due to inactivity in pending/ready state for 15 minutes.',
                 ]);
 
-                event(new BattleUpdated($battle, "Battle cancelled due to no response.", 'cancel'));
+                event(new BattleUpdated($battle, "Battle cancelled due to inactivity.", 'cancel'));
             });
 
-            $this->info("Cancelled battle ID (No response): {$battle->id}");
+            $this->info("Cancelled battle ID (Pending/Ready timeout): {$battle->id}");
         }
 
-        // 2. Handle failed battles without Marshall resolution (1 hour)
-        $failedBattles = Battle::where('status', 'failed')
-            ->where('updated_at', '<=', $oneHourAgo)
+        // 2. Handle active battles inactive for 3 hours
+        $activeStaleBattles = Battle::where('status', 'active')
+            ->where('updated_at', '<=', $threeHoursAgo)
             ->get();
 
-        foreach ($failedBattles as $battle) {
+        foreach ($activeStaleBattles as $battle) {
             DB::transaction(function () use ($battle) {
                 $battle->update([
                     'status' => 'cancelled',
@@ -85,13 +78,13 @@ class AutoCancelBattles extends Command
                     'battle_id' => $battle->id,
                     'user_id' => null,
                     'type' => 'cancel',
-                    'message' => 'Battle cancelled automatically. The Marshall did not resolve the conflict within 1 hour.',
+                    'message' => 'Battle cancelled automatically due to no activity for 3 hours.',
                 ]);
 
-                event(new BattleUpdated($battle, "Battle cancelled automatically due to Marshall inactivity.", 'cancel'));
+                event(new BattleUpdated($battle, "Battle cancelled due to 3-hour inactivity timeout.", 'cancel'));
             });
 
-            $this->info("Cancelled battle ID (Marshall timeout): {$battle->id}");
+            $this->info("Cancelled battle ID (Active timeout): {$battle->id}");
         }
 
         return Command::SUCCESS;

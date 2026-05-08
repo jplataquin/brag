@@ -387,6 +387,11 @@ class BattleActionController extends Controller
              return back()->with('error', 'Unauthorized.');
         }
 
+        // Rule: Marshall cannot intervene if the room has been in 'failed' status for > 1 hour
+        if ($isMarshall && $battle->status === 'failed' && $battle->updated_at->addHour()->isPast()) {
+            return back()->with('error', 'The intervention window for this conflict has expired (1-hour limit).');
+        }
+
         $consensusReached = false;
         $conflict = false;
         

@@ -318,11 +318,6 @@
                             <h5 class="section-header mb-0">
                                 <i class="bi bi-gear-wide-connected section-icon" style="color: #ffdd00;"></i> MARSHALL ACTIONS
                             </h5>
-                            @if($battle->status == 'failed')
-                                <div id="marshall-countdown" class="badge bg-dark border border-warning text-warning p-2" style="font-family: 'Orbitron', sans-serif;">
-                                    <i class="bi bi-clock-history me-1"></i> RESOLUTION TIME: <span id="countdown-timer">--:--</span>
-                                </div>
-                            @endif
                         </div>
                         
                         <div id="marshall-actions" class="d-flex gap-3 flex-wrap align-items-center">
@@ -331,54 +326,6 @@
                             <form action="{{ route('battles.action.declare_win', $battle) }}" method="POST" id="marshallDeclareTieForm">@csrf <input type="hidden" name="team" value="T"><button type="button" class="btn btn-neon-yellow btn-sm marshall-btn" onclick="window.neonConfirm('As Marshall, are you sure you want to officially declare this match as a TIE?').then(c => { if(c) handleActionSubmit('marshallDeclareTieForm'); })">DECLARE TIE</button></form>
                             <form action="{{ route('battles.action.cancel', $battle) }}" method="POST" id="marshallCancelForm">@csrf <button type="button" class="btn btn-neon-danger btn-sm marshall-btn" onclick="window.neonConfirm('Are you sure you want to CANCEL this match? No cards will be transferred.').then(c => { if(c) document.getElementById('marshallCancelForm').submit(); })">CANCEL MATCH</button></form>
                         </div>
-
-                        @if($battle->status == 'failed')
-                            <p class="text-warning small mt-2 mb-0">
-                                <i class="bi bi-exclamation-triangle-fill"></i> Leaders have declared conflicting results. Please make a final decision within 1 hour.
-                            </p>
-                            
-                            <script>
-                                (function() {
-                                    const targetDate = new Date({{ $battle->updated_at->addHour()->timestamp * 1000 }});
-                                    const timerEl = document.getElementById('countdown-timer');
-                                    const countdownContainer = document.getElementById('marshall-countdown');
-                                    
-                                    function updateTimer() {
-                                        const now = new Date();
-                                        const diff = targetDate - now;
-                                        
-                                        if (diff <= 0) {
-                                            timerEl.innerText = "EXPIRED";
-                                            countdownContainer.classList.replace('text-warning', 'text-danger');
-                                            countdownContainer.classList.replace('border-warning', 'border-danger');
-                                            document.querySelectorAll('.marshall-btn').forEach(btn => btn.disabled = true);
-                                            return;
-                                        }
-                                        
-                                        const minutes = Math.floor(diff / 60000);
-                                        const seconds = Math.floor((diff % 60000) / 1000);
-                                        timerEl.innerText = `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
-                                        
-                                        if (diff < 300000) { // Less than 5 mins
-                                            countdownContainer.classList.add('animate-pulse');
-                                        }
-                                    }
-                                    
-                                    setInterval(updateTimer, 1000);
-                                    updateTimer();
-                                })();
-                            </script>
-                            <style>
-                                @keyframes pulse-yellow {
-                                    0% { box-shadow: 0 0 0 0 rgba(255, 221, 0, 0.4); }
-                                    70% { box-shadow: 0 0 0 10px rgba(255, 221, 0, 0); }
-                                    100% { box-shadow: 0 0 0 0 rgba(255, 221, 0, 0); }
-                                }
-                                .animate-pulse {
-                                    animation: pulse-yellow 2s infinite;
-                                }
-                            </style>
-                        @endif
                     </div>
                 @endif
             @endif
