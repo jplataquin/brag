@@ -115,7 +115,82 @@
                     <li><a class="dropdown-item" href="{{ route('admin.manual-payment-agreements.index') }}"><i class="bi bi-file-earmark-lock me-2 text-warning"></i> Manual Agreements</a></li>
                     <li><a class="dropdown-item" href="{{ route('admin.terms.index') }}"><i class="bi bi-file-earmark-text me-2 text-info"></i> Manage Terms</a></li>
                     <li><a class="dropdown-item" href="{{ route('admin.privacy.index') }}"><i class="bi bi-shield-shaded me-2 text-info"></i> Manage Privacy Policy</a></li>
+                    <li><hr class="dropdown-divider border-secondary"></li>
+                    <li>
+                        <button type="button" class="dropdown-item text-warning fw-bold" data-bs-toggle="modal" data-bs-target="#systemUpdateModal">
+                            <i class="bi bi-cloud-arrow-up-fill me-2"></i> System Update
+                        </button>
+                    </li>
                 </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Update Modal -->
+    <div class="modal fade" id="systemUpdateModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="systemUpdateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-dark border-warning shadow-lg">
+                <div class="modal-header border-warning border-opacity-25">
+                    <h5 class="modal-title orbitron text-warning" id="systemUpdateModalLabel">
+                        <i class="bi bi-terminal-fill me-2"></i> SYSTEM DEPLOYMENT TERMINAL
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="closeDeploymentBtn"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="deployment-initial">
+                        <p class="text-white-50">This action will execute the following commands on the server sequentially:</p>
+                        <ol class="text-info x-small orbitron">
+                            <li>git pull</li>
+                            <li>composer install (optimizing)</li>
+                            <li>php artisan migrate (force)</li>
+                            <li>npm update</li>
+                            <li>npm install</li>
+                            <li>npm run build</li>
+                        </ol>
+                        <div class="alert alert-warning x-small border-warning border-opacity-25 bg-warning bg-opacity-10 py-2">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>WARNING:</strong> Ensure no one is currently performing sensitive operations. The site may experience brief downtime during build.
+                        </div>
+                        <button type="button" class="btn btn-warning w-100 orbitron fw-bold mt-3" id="startDeploymentBtn">
+                            INITIATE DEPLOYMENT SEQUENCE
+                        </button>
+                    </div>
+
+                    <div id="deployment-progress" class="d-none">
+                        <div class="terminal-window bg-black p-3 rounded mb-3 border border-secondary border-opacity-25" style="height: 300px; overflow-y: auto; font-family: 'Courier New', Courier, monospace;">
+                            <div id="terminal-output" class="x-small">
+                                <div class="text-success mb-2">> System update initialized...</div>
+                            </div>
+                        </div>
+                        
+                        <div id="deployment-status" class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="spinner-border spinner-border-sm text-info" role="status" id="deployment-spinner">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <span class="orbitron x-small text-info tracking-wide" id="status-text">EXECUTING GIT PULL...</span>
+                            </div>
+                            <span class="badge bg-dark border border-secondary text-muted x-small" id="step-counter">STEP 1/6</span>
+                        </div>
+                    </div>
+
+                    <div id="deployment-complete" class="d-none text-center py-4">
+                        <div class="display-1 text-success mb-3"><i class="bi bi-check-circle-fill"></i></div>
+                        <h4 class="orbitron text-success mb-2">DEPLOYMENT SUCCESSFUL</h4>
+                        <p class="text-white-50">All systems updated and assets recompiled.</p>
+                        <button type="button" class="btn btn-outline-success orbitron mt-3" onclick="window.location.reload()">
+                            RELOAD SYSTEM
+                        </button>
+                    </div>
+
+                    <div id="deployment-failed" class="d-none text-center py-4">
+                        <div class="display-1 text-danger mb-3"><i class="bi bi-x-circle-fill"></i></div>
+                        <h4 class="orbitron text-danger mb-2">DEPLOYMENT FAILED</h4>
+                        <p class="text-white-50" id="fail-message">Check the terminal log above for details.</p>
+                        <button type="button" class="btn btn-outline-danger orbitron mt-3" data-bs-dismiss="modal">
+                            CLOSE TERMINAL
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -240,5 +315,111 @@
         background-color: rgba(255, 255, 255, 0.05) !important;
         box-shadow: 0 5px 15px rgba(0, 240, 255, 0.2);
     }
+
+    /* Terminal Styles */
+    .terminal-window::-webkit-scrollbar { width: 8px; }
+    .terminal-window::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+    .terminal-window::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+    .terminal-window::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+    #terminal-output div { margin-bottom: 5px; word-break: break-all; white-space: pre-wrap; color: #aaffaa; }
+    #terminal-output .error { color: #ff5555; }
+    #terminal-output .command { color: #55ffff; font-weight: bold; }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startBtn = document.getElementById('startDeploymentBtn');
+    const closeBtn = document.getElementById('closeDeploymentBtn');
+    const terminal = document.getElementById('terminal-output');
+    const terminalWindow = document.querySelector('.terminal-window');
+    const statusText = document.getElementById('status-text');
+    const stepCounter = document.getElementById('step-counter');
+    
+    const steps = [
+        { key: 'git_pull', label: 'GIT PULL', cmd: 'git pull' },
+        { key: 'composer_install', label: 'COMPOSER INSTALL', cmd: 'composer install --optimize-autoloader --no-dev' },
+        { key: 'migrate', label: 'PHP ARTISAN MIGRATE', cmd: 'php artisan migrate --force' },
+        { key: 'npm_update', label: 'NPM UPDATE', cmd: 'npm update' },
+        { key: 'npm_install', label: 'NPM INSTALL', cmd: 'npm install' },
+        { key: 'npm_build', label: 'NPM BUILD', cmd: 'npm run build' }
+    ];
+
+    let isRunning = false;
+
+    startBtn.addEventListener('click', async function() {
+        if (isRunning) return;
+        isRunning = true;
+        
+        // UI Transitions
+        document.getElementById('deployment-initial').classList.add('d-none');
+        document.getElementById('deployment-progress').classList.remove('d-none');
+        closeBtn.classList.add('d-none'); // Prevent accidental closure
+
+        for (let i = 0; i < steps.length; i++) {
+            const step = steps[i];
+            
+            // Update UI for current step
+            statusText.innerText = `EXECUTING ${step.label}...`;
+            stepCounter.innerText = `STEP ${i + 1}/${steps.length}`;
+            
+            logToTerminal(`Executing: ${step.cmd}`, 'command');
+
+            try {
+                const response = await fetch("{{ route('admin.system.update') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ step: step.key })
+                });
+
+                const result = await response.json();
+                
+                if (result.output) {
+                    logToTerminal(result.output);
+                }
+
+                if (!result.success) {
+                    showFailure(result.output || "Step failed without specific output.");
+                    return;
+                }
+
+                logToTerminal(`✓ ${step.label} completed.`, 'success');
+
+            } catch (error) {
+                showFailure(`System error: ${error.message}`);
+                return;
+            }
+        }
+
+        // All steps completed
+        showSuccess();
+    });
+
+    function logToTerminal(text, type = '') {
+        const div = document.createElement('div');
+        if (type) div.classList.add(type);
+        div.innerText = type === 'command' ? `\n# ${text}` : text;
+        terminal.appendChild(div);
+        terminalWindow.scrollTop = terminalWindow.scrollHeight;
+    }
+
+    function showFailure(msg) {
+        isRunning = false;
+        document.getElementById('deployment-status').classList.add('d-none');
+        document.getElementById('deployment-failed').classList.remove('d-none');
+        closeBtn.classList.remove('d-none');
+        logToTerminal(`\n!!! DEPLOYMENT ABORTED DUE TO ERROR !!!`, 'error');
+    }
+
+    function showSuccess() {
+        isRunning = false;
+        document.getElementById('deployment-status').classList.add('d-none');
+        document.getElementById('deployment-complete').classList.remove('d-none');
+        closeBtn.classList.remove('d-none');
+        statusText.innerText = "DEPLOYMENT COMPLETE";
+    }
+});
+</script>
 @endsection

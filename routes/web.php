@@ -147,6 +147,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
         Route::post('/users/{user}/diamonds', [AdminUserController::class, 'updateDiamonds'])->name('users.diamonds');
 
+        // System Updates
+        Route::post('/system/update', [\App\Http\Controllers\Admin\SystemUpdateController::class, 'runCommand'])->name('system.update');
+        
         // Settings
         Route::get('/settings', [AdminPlatformSettingController::class, 'edit'])->name('settings.edit');
         Route::patch('/settings', [AdminPlatformSettingController::class, 'update'])->name('settings.update');
