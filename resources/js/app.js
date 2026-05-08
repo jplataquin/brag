@@ -460,3 +460,292 @@ class DigitalCardRenderer {
             ctx.fillText("CENSORED", 0, 0);
             ctx.restore();
         } else if (options.burned) {
+            ctx.save();
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // Dark tint
+            ctx.fillRect(0, 0, w, h);
+            ctx.translate(w / 2, h / 2);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = `${h * 0.4}px sans-serif`;
+            ctx.shadowColor = 'rgba(255, 0, 0, 0.8)';
+            ctx.shadowBlur = 20;
+            ctx.fillText("💀", 0, 0);
+            ctx.restore();
+        }
+
+        if (options.asThumbnail || currentMode === 'thumbnail') {
+            const imgEl = document.getElementById('img_' + this.canvas.id);
+            if (imgEl) {
+                imgEl.src = this.canvas.toDataURL('image/png');
+            }
+        }
+    }
+
+    loadImage(src) {
+        return new Promise((resolve) => {
+            if (!src) return resolve(null);
+            if (this.imageCache[src]) return resolve(this.imageCache[src]);
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.onload = () => {
+                this.imageCache[src] = img;
+                resolve(img);
+            };
+            img.onerror = () => resolve(null);
+            img.src = src;
+        });
+    }
+
+    getRankBadgeUrl(level, mode, version, options = {}) {
+        if (mode === 'template') {
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="30" fill="#1a1800" stroke="#ffdd00" stroke-width="4"/>
+                <path d="M16 48 L48 48 L46 40 L18 40 Z" fill="#ffdd00"/>
+                <path d="M22 40 L42 40 L40 28 L20 28 C 24 28 26 34 22 40" fill="#ffdd00"/>
+                <path d="M12 28 C 12 28 16 22 24 24 L48 24 L48 28 Z" fill="#ffdd00"/>
+                <path d="M38 10 L52 24 L48 28 L34 14 Z" fill="#ffdd00"/>
+                <path d="M28 16 L40 4 L46 10 L34 22 Z" fill="#ffdd00"/>
+                </svg>`;
+            return 'data:image/svg+xml;base64,' + btoa(svg);
+        }
+        let baseUrl = options.badgeBaseUrl || '/img/badge';
+        let url = `${baseUrl}/lv${level}.webp`;
+        if (version) url += `?v=${version}`;
+        return url;
+    }
+
+    drawImageWithinBounds(ctx, img, x, y, w, h, borderColor, mode, imagePositionY = 50, sectionRadius = null) {
+        
+        const sRatio = img.width / img.height;
+        const dRatio = w / h;
+        let sx = 0, sy = 0, sw = img.width, sh = img.height;
+        if (sRatio > dRatio) {
+            sw = img.height * dRatio;
+            sx = (img.width - sw) / 2;
+        } else {
+            sh = img.width / dRatio;
+            const positionRatio = Math.max(0, Math.min(100, imagePositionY)) / 100;
+            sy = (img.height - sh) * positionRatio;
+        }
+        const radius = sectionRadius !== null ? sectionRadius : Math.floor(ctx.canvas.width * 0.02);
+        
+        ctx.save();
+        
+        this.createRoundRectPath(ctx, x, y, w, h, radius);
+        
+        ctx.clip();
+
+        if (mode === 'template') {
+            ctx.filter = 'grayscale(100%)';
+        }
+        ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+        if (mode === 'template') {
+            ctx.filter = 'none';
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.fillStyle = '#ffdd00';
+            ctx.fillRect(x, y, w, h);
+        }
+        ctx.restore();
+        ctx.save();
+        this.createRoundRectPath(ctx, x, y, w, h, radius);
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    createRoundRectPath(ctx, x, y, w, h, r) {
+        if (w < 2 * r) r = w / 2;
+        if (h < 2 * r) r = h / 2;
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+    }
+
+    wrapText(context, text, x, y, maxWidth, maxHeight, lineHeight) {
+        const paragraphs = text.split('\\n');
+        let currentY = y;
+        const maxY = y + maxHeight;
+        for (let p = 0; p < paragraphs.length; p++) {
+            const words = paragraphs[p].split(' ');
+            let line = '';
+            for (let n = 0; n < words.length; n++) {
+                let word = words[n];
+                let testLine = line + word + ' ';
+                let metrics = context.measureText(testLine);
+                if (metrics.width > maxWidth) {
+                    if (line !== '') {
+                        if (currentY + lineHeight > maxY - lineHeight) {
+                            context.fillText(line.trim() + '...', x, currentY);
+                            return;
+                        }
+                        context.fillText(line.trim(), x, currentY);
+                        line = '';
+                        currentY += lineHeight;
+                    }
+                    if (context.measureText(word + ' ').width > maxWidth) {
+                        let tempWord = '';
+                        for (let c = 0; c < word.length; c++) {
+                            let char = word[c];
+                            let hyphen = (c < word.length - 1) ? '-' : '';
+                            let testWord = tempWord + char + hyphen;
+                            if (context.measureText(testWord).width > maxWidth && tempWord.length > 0) {
+                                if (currentY + lineHeight > maxY - lineHeight) {
+                                    context.fillText(tempWord + '...', x, currentY);
+                                    return;
+                                }
+                                context.fillText(tempWord + '-', x, currentY);
+                                tempWord = char;
+                                currentY += lineHeight;
+                            } else {
+                                tempWord += char;
+                            }
+                        }
+                        line = tempWord + ' ';
+                    } else {
+                        line = word + ' ';
+                    }
+                } else {
+                    line = testLine;
+                }
+            }
+            if (currentY + lineHeight > maxY) {
+                if (line.trim() !== '') context.fillText(line.trim() + '...', x, currentY);
+                return;
+            }
+            if (line.trim() !== '') {
+                context.fillText(line.trim(), x, currentY);
+            }
+            currentY += lineHeight;
+            if (currentY > maxY) return;
+        }
+    }
+}
+
+window.DigitalCardRenderer = DigitalCardRenderer;
+
+window.neonAlert = function(message, title = 'ALERT') {
+    return new Promise((resolve) => {
+        document.getElementById('globalNeonAlertTitle').innerText = title;
+        document.getElementById('globalNeonAlertMessage').innerText = message;
+        const modalEl = document.getElementById('globalNeonAlertModal');
+        const modal = new bootstrap.Modal(modalEl);
+        
+        const onHidden = () => {
+            modalEl.removeEventListener('hidden.bs.modal', onHidden);
+            resolve();
+        };
+        modalEl.addEventListener('hidden.bs.modal', onHidden);
+        modal.show();
+    });
+};
+
+window.neonConfirm = function(message, title = 'CONFIRM') {
+    return new Promise((resolve) => {
+        document.getElementById('globalNeonConfirmTitle').innerText = title;
+        document.getElementById('globalNeonConfirmMessage').innerText = message;
+        const modalEl = document.getElementById('globalNeonConfirmModal');
+        const modal = new bootstrap.Modal(modalEl);
+        
+        let result = false;
+        
+        const confirmBtn = document.getElementById('globalNeonConfirmBtn');
+        const onConfirm = () => {
+            result = true;
+            modal.hide();
+        };
+        confirmBtn.addEventListener('click', onConfirm);
+        
+        const onHidden = () => {
+            confirmBtn.removeEventListener('click', onConfirm);
+            modalEl.removeEventListener('hidden.bs.modal', onHidden);
+            resolve(result);
+        };
+        modalEl.addEventListener('hidden.bs.modal', onHidden);
+        
+        modal.show();
+    });
+};
+
+window.neonPrompt = function(message, defaultValue = '', title = 'PROMPT') {
+    return new Promise((resolve) => {
+        document.getElementById('globalNeonPromptTitle').innerText = title;
+        document.getElementById('globalNeonPromptMessage').innerText = message;
+        const input = document.getElementById('globalNeonPromptInput');
+        input.value = defaultValue;
+        const modalEl = document.getElementById('globalNeonPromptModal');
+        const modal = new bootstrap.Modal(modalEl);
+        
+        let result = null;
+        
+        const submitBtn = document.getElementById('globalNeonPromptBtn');
+        const onSubmit = () => {
+            result = input.value;
+            modal.hide();
+        };
+        submitBtn.addEventListener('click', onSubmit);
+        
+        const onHidden = () => {
+            submitBtn.removeEventListener('click', onSubmit);
+            modalEl.removeEventListener('hidden.bs.modal', onHidden);
+            resolve(result);
+        };
+        modalEl.addEventListener('hidden.bs.modal', onHidden);
+        
+        modal.show();
+        modalEl.addEventListener('shown.bs.modal', () => input.focus(), { once: true });
+    });
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.body.addEventListener('click', async (e) => {
+        const trigger = e.target.closest('[data-confirm]');
+        if (!trigger) return;
+        
+        e.preventDefault();
+        
+        if (trigger.dataset.confirmed === 'true') {
+            return; 
+        }
+        
+        const message = trigger.dataset.confirm;
+        const result = await window.neonConfirm(message);
+        
+        if (result) {
+            trigger.dataset.confirmed = 'true';
+            if (trigger.tagName === 'A') {
+                window.location.href = trigger.href;
+            } else if (trigger.tagName === 'BUTTON' && trigger.type === 'submit') {
+                let form = trigger.closest('form');
+                if (!form && trigger.getAttribute('form')) {
+                    form = document.getElementById(trigger.getAttribute('form'));
+                }
+                if (form) {
+                    if (typeof form.requestSubmit === 'function') {
+                        form.requestSubmit();
+                    } else {
+                        form.submit();
+                    }
+                }
+            } else if (trigger.tagName === 'FORM') {
+                if (typeof trigger.requestSubmit === 'function') {
+                    trigger.requestSubmit();
+                } else {
+                    trigger.submit();
+                }
+            } else {
+                trigger.click();
+            }
+            setTimeout(() => { delete trigger.dataset.confirmed; }, 100);
+        }
+    });
+});
+
+// Process images with Vite
+import.meta.glob([
+    '../img/**',
+]);
