@@ -54,6 +54,16 @@
             </a>
         </div>
         <div class="col-md-3">
+            <a href="{{ route('admin.cron.index') }}" class="text-decoration-none">
+                <div class="card bg-dark bg-opacity-75 border-cyan h-100 neon-hover" style="border-color: var(--neon-cyan);">
+                    <div class="card-body text-center p-3">
+                        <i class="bi bi-clock-history display-6 mb-2 d-block" style="color: var(--neon-cyan);"></i>
+                        <h6 class="text-white text-uppercase fw-bold mb-0">Cron Jobs</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
             <a href="{{ route('admin.game_titles.index') }}" class="text-decoration-none">
                 <div class="card bg-dark bg-opacity-75 border-light h-100 neon-hover">
                     <div class="card-body text-center p-3">

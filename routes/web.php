@@ -188,6 +188,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/payments/{payment}/flag', [AdminPaymentController::class, 'flag'])->name('payments.flag');
         Route::post('/payments/{payment}/comments', [AdminPaymentController::class, 'addComment'])->name('payments.comments.store');
 
+        // Cron Management
+        Route::get('/cron', [\App\Http\Controllers\Admin\CronJobController::class, 'index'])->name('cron.index');
+        Route::post('/cron/run', [\App\Http\Controllers\Admin\CronJobController::class, 'run'])->name('cron.run');
+        Route::get('/cron/logs', [\App\Http\Controllers\Admin\CronJobController::class, 'logs'])->name('cron.logs');
+
         // Terms & Privacy Admin
         Route::get('/terms', [TermsOfServiceController::class, 'index'])->name('terms.index');
         Route::post('/terms', [TermsOfServiceController::class, 'store'])->name('terms.store');
