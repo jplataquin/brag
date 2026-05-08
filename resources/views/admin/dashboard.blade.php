@@ -280,8 +280,18 @@
                     <div id="deployment-failed" class="d-none text-center py-4">
                         <div class="display-1 text-danger mb-3"><i class="bi bi-x-circle-fill"></i></div>
                         <h4 class="orbitron text-danger mb-2">DEPLOYMENT FAILED</h4>
-                        <p class="text-white-50" id="fail-message">Check the terminal log above for details.</p>
-                        <button type="button" class="btn btn-outline-danger orbitron mt-3" data-bs-dismiss="modal">
+                        <p class="text-white-50 mb-4" id="fail-message">Check the terminal log above for details.</p>
+                        
+                        <div id="git-fix-suggestion" class="d-none mb-4">
+                            <div class="alert alert-info x-small border-info border-opacity-25 bg-info bg-opacity-10 py-3 text-start mb-3">
+                                <i class="bi bi-info-circle-fill me-2"></i> <strong>GIT OWNERSHIP DETECTED:</strong> The server reported "dubious ownership". This usually happens when the web user (www-data) doesn't own the git folder.
+                            </div>
+                            <button type="button" class="btn btn-outline-info orbitron w-100" id="fixGitConfigBtn">
+                                RUN "GIT CONFIG SAFE DIRECTORY" & RETRY
+                            </button>
+                        </div>
+
+                        <button type="button" class="btn btn-outline-danger orbitron mt-2" data-bs-dismiss="modal">
                             CLOSE TERMINAL
                         </button>
                     </div>
@@ -388,7 +398,45 @@ document.addEventListener('DOMContentLoaded', function() {
         div.innerText = type === 'command' ? `\n# ${text}` : text;
         terminal.appendChild(div);
         terminalWindow.scrollTop = terminalWindow.scrollHeight;
+
+        // Auto-detect Git Ownership Error
+        if (text.includes('dubious ownership')) {
+            document.getElementById('git-fix-suggestion').classList.remove('d-none');
+        }
     }
+
+    document.getElementById('fixGitConfigBtn').addEventListener('click', async function() {
+        const btn = this;
+        btn.disabled = true;
+        btn.innerText = "FIXING...";
+
+        try {
+            const response = await fetch("{{ route('admin.system.update') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ step: 'fix_git_config' })
+            });
+
+            const result = await response.json();
+            logToTerminal(result.output, result.success ? 'success' : 'error');
+
+            if (result.success) {
+                // Hide fix button and retry deployment automatically
+                document.getElementById('git-fix-suggestion').classList.add('d-none');
+                document.getElementById('deployment-failed').classList.add('d-none');
+                document.getElementById('deployment-status').classList.remove('d-none');
+                startBtn.click(); // Re-trigger the whole process
+            } else {
+                btn.innerText = "FIX FAILED - CHECK PERMISSIONS";
+            }
+        } catch (e) {
+            logToTerminal(`Fix failed: ${e.message}`, 'error');
+            btn.innerText = "SYSTEM ERROR";
+        }
+    });
 
     function showFailure(msg) {
         isRunning = false;

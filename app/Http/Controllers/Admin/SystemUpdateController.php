@@ -23,6 +23,10 @@ class SystemUpdateController extends Controller
 
         try {
             switch ($step) {
+                case 'fix_git_config':
+                    $result = Process::path($basePath)->run("git config --global --add safe.directory {$basePath}");
+                    break;
+
                 case 'git_pull':
                     $result = Process::path($basePath)->run('git pull');
                     break;
