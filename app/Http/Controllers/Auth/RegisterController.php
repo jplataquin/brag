@@ -55,12 +55,14 @@ class RegisterController extends Controller
             'lastname' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:30', 'unique:users', 'regex:/^[a-zA-Z0-9_]+$/'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'birthdate' => ['nullable', 'date'],
+            'birthdate' => ['required', 'date', 'before_or_equal:' . now()->subYears(13)->format('Y-m-d')],
             'gender' => ['nullable', 'string', 'in:Male,Female,None'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'terms' => ['required', 'accepted'],
             'privacy' => ['required', 'accepted'],
             'cf-turnstile-response' => ['required', new Turnstile],
+        ], [
+            'birthdate.before_or_equal' => 'You must be at least 13 years old to register.',
         ]);
     }
 

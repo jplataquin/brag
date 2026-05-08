@@ -68,7 +68,9 @@
                 <div class="mb-3">
                     <label for="birthdate" class="form-label">BIRTHDATE</label>
                     <input id="birthdate" type="date" class="form-control @error('birthdate') is-invalid @enderror"
-                           name="birthdate" value="{{ old('birthdate') }}">
+                           name="birthdate" value="{{ old('birthdate') }}" required
+                           max="{{ now()->subYears(13)->format('Y-m-d') }}">
+                    <div class="form-text text-white-50" style="font-size: 0.75rem;">You must be at least 13 years old to register.</div>
                     @error('birthdate')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>

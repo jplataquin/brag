@@ -1,6 +1,29 @@
 @extends('layouts.app')
 @section('title', 'Battle Room #' . $battle->id)
 @section('content')
+@php
+    $myTeam = '';
+    for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
+        if ($battle->{"team_a_user_{$i}"} == Auth::id()) { $myTeam = 'A'; break; }
+        if ($battle->{"team_b_user_{$i}"} == Auth::id()) { $myTeam = 'B'; break; }
+    }
+    
+    $isWinner = false;
+    $isLoser = false;
+    $isTie = false;
+    $isSpectator = empty($myTeam) && Auth::id() != $battle->marshall_id;
+    $isMarshall = Auth::id() == $battle->marshall_id;
+
+    if ($battle->status == 'completed') {
+        if ($battle->winner_team == 'T') {
+            $isTie = true;
+        } elseif ($myTeam == $battle->winner_team) {
+            $isWinner = true;
+        } elseif (!empty($myTeam)) {
+            $isLoser = true;
+        }
+    }
+@endphp
 <div>
 
 @if($battle->rematch_battle_id && $battle->rematchBattle)
@@ -27,6 +50,22 @@
     @keyframes team-marquee {
         0% { transform: translateX(0); }
         100% { transform: translateX(-50%); }
+    }
+    @keyframes result-shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+        20%, 40%, 60%, 80% { transform: translateX(10px); }
+    }
+    @keyframes result-flash-red {
+        0% { background-color: transparent; }
+        50% { background-color: rgba(220, 53, 69, 0.2); }
+        100% { background-color: transparent; }
+    }
+    .animate-shake {
+        animation: result-shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
+    .animate-flash-red {
+        animation: result-flash-red 1s infinite;
     }
 </style>
 
@@ -336,267 +375,8 @@
 </div> <!-- Close team-battle-room -->
 </div> <!-- Close root div from livewire -->
 
-<!-- Join Modal (Simulated) -->
-    
-        <div class="modal fade" id="joinModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content custom-modal p-4 neon-card" style="max-width: 800px; width: 95%;">
-                <h4 class="orbitron text-cyan mb-4 text-center">JOIN TEAM <span id="join_team_name"></span></h4>
-<form action="{{ route('battles.action.join', $battle) }}" method="POST" id="joinForm">@csrf <input type="hidden" name="joiningTeam" id="joiningTeam" value=""><input type="hidden" name="pairingSlot" id="pairingSlot" value=""><input type="hidden" name="selectedCardId" id="selectedCardId" value="">
-<label class="form-label small text-center w-100 mb-3" style="color: #39ff14;"><i class="bi bi-suit-diamond-fill"></i> SELECT YOUR CARD TO BET</label>
-                    
-                    @if($myEligibleCards->isEmpty())
-                        <div class="alert alert-warning text-center">
-                            You don't have any eligible cards with life points for this game title.
-                        </div>
-                    @else
-                        <div id="joinCardCarousel" class="carousel slide px-md-5" data-bs-ride="false">
-                            <div class="carousel-inner p-2">
-                                @foreach($myEligibleCards->chunk(3) as $chunkIndex => $chunk)
-                                    <div class="carousel-item {{ $chunkIndex === 0 ? 'active' : '' }}">
-                                        <div class="row g-3 justify-content-center">
-                                            @foreach($chunk as $card)
-                                                <div class="col-md-4 col-6">
-                                                    <div class="selectable-card" onclick="document.querySelectorAll('.selectable-card').forEach(e=>e.classList.remove('selected')); this.classList.add('selected'); document.getElementById('selectedCardId').value='{{$card->id}}'; document.getElementById('confirmJoinBtn').disabled=false;" style="cursor: pointer;">
-                                                        <div class="card-img-wrapper" style="position: relative; cursor: pointer;">
-                                                            <div style="pointer-events: none;">
-                                                                <x-digital-card 
-                                                                    id="card_join_{{ $card->id }}"
-                                                                    mode="thumbnail"
-                                                                    :title="$card->is_censored ? '[CENSORED]' : $card->template->card_title"
-                                                                    :game="$card->template->gameTitle->title ?? 'GAME'"
-                                                                    :creator="$card->originalOwner->username ?? 'Creator'"
-                                                                    :quote="$card->is_censored ? '[Content hidden pending review]' : $card->template->quote"
-                                                                    :image="$card->is_censored ? '' : $card->template->display_photo"
-                                                                    :imagePositionY="$card->template->image_position_y ?? 50"
-                                                                    :backgroundColor="$card->template->background_color"
-                                                                    :borderColor="$card->template->border_color"
-                                                                    :sectionColor="$card->template->section_color"
-                                                                    :primaryTextColor="$card->template->primary_text_color"
-                                                                    :secondaryTextColor="$card->template->secondary_text_color"
-                                                                    :wins="$card->wins"
-                                                                    :losses="$card->losses"
-                                                                    :integrityStat="$card->integrity_stat"
-                                                                    :lifePoints="$card->life_points"
-                                                                    :status="$card->status"
-                                                                    :rankLevel="$card->level"
-                                                                    :serialNumber="$card->serial_number"
-                                                                    :rarity="$card->rarity"
-                                                                    :isCensored="$card->is_censored"
-                                                                />
-                                                            </div>
-                                                            <button type="button" class="btn btn-sm btn-dark position-absolute" style="top: 5px; right: 5px; z-index: 10; background: rgba(0,0,0,0.6); border-color: rgba(0, 240, 255, 0.5); color: #00f0ff;" data-bs-toggle="modal" data-bs-target="#modal_card_join_{{ $card->id }}" onclick="event.stopPropagation();">
-                                                                <i class="bi bi-arrows-fullscreen"></i>
-                                                            </button>
-                                                            
-                                                        </div>
-                                                        <div class="mt-2 text-center text-truncate small fw-bold">{{ $card->is_censored ? '[CENSORED]' : $card->template->card_title }}</div>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                            
-                            @if($myEligibleCards->count() > 3)
-                                <button class="carousel-control-prev" type="button" data-bs-target="#joinCardCarousel" data-bs-slide="prev" style="width: 5%;">
-                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                    <span class="visually-hidden">Previous</span>
-                                </button>
-                                <button class="carousel-control-next" type="button" data-bs-target="#joinCardCarousel" data-bs-slide="next" style="width: 5%;">
-                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                    <span class="visually-hidden">Next</span>
-                                </button>
-                            @endif
-                        </div>
-                    @endif
-                    <?php if(isset($errors) && $errors->has("selectedCardId")): ?><div class="text-danger small mt-2 text-center">{{ $errors->first("selectedCardId") }}</div><?php endif; ?>
-
-                <div class="d-flex gap-3 mt-4">
-                    <button type="button" class="btn btn-outline-secondary w-50 py-2" data-bs-dismiss="modal">CANCEL</button>
-                    <button type="submit" class="btn btn-neon w-50 py-2 orbitron" id="confirmJoinBtn" disabled>CONFIRM JOIN</button>
-                </div>
-                </form>
-            </div>
-        </div>
-        </div>
-
-        <!-- Rename Team Modal -->
-    <div class="modal fade" id="renameTeamModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
-        <div class="modal-dialog modal-dialog-centered">
-            <form action="{{ route('battles.action.rename', $battle) }}" method="POST" class="w-100" id="renameTeamForm">
-            @csrf
-            <input type="hidden" name="team" id="renameTeamVal" value="">
-            <div class="modal-content p-4 neon-card" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; backdrop-filter: blur(20px);">
-                <h5 class="orbitron text-cyan mb-4 text-center">RENAME TEAM <span id="rename_team_name"></span></h5>
-                <div class="mb-4">
-                    <input type="text" name="name" id="renameTeamInput" class="form-control bg-dark text-white border-cyan text-center orbitron" placeholder="Enter new team name" required>
-                    <div class="form-error-display d-none text-danger small mt-2 text-center"></div>
-                </div>
-                <div class="d-flex gap-3">
-                    <button type="button" class="btn btn-outline-secondary w-50" data-bs-dismiss="modal">CANCEL</button>
-                    <button type="submit" class="btn btn-neon w-50 orbitron">SAVE</button>
-                </div>
-            </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Elect Marshall Modal -->
-    <div class="modal fade" id="electMarshallModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #ffdd00; backdrop-filter: blur(20px);">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title" style="color: #ffdd00; font-family: 'Orbitron', sans-serif;">ELECT MARSHALL</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="{{ route('battles.action.elect_marshall', $battle) }}" method="POST" id="electMarshallForm">
-                <div class="modal-body py-4">
-                    <div class="mb-3 position-relative">
-                        @csrf
-                        <input type="hidden" name="marshall_id" id="marshall_nominee_id">
-                        <label class="form-label">MARSHALL USERNAME</label>
-                        <div class="form-control d-flex align-items-center p-1" style="min-height: 42px; position: relative;">
-                            <span class="badge d-flex align-items-center gap-2 p-2 d-none" id="marshall_selected_badge" style="background: rgba(255,221,0,0.2); border: 1px solid #ffdd00; color: #ffdd00; font-size: 0.9rem;">
-                                <i class="bi bi-person-fill"></i> 
-                                <span id="marshall_selected_username"></span>
-                                <i class="bi bi-x-circle-fill ms-2" style="cursor: pointer;" onclick="clearMarshall()"></i>
-                            </span>
-                            <input type="text" id="marshall_search_input" class="border-0 bg-transparent text-white flex-grow-1 px-2" placeholder="Search username..." autocomplete="off" style="outline: none; box-shadow: none;" oninput="searchUsers(this.value, 'marshall')">
-                        </div>
-                        <div class="position-absolute w-100 mt-1 d-none" id="marshall_search_results" style="z-index: 1050; max-height: 200px; overflow-y: auto; background: rgba(10, 10, 30, 0.95); border: 1px solid #ffdd00; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-                        </div>
-                    </div>
-                    <p class="text-muted small">Both team leaders must elect the same user for them to be designated as the marshall.</p>
-                    <div class="form-error-display d-none text-danger small mt-2"></div>
-                </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="submit" class="btn btn-neon w-100" id="marshall_submit_btn" disabled style="border-color: #ffdd00; color: #ffdd00;">ELECT USER</button>
-                </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Share QR Modal -->
-    <div class="modal fade" id="shareQRModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #39ff14; backdrop-filter: blur(20px);">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title" style="color: #39ff14; font-family: 'Orbitron', sans-serif;">BATTLE QR CODE</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center py-4">
-                    <div id="qrcode-container" class="d-inline-block p-3 bg-white rounded-3 mb-3">
-                        <div id="qrcode"></div>
-                    </div>
-                    <p class="text-muted small">Show this QR code to your opponents or teammates to let them join this battle room.</p>
-                    <div class="mt-3">
-                        <div class="input-group input-group-sm">
-                            <input type="text" class="form-control bg-dark border-secondary text-light" value="{{ route('battles.room', $battle) }}" id="battle-url" readonly>
-                            <button class="btn btn-outline-secondary" type="button" onclick="copyBattleUrl()">COPY</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Invite Player Modal -->
-    <div class="modal fade" id="invitePlayerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; backdrop-filter: blur(20px);">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title neon-text">INVITE PLAYERS</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="{{ route('battles.action.invite', $battle) }}" method="POST" id="invitePlayerForm">
-                <div class="modal-body py-4">
-                    <div class="mb-3 position-relative">
-                        @csrf
-                        <input type="hidden" name="user_id" id="invite_nominee_id">
-                        <label class="form-label">PLAYER USERNAME</label>
-                        <div class="form-control d-flex align-items-center p-1" style="min-height: 42px; position: relative;">
-                            <span class="badge d-flex align-items-center gap-2 p-2 d-none" id="invite_selected_badge" style="background: rgba(0,240,255,0.2); border: 1px solid #00f0ff; color: #00f0ff; font-size: 0.9rem;">
-                                <i class="bi bi-person-fill"></i> 
-                                <span id="invite_selected_username"></span>
-                                <i class="bi bi-x-circle-fill ms-2" style="cursor: pointer;" onclick="clearInvite()"></i>
-                            </span>
-                            <input type="text" id="invite_search_input" class="border-0 bg-transparent text-white flex-grow-1 px-2" placeholder="Search username..." autocomplete="off" style="outline: none; box-shadow: none;" oninput="searchUsers(this.value, 'invite')">
-                        </div>
-                        <div class="position-absolute w-100 mt-1 d-none" id="invite_search_results" style="z-index: 1050; max-height: 200px; overflow-y: auto; background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-                        </div>
-                    </div>
-                    <p class="text-muted small">Invited players will receive a notification to join this battle room.</p>
-                    <div class="form-error-display d-none text-danger small mt-2"></div>
-                </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="submit" class="btn btn-neon w-100" id="invite_submit_btn" disabled>SEND INVITE</button>
-                </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-        <!-- Cancellation Request Modal -->
-    @php
-        $showCancelModal = false;
-        $requesterName = '';
-        if ($battle->status !== 'cancelled' && $battle->status !== 'completed') {
-            if ($battle->team_a_cancel_flag && Auth::id() == $battle->team_b_user_1) {
-                $showCancelModal = true;
-                $requesterName = \App\Models\User::find($battle->team_a_user_1)?->username ?? 'Team A Leader';
-            } elseif ($battle->team_b_cancel_flag && Auth::id() == $battle->team_a_user_1) {
-                $showCancelModal = true;
-                $requesterName = \App\Models\User::find($battle->team_b_user_1)?->username ?? 'Team B Leader';
-            }
-        }
-    @endphp
-
-    @if($showCancelModal)
-    <div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0, 0, 0, 0.8);">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #ff00ff; backdrop-filter: blur(20px); box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title neon-text-magenta">CANCELLATION REQUEST</h5>
-                </div>
-                <div class="modal-body py-4 text-center">
-                    <div class="mb-4">
-                        <i class="bi bi-exclamation-triangle-fill" style="font-size: 3rem; color: #ff00ff; opacity: 0.8;"></i>
-                    </div>
-                    <p class="mb-4" style="font-size: 1.1rem;">
-                        <strong id="cancel-requester-name">{{ $requesterName }}</strong> has requested to cancel this battle. 
-                        Do you agree to cancel the match?
-                    </p>
-                    <p class="text-muted small mb-4">
-                        If you agree, the battle will be cancelled and no cards will be transferred.
-                        If you reject, the battle will continue.
-                    </p>
-                    
-                    <div class="d-flex gap-3">
-                        <form action="{{ route('battles.action.respond_cancel', $battle) }}" method="POST" class="w-100" id="agreeCancelForm" onsubmit="event.preventDefault(); handleActionSubmit('agreeCancelForm');">
-                            @csrf <input type="hidden" name="agreed" value="1">
-                            <button type="submit" class="btn btn-neon-magenta w-100"><i class="bi bi-check-lg"></i> AGREE & CANCEL</button>
-                        </form>
-                        <form action="{{ route('battles.action.respond_cancel', $battle) }}" method="POST" class="w-100" id="rejectCancelForm" onsubmit="event.preventDefault(); handleActionSubmit('rejectCancelForm');">
-                            @csrf <input type="hidden" name="agreed" value="0">
-                            <button type="submit" class="btn btn-outline-secondary w-100" style="border-color: #555;"><i class="bi bi-x-lg"></i> REJECT</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    <style>
-        @keyframes pulse-cyan {
-            0% { box-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.4); }
-            50% { box-shadow: 0 0 25px rgba(0, 240, 255, 1), 0 0 40px rgba(0, 240, 255, 0.8); }
-            100% { box-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.4); }
-        }
-        @keyframes pulse-magenta {
+<style>
+    @keyframes pulse-magenta {
             0% { box-shadow: 0 0 10px rgba(255, 0, 255, 0.6), 0 0 20px rgba(255, 0, 255, 0.4); }
             50% { box-shadow: 0 0 25px rgba(255, 0, 255, 1), 0 0 40px rgba(255, 0, 255, 0.8); }
             100% { box-shadow: 0 0 10px rgba(255, 0, 255, 0.6), 0 0 20px rgba(255, 0, 255, 0.4); }
@@ -775,7 +555,325 @@ function clearMarshall() {
 </div>
 @endsection
 
+@push('modals')
+    <!-- Join Modal (Simulated) -->
+    <div class="modal fade" id="joinModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content custom-modal p-4 neon-card" style="max-width: 800px; width: 95%;">
+                <h4 class="orbitron text-cyan mb-4 text-center">JOIN TEAM <span id="join_team_name"></span></h4>
+                <form action="{{ route('battles.action.join', $battle) }}" method="POST" id="joinForm">@csrf <input type="hidden" name="joiningTeam" id="joiningTeam" value=""><input type="hidden" name="pairingSlot" id="pairingSlot" value=""><input type="hidden" name="selectedCardId" id="selectedCardId" value="">
+                    <label class="form-label small text-center w-100 mb-3" style="color: #39ff14;"><i class="bi bi-suit-diamond-fill"></i> SELECT YOUR CARD TO BET</label>
+                    
+                    @if($myEligibleCards->isEmpty())
+                        <div class="alert alert-warning text-center">
+                            You don't have any eligible cards with life points for this game title.
+                        </div>
+                    @else
+                        <div id="joinCardCarousel" class="carousel slide px-md-5" data-bs-ride="false">
+                            <div class="carousel-inner p-2">
+                                @foreach($myEligibleCards->chunk(3) as $chunkIndex => $chunk)
+                                    <div class="carousel-item {{ $chunkIndex === 0 ? 'active' : '' }}">
+                                        <div class="row g-3 justify-content-center">
+                                            @foreach($chunk as $card)
+                                                <div class="col-md-4 col-6">
+                                                    <div class="selectable-card" onclick="document.querySelectorAll('.selectable-card').forEach(e=>e.classList.remove('selected')); this.classList.add('selected'); document.getElementById('selectedCardId').value='{{$card->id}}'; document.getElementById('confirmJoinBtn').disabled=false;" style="cursor: pointer;">
+                                                        <div class="card-img-wrapper" style="position: relative; cursor: pointer;">
+                                                            <div style="pointer-events: none;">
+                                                                <x-digital-card 
+                                                                    id="card_join_{{ $card->id }}"
+                                                                    mode="thumbnail"
+                                                                    :title="$card->is_censored ? '[CENSORED]' : $card->template->card_title"
+                                                                    :game="$card->template->gameTitle->title ?? 'GAME'"
+                                                                    :creator="$card->originalOwner->username ?? 'Creator'"
+                                                                    :quote="$card->is_censored ? '[Content hidden pending review]' : $card->template->quote"
+                                                                    :image="$card->is_censored ? '' : $card->template->display_photo"
+                                                                    :imagePositionY="$card->template->image_position_y ?? 50"
+                                                                    :backgroundColor="$card->template->background_color"
+                                                                    :borderColor="$card->template->border_color"
+                                                                    :sectionColor="$card->template->section_color"
+                                                                    :primaryTextColor="$card->template->primary_text_color"
+                                                                    :secondaryTextColor="$card->template->secondary_text_color"
+                                                                    :wins="$card->wins"
+                                                                    :losses="$card->losses"
+                                                                    :integrityStat="$card->integrity_stat"
+                                                                    :lifePoints="$card->life_points"
+                                                                    :status="$card->status"
+                                                                    :rankLevel="$card->level"
+                                                                    :serialNumber="$card->serial_number"
+                                                                    :rarity="$card->rarity"
+                                                                    :isCensored="$card->is_censored"
+                                                                />
+                                                            </div>
+                                                            <button type="button" class="btn btn-sm btn-dark position-absolute" style="top: 5px; right: 5px; z-index: 10; background: rgba(0,0,0,0.6); border-color: rgba(0, 240, 255, 0.5); color: #00f0ff;" data-bs-toggle="modal" data-bs-target="#modal_card_join_{{ $card->id }}" onclick="event.stopPropagation();">
+                                                                <i class="bi bi-arrows-fullscreen"></i>
+                                                            </button>
+                                                        </div>
+                                                        <div class="mt-2 text-center text-truncate small fw-bold">{{ $card->is_censored ? '[CENSORED]' : $card->template->card_title }}</div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            
+                            @if($myEligibleCards->count() > 3)
+                                <button class="carousel-control-prev" type="button" data-bs-target="#joinCardCarousel" data-bs-slide="prev" style="width: 5%;">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#joinCardCarousel" data-bs-slide="next" style="width: 5%;">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            @endif
+                        </div>
+                    @endif
+                    <?php if(isset($errors) && $errors->has("selectedCardId")): ?><div class="text-danger small mt-2 text-center">{{ $errors->first("selectedCardId") }}</div><?php endif; ?>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="button" class="btn btn-outline-secondary w-50 py-2" data-bs-dismiss="modal">CANCEL</button>
+                        <button type="submit" class="btn btn-neon w-50 py-2 orbitron" id="confirmJoinBtn" disabled>CONFIRM JOIN</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rename Team Modal -->
+    <div class="modal fade" id="renameTeamModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
+        <div class="modal-dialog modal-dialog-centered">
+            <form action="{{ route('battles.action.rename', $battle) }}" method="POST" class="w-100" id="renameTeamForm">
+                @csrf
+                <input type="hidden" name="team" id="renameTeamVal" value="">
+                <div class="modal-content p-4 neon-card" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; backdrop-filter: blur(20px);">
+                    <h5 class="orbitron text-cyan mb-4 text-center">RENAME TEAM <span id="rename_team_name"></span></h5>
+                    <div class="mb-4">
+                        <input type="text" name="name" id="renameTeamInput" class="form-control bg-dark text-white border-cyan text-center orbitron" placeholder="Enter new team name" required>
+                        <div class="form-error-display d-none text-danger small mt-2 text-center"></div>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <button type="button" class="btn btn-outline-secondary w-50" data-bs-dismiss="modal">CANCEL</button>
+                        <button type="submit" class="btn btn-neon w-50 orbitron">SAVE</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Elect Marshall Modal -->
+    <div class="modal fade" id="electMarshallModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #ffdd00; backdrop-filter: blur(20px);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title" style="color: #ffdd00; font-family: 'Orbitron', sans-serif;">ELECT MARSHALL</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('battles.action.elect_marshall', $battle) }}" method="POST" id="electMarshallForm">
+                    <div class="modal-body py-4">
+                        <div class="mb-3 position-relative">
+                            @csrf
+                            <input type="hidden" name="marshall_id" id="marshall_nominee_id">
+                            <label class="form-label">MARSHALL USERNAME</label>
+                            <div class="form-control d-flex align-items-center p-1" style="min-height: 42px; position: relative;">
+                                <span class="badge d-flex align-items-center gap-2 p-2 d-none" id="marshall_selected_badge" style="background: rgba(255,221,0,0.2); border: 1px solid #ffdd00; color: #ffdd00; font-size: 0.9rem;">
+                                    <i class="bi bi-person-fill"></i> 
+                                    <span id="marshall_selected_username"></span>
+                                    <i class="bi bi-x-circle-fill ms-2" style="cursor: pointer;" onclick="clearMarshall()"></i>
+                                </span>
+                                <input type="text" id="marshall_search_input" class="border-0 bg-transparent text-white flex-grow-1 px-2" placeholder="Search username..." autocomplete="off" style="outline: none; box-shadow: none;" oninput="searchUsers(this.value, 'marshall')">
+                            </div>
+                            <div class="position-absolute w-100 mt-1 d-none" id="marshall_search_results" style="z-index: 1050; max-height: 200px; overflow-y: auto; background: rgba(10, 10, 30, 0.95); border: 1px solid #ffdd00; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"></div>
+                        </div>
+                        <p class="text-muted small">Both team leaders must elect the same user for them to be designated as the marshall.</p>
+                        <div class="form-error-display d-none text-danger small mt-2"></div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="submit" class="btn btn-neon w-100" id="marshall_submit_btn" disabled style="border-color: #ffdd00; color: #ffdd00;">ELECT USER</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share QR Modal -->
+    <div class="modal fade" id="shareQRModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #39ff14; backdrop-filter: blur(20px);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title" style="color: #39ff14; font-family: 'Orbitron', sans-serif;">BATTLE QR CODE</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div id="qrcode-container" class="d-inline-block p-3 bg-white rounded-3 mb-3">
+                        <div id="qrcode"></div>
+                    </div>
+                    <p class="text-muted small">Show this QR code to your opponents or teammates to let them join this battle room.</p>
+                    <div class="mt-3">
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control bg-dark border-secondary text-light" value="{{ route('battles.room', $battle) }}" id="battle-url" readonly>
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyBattleUrl()">COPY</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invite Player Modal -->
+    <div class="modal fade" id="invitePlayerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" style="background: rgba(0, 0, 0, 0.8);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; backdrop-filter: blur(20px);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title neon-text">INVITE PLAYERS</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('battles.action.invite', $battle) }}" method="POST" id="invitePlayerForm">
+                    <div class="modal-body py-4">
+                        <div class="mb-3 position-relative">
+                            @csrf
+                            <input type="hidden" name="user_id" id="invite_nominee_id">
+                            <label class="form-label">PLAYER USERNAME</label>
+                            <div class="form-control d-flex align-items-center p-1" style="min-height: 42px; position: relative;">
+                                <span class="badge d-flex align-items-center gap-2 p-2 d-none" id="invite_selected_badge" style="background: rgba(0,240,255,0.2); border: 1px solid #00f0ff; color: #00f0ff; font-size: 0.9rem;">
+                                    <i class="bi bi-person-fill"></i> 
+                                    <span id="invite_selected_username"></span>
+                                    <i class="bi bi-x-circle-fill ms-2" style="cursor: pointer;" onclick="clearInvite()"></i>
+                                </span>
+                                <input type="text" id="invite_search_input" class="border-0 bg-transparent text-white flex-grow-1 px-2" placeholder="Search username..." autocomplete="off" style="outline: none; box-shadow: none;" oninput="searchUsers(this.value, 'invite')">
+                            </div>
+                            <div class="position-absolute w-100 mt-1 d-none" id="invite_search_results" style="z-index: 1050; max-height: 200px; overflow-y: auto; background: rgba(10, 10, 30, 0.95); border: 1px solid #00f0ff; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"></div>
+                        </div>
+                        <p class="text-muted small">Invited players will receive a notification to join this battle room.</p>
+                        <div class="form-error-display d-none text-danger small mt-2"></div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="submit" class="btn btn-neon w-100" id="invite_submit_btn" disabled>SEND INVITE</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @php
+        $showCancelModal = false;
+        $requesterName = '';
+        if ($battle->status !== 'cancelled' && $battle->status !== 'completed') {
+            if ($battle->team_a_cancel_flag && Auth::id() == $battle->team_b_user_1) {
+                $showCancelModal = true;
+                $requesterName = \App\Models\User::find($battle->team_a_user_1)?->username ?? 'Team A Leader';
+            } elseif ($battle->team_b_cancel_flag && Auth::id() == $battle->team_a_user_1) {
+                $showCancelModal = true;
+                $requesterName = \App\Models\User::find($battle->team_b_user_1)?->username ?? 'Team B Leader';
+            }
+        }
+    @endphp
+
+    @if($showCancelModal)
+    <div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0, 0, 0, 0.8);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #ff00ff; backdrop-filter: blur(20px); box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title neon-text-magenta">CANCELLATION REQUEST</h5>
+                </div>
+                <div class="modal-body py-4 text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-exclamation-triangle-fill" style="font-size: 3rem; color: #ff00ff; opacity: 0.8;"></i>
+                    </div>
+                    <p class="mb-4" style="font-size: 1.1rem;">
+                        <strong id="cancel-requester-name">{{ $requesterName }}</strong> has requested to cancel this battle. 
+                        Do you agree to cancel the match?
+                    </p>
+                    <p class="text-muted small mb-4">
+                        If you agree, the battle will be cancelled and no cards will be transferred.
+                        If you reject, the battle will continue.
+                    </p>
+                    
+                    <div class="d-flex gap-3">
+                        <form action="{{ route('battles.action.respond_cancel', $battle) }}" method="POST" class="w-100" id="agreeCancelForm" onsubmit="event.preventDefault(); handleActionSubmit('agreeCancelForm');">
+                            @csrf <input type="hidden" name="agreed" value="1">
+                            <button type="submit" class="btn btn-neon-magenta w-100"><i class="bi bi-check-lg"></i> AGREE & CANCEL</button>
+                        </form>
+                        <form action="{{ route('battles.action.respond_cancel', $battle) }}" method="POST" class="w-100" id="rejectCancelForm" onsubmit="event.preventDefault(); handleActionSubmit('rejectCancelForm');">
+                            @csrf <input type="hidden" name="agreed" value="0">
+                            <button type="submit" class="btn btn-outline-secondary w-100" style="border-color: #555;"><i class="bi bi-x-lg"></i> REJECT</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+@if($battle->status == 'completed')
+    <div class="modal fade" id="battleResultModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-4 neon-card" style="background: rgba(10, 10, 30, 0.95); border: 1px solid {{ $isWinner ? '#00f0ff' : ($isLoser ? '#ff0000' : '#ffdd00') }}; backdrop-filter: blur(20px); box-shadow: 0 0 30px {{ $isWinner ? 'rgba(0, 240, 255, 0.3)' : ($isLoser ? 'rgba(255, 0, 0, 0.3)' : 'rgba(255, 221, 0, 0.3)') }};">
+                <div class="text-center">
+                    @if($isWinner)
+                        <h1 class="orbitron mb-3" style="color: #00f0ff; text-shadow: 0 0 20px #00f0ff;">VICTORY!</h1>
+                        <i class="bi bi-trophy-fill display-1 mb-4" style="color: #ffdd00;"></i>
+                        <p class="lead text-white mb-4">You have dominated the arena!</p>
+                        <p class="text-info">The opponent's staked cards have been added to your trophies.</p>
+                    @elseif($isLoser)
+                        <h1 class="orbitron mb-3" style="color: #ff0000; text-shadow: 0 0 20px #ff0000;">DEFEAT</h1>
+                        <i class="bi bi-x-circle-fill display-1 mb-4" style="color: #ff0000;"></i>
+                        <p class="lead text-white mb-4">Your card was lost in battle.</p>
+                        <p class="text-danger opacity-75">Train harder and return for vengeance.</p>
+                    @elseif($isTie)
+                        <h1 class="orbitron mb-3" style="color: #ffdd00; text-shadow: 0 0 20px #ffdd00;">DRAW</h1>
+                        <i class="bi bi-slash-circle display-1 mb-4" style="color: #ffdd00;"></i>
+                        <p class="lead text-white mb-4">The match ended in a stalemate.</p>
+                        <p class="text-warning">No cards were transferred this time.</p>
+                    @else
+                        <h1 class="orbitron mb-3" style="color: var(--neon-cyan);">BATTLE ENDED</h1>
+                        <p class="lead text-white mb-4">Winner: Team {{ $battle->winner_team == 'T' ? 'Tie' : $battle->winner_team }}</p>
+                    @endif
+                    
+                    <button type="button" class="btn btn-neon mt-4 w-100 orbitron" data-bs-dismiss="modal">BACK TO ROOM</button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
+@endpush
+
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        @if($battle->status == 'completed')
+            const battleId = "{{ $battle->id }}";
+            const resultShownKey = `battle_result_shown_${battleId}`;
+            
+            if (!sessionStorage.getItem(resultShownKey)) {
+                const modalEl = document.getElementById('battleResultModal');
+                if (modalEl) {
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                    
+                    @if($isWinner)
+                        if (typeof confetti === 'function') {
+                            confetti({
+                                particleCount: 150,
+                                spread: 70,
+                                origin: { y: 0.6 },
+                                colors: ['#00f0ff', '#ff00ff', '#39ff14', '#ffdd00']
+                            });
+                        }
+                    @elseif($isLoser)
+                        document.body.classList.add('animate-shake', 'animate-flash-red');
+                        setTimeout(() => {
+                            document.body.classList.remove('animate-shake', 'animate-flash-red');
+                        }, 2000);
+                    @endif
+                    
+                    sessionStorage.setItem(resultShownKey, 'true');
+                }
+            }
+        @endif
+    });
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
