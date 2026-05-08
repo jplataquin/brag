@@ -24,15 +24,18 @@ class SystemUpdateController extends Controller
         try {
             switch ($step) {
                 case 'fix_git_config':
-                    $result = Process::path($basePath)->run("git config --global --add safe.directory {$basePath}");
+                    // Add to LOCAL config instead of global to avoid permission denied on /var/www/.gitconfig
+                    $result = Process::path($basePath)->run("git config --add safe.directory {$basePath}");
                     break;
 
                 case 'git_pull':
-                    $result = Process::path($basePath)->run('git pull');
+                    // Use -c to pass the safe directory config directly to the pull command
+                    $result = Process::path($basePath)->run("git -c safe.directory={$basePath} pull");
                     break;
 
                 case 'composer_install':
-                    $result = Process::path($basePath)->run('composer install --optimize-autoloader --no-dev');
+                    // Composer may call git internally to download packages
+                    $result = Process::path($basePath)->run("git config --add safe.directory {$basePath} && composer install --optimize-autoloader --no-dev");
                     break;
 
                 case 'migrate':
