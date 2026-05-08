@@ -12,19 +12,50 @@ class CronJobController extends Controller
 {
     public function index(Schedule $schedule)
     {
+        // In Laravel 11+, console routes aren't always loaded in web context
+        if (file_exists(base_path('routes/console.php'))) {
+            require base_path('routes/console.php');
+        }
+
         $events = collect($schedule->events())->map(function ($event) {
-            // Extract command signature from command string (e.g. 'artisan' 'app:auto-cancel-battles')
-            $command = trim(str_replace(["'artisan'", "artisan", "php artisan"], "", $event->command));
+            // Extract command signature more robustly
+            $command = $event->command;
+            
+            // Remove php and artisan parts
+            $parts = explode(' ', $command);
+            $foundArtisan = false;
+            $commandParts = [];
+            
+            foreach ($parts as $part) {
+                $cleanPart = trim($part, "'\"");
+                if ($foundArtisan) {
+                    // Stop at redirects or flags that aren't part of the signature
+                    if (str_starts_with($cleanPart, '>') || str_starts_with($cleanPart, '2>')) {
+                        break;
+                    }
+                    $commandParts[] = $cleanPart;
+                }
+                if (basename($cleanPart) === 'artisan') {
+                    $foundArtisan = true;
+                }
+            }
+            
+            $signature = implode(' ', $commandParts);
+            
+            // Fallback for closure-based tasks or weirdly formatted commands
+            if (empty($signature)) {
+                $signature = trim(str_replace(["'artisan'", "artisan", "php artisan"], "", $command));
+            }
             
             // Get description from Artisan
             $description = '';
             $commands = Artisan::all();
-            if (isset($commands[$command])) {
-                $description = $commands[$command]->getDescription();
+            if (isset($commands[$signature])) {
+                $description = $commands[$signature]->getDescription();
             }
 
             return [
-                'command' => $command,
+                'command' => $signature,
                 'description' => $description,
                 'expression' => $event->expression,
                 'next_run_at' => $event->nextRunDate()->format('Y-m-d H:i:s'),
