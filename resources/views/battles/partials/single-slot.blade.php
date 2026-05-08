@@ -32,7 +32,7 @@
             :game="$c->template->gameTitle->title ?? 'GAME'"
             :creator="$c->originalOwner->username ?? 'Creator'"
             :quote="$c->is_censored ? '[Content hidden pending review]' : $c->template->quote"
-            :image="$c->template->display_photo"
+            :image="$c->is_censored ? '' : $c->template->display_photo"
             :imagePositionY="$c->template->image_position_y ?? 50"
             :backgroundColor="$c->template->background_color"
             :borderColor="$c->template->border_color"

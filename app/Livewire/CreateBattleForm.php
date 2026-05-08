@@ -58,6 +58,11 @@ class CreateBattleForm extends Component
         $user = Auth::user();
         $card = DigitalCard::find($this->selectedCardId);
 
+        if ($card->is_censored) {
+             session()->flash('error', 'This card is currently under review and cannot be used in a battle.');
+             return;
+        }
+
         // Verify card matches game title
         if ($card->template->game_title_id != $this->gameTitleId) {
              session()->flash('error', 'Selected card must match the selected game title.');
@@ -90,6 +95,7 @@ class CreateBattleForm extends Component
         if ($user) {
             $cards = $user->digitalCards()
                 ->where('life_points', '>', 0)
+                ->where('is_censored', false)
                 ->with('template.gameTitle')
                 ->get();
         }

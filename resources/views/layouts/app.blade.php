@@ -46,6 +46,7 @@
             100% { opacity: 1; }
         }
     </style>
+    @stack('styles')
     @livewireStyles
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])

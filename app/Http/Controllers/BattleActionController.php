@@ -20,6 +20,7 @@ class BattleActionController extends Controller
         if ($user) {
             $myEligibleCards = $user->digitalCards()
                 ->where('life_points', '>', 0)
+                ->where('is_censored', false)
                 ->get()
                 ->filter(fn($c) => $c->template->game_title_id == $battle->game_title_id);
         }
@@ -102,6 +103,10 @@ class BattleActionController extends Controller
         }
 
         $card = DigitalCard::find($request->selectedCardId);
+
+        if ($card->is_censored) {
+            return back()->with('error', 'This card is currently under review and cannot be used in a battle.');
+        }
 
         if ($card->template->game_title_id != $battle->game_title_id) {
             return back()->with('error', 'Card must match the game title.');

@@ -12,7 +12,7 @@
     :sectionColor="$card->template->section_color"
     :primaryTextColor="$card->template->primary_text_color"
     :secondaryTextColor="$card->template->secondary_text_color"
-    :image="$card->template->display_photo"
+    :image="$card->is_censored ? '' : $card->template->display_photo"
     :imagePositionY="$card->template->image_position_y ?? 50"
     :wins="$card->wins"
     :losses="$card->losses"

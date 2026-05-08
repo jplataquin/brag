@@ -95,7 +95,8 @@ $cardOptionsJson = json_encode([
     'serialNumber' => $serialNumber !== null ? $serialNumber : null,
     'year' => $year,
     'asThumbnail' => $asThumbnail ? true : false,
-    'burned' => $burned
+    'burned' => $burned,
+    'isCensored' => $isCensored
 ]);
 @endphp
 

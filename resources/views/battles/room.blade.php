@@ -420,7 +420,7 @@
                                                                     :game="$card->template->gameTitle->title ?? 'GAME'"
                                                                     :creator="$card->originalOwner->username ?? 'Creator'"
                                                                     :quote="$card->is_censored ? '[Content hidden pending review]' : $card->template->quote"
-                                                                    :image="$card->template->display_photo"
+                                                                    :image="$card->is_censored ? '' : $card->template->display_photo"
                                                                     :imagePositionY="$card->template->image_position_y ?? 50"
                                                                     :backgroundColor="$card->template->background_color"
                                                                     :borderColor="$card->template->border_color"
@@ -435,6 +435,7 @@
                                                                     :rankLevel="$card->level"
                                                                     :serialNumber="$card->serial_number"
                                                                     :rarity="$card->rarity"
+                                                                    :isCensored="$card->is_censored"
                                                                 />
                                                             </div>
                                                             <button type="button" class="btn btn-sm btn-dark position-absolute" style="top: 5px; right: 5px; z-index: 10; background: rgba(0,0,0,0.6); border-color: rgba(0, 240, 255, 0.5); color: #00f0ff;" data-bs-toggle="modal" data-bs-target="#modal_card_join_{{ $card->id }}" onclick="event.stopPropagation();">

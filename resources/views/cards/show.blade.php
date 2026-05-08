@@ -35,7 +35,7 @@
                     :sectionColor="$digitalCard->template->section_color"
                     :primaryTextColor="$digitalCard->template->primary_text_color"
                     :secondaryTextColor="$digitalCard->template->secondary_text_color"
-                    :image="$digitalCard->template->display_photo"
+                    :image="$digitalCard->is_censored ? '' : $digitalCard->template->display_photo"
                     :imagePositionY="$digitalCard->template->image_position_y ?? 50"
                     :wins="$digitalCard->wins"
                     :losses="$digitalCard->losses"
