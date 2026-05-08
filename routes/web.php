@@ -137,6 +137,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         // Card Reports
         Route::get('/card-reports', [CardReportController::class, 'index'])->name('card_reports.index');
+        Route::get('/card-reports/{report}', [CardReportController::class, 'show'])->name('card_reports.show');
         Route::patch('/card-reports/{report}/resolve', [CardReportController::class, 'resolve'])->name('card_reports.resolve');
         Route::post('/cards/{card}/censor', [AdminDigitalCardController::class, 'toggleCensor'])->name('cards.censor');
 

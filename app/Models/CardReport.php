@@ -14,7 +14,14 @@ class CardReport extends Model
         'user_id',
         'reason',
         'notes',
+        'admin_notes',
         'status',
+        'resolved_by',
+        'resolved_at',
+    ];
+
+    protected $casts = [
+        'resolved_at' => 'datetime',
     ];
 
     public function digitalCard()
@@ -24,6 +31,11 @@ class CardReport extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class); // Reporter
+    }
+
+    public function resolvedBy()
+    {
+        return $this->belongsTo(User::class, 'resolved_by');
     }
 }

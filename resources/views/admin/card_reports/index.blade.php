@@ -18,11 +18,11 @@
             <table class="table table-dark table-hover mb-0" style="background: transparent;">
                 <thead>
                     <tr style="border-bottom: 2px solid rgba(0, 240, 255, 0.2);">
-                        <th class="orbitron py-3 ps-4" style="font-size: 0.8rem; color: #00f0ff;">DATE & TIME</th>
+                        <th class="orbitron py-3 ps-4" style="font-size: 0.8rem; color: #00f0ff;">ID</th>
+                        <th class="orbitron py-3" style="font-size: 0.8rem; color: #00f0ff;">DATE & TIME</th>
                         <th class="orbitron py-3" style="font-size: 0.8rem; color: #00f0ff;">REPORTER</th>
                         <th class="orbitron py-3" style="font-size: 0.8rem; color: #00f0ff;">CARD</th>
                         <th class="orbitron py-3" style="font-size: 0.8rem; color: #00f0ff;">REASON</th>
-                        <th class="orbitron py-3" style="font-size: 0.8rem; color: #00f0ff;">NOTES</th>
                         <th class="orbitron py-3" style="font-size: 0.8rem; color: #00f0ff;">STATUS</th>
                         <th class="orbitron py-3 pe-4 text-end" style="font-size: 0.8rem; color: #00f0ff;">ACTIONS</th>
                     </tr>
@@ -34,6 +34,9 @@
                         @endphp
                         <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); vertical-align: middle;">
                             <td class="ps-4">
+                                <span class="text-info x-small orbitron">#{{ $report->id }}</span>
+                            </td>
+                            <td>
                                 <div class="small text-white">{{ $report->created_at->format('M j, Y') }}</div>
                                 <div class="x-small text-muted">{{ $report->created_at->format('H:i') }}</div>
                             </td>
@@ -64,45 +67,19 @@
                                     {{ strtoupper($report->reason) }}
                                 </span>
                             </td>
-                            <td style="max-width: 250px;">
-                                <div class="small text-muted" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $report->notes }}">
-                                    {{ $report->notes ?: '—' }}
-                                </div>
-                            </td>
                             <td>
                                 @if($report->status === 'pending')
                                     <span class="badge bg-warning text-dark x-small">PENDING</span>
                                 @elseif($report->status === 'resolved')
-                                    <span class="badge bg-success x-small">RESOLVED</span>
+                                    <span class="badge bg-success x-small">CONFIRMED</span>
                                 @else
                                     <span class="badge bg-secondary x-small">DISMISSED</span>
                                 @endif
                             </td>
                             <td class="pe-4 text-end">
-                                <div class="btn-group btn-group-sm">
-                                    @if($report->status === 'pending')
-                                        <form action="{{ route('admin.card_reports.resolve', $report) }}" method="POST" class="d-inline">
-                                            @csrf @method('PATCH')
-                                            <input type="hidden" name="status" value="resolved">
-                                            <button type="submit" class="btn btn-outline-success btn-sm" title="Resolve"><i class="bi bi-check-lg"></i></button>
-                                        </form>
-                                        <form action="{{ route('admin.card_reports.resolve', $report) }}" method="POST" class="d-inline">
-                                            @csrf @method('PATCH')
-                                            <input type="hidden" name="status" value="dismissed">
-                                            <button type="submit" class="btn btn-outline-secondary btn-sm" title="Dismiss"><i class="bi bi-trash"></i></button>
-                                        </form>
-                                    @endif
-
-                                    @if($card)
-                                        <form action="{{ route('admin.cards.censor', $card) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm {{ $card->is_censored ? 'btn-danger' : 'btn-outline-warning' }}" title="{{ $card->is_censored ? 'Un-censor' : 'Censor' }}">
-                                                <i class="bi {{ $card->is_censored ? 'bi-eye-fill' : 'bi-eye-slash-fill' }}"></i>
-                                            </button>
-                                        </form>
-                                        <a href="{{ route('admin.cards.edit', $card->id) }}" class="btn btn-outline-info btn-sm" title="Edit Card"><i class="bi bi-pencil"></i></a>
-                                    @endif
-                                </div>
+                                <a href="{{ route('admin.card_reports.show', $report) }}" class="btn btn-outline-info btn-sm orbitron" style="font-size: 0.7rem; letter-spacing: 1px;">
+                                    {{ $report->status === 'pending' ? 'REVIEW' : 'DETAILS' }}
+                                </a>
                             </td>
                         </tr>
                     @endforeach
