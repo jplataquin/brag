@@ -298,6 +298,7 @@
     </div>
 
     @stack('modals')
+    @include('partials.modals.report-card')
 
     <!-- Global Neon Alert Modal -->
     <div class="modal fade" id="globalNeonAlertModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">

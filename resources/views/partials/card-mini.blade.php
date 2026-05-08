@@ -23,4 +23,6 @@
     :serialNumber="$card->serial_number"
     :year="$card->forged_at->format('Y')"
     :isCensored="$card->is_censored"
+    :cardId="$card->id"
+    :ownerId="$card->owner_id"
 />

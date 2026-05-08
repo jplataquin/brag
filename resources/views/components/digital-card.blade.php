@@ -27,12 +27,16 @@
     'year' => null,
     'asThumbnail' => false,
     'linkUrl' => null,
-    'burned' => false
+    'burned' => false,
+    'cardId' => null,
+    'ownerId' => null,
+    'isCensored' => false
 ])
 
 @php
 $asThumbnail = filter_var($asThumbnail, FILTER_VALIDATE_BOOLEAN);
 $burned = filter_var($burned, FILTER_VALIDATE_BOOLEAN);
+$isCensored = filter_var($isCensored, FILTER_VALIDATE_BOOLEAN);
 if (!$year) {
     $year = date('Y');
 }
@@ -133,12 +137,19 @@ $placeholderSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.
             <div class="digital-card rarity-{{ $rarity }}" style="padding: 4px; border-radius: 16px; width: 100%; max-width: 500px; margin: 0 auto;">
                 <canvas id="fullscreen_{{ $id }}" width="500" height="700" class="digital-card-canvas" style="border-radius: 12px; display: block; position: relative; z-index: 1; max-width: 100%; height: auto;" data-card-options="{{ $cardOptionsJson }}"></canvas>
             </div>
-            <div class="mt-4 text-center d-flex gap-3 justify-content-center">
+            <div class="mt-4 text-center d-flex gap-2 justify-content-center flex-wrap">
                 @if($detailUrl)
                 <a href="{{ $detailUrl }}" class="btn btn-neon">
                     <i class="bi bi-info-circle"></i> DETAILS
                 </a>
                 @endif
+                
+                @if($cardId && Auth::check() && Auth::id() != $ownerId)
+                <button type="button" class="btn btn-outline-danger" onclick="window.openReportModal({{ $cardId }})">
+                    <i class="bi bi-flag-fill"></i> REPORT
+                </button>
+                @endif
+
                 <button type="button" class="btn btn-neon-magenta" onclick="bootstrap.Modal.getOrCreateInstance(document.getElementById('modal_{{ $id }}')).hide();">
                     <i class="bi bi-x-lg"></i> CLOSE
                 </button>
