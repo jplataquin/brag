@@ -31,6 +31,19 @@ class CardReportController extends Controller
 
         $report->update(['status' => $request->status]);
 
+        if ($request->status === 'resolved') {
+            $report->digitalCard->update(['is_censored' => true]);
+        } elseif ($request->status === 'dismissed') {
+            // Auto-un-censor if no more pending reports exist for this card
+            $pendingCount = CardReport::where('digital_card_id', $report->digital_card_id)
+                ->where('status', 'pending')
+                ->count();
+                
+            if ($pendingCount === 0) {
+                $report->digitalCard->update(['is_censored' => false]);
+            }
+        }
+
         return back()->with('success', "Report has been marked as {$request->status}.");
     }
 }

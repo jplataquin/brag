@@ -39,6 +39,7 @@
                             <th scope="col" class="py-3">Template</th>
                             <th scope="col" class="py-3">Owner</th>
                             <th scope="col" class="py-3">Level</th>
+                            <th scope="col" class="py-3">Censored</th>
                             <th scope="col" class="py-3">Status</th>
                             <th scope="col" class="py-3 text-end px-4">Action</th>
                         </tr>
@@ -66,11 +67,24 @@
                                     <span class="badge" style="background: {{ $card->rarity_color }}; color: #000;">{{ $card->level_name }}</span>
                                 </td>
                                 <td>
+                                    @if($card->is_censored)
+                                        <span class="badge bg-danger">YES</span>
+                                    @else
+                                        <span class="badge bg-secondary">NO</span>
+                                    @endif
+                                </td>
+                                <td>
                                     <span class="badge {{ $card->status === 'Maintained' ? 'bg-success' : 'bg-danger' }}">
                                         {{ $card->status }}
                                     </span>
                                 </td>
                                 <td class="px-4 text-end">
+                                    <form action="{{ route('admin.cards.censor', $card) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm {{ $card->is_censored ? 'btn-danger' : 'btn-outline-warning' }}" title="{{ $card->is_censored ? 'Un-censor' : 'Censor' }}">
+                                            <i class="bi {{ $card->is_censored ? 'bi-eye-fill' : 'bi-eye-slash-fill' }}"></i>
+                                        </button>
+                                    </form>
                                     <a href="{{ route('admin.cards.edit', $card->id) }}" class="btn btn-sm btn-outline-warning">
                                         <i class="bi bi-pencil-square"></i> Edit
                                     </a>

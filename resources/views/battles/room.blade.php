@@ -416,10 +416,10 @@
                                                                 <x-digital-card 
                                                                     id="card_join_{{ $card->id }}"
                                                                     mode="thumbnail"
-                                                                    :title="$card->template->card_title"
+                                                                    :title="$card->is_censored ? '[CENSORED]' : $card->template->card_title"
                                                                     :game="$card->template->gameTitle->title ?? 'GAME'"
                                                                     :creator="$card->originalOwner->username ?? 'Creator'"
-                                                                    :quote="$card->template->quote"
+                                                                    :quote="$card->is_censored ? '[Content hidden pending review]' : $card->template->quote"
                                                                     :image="$card->template->display_photo"
                                                                     :imagePositionY="$card->template->image_position_y ?? 50"
                                                                     :backgroundColor="$card->template->background_color"
@@ -442,7 +442,7 @@
                                                             </button>
                                                             
                                                         </div>
-                                                        <div class="mt-2 text-center text-truncate small fw-bold">{{ $card->template->card_title }}</div>
+                                                        <div class="mt-2 text-center text-truncate small fw-bold">{{ $card->is_censored ? '[CENSORED]' : $card->template->card_title }}</div>
                                                     </div>
                                                 </div>
                                             @endforeach
