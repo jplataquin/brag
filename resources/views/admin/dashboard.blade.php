@@ -294,10 +294,10 @@
                         
                         <div id="git-fix-suggestion" class="d-none mb-4">
                             <div class="alert alert-info x-small border-info border-opacity-25 bg-info bg-opacity-10 py-3 text-start mb-3">
-                                <i class="bi bi-info-circle-fill me-2"></i> <strong>GIT OWNERSHIP DETECTED:</strong> The server reported "dubious ownership". This usually happens when the web user (www-data) doesn't own the git folder.
+                                <i class="bi bi-info-circle-fill me-2"></i> <strong>GIT PERMISSIONS DETECTED:</strong> The server reported issues accessing the .git directory or dubious ownership.
                             </div>
                             <button type="button" class="btn btn-outline-info orbitron w-100" id="fixGitConfigBtn">
-                                RUN "GIT CONFIG SAFE DIRECTORY" & RETRY
+                                REPAIR GIT CONFIG & PERMISSIONS
                             </button>
                         </div>
 
@@ -409,8 +409,8 @@ document.addEventListener('DOMContentLoaded', function() {
         terminal.appendChild(div);
         terminalWindow.scrollTop = terminalWindow.scrollHeight;
 
-        // Auto-detect Git Ownership Error
-        if (text.includes('dubious ownership')) {
+        // Auto-detect Git Ownership/Permission Error
+        if (text.includes('dubious ownership') || text.includes('Permission denied')) {
             document.getElementById('git-fix-suggestion').classList.remove('d-none');
         }
     }
@@ -421,29 +421,39 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.innerText = "FIXING...";
 
         try {
-            const response = await fetch("{{ route('admin.system.update') }}", {
+            // 1. Fix Config
+            logToTerminal("Repairing Git Config...", "command");
+            const configResp = await fetch("{{ route('admin.system.update') }}", {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify({ step: 'fix_git_config' })
             });
+            const configResult = await configResp.json();
+            logToTerminal(configResult.output, configResult.success ? 'success' : 'error');
 
-            const result = await response.json();
-            logToTerminal(result.output, result.success ? 'success' : 'error');
+            // 2. Fix Permissions
+            logToTerminal("Repairing Git Permissions...", "command");
+            const permResp = await fetch("{{ route('admin.system.update') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify({ step: 'fix_git_permissions' })
+            });
+            const permResult = await permResp.json();
+            logToTerminal(permResult.output, permResult.success ? 'success' : 'error');
 
-            if (result.success) {
-                // Hide fix button and retry deployment automatically
+            if (configResult.success || permResult.success) {
+                // Hide fix button and retry deployment automatically if at least one succeeded
                 document.getElementById('git-fix-suggestion').classList.add('d-none');
                 document.getElementById('deployment-failed').classList.add('d-none');
                 document.getElementById('deployment-status').classList.remove('d-none');
                 startBtn.click(); // Re-trigger the whole process
             } else {
-                btn.innerText = "FIX FAILED - CHECK PERMISSIONS";
+                btn.disabled = false;
+                btn.innerText = "REPAIR FAILED - TRY AGAIN";
             }
         } catch (e) {
             logToTerminal(`Fix failed: ${e.message}`, 'error');
+            btn.disabled = false;
             btn.innerText = "SYSTEM ERROR";
         }
     });

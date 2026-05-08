@@ -28,6 +28,20 @@ class SystemUpdateController extends Controller
                     $result = Process::path($basePath)->run("git config --add safe.directory {$basePath}");
                     break;
 
+                case 'fix_git_permissions':
+                    // Securely fix permissions: 775 for directories, 664 for files
+                    $resultDirs = Process::path($basePath)->run("find .git -type d -exec chmod 775 {} +");
+                    $resultFiles = Process::path($basePath)->run("find .git -type f -exec chmod 664 {} +");
+                    
+                    if (!$resultDirs->successful() || !$resultFiles->successful()) {
+                        return response()->json([
+                            'success' => false,
+                            'output' => "Failed to apply secure permissions to .git folder."
+                        ]);
+                    }
+                    
+                    return response()->json(['success' => true, 'output' => "Git permissions secured (Dirs: 775, Files: 664)."]);
+
                 case 'git_pull':
                     // Use -c to pass the safe directory config directly to the pull command
                     $result = Process::path($basePath)->run("git -c safe.directory={$basePath} pull");
