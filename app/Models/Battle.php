@@ -93,6 +93,11 @@ class Battle extends Model
         return $this->belongsTo(User::class, 'team_b_marshall_elect');
     }
 
+    public function rematchBattle()
+    {
+        return $this->belongsTo(Battle::class, 'rematch_battle_id');
+    }
+
     /**
      * Check if all player slots are filled
      */

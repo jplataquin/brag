@@ -3,9 +3,9 @@
 @section('content')
 <div>
 
-@if($battle->rematch_battle_id)
+@if($battle->rematch_battle_id && $battle->rematchBattle)
 <script>
-    window.location.href = "{{ route('battles.room', $battle->rematch_battle_id) }}";
+    window.location.href = "{{ route('battles.room', $battle->rematchBattle) }}";
 </script>
 @endif
 
