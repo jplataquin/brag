@@ -141,6 +141,12 @@ h1, h2, h3, h4, h5, h6,
             text-shadow: 0 0 8px rgba($neon-cyan, 0.4);
         }
 
+        &.active {
+            color: $neon-cyan !important;
+            text-shadow: 0 0 12px rgba($neon-cyan, 0.6);
+            font-weight: 700;
+        }
+
         &::after {
             content: '';
             position: absolute;
@@ -156,6 +162,12 @@ h1, h2, h3, h4, h5, h6,
 
         &:hover::after {
             width: 80%;
+        }
+
+        &.active::after {
+            width: 100%;
+            background: $neon-cyan;
+            box-shadow: 0 0 10px rgba($neon-cyan, 0.8);
         }
     }
 
