@@ -47,6 +47,9 @@
             :rankLevel="$snapshot ? $snapshot['level'] : $c->level"
             :serialNumber="$c->serial_number"
             :rarity="$snapshot ? $snapshot['rarity'] : $c->rarity"
+            :cardId="$c->id"
+            :ownerId="$c->owner_id"
+            :isCensored="$c->is_censored"
         />
     </div>
 @else
