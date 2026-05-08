@@ -80,4 +80,14 @@ class DigitalCardController extends Controller
 
         return redirect()->route('admin.cards.index')->with('success', "Digital Card #{$card->id} updated successfully.");
     }
+
+    /**
+     * Toggle the censorship status of a digital card.
+     */
+    public function toggleCensor(DigitalCard $card)
+    {
+        $card->update(['is_censored' => !$card->is_censored]);
+        $status = $card->is_censored ? 'censored' : 'un-censored';
+        return back()->with('success', "Digital Card #{$card->id} has been {$status}.");
+    }
 }

@@ -22,6 +22,7 @@ class DashboardController extends Controller
             'active_battles' => Battle::whereIn('status', ['pending', 'ready', 'active', 'adjudicating'])->count(),
             'total_templates' => Template::count(),
             'total_cards' => DigitalCard::count(),
+            'pending_reports' => \App\Models\CardReport::where('status', 'pending')->count(),
         ];
 
         // Let's also get recent users

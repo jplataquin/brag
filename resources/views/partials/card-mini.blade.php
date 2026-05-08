@@ -3,10 +3,10 @@
     mode="thumbnail"
     :rarity="$card->rarity_slug"
     :detailUrl="route('cards.show', $card)"
-    :title="$card->template->card_title"
+    :title="$card->is_censored ? '[CENSORED]' : $card->template->card_title"
     :game="$card->template->gameTitle->title ?? 'GAME'"
     :creator="$card->originalOwner->username ?? 'Creator'"
-    :quote="$card->template->quote"
+    :quote="$card->is_censored ? '[Content hidden pending review]' : $card->template->quote"
     :backgroundColor="$card->template->background_color"
     :borderColor="$card->template->border_color"
     :sectionColor="$card->template->section_color"
@@ -22,4 +22,5 @@
     :rankLevel="$card->level"
     :serialNumber="$card->serial_number"
     :year="$card->forged_at->format('Y')"
+    :isCensored="$card->is_censored"
 />

@@ -12,32 +12,50 @@
 <div class="row g-4">
     <!-- Card Visual -->
     <div class="col-md-5">
-        <div class="neon-card p-4 text-center" style="background: rgba(0,0,0,0.5);">
-            <x-digital-card 
-                id="digital_card_{{ $digitalCard->id }}" 
-                mode="display"
-                :rarity="$digitalCard->rarity_slug"
-                :title="$digitalCard->template->card_title" 
-                :game="$digitalCard->template->gameTitle->title ?? 'GAME'" 
-                :creator="$digitalCard->originalOwner->username ?? 'Creator'"
-                :quote="$digitalCard->template->quote"
-                :backgroundColor="$digitalCard->template->background_color"
-                :borderColor="$digitalCard->template->border_color"
-                :sectionColor="$digitalCard->template->section_color"
-                :primaryTextColor="$digitalCard->template->primary_text_color"
-                :secondaryTextColor="$digitalCard->template->secondary_text_color"
-                :image="$digitalCard->template->display_photo"
-                :imagePositionY="$digitalCard->template->image_position_y ?? 50"
-                :wins="$digitalCard->wins"
-                :losses="$digitalCard->losses"
-                :lifePoints="$digitalCard->life_points"
-                :integrityStat="$digitalCard->integrity_stat"
-                :status="$digitalCard->status"
-                :rankLevel="$digitalCard->level"
-                :serialNumber="$digitalCard->serial_number"
-                :year="$digitalCard->forged_at->format('Y')"
-                :burned="$digitalCard->trashed()"
-            />
+        <div class="neon-card p-4 text-center" style="background: rgba(0,0,0,0.5); position: relative;">
+            @if($digitalCard->is_censored)
+                <div class="censored-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 26, 0.85); z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid #ff4444; padding: 20px; backdrop-filter: blur(5px);">
+                    <i class="bi bi-eye-slash-fill text-danger mb-2" style="font-size: 2.5rem;"></i>
+                    <div class="text-white small text-center orbitron">CONTENT HIDDEN</div>
+                    <div class="text-danger x-small text-center mt-1" style="font-size: 0.65rem;">PENDING MODERATION</div>
+                </div>
+            @endif
+
+            <div style="{{ $digitalCard->is_censored ? 'filter: blur(20px); pointer-events: none;' : '' }}">
+                <x-digital-card 
+                    id="digital_card_{{ $digitalCard->id }}" 
+                    mode="display"
+                    :rarity="$digitalCard->rarity_slug"
+                    :title="$digitalCard->is_censored ? '[CENSORED]' : $digitalCard->template->card_title" 
+                    :game="$digitalCard->template->gameTitle->title ?? 'GAME'" 
+                    :creator="$digitalCard->originalOwner->username ?? 'Creator'"
+                    :quote="$digitalCard->is_censored ? '[Content hidden pending review]' : $digitalCard->template->quote"
+                    :backgroundColor="$digitalCard->template->background_color"
+                    :borderColor="$digitalCard->template->border_color"
+                    :sectionColor="$digitalCard->template->section_color"
+                    :primaryTextColor="$digitalCard->template->primary_text_color"
+                    :secondaryTextColor="$digitalCard->template->secondary_text_color"
+                    :image="$digitalCard->template->display_photo"
+                    :imagePositionY="$digitalCard->template->image_position_y ?? 50"
+                    :wins="$digitalCard->wins"
+                    :losses="$digitalCard->losses"
+                    :lifePoints="$digitalCard->life_points"
+                    :integrityStat="$digitalCard->integrity_stat"
+                    :status="$digitalCard->status"
+                    :rankLevel="$digitalCard->level"
+                    :serialNumber="$digitalCard->serial_number"
+                    :year="$digitalCard->forged_at->format('Y')"
+                    :burned="$digitalCard->trashed()"
+                />
+            </div>
+
+            @if(Auth::check() && $digitalCard->owner_id != Auth::id())
+                <div class="mt-3">
+                    <button type="button" class="btn btn-link text-muted btn-sm text-decoration-none" data-bs-toggle="modal" data-bs-target="#reportCardModal">
+                        <i class="bi bi-flag-fill me-1"></i> Report this card
+                    </button>
+                </div>
+            @endif
 
 
             
@@ -99,7 +117,11 @@
     <!-- Card Details -->
     <div class="col-md-7">
         <h1 class="page-title mb-1">
-            {{ $digitalCard->template->card_title }}
+            @if($digitalCard->is_censored)
+                <span class="text-danger">[CENSORED]</span>
+            @else
+                {{ $digitalCard->template->card_title }}
+            @endif
             <small style="font-size: 0.6em; color: #555577;">#{{ str_pad($digitalCard->serial_number, 4, '0', STR_PAD_LEFT) }}</small>
         </h1>
 
@@ -168,7 +190,14 @@
 
         <!-- Description -->
         <div class="neon-card p-3 mb-3">
-            <p style="color: #bbbbd0; font-size: 0.9rem; margin-bottom: 0;">"{{ $digitalCard->template->quote }}" — {{ $digitalCard->template->user->username }} ({{ $digitalCard->template->created_at->format('Y') }})</p>
+            <p style="color: #bbbbd0; font-size: 0.9rem; margin-bottom: 0;">
+                @if($digitalCard->is_censored)
+                    <span class="text-muted italic">[Content hidden pending review]</span>
+                @else
+                    "{{ $digitalCard->template->quote }}"
+                @endif
+                — {{ $digitalCard->template->user->username }} ({{ $digitalCard->template->created_at->format('Y') }})
+            </p>
         </div>
 
         @if(Auth::check() && $digitalCard->owner_id === Auth::id() && !$digitalCard->trashed())
@@ -300,3 +329,42 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endsection
+
+@push('modals')
+<!-- Report Card Modal -->
+<div class="modal fade" id="reportCardModal" tabindex="-1" aria-labelledby="reportCardModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: #0a0a1a; border: 1px solid #00f0ff; box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title orbitron text-cyan" id="reportCardModalLabel"><i class="bi bi-flag-fill"></i> REPORT CARD</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('cards.report', $digitalCard->id) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <p class="small text-muted mb-4">If you believe this card violates our terms of service or community guidelines, please report it below. Our moderation team will review it shortly.</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small text-info">REASON FOR REPORT</label>
+                        <select name="reason" class="form-select bg-dark text-white border-info" required>
+                            <option value="">Select a reason...</option>
+                            <option value="Intellectual Property / Copyright">Intellectual Property / Copyright</option>
+                            <option value="Inappropriate Content / NSFW">Inappropriate Content / NSFW</option>
+                            <option value="Hate Speech / Harassment">Hate Speech / Harassment</option>
+                            <option value="Spam / Terms Violation">Spam / Terms Violation</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label small text-info">ADDITIONAL NOTES (OPTIONAL)</label>
+                        <textarea name="notes" class="form-control bg-dark text-white border-info" rows="3" placeholder="Provide more context..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pb-4 justify-content-center">
+                    <button type="submit" class="btn btn-neon px-5">SUBMIT REPORT</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endpush

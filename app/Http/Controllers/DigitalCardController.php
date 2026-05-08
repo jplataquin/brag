@@ -18,6 +18,48 @@ class DigitalCardController extends Controller
     }
 
     /**
+     * Report a digital card for violations.
+     */
+    public function report(Request $request, DigitalCard $card)
+    {
+        $request->validate([
+            'reason' => 'required|string|in:Intellectual Property / Copyright,Inappropriate Content / NSFW,Hate Speech / Harassment,Spam / Terms Violation',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $user = Auth::user();
+
+        // Check if user has already reported this card and it's still pending
+        $existingReport = \App\Models\CardReport::where('digital_card_id', $card->id)
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->first();
+
+        if ($existingReport) {
+            return back()->with('error', 'You have already reported this card. It is currently under review.');
+        }
+
+        \App\Models\CardReport::create([
+            'digital_card_id' => $card->id,
+            'user_id' => $user->id,
+            'reason' => $request->reason,
+            'notes' => $request->notes,
+            'status' => 'pending',
+        ]);
+
+        // Auto-censorship logic: 3 or more pending reports = auto-censor
+        $pendingCount = \App\Models\CardReport::where('digital_card_id', $card->id)
+            ->where('status', 'pending')
+            ->count();
+
+        if ($pendingCount >= 3) {
+            $card->update(['is_censored' => true]);
+        }
+
+        return back()->with('success', 'Thank you. This card has been reported and will be reviewed by our moderation team.');
+    }
+
+    /**
      * Display a public gallery of all digital cards.
      */
     public function gallery(Request $request)

@@ -108,6 +108,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/cards/{card}/heal', [DigitalCardController::class, 'heal'])->name('cards.heal');
     Route::get('/cards/{card}', [DigitalCardController::class, 'show'])->name('cards.show');
     Route::post('/cards/{card}/burn', [DigitalCardController::class, 'burn'])->name('cards.burn');
+    Route::post('/cards/{card}/report', [DigitalCardController::class, 'report'])->name('cards.report');
 
     // Blog
     Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
@@ -133,6 +134,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         
+        // Card Reports
+        Route::get('/card-reports', [Admin\CardReportController::class, 'index'])->name('card_reports.index');
+        Route::patch('/card-reports/{report}/resolve', [Admin\CardReportController::class, 'resolve'])->name('card_reports.resolve');
+        Route::post('/cards/{card}/censor', [Admin\DigitalCardController::class, 'toggleCensor'])->name('cards.censor');
+
         // Users
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');
