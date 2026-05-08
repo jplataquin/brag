@@ -47,10 +47,11 @@ class DigitalCardController extends Controller
             'status' => 'pending',
         ]);
 
-        // Auto-censorship logic: 3 or more pending reports = auto-censor
+        // Auto-censorship logic: 3 or more pending reports from different users = auto-censor
         $pendingCount = \App\Models\CardReport::where('digital_card_id', $card->id)
             ->where('status', 'pending')
-            ->count();
+            ->distinct('user_id')
+            ->count('user_id');
 
         if ($pendingCount >= 3) {
             $card->update(['is_censored' => true]);
