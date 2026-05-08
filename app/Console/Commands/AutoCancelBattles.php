@@ -23,7 +23,7 @@ class AutoCancelBattles extends Command
      *
      * @var string
      */
-    protected $description = 'Automatically cancel inactive battles (stale rooms, 3-hour session limits)';
+    protected $description = 'Automatically cancel inactive battles (Active: 3-hours, Ready: 15 mins, Pending: 15 mins)';
 
     /**
      * Execute the console command.
