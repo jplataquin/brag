@@ -777,7 +777,7 @@ function searchUsers(query, type) {
         return;
     }
     searchTimeout = setTimeout(() => {
-        fetch('/battles/' + {{ $battle->id }} + '/search?q=' + query)
+        fetch('/battles/' + '{{ $battle->room_slug }}' + '/search?q=' + query)
             .then(res => res.json())
             .then(data => {
                 resultsDiv.innerHTML = '';
@@ -1061,7 +1061,7 @@ function clearMarshall() {
                             // Visual cue that it is updating
                             slotEl.style.opacity = '0.5';
                             
-                            fetch('/battles/{{ $battle->id }}/partial-slot/' + team + '/' + slotNum)
+                            fetch('/battles/{{ $battle->room_slug }}/partial-slot/' + team + '/' + slotNum)
                                 .then(res => res.text())
                                 .then(html => {
                                     slotEl.innerHTML = html;
