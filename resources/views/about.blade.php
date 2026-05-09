@@ -22,7 +22,7 @@
                     </p>
 
                     <p class="mb-4">
-                        These cards serve as the <strong>"what's at stake?"</strong> in your competitive showdown. They track your wins, losses, and other key indicators. Every victory you gain could level up your card. Ultimately showcasing your accomplishments over time.
+                        These cards serve as the <strong>"what's at stake?"</strong> in your competitive showdown. They track your wins, losses, and other key indicators. Every victory you gain could level up your card, ultimately showcasing your accomplishments over time.
                     </p>
 
                     <div class="my-5 p-4 text-center" style="background: rgba(255, 0, 255, 0.05); border-left: 4px solid var(--neon-magenta); border-radius: 4px;">
@@ -32,7 +32,7 @@
                     </div>
 
                     <p class="mb-4">
-                        Remember losing is just a set back, and winning is a sweet treat. But competition is what really ignites the heart and spirit.
+                        Remember, losing is just a set back and winning is a sweet treat. But the spirit of competition is what really ignites the heart .
                     </p>
 
                     <p class="mb-5">
