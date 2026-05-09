@@ -50,8 +50,8 @@ class PollinationsService
             
             // Build query parameters with larger dimensions to support zooming out
             $params = [
-                'width' => 1000,
-                'height' => 1400,
+                'width' => 1400,
+                'height' => 1000,
                 'nologo' => 'true',
                 'seed' => $seed,
                 'model' => 'flux', // Defaulting to Flux for better quality
