@@ -37,6 +37,10 @@ Route::get('/', function () {
     ]);
 })->name('welcome');
 
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
 // Auth Routes (Standard)
 Auth::routes(['verify' => true]);
 

@@ -98,6 +98,11 @@
 
                     <!-- Left Side -->
                     <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="{{ route('about') }}">
+                                <i class="bi bi-info-circle-fill"></i> About
+                            </a>
+                        </li>
                         @auth
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('blog.*') ? 'active' : '' }}" href="{{ route('blog.index') }}">
@@ -125,7 +130,11 @@
                                 </a>
                             </li>
 
-                            <!-- Mobile Only Links -->
+                            <li class="nav-item d-lg-none">
+                                <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="{{ route('about') }}">
+                                    <i class="bi bi-info-circle-fill"></i> About
+                                </a>
+                            </li>
                             <li class="nav-item d-lg-none">
                                 <a class="nav-link {{ request()->routeIs('profile.show') && request()->route('username') == Auth::user()->username ? 'active' : '' }}" href="{{ route('profile.show', Auth::user()->username) }}" id="nav-profile-mob">
                                     <i class="bi bi-person-fill"></i> My Profile
@@ -291,6 +300,7 @@
                 &copy; {{ date('Y') }} BRAG — FORGE. BATTLE. BRAG.
             </p>
             <div class="d-flex justify-content-center gap-3">
+                <a href="{{ route('about') }}" style="font-size: 0.8rem; color: var(--neon-cyan); text-decoration: none;">About</a>
                 <a href="{{ route('terms.show') }}" style="font-size: 0.8rem; color: var(--neon-cyan); text-decoration: none;">Terms of Service</a>
                 <a href="{{ route('privacy.show') }}" style="font-size: 0.8rem; color: var(--neon-cyan); text-decoration: none;">Privacy Policy</a>
                 <a href="{{ route('feedback.index') }}" style="font-size: 0.8rem; color: var(--neon-cyan); text-decoration: none;">Feedback</a>
