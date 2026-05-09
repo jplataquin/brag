@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\GameTitle;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
 class GameTitleController extends Controller
 {
     public function index(Request $request)
@@ -31,9 +34,24 @@ class GameTitleController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255|unique:game_titles,title',
             'status' => 'required|in:active,hidden',
+            'description' => 'nullable|string',
+            'temporary_header_path' => 'nullable|string',
         ]);
 
-        GameTitle::create($validated);
+        $data = $request->only(['title', 'status', 'description']);
+
+        if ($request->filled('temporary_header_path')) {
+            $tempPath = $request->input('temporary_header_path');
+            if (strpos($tempPath, 'tmp/uploads/') === 0 && Storage::disk('public')->exists($tempPath)) {
+                $finalPath = 'game_titles/header_' . time() . '_' . Str::random(10) . '.' . pathinfo($tempPath, PATHINFO_EXTENSION);
+                if (Storage::disk('public')->copy($tempPath, $finalPath)) {
+                    $data['header_image'] = $finalPath;
+                    Storage::disk('public')->delete($tempPath);
+                }
+            }
+        }
+
+        GameTitle::create($data);
 
         return redirect()->route('admin.game_titles.index')
                          ->with('success', 'Game Title added successfully.');
@@ -49,9 +67,28 @@ class GameTitleController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255|unique:game_titles,title,' . $gameTitle->id,
             'status' => 'required|in:active,hidden',
+            'description' => 'nullable|string',
+            'temporary_header_path' => 'nullable|string',
         ]);
 
-        $gameTitle->update($validated);
+        $data = $request->only(['title', 'status', 'description']);
+
+        if ($request->filled('temporary_header_path')) {
+            $tempPath = $request->input('temporary_header_path');
+            if (strpos($tempPath, 'tmp/uploads/') === 0 && Storage::disk('public')->exists($tempPath)) {
+                $finalPath = 'game_titles/header_' . time() . '_' . Str::random(10) . '.' . pathinfo($tempPath, PATHINFO_EXTENSION);
+                if (Storage::disk('public')->copy($tempPath, $finalPath)) {
+                    // Delete old image if it exists
+                    if ($gameTitle->header_image) {
+                        Storage::disk('public')->delete($gameTitle->header_image);
+                    }
+                    $data['header_image'] = $finalPath;
+                    Storage::disk('public')->delete($tempPath);
+                }
+            }
+        }
+
+        $gameTitle->update($data);
 
         return redirect()->route('admin.game_titles.index')
                          ->with('success', 'Game Title updated successfully.');
@@ -63,6 +100,10 @@ class GameTitleController extends Controller
         if ($templatesCount > 0) {
             return redirect()->route('admin.game_titles.index')
                              ->with('error', "Cannot delete '{$gameTitle->title}' because it has {$templatesCount} associated templates.");
+        }
+
+        if ($gameTitle->header_image) {
+            Storage::disk('public')->delete($gameTitle->header_image);
         }
 
         $gameTitle->delete();

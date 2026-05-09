@@ -68,6 +68,10 @@ Route::view('/pwa-instructions', 'pwa-instructions')->name('pwa.instructions');
 Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback.index');
 Route::post('/feedback', [FeedbackController::class, 'send'])->name('feedback.send');
 
+// Game Titles (Public)
+Route::get('/games', [\App\Http\Controllers\GameTitleController::class, 'index'])->name('game_titles.index');
+Route::get('/games/{gameTitle}', [\App\Http\Controllers\GameTitleController::class, 'show'])->name('game_titles.show');
+
 // Authenticated Routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

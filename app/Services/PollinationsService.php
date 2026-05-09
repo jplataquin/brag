@@ -54,10 +54,16 @@ class PollinationsService
                 'model' => 'flux', // Defaulting to Flux for better quality
             ];
 
+            Log::info("Pollinations AI: Sending request", [
+                'url' => $baseUrl,
+                'params' => $params,
+                'timeout' => 120
+            ]);
+
             // If an API key is provided, we use it to bypass rate limits.
             // Pollinations usually handles keys via Authorization header or a specific param.
             // For the purpose of this implementation, we will pass it as a Bearer token if present.
-            $request = Http::withoutVerifying()->timeout(60);
+            $request = Http::withoutVerifying()->timeout(120);
 
             if (!empty($apiKey)) {
                 $request = $request->withToken($apiKey);
@@ -76,6 +82,12 @@ class PollinationsService
                 Log::error("Pollinations AI failed. Status: " . $response->status() . " Body: " . $response->body());
                 throw new \Exception("AI service returned an error status: " . $response->status());
             }
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            Log::error("Pollinations AI Timeout/Connection Error: " . $e->getMessage(), [
+                'prompt' => $fullPrompt,
+                'duration' => 'Request exceeded 120 seconds'
+            ]);
+            throw new \Exception("The AI generation service timed out. Please try a simpler prompt or try again later.");
         } catch (\Exception $e) {
             Log::error("Pollinations AI Error: " . $e->getMessage());
             throw new \Exception("Failed to generate AI image: " . $e->getMessage());
