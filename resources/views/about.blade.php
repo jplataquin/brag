@@ -14,7 +14,7 @@
             <div class="neon-card p-5" style="background: rgba(10, 10, 30, 0.8); border-color: var(--neon-cyan);">
                 <div class="about-content text-light" style="font-size: 1.15rem; line-height: 1.8;">
                     <p class="mb-4">
-                        Brag is an online platform that tracks your battles and epic rivalries across different games, sports, and versus encounters.
+                        Brag is an online platform that tracks your epic battles and rivalries across different games, sports, and versus encounters.
                     </p>
 
                     <p class="mb-4">
