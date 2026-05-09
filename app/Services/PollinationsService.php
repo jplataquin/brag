@@ -40,7 +40,7 @@ class PollinationsService
                 break;
             case 'raw':
             default:
-                $fullPrompt = "full body portrait, wide angle shot, expansive background, " . $prompt;
+                $fullPrompt = "full body portrait, wide shot, eye level camera angle, from a far, expansive background, " . $prompt;
                 break;
         }
 
@@ -50,8 +50,8 @@ class PollinationsService
             
             // Build query parameters with larger dimensions to support zooming out
             $params = [
-                'width' => 1400,
-                'height' => 1000,
+                'width' => 1000,
+                'height' => 1400,
                 'nologo' => 'true',
                 'seed' => $seed,
                 'model' => 'flux', // Defaulting to Flux for better quality
