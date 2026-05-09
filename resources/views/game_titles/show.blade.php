@@ -67,7 +67,51 @@
             </div>
 
             <div>
-                <h2 class="h4 text-uppercase fw-bold mb-4" style="color: var(--neon-magenta); font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">Available Templates</h2>
+                <h2 class="h4 text-uppercase fw-bold mb-4" style="color: var(--neon-magenta); font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">
+                    <i class="bi bi-trophy-fill text-warning me-2"></i> Hall of Fame: Top Cards
+                </h2>
+                
+                @if($topCards->count() > 0)
+                    <div class="row g-4">
+                        @foreach($topCards as $card)
+                            <div class="col-6 col-md-3">
+                                <x-digital-card 
+                                    :mode="'thumbnail'"
+                                    :title="$card->template->card_title"
+                                    :game="$gameTitle->title"
+                                    :creator="$card->originalOwner->username ?? 'Unknown'"
+                                    :image="$card->template->display_photo"
+                                    :imagePositionX="$card->template->image_position_x ?? 50"
+                                    :imagePositionY="$card->template->image_position_y ?? 50"
+                                    :imageScale="$card->template->image_scale ?? 1.0"
+                                    :imageStretchY="$card->template->image_stretch_y ?? 1.0"
+                                    :wins="$card->wins"
+                                    :losses="$card->losses"
+                                    :rankLevel="$card->level"
+                                    :serialNumber="$card->id"
+                                    :backgroundColor="$card->template->background_color"
+                                    :borderColor="$card->template->border_color"
+                                    :sectionColor="$card->template->section_color"
+                                    :primaryTextColor="$card->template->primary_text_color"
+                                    :secondaryTextColor="$card->template->secondary_text_color"
+                                    :detailUrl="route('cards.show', $card->id)"
+                                />
+                                <div class="text-center mt-2">
+                                    <div class="small text-muted">Owned by</div>
+                                    <div class="fw-bold text-info">{{ $card->owner->username ?? 'None' }}</div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="alert bg-dark border-info border-opacity-25 text-secondary rounded-4">
+                        <i class="bi bi-info-circle me-2"></i> No digital cards have been forged for this game yet.
+                    </div>
+                @endif
+            </div>
+
+            <div class="mt-5">
+                <h2 class="h4 text-uppercase fw-bold mb-4" style="color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">Available Designs</h2>
                 
                 @php
                     $allTemplates = collect();
@@ -104,7 +148,6 @@
                                         <h5 class="fw-bold text-white mb-2">{{ $template->is_premium_type ? $template->template_title : $template->card_title }}</h5>
                                         <div class="d-flex justify-content-between align-items-center mt-3">
                                             @if($template->is_premium_type)
-                                                {{-- Check if premium templates have a public detail page, if not, just show price --}}
                                                 <button class="btn btn-sm btn-outline-warning rounded-pill px-3" disabled>Premium</button>
                                                 <span class="text-warning small"><i class="bi bi-gem"></i> {{ number_format($template->price) }}</span>
                                             @else
@@ -119,7 +162,7 @@
                     </div>
                 @else
                     <div class="alert bg-dark border-info border-opacity-25 text-secondary rounded-4">
-                        <i class="bi bi-info-circle me-2"></i> No active templates found for this game title yet. Why not create one?
+                        <i class="bi bi-info-circle me-2"></i> No active designs found for this game title yet.
                     </div>
                 @endif
             </div>

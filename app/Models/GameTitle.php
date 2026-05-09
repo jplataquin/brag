@@ -20,4 +20,9 @@ class GameTitle extends Model
     {
         return $this->hasMany(PremiumTemplate::class);
     }
+
+    public function digitalCards()
+    {
+        return $this->hasManyThrough(DigitalCard::class, Template::class);
+    }
 }
