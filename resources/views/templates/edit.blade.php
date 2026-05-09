@@ -600,11 +600,34 @@
             loading.style.display = 'none';
 
             if (data.success) {
+                // Reset sliders to default before applying new image
+                const defaults = {
+                    image_position_x: 50,
+                    image_position_y: 50,
+                    image_scale: 1.0,
+                    image_stretch_y: 1.0
+                };
+
+                Object.keys(defaults).forEach(id => {
+                    const slider = document.getElementById(id);
+                    const hidden = document.getElementById('hidden_' + id);
+                    if (slider) slider.value = defaults[id];
+                    if (hidden) hidden.value = defaults[id];
+                });
+
                 img.src = data.url;
                 hiddenInput.value = data.path;
                 resultContainer.style.display = 'block';
                 document.getElementById('ai-history-container').style.display = 'block';
-                updateLivePreview({ image: data.url });
+                
+                // Force preview update with defaults and new image
+                updateLivePreview({ 
+                    image: data.url,
+                    imagePositionX: 50,
+                    imagePositionY: 50,
+                    imageScale: 1.0,
+                    imageStretchY: 1.0
+                });
 
                 // Add to history
                 const gallery = document.getElementById('ai-history-gallery');

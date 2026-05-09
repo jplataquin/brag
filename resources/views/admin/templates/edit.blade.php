@@ -480,10 +480,30 @@
                 loading.style.display = 'none';
 
                 if (data.success) {
+                    // Reset sliders to default
+                    const defaults = {
+                        image_position_x: 50,
+                        image_position_y: 50,
+                        image_scale: 1.0,
+                        image_stretch_y: 1.0
+                    };
+
+                    Object.keys(defaults).forEach(id => {
+                        const input = document.getElementById(id);
+                        if (input) input.value = defaults[id];
+                    });
+
                     hiddenInput.value = data.path;
                     hiddenInput.setAttribute('data-url', data.url);
                     resultContainer.style.display = 'block';
-                    updateLivePreview({ image: data.url });
+                    
+                    updateLivePreview({ 
+                        image: data.url,
+                        imagePositionX: 50,
+                        imagePositionY: 50,
+                        imageScale: 1.0,
+                        imageStretchY: 1.0
+                    });
                 } else {
                     window.neonAlert('Failed to generate preview: ' + (data.message || 'Unknown error'));
                 }
