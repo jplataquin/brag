@@ -33,14 +33,14 @@ class PollinationsService
                 $fullPrompt = $framingKeywords . "highly detailed video game character, " . $prompt . ", digital art, vibrant neon colors, masterpiece 8k";
                 break;
             case 'anime':
-                $fullPrompt = $framingKeywords . "90s Anime, Hand Drawn, high quality anime character, vibrant cell shading, " . $prompt . ", masterpiece 8k";
+                $fullPrompt = $framingKeywords . "Anime, high quality anime character, vibrant cell shading, " . $prompt . ", masterpiece 8k";
                 break;
             case 'fantasy':
                 $fullPrompt = $framingKeywords . "grimdark fantasy concept art, high quality RPG character, moody lighting, " . $prompt . ", masterpiece 8k";
                 break;
             case 'raw':
             default:
-                $fullPrompt = "full body, eye level angle, expansive background, " . $prompt;
+                $fullPrompt = "full body portrait, wide angle shot, expansive background, " . $prompt;
                 break;
         }
 
