@@ -24,20 +24,23 @@ class PollinationsService
         $apiKey = config('services.pollinations.key');
         
         // Constructing a detailed prompt based on the selected art style
+        // Injecting framing keywords to ensure lots of background space for zooming/panning
+        $framingKeywords = "wide angle environmental portrait, full body shot, expansive background, ";
         $fullPrompt = $prompt;
+
         switch ($artStyle) {
             case 'neon':
-                $fullPrompt = "highly detailed video game character, " . $prompt . ", digital art, vibrant neon colors, masterpiece 8k";
+                $fullPrompt = $framingKeywords . "highly detailed video game character, " . $prompt . ", digital art, vibrant neon colors, masterpiece 8k";
                 break;
             case 'anime':
-                $fullPrompt = "90s Anime, Hand Drawn, high quality anime character, vibrant cell shading, " . $prompt . ", masterpiece 8k";
+                $fullPrompt = $framingKeywords . "90s Anime, Hand Drawn, high quality anime character, vibrant cell shading, " . $prompt . ", masterpiece 8k";
                 break;
             case 'fantasy':
-                $fullPrompt = "grimdark fantasy concept art, high quality RPG character, moody lighting, " . $prompt . ", masterpiece 8k";
+                $fullPrompt = $framingKeywords . "grimdark fantasy concept art, high quality RPG character, moody lighting, " . $prompt . ", masterpiece 8k";
                 break;
             case 'raw':
             default:
-                $fullPrompt = $prompt;
+                $fullPrompt = "wide angle environmental portrait, expansive background, " . $prompt;
                 break;
         }
 
@@ -45,10 +48,10 @@ class PollinationsService
             $seed = rand(1, 999999);
             $baseUrl = "https://image.pollinations.ai/prompt/" . urlencode($fullPrompt);
             
-            // Build query parameters
+            // Build query parameters with larger dimensions to support zooming out
             $params = [
-                'width' => 500,
-                'height' => 700,
+                'width' => 1000,
+                'height' => 1400,
                 'nologo' => 'true',
                 'seed' => $seed,
                 'model' => 'flux', // Defaulting to Flux for better quality
