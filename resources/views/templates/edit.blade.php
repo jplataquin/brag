@@ -116,11 +116,22 @@
                                 <img src="{{ asset('storage/' . $template->ai_photo) }}" alt="Current AI" style="max-width: 150px; border-radius: 12px; border: 2px solid #ff00ff; box-shadow: 0 0 10px rgba(255,0,255,0.4);">
                             </div>
                         @endif
-                        <label for="ai_prompt" class="form-label" style="font-size: 0.85rem; color: #bbbbd0;">ART STYLE PROMPT</label>
+
+                        <div class="mb-3">
+                            <label for="ai_art_style" class="form-label" style="font-size: 0.85rem; color: #bbbbd0;">ART STYLE</label>
+                            <select name="ai_art_style" id="ai_art_style" class="form-select neon-input" style="background-color: #1a0a1a; color: #fff; border-color: rgba(255, 0, 255, 0.3);">
+                                <option value="neon" {{ old('ai_art_style') == 'neon' ? 'selected' : '' }}>Vibrant Neon Game Character</option>
+                                <option value="anime" {{ old('ai_art_style') == 'anime' ? 'selected' : '' }}>Anime & Manga</option>
+                                <option value="fantasy" {{ old('ai_art_style') == 'fantasy' ? 'selected' : '' }}>Game Fantasy</option>
+                                <option value="raw" {{ old('ai_art_style') == 'raw' ? 'selected' : '' }}>Raw Prompt</option>
+                            </select>
+                        </div>
+
+                        <label for="ai_prompt" class="form-label" style="font-size: 0.85rem; color: #bbbbd0;">PROMPT</label>
                         <textarea class="form-control @error('ai_prompt') is-invalid @enderror"
                                id="ai_prompt" name="ai_prompt" rows="2"
                                placeholder="e.g. Cyberpunk hacker, Neon glowing eyes, Fantasy warrior...">{{ old('ai_prompt') }}</textarea>
-                        <small style="color: #555577; font-size: 0.75rem;">Describe the character or art style you want. Nano Banana will generate it from scratch.</small>
+                        <small style="color: #555577; font-size: 0.75rem;">Describe the character or art style you want. Pollinations AI will generate it from scratch.</small>
                         @error('ai_prompt')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -140,6 +151,26 @@
                             <label style="font-size: 0.75rem; color: #ff00ff; display: block; margin-bottom: 5px;">AI PREVIEW</label>
                             <img id="ai-preview-img" src="{{ old('generated_ai_photo') ? asset('storage/' . old('generated_ai_photo')) : '' }}" alt="AI Preview" style="max-width: 200px; border-radius: 12px; border: 2px solid #ff00ff; box-shadow: 0 0 10px rgba(255,0,255,0.4);">
                         </div>
+
+                        <!-- AI History Gallery -->
+                        <div id="ai-history-container" class="mt-3" style="display: {{ old('generated_ai_photo') || $template->ai_photo ? 'block' : 'none' }};">
+                            <label style="font-size: 0.75rem; color: #8888aa; display: block; margin-bottom: 5px; font-family: 'Orbitron', sans-serif;">RECENT GENERATIONS</label>
+                            <div id="ai-history-gallery" class="d-flex gap-2 overflow-auto py-2 custom-scrollbar" style="white-space: nowrap; min-height: 100px;">
+                                @if($template->ai_photo)
+                                    <img src="{{ asset('storage/' . $template->ai_photo) }}" 
+                                         class="history-thumb active" 
+                                         data-path="{{ $template->ai_photo }}"
+                                         onclick="selectHistoryImage(this)">
+                                @endif
+                                @if(old('generated_ai_photo') && old('generated_ai_photo') !== $template->ai_photo)
+                                    <img src="{{ asset('storage/' . old('generated_ai_photo')) }}" 
+                                         class="history-thumb" 
+                                         data-path="{{ old('generated_ai_photo') }}"
+                                         onclick="selectHistoryImage(this)">
+                                @endif
+                            </div>
+                        </div>
+
                         @error('generated_ai_photo')
                             <div class="text-danger mt-1 small">{{ $message }}</div>
                         @enderror
@@ -238,6 +269,39 @@
     .ts-dropdown .option:hover, .ts-dropdown .active {
         background-color: rgba(0, 240, 255, 0.1) !important;
         color: #00f0ff !important;
+    }
+
+    /* History Gallery Styles */
+    .history-thumb {
+        cursor: pointer;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        width: 65px;
+        height: 91px;
+        object-fit: cover;
+        opacity: 0.5;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+    .history-thumb:hover {
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+    .history-thumb.active {
+        border-color: #00f0ff;
+        opacity: 1;
+        box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+        transform: scale(1.1);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+        height: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(0, 240, 255, 0.3);
+        border-radius: 2px;
     }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
@@ -455,6 +519,7 @@
 
     document.getElementById('btn-preview-ai').addEventListener('click', function() {
         const prompt = document.getElementById('ai_prompt').value;
+        const style = document.getElementById('ai_art_style').value;
         if (!prompt) {
             window.neonAlert('Please enter an art style prompt first.');
             return;
@@ -472,6 +537,7 @@
 
         const formData = new FormData();
         formData.append('ai_prompt', prompt);
+        formData.append('ai_art_style', style);
         // Note: We do NOT send temporary_photo_path here because the user wants purely text-to-image
         
         // Add CSRF token
@@ -493,7 +559,18 @@
                 img.src = data.url;
                 hiddenInput.value = data.path;
                 resultContainer.style.display = 'block';
+                document.getElementById('ai-history-container').style.display = 'block';
                 updateLivePreview({ image: data.url });
+
+                // Add to history
+                const gallery = document.getElementById('ai-history-gallery');
+                const newThumb = document.createElement('img');
+                newThumb.src = data.url;
+                newThumb.className = 'history-thumb';
+                newThumb.setAttribute('data-path', data.path);
+                newThumb.onclick = function() { selectHistoryImage(this); };
+                gallery.prepend(newThumb);
+                selectHistoryImage(newThumb);
             } else {
                 window.neonAlert('Failed to generate preview: ' + (data.message || 'Unknown error'));
             }
@@ -505,6 +582,20 @@
             console.error('Error:', error);
         });
     });
+
+    function selectHistoryImage(el) {
+        // Remove active class from all
+        document.querySelectorAll('.history-thumb').forEach(thumb => thumb.classList.remove('active'));
+        // Add to current
+        el.classList.add('active');
+        
+        // Update main preview and input
+        document.getElementById('ai-preview-img').src = el.src;
+        document.getElementById('generated_ai_photo').value = el.getAttribute('data-path');
+        
+        // Update live card
+        updateLivePreview({ image: el.src });
+    }
     document.getElementById('template-edit-form').addEventListener('submit', function(e) {
         if (this.checkValidity()) {
             const btn = document.getElementById('btn-update-template');

@@ -47,13 +47,14 @@ class TemplateController extends Controller
     {
         $request->validate([
             'ai_prompt' => 'required|string|max:200',
+            'ai_art_style' => 'required|string|in:neon,anime,fantasy,raw',
             'temporary_photo_path' => 'nullable|string',
         ]);
 
         $photoPath = $request->input('temporary_photo_path');
 
         try {
-            $aiPhotoPath = $pollinationsService->generateImage($request->ai_prompt, $photoPath);
+            $aiPhotoPath = $pollinationsService->generateImage($request->ai_prompt, $request->ai_art_style, $photoPath);
             return response()->json([
                 'success' => true,
                 'url' => asset('storage/' . $aiPhotoPath),

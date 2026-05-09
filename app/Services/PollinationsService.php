@@ -13,17 +13,33 @@ class PollinationsService
      * Generate an artistic game art image using Pollinations AI.
      *
      * @param string $prompt
+     * @param string $artStyle
      * @param string|null $originalPhotoPath
      * @return string The path to the generated AI photo
      */
-    public function generateImage(string $prompt, ?string $originalPhotoPath = null): string
+    public function generateImage(string $prompt, string $artStyle = 'neon', ?string $originalPhotoPath = null): string
     {
-        Log::info("Pollinations AI generation requested", ['prompt' => $prompt]);
+        Log::info("Pollinations AI generation requested", ['prompt' => $prompt, 'style' => $artStyle]);
 
         $apiKey = config('services.pollinations.key');
         
-        // Constructing a detailed prompt for better game art results
-        $fullPrompt = "highly detailed video game character portrait, " . $prompt . ", digital art, vibrant neon colors, masterpiece 8k";
+        // Constructing a detailed prompt based on the selected art style
+        $fullPrompt = $prompt;
+        switch ($artStyle) {
+            case 'neon':
+                $fullPrompt = "highly detailed video game character, " . $prompt . ", digital art, vibrant neon colors, masterpiece 8k";
+                break;
+            case 'anime':
+                $fullPrompt = "90s Anime, Hand Drawn, high quality anime character, vibrant cell shading, " . $prompt . ", masterpiece 8k";
+                break;
+            case 'fantasy':
+                $fullPrompt = "grimdark fantasy concept art, high quality RPG character, moody lighting, " . $prompt . ", masterpiece 8k";
+                break;
+            case 'raw':
+            default:
+                $fullPrompt = $prompt;
+                break;
+        }
 
         try {
             $seed = rand(1, 999999);
