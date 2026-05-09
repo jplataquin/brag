@@ -40,7 +40,7 @@ class PollinationsService
                 break;
             case 'raw':
             default:
-                $fullPrompt = "wide shot, full body, eye level angle, expansive background, " . $prompt;
+                $fullPrompt = "full body, eye level angle, expansive background, " . $prompt;
                 break;
         }
 
