@@ -81,6 +81,7 @@ class TemplateController extends Controller
             'image_position_x' => 'nullable|integer|min:0|max:100',
             'image_position_y' => 'nullable|integer|min:0|max:100',
             'image_scale' => 'nullable|numeric|min:1.0|max:5',
+            'image_stretch_y' => 'nullable|numeric|min:0.5|max:2.0',
             'background_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'border_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'section_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
@@ -120,7 +121,7 @@ class TemplateController extends Controller
             return back()->with('error', "You need at least {$totalCost} Diamonds. You currently have " . $user->diamonds_balance . '.')->withInput();
         }
 
-        $data = $request->only(['card_title', 'game_title_id', 'quote', 'image_position_x', 'image_position_y', 'image_scale', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
+        $data = $request->only(['card_title', 'game_title_id', 'quote', 'image_position_x', 'image_position_y', 'image_scale', 'image_stretch_y', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
         $data['card_title'] = strtoupper($data['card_title']);
         $data['user_id'] = $user->id;
 
@@ -216,6 +217,7 @@ class TemplateController extends Controller
             'image_position_x' => 'nullable|integer|min:0|max:100',
             'image_position_y' => 'nullable|integer|min:0|max:100',
             'image_scale' => 'nullable|numeric|min:1.0|max:5',
+            'image_stretch_y' => 'nullable|numeric|min:0.5|max:2.0',
             'background_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'border_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'section_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
@@ -230,7 +232,7 @@ class TemplateController extends Controller
             'secondary_text_color.regex' => 'The secondary text color must be a valid hex code.',
         ]);
 
-        $data = $request->only(['card_title', 'quote', 'image_position_x', 'image_position_y', 'image_scale', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
+        $data = $request->only(['card_title', 'quote', 'image_position_x', 'image_position_y', 'image_scale', 'image_stretch_y', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color']);
         $data['card_title'] = strtoupper($data['card_title']);
 
         if ($request->image_mode === 'upload') {

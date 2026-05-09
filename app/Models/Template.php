@@ -21,6 +21,7 @@ class Template extends Model
         'image_position_x',
         'image_position_y',
         'image_scale',
+        'image_stretch_y',
         'background_color',
         'border_color',
         'section_color',

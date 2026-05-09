@@ -188,17 +188,21 @@
                             <label for="secondary_text_color" class="form-label text-white-50">Secondary Text Color</label>
                             <input type="color" name="secondary_text_color" id="secondary_text_color" class="form-control form-control-color bg-dark border-info w-100" value="{{ $template->secondary_text_color ?? '#aaaaaa' }}" title="Choose Secondary Text color">
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="image_position_x" class="form-label text-white-50">Image X Position (%)</label>
+                        <div class="col-md-3 mb-3">
+                            <label for="image_position_x" class="form-label text-white-50">Image X (%)</label>
                             <input type="number" name="image_position_x" id="image_position_x" class="form-control bg-dark text-white border-info" value="{{ $template->image_position_x ?? 50 }}" min="0" max="100">
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="image_position_y" class="form-label text-white-50">Image Y Position (%)</label>
+                        <div class="col-md-3 mb-3">
+                            <label for="image_position_y" class="form-label text-white-50">Image Y (%)</label>
                             <input type="number" name="image_position_y" id="image_position_y" class="form-control bg-dark text-white border-info" value="{{ $template->image_position_y ?? 50 }}" min="0" max="100">
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="image_scale" class="form-label text-white-50">Image Zoom (Scale)</label>
+                        <div class="col-md-3 mb-3">
+                            <label for="image_scale" class="form-label text-white-50">Zoom</label>
                             <input type="number" name="image_scale" id="image_scale" class="form-control bg-dark text-white border-info" value="{{ $template->image_scale ?? 1.0 }}" min="1.0" max="5" step="0.01">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="image_stretch_y" class="form-label text-white-50">Stretch Y</label>
+                            <input type="number" name="image_stretch_y" id="image_stretch_y" class="form-control bg-dark text-white border-info" value="{{ $template->image_stretch_y ?? 1.0 }}" min="0.5" max="2.0" step="0.01">
                         </div>
                     </div>
 
@@ -268,6 +272,7 @@
                             :imagePositionX="$template->image_position_x ?? 50"
                             :imagePositionY="$template->image_position_y ?? 50"
                             :imageScale="$template->image_scale ?? 1.0"
+                            :imageStretchY="$template->image_stretch_y ?? 1.0"
                             :backgroundColor="$template->background_color"
                             :borderColor="$template->border_color"
                             :sectionColor="$template->section_color"
@@ -492,7 +497,7 @@
         });
 
         // Add live preview listeners for design inputs
-        const inputs = ['card_title', 'quote', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color', 'image_position_x', 'image_position_y', 'image_scale'];
+        const inputs = ['card_title', 'quote', 'background_color', 'border_color', 'section_color', 'primary_text_color', 'secondary_text_color', 'image_position_x', 'image_position_y', 'image_scale', 'image_stretch_y'];
         inputs.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
@@ -502,6 +507,7 @@
                     if (id === 'image_position_x') key = 'imagePositionX';
                     if (id === 'image_position_y') key = 'imagePositionY';
                     if (id === 'image_scale') key = 'imageScale';
+                    if (id === 'image_stretch_y') key = 'imageStretchY';
                     if (id === 'background_color') key = 'backgroundColor';
                     if (id === 'border_color') key = 'borderColor';
                     if (id === 'section_color') key = 'sectionColor';
@@ -510,7 +516,7 @@
                     
                     let updates = {};
                     updates[key] = (id === 'image_position_x' || id === 'image_position_y') ? parseInt(this.value) : 
-                                  (id === 'image_scale') ? parseFloat(this.value) : this.value;
+                                  (id === 'image_scale' || id === 'image_stretch_y') ? parseFloat(this.value) : this.value;
                     updateLivePreview(updates);
                 });
             }

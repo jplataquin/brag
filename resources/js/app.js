@@ -421,7 +421,8 @@ class DigitalCardRenderer {
                 options.imagePositionY !== undefined ? options.imagePositionY : 50, 
                 sectionRadius, 
                 options.imageScale !== undefined ? options.imageScale : 1.0,
-                options.imagePositionX !== undefined ? options.imagePositionX : 50
+                options.imagePositionX !== undefined ? options.imagePositionX : 50,
+                options.imageStretchY !== undefined ? options.imageStretchY : 1.0
             );
         } else if (isCensored) {
             ctx.save();
@@ -527,7 +528,7 @@ class DigitalCardRenderer {
         return url;
     }
 
-    drawImageWithinBounds(ctx, img, x, y, w, h, borderColor, mode, imagePositionY = 50, sectionRadius = null, imageScale = 1.0, imagePositionX = 50) {
+    drawImageWithinBounds(ctx, img, x, y, w, h, borderColor, mode, imagePositionY = 50, sectionRadius = null, imageScale = 1.0, imagePositionX = 50, imageStretchY = 1.0) {
         
         const sRatio = img.width / img.height;
         const dRatio = w / h;
@@ -542,15 +543,17 @@ class DigitalCardRenderer {
             sx = 0;
         }
 
-        // Apply scale (zoom)
+        // Apply scale (zoom) and stretch
         // scale 1.0 = standard cover
         // scale > 1.0 = zoom in (smaller sw/sh)
         // Enforce minimum 1.0 to prevent shrinking smaller than border
         const scale = Math.max(1.0, parseFloat(imageScale) || 1.0);
-        sw = sw / scale;
-        sh = sh / scale;
+        const stretchY = parseFloat(imageStretchY) || 1.0;
 
-        // Recalculate sx/sy based on position and scale
+        sw = sw / scale;
+        sh = sh / (scale * stretchY);
+
+        // Recalculate sx/sy based on position, scale, and stretch
         const posXRatio = Math.max(0, Math.min(100, imagePositionX)) / 100;
         const posYRatio = Math.max(0, Math.min(100, imagePositionY)) / 100;
         

@@ -41,6 +41,7 @@
                 <input type="hidden" name="image_position_x" id="hidden_image_position_x" value="{{ old('image_position_x', 50) }}">
                 <input type="hidden" name="image_position_y" id="hidden_image_position_y" value="{{ old('image_position_y', 50) }}">
                 <input type="hidden" name="image_scale" id="hidden_image_scale" value="{{ old('image_scale', 1.0) }}">
+                <input type="hidden" name="image_stretch_y" id="hidden_image_stretch_y" value="{{ old('image_stretch_y', 1.0) }}">
 
                 <div class="mb-3">
                     <label for="card_title" class="form-label">CARD TITLE</label>
@@ -247,7 +248,8 @@
                                :secondaryTextColor="old('secondary_text_color', '#dddddd')"
                                :imagePositionX="old('image_position_x', 50)"
                                :imagePositionY="old('image_position_y', 50)"
-                               :imageScale="old('image_scale', 1.0)" />
+                               :imageScale="old('image_scale', 1.0)"
+                               :imageStretchY="old('image_stretch_y', 1.0)" />
             </div>
             <p class="text-center mt-3 mb-4" style="color: #555577; font-size: 0.8rem;">
                 This is a preview of how digital cards forged from this template will look.
@@ -272,9 +274,17 @@
                 
                 <label for="image_scale" class="form-label" style="font-size: 0.75rem; color: #bbbbd0;">IMAGE ZOOM (SCALE)</label>
                 <input type="range" class="form-range" id="image_scale" form="template-form" min="1.0" max="3" step="0.01" value="{{ old('image_scale', 1.0) }}">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between mb-3">
                     <small style="color: #555577;">1.0x (Standard)</small>
                     <small style="color: #555577;">3.0x (Zoom)</small>
+                </div>
+
+                <label for="image_stretch_y" class="form-label" style="font-size: 0.75rem; color: #bbbbd0;">IMAGE VERTICAL STRETCH</label>
+                <input type="range" class="form-range" id="image_stretch_y" form="template-form" min="0.5" max="2.0" step="0.01" value="{{ old('image_stretch_y', 1.0) }}">
+                <div class="d-flex justify-content-between">
+                    <small style="color: #555577;">0.5x (Squash)</small>
+                    <small style="color: #555577;">1.0x (Normal)</small>
+                    <small style="color: #555577;">2.0x (Stretch)</small>
                 </div>
             </div>
 
@@ -505,6 +515,11 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('image_scale').addEventListener('input', function() {
         updateLivePreview({ imageScale: parseFloat(this.value) });
         document.getElementById('hidden_image_scale').value = this.value;
+    });
+
+    document.getElementById('image_stretch_y').addEventListener('input', function() {
+        updateLivePreview({ imageStretchY: parseFloat(this.value) });
+        document.getElementById('hidden_image_stretch_y').value = this.value;
     });
 
     const photoInput = document.getElementById('photo');
