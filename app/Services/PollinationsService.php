@@ -40,7 +40,7 @@ class PollinationsService
                 break;
             case 'raw':
             default:
-                $fullPrompt = "wide angle environmental portrait, expansive background, " . $prompt;
+                $fullPrompt = "wide shot, expansive background, " . $prompt;
                 break;
         }
 
