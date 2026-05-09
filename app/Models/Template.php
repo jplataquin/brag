@@ -18,6 +18,7 @@ class Template extends Model
         'quote',
         'photo',
         'ai_photo',
+        'image_position_x',
         'image_position_y',
         'image_scale',
         'background_color',

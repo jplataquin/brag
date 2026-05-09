@@ -38,6 +38,7 @@
         <div class="neon-card p-4">
             <form method="POST" action="{{ route('templates.store') }}" enctype="multipart/form-data" id="template-form">
                 @csrf
+                <input type="hidden" name="image_position_x" id="hidden_image_position_x" value="{{ old('image_position_x', 50) }}">
                 <input type="hidden" name="image_position_y" id="hidden_image_position_y" value="{{ old('image_position_y', 50) }}">
                 <input type="hidden" name="image_scale" id="hidden_image_scale" value="{{ old('image_scale', 1.0) }}">
 
@@ -244,6 +245,7 @@
                                :sectionColor="old('section_color', '#111122')"
                                :primaryTextColor="old('primary_text_color', '#ffffff')"
                                :secondaryTextColor="old('secondary_text_color', '#dddddd')"
+                               :imagePositionX="old('image_position_x', 50)"
                                :imagePositionY="old('image_position_y', 50)"
                                :imageScale="old('image_scale', 1.0)" />
             </div>
@@ -252,20 +254,27 @@
             </p>
 
             <div class="mb-4">
+                <label for="image_position_x" class="form-label" style="font-size: 0.75rem; color: #bbbbd0;">IMAGE HORIZONTAL POSITION (X-AXIS CROP)</label>
+                <input type="range" class="form-range" id="image_position_x" form="template-form" min="0" max="100" value="{{ old('image_position_x', 50) }}">
+                <div class="d-flex justify-content-between mb-3">
+                    <small style="color: #8888aa; font-size: 0.75rem;">Left</small>
+                    <small style="color: #8888aa; font-size: 0.75rem;">Center</small>
+                    <small style="color: #8888aa; font-size: 0.75rem;">Right</small>
+                </div>
+
                 <label for="image_position_y" class="form-label" style="font-size: 0.75rem; color: #bbbbd0;">IMAGE VERTICAL POSITION (Y-AXIS CROP)</label>
                 <input type="range" class="form-range" id="image_position_y" form="template-form" min="0" max="100" value="{{ old('image_position_y', 50) }}">
-                
-                <label for="image_scale" class="form-label mt-3" style="font-size: 0.75rem; color: #bbbbd0;">IMAGE ZOOM (SCALE)</label>
-                <input type="range" class="form-range" id="image_scale" form="template-form" min="0.5" max="3" step="0.01" value="{{ old('image_scale', 1.0) }}">
-                <div class="d-flex justify-content-between">
-                    <small style="color: #555577;">0.5x (Wide)</small>
-                    <small style="color: #555577;">1.0x (Standard)</small>
-                    <small style="color: #555577;">3.0x (Zoom)</small>
-                </div>
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between mb-3">
                     <small style="color: #8888aa; font-size: 0.75rem;">Top</small>
                     <small style="color: #8888aa; font-size: 0.75rem;">Center</small>
                     <small style="color: #8888aa; font-size: 0.75rem;">Bottom</small>
+                </div>
+                
+                <label for="image_scale" class="form-label" style="font-size: 0.75rem; color: #bbbbd0;">IMAGE ZOOM (SCALE)</label>
+                <input type="range" class="form-range" id="image_scale" form="template-form" min="1.0" max="3" step="0.01" value="{{ old('image_scale', 1.0) }}">
+                <div class="d-flex justify-content-between">
+                    <small style="color: #555577;">1.0x (Standard)</small>
+                    <small style="color: #555577;">3.0x (Zoom)</small>
                 </div>
             </div>
 
@@ -481,6 +490,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateLivePreview(opt);
             });
         }
+    });
+
+    document.getElementById('image_position_x').addEventListener('input', function() {
+        updateLivePreview({ imagePositionX: parseInt(this.value) });
+        document.getElementById('hidden_image_position_x').value = this.value;
     });
 
     document.getElementById('image_position_y').addEventListener('input', function() {
