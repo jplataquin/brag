@@ -37,12 +37,12 @@
                 </a>
             </div>
             <div class="col-md-4 col-sm-12">
-                <div class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center" style="border-color: #39ff14;">
+                <a href="{{ route('game_titles.index') }}" class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center text-decoration-none" style="transition: transform 0.2s, box-shadow 0.2s; border-color: #39ff14;">
                     <div style="font-family: 'Orbitron', sans-serif; font-size: 3.5rem; font-weight: 700; color: #39ff14; text-shadow: 0 0 20px rgba(57,255,20,0.5); line-height: 1;">
                         {{ number_format($gameTitlesCount) }}
                     </div>
                     <h5 class="mt-3" style="font-family: 'Orbitron', sans-serif; font-size: 1rem; color: #8888aa; letter-spacing: 2px;">ACTIVE GAME TITLES</h5>
-                </div>
+                </a>
             </div>
             <div class="col-md-4 col-sm-12">
                 <a href="{{ route('pwa.instructions') }}" id="btn-install-pwa-welcome" class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center text-decoration-none" style="transition: transform 0.2s, box-shadow 0.2s; border-color: #ff00ff; background: rgba(255,0,255,0.05);">
