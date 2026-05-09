@@ -32,7 +32,7 @@
                     </div>
 
                     <p class="mb-4">
-                        Remember, losing is just a set back and winning is a sweet treat. But the spirit of competition is what really ignites the heart .
+                        Remember, losing is just a set back and winning is a sweet treat. But the spirit of competition is what really ignites the heart.
                     </p>
 
                     <p class="mb-5">
