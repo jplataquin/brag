@@ -40,7 +40,7 @@ class PollinationsService
                 break;
             case 'raw':
             default:
-                $fullPrompt = "wide shot, expansive background, " . $prompt;
+                $fullPrompt = "wide shot, full body, eye level angle, expansive background, " . $prompt;
                 break;
         }
 
@@ -66,7 +66,7 @@ class PollinationsService
             // If an API key is provided, we use it to bypass rate limits.
             // Pollinations usually handles keys via Authorization header or a specific param.
             // For the purpose of this implementation, we will pass it as a Bearer token if present.
-            $request = Http::withoutVerifying()->timeout(120);
+            $request = Http::withoutVerifying()->timeout(240);
 
             if (!empty($apiKey)) {
                 $request = $request->withToken($apiKey);
