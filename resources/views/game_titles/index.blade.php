@@ -28,8 +28,9 @@
                     </div>
                     <div class="card-body d-flex flex-column">
                         <div class="mb-3 text-secondary">
+                            @php $totalTemplates = $game->templates_count + $game->premium_templates_count; @endphp
                             <span class="badge rounded-pill bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-3 py-2">
-                                <i class="bi bi-grid-3x3-gap"></i> {{ $game->templates_count }} {{ Str::plural('Template', $game->templates_count) }}
+                                <i class="bi bi-grid-3x3-gap"></i> {{ $totalTemplates }} {{ Str::plural('Template', $totalTemplates) }}
                             </span>
                         </div>
                         <p class="card-text text-light opacity-75 mb-4 line-clamp-3">

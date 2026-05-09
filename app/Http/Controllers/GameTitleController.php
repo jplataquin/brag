@@ -13,9 +13,12 @@ class GameTitleController extends Controller
     public function index()
     {
         $gameTitles = GameTitle::where('status', 'active')
-            ->withCount(['templates' => function($query) {
-                $query->where('status', 'active');
-            }])
+            ->withCount([
+                'templates',
+                'premiumTemplates' => function($query) {
+                    $query->where('status', 'active');
+                }
+            ])
             ->orderBy('title', 'asc')
             ->get();
 
@@ -31,9 +34,14 @@ class GameTitleController extends Controller
             abort(404);
         }
 
-        $gameTitle->load(['templates' => function($query) {
-            $query->where('status', 'active');
-        }]);
+        $gameTitle->load([
+            'templates' => function($query) {
+                $query->orderBy('created_at', 'desc');
+            },
+            'premiumTemplates' => function($query) {
+                $query->where('status', 'active')->orderBy('created_at', 'desc');
+            }
+        ]);
 
         return view('game_titles.show', compact('gameTitle'));
     }

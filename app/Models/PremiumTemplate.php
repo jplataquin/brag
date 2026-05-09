@@ -26,6 +26,22 @@ class PremiumTemplate extends Model
     ];
 
     /**
+     * Get the display photo for the premium template.
+     */
+    public function getDisplayPhotoAttribute()
+    {
+        // Try to get background image from premium_config if it exists
+        if (!empty($this->premium_config['layers'])) {
+            foreach ($this->premium_config['layers'] as $layer) {
+                if ($layer['type'] === 'image' && !empty($layer['src'])) {
+                    return $layer['src'];
+                }
+            }
+        }
+        return asset('images/default-card.png');
+    }
+
+    /**
      * The game title of this premium template.
      */
     public function gameTitle()

@@ -15,4 +15,9 @@ class GameTitle extends Model
     {
         return $this->hasMany(Template::class);
     }
+
+    public function premiumTemplates()
+    {
+        return $this->hasMany(PremiumTemplate::class);
+    }
 }
