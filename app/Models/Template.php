@@ -19,6 +19,7 @@ class Template extends Model
         'photo',
         'ai_photo',
         'image_position_y',
+        'image_scale',
         'background_color',
         'border_color',
         'section_color',

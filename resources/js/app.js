@@ -409,7 +409,7 @@ class DigitalCardRenderer {
         const photoImg = isCensored ? null : this.imageCache[imageUrl];
         const badgeImg = isCensored ? null : this.imageCache[rankBadgeUrl];
         if (photoImg) {
-            this.drawImageWithinBounds(ctx, photoImg, innerX, photoY, innerW, photoH, currentBorderColor, currentMode, options.imagePositionY !== undefined ? options.imagePositionY : 50, sectionRadius);
+            this.drawImageWithinBounds(ctx, photoImg, innerX, photoY, innerW, photoH, currentBorderColor, currentMode, options.imagePositionY !== undefined ? options.imagePositionY : 50, sectionRadius, options.imageScale !== undefined ? options.imageScale : 1.0);
         } else if (isCensored) {
             ctx.save();
             this.createRoundRectPath(ctx, innerX, photoY, innerW, photoH, sectionRadius);
@@ -514,19 +514,39 @@ class DigitalCardRenderer {
         return url;
     }
 
-    drawImageWithinBounds(ctx, img, x, y, w, h, borderColor, mode, imagePositionY = 50, sectionRadius = null) {
+    drawImageWithinBounds(ctx, img, x, y, w, h, borderColor, mode, imagePositionY = 50, sectionRadius = null, imageScale = 1.0) {
         
         const sRatio = img.width / img.height;
         const dRatio = w / h;
         let sx = 0, sy = 0, sw = img.width, sh = img.height;
+
+        // Base "cover" dimensions
         if (sRatio > dRatio) {
             sw = img.height * dRatio;
             sx = (img.width - sw) / 2;
         } else {
             sh = img.width / dRatio;
-            const positionRatio = Math.max(0, Math.min(100, imagePositionY)) / 100;
-            sy = (img.height - sh) * positionRatio;
+            sx = 0;
         }
+
+        // Apply scale (zoom)
+        // scale 1.0 = standard cover
+        // scale > 1.0 = zoom in (smaller sw/sh)
+        // scale < 1.0 = zoom out (larger sw/sh, might show empty space if exceeds img bounds)
+        const scale = parseFloat(imageScale) || 1.0;
+        sw = sw / scale;
+        sh = sh / scale;
+
+        // Recalculate sx/sy based on position and scale
+        if (sRatio > dRatio) {
+            sx = (img.width - sw) / 2;
+        } else {
+            sx = 0;
+        }
+
+        const positionRatio = Math.max(0, Math.min(100, imagePositionY)) / 100;
+        sy = (img.height - sh) * positionRatio;
+
         const radius = sectionRadius !== null ? sectionRadius : Math.floor(ctx.canvas.width * 0.02);
         
         ctx.save();
@@ -538,6 +558,11 @@ class DigitalCardRenderer {
         if (mode === 'template') {
             ctx.filter = 'grayscale(100%)';
         }
+
+        // Fill background in case zoom out shows empty space
+        ctx.fillStyle = '#000';
+        ctx.fillRect(x, y, w, h);
+
         ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
         if (mode === 'template') {
             ctx.filter = 'none';
