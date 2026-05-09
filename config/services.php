@@ -35,9 +35,8 @@ return [
         ],
     ],
 
-    'nano_banana' => [
-        'key' => env('NANO_BANANA_API_KEY'),
-        'url' => env('NANO_BANANA_API_URL', 'https://api.nanobanana.com/v1/enhance'),
+    'pollinations' => [
+        'key' => env('POLLINATIONS_API_KEY'),
     ],
 
     'turnstile' => [

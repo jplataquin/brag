@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Template;
-use App\Services\NanoBananaService;
+use App\Services\PollinationsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -43,7 +43,7 @@ class TemplateController extends Controller
     /**
      * Generate an AI preview photo based on the prompt.
      */
-    public function generateAiPreview(Request $request, NanoBananaService $nanoBanana)
+    public function generateAiPreview(Request $request, PollinationsService $pollinationsService)
     {
         $request->validate([
             'ai_prompt' => 'required|string|max:200',
@@ -53,7 +53,7 @@ class TemplateController extends Controller
         $photoPath = $request->input('temporary_photo_path');
 
         try {
-            $aiPhotoPath = $nanoBanana->generateImage($request->ai_prompt, $photoPath);
+            $aiPhotoPath = $pollinationsService->generateImage($request->ai_prompt, $photoPath);
             return response()->json([
                 'success' => true,
                 'url' => asset('storage/' . $aiPhotoPath),
@@ -67,7 +67,7 @@ class TemplateController extends Controller
     /**
      * Store a newly created template.
      */
-    public function store(Request $request, NanoBananaService $nanoBanana)
+    public function store(Request $request, PollinationsService $pollinationsService)
     {
         $request->validate([
             'card_title' => 'required|string|max:50|unique:templates,card_title',
@@ -190,7 +190,7 @@ class TemplateController extends Controller
     /**
      * Update the specified template.
      */
-    public function update(Request $request, Template $template, NanoBananaService $nanoBanana)
+    public function update(Request $request, Template $template, PollinationsService $pollinationsService)
     {
         $this->authorize('update', $template);
 
