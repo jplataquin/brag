@@ -3,6 +3,30 @@
 @section('title', 'Edit Profile')
 
 @section('content')
+<style>
+    :root {
+        --neon-cyan: #00f0ff;
+    }
+    .neon-tabs .nav-link {
+        color: #8888aa;
+        font-family: 'Orbitron', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+        border: none;
+        padding: 1rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+    .neon-tabs .nav-link:hover {
+        color: #fff;
+    }
+    .neon-tabs .nav-link.active {
+        background-color: transparent !important;
+        color: var(--neon-cyan) !important;
+        border-bottom: 2px solid var(--neon-cyan) !important;
+        text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+    }
+</style>
 <h1 class="page-title">
     <span class="page-title-accent"><i class="bi bi-gear-fill"></i></span> EDIT PROFILE
 </h1>
