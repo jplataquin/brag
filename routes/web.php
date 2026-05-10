@@ -138,6 +138,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Identity Verification
     Route::post('/verification', [\App\Http\Controllers\VerificationController::class, 'store'])->name('verification.store');
 
+    // Interactive Tour
+    Route::post('/user/complete-tour', function() {
+        auth()->user()->update(['has_completed_tour' => true]);
+        return response()->json(['success' => true]);
+    })->name('user.complete_tour');
+
+    // Academy
+    Route::get('/academy', [\App\Http\Controllers\AcademyController::class, 'index'])->name('academy.index');
+    Route::post('/academy/restart-tour', function() {
+        auth()->user()->update(['has_completed_tour' => false]);
+        return redirect()->route('dashboard');
+    })->name('academy.restart_tour');
+
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');

@@ -1,0 +1,77 @@
+@use 'variables' as *;
+
+.shepherd-element {
+    background: $bg-card !important;
+    backdrop-filter: blur(15px) !important;
+    border: 1px solid $neon-cyan !important;
+    border-radius: 12px !important;
+    box-shadow: 0 0 30px rgba($neon-cyan, 0.2) !important;
+    max-width: 400px !important;
+    color: #fff !important;
+    z-index: 9999 !important;
+}
+
+.shepherd-header {
+    background: transparent !important;
+    padding: 1.5rem 1.5rem 0.5rem !important;
+}
+
+.shepherd-title {
+    font-family: 'Orbitron', sans-serif !important;
+    color: $neon-cyan !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    font-size: 1rem !important;
+}
+
+.shepherd-text {
+    padding: 0.5rem 1.5rem 1.5rem !important;
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.shepherd-footer {
+    background: transparent !important;
+    padding: 0 1.5rem 1.5rem !important;
+}
+
+.shepherd-button {
+    background: transparent !important;
+    border: 1px solid $neon-cyan !important;
+    color: $neon-cyan !important;
+    font-family: 'Orbitron', sans-serif !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    font-size: 0.75rem !important;
+    padding: 0.5rem 1.25rem !important;
+    border-radius: 4px !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+
+    &:hover {
+        background: rgba($neon-cyan, 0.1) !important;
+        box-shadow: 0 0 15px rgba($neon-cyan, 0.3) !important;
+    }
+
+    &-secondary {
+        border-color: $text-secondary !important;
+        color: $text-secondary !important;
+        
+        &:hover {
+            background: rgba($text-secondary, 0.1) !important;
+            box-shadow: 0 0 15px rgba($text-secondary, 0.3) !important;
+        }
+    }
+}
+
+.shepherd-arrow:before {
+    background: $bg-card !important;
+    border: 1px solid $neon-cyan !important;
+}
+
+/* Modal Overlay */
+.shepherd-modal-overlay-container {
+    opacity: 0.7 !important;
+    fill: #000 !important;
+}

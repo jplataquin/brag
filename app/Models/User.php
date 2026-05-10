@@ -35,6 +35,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'suspended_until',
         'can_purchase_diamonds',
         'is_verified',
+        'has_completed_tour',
     ];
 
     /**
@@ -69,6 +70,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'suspended_until' => 'datetime',
             'can_purchase_diamonds' => 'boolean',
             'is_verified' => 'boolean',
+            'has_completed_tour' => 'boolean',
         ];
     }
 

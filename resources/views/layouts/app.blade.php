@@ -48,6 +48,7 @@
     </style>
     @stack('styles')
     @livewireStyles
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/css/shepherd.css"/>
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
@@ -98,6 +99,11 @@
 
                     <!-- Left Side -->
                     <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('academy.index') ? 'active' : '' }}" href="{{ route('academy.index') }}">
+                                <i class="bi bi-mortarboard-fill"></i> Academy
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="{{ route('about') }}">
                                 <i class="bi bi-info-circle-fill"></i> About
@@ -403,6 +409,7 @@
     @endif
 
     @livewireScripts
+    <script src="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/js/shepherd.min.js"></script>
     @yield('scripts')
 
     <script>
@@ -536,5 +543,14 @@
             }, 1500);
         });
     </script>
+    @if(Auth::check() && !Auth::user()->has_completed_tour)
+        <script>
+            window.addEventListener('load', function() {
+                if (typeof startBragTour === 'function') {
+                    startBragTour();
+                }
+            });
+        </script>
+    @endif
 </body>
 </html>

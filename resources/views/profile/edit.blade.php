@@ -151,31 +151,44 @@
                     @else
                         <p class="text-secondary mb-4">Verify your identity to get the blue checkmark. This helps build trust within the community and confirms you are the genuine owner of your cards.</p>
                         
-                        <form action="{{ route('verification.store') }}" method="POST" enctype="multipart/form-data">
+                        <form id="verification-form" action="{{ route('verification.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
+                            <input type="hidden" name="temporary_id_path" id="temporary_id_path">
+                            <input type="hidden" name="temporary_selfie_path" id="temporary_selfie_path">
+
                             <div class="row g-4">
                                 <div class="col-md-6">
                                     <label for="id_photo" class="form-label text-muted small fw-bold text-uppercase">Government ID</label>
                                     <x-file-input 
                                         id="id_photo" 
-                                        name="id_photo" 
+                                        name="id_photo_raw" 
                                         accept="image/*" 
                                         placeholder="Upload ID Photo" 
                                         icon="bi-card-heading" 
-                                        required 
                                     />
+                                    <div id="id-progress-container" class="mt-2" style="display: none;">
+                                        <div class="progress" style="height: 5px; background-color: #111122;">
+                                            <div id="id-progress-bar" class="progress-bar bg-info" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                        <small id="id-status" class="text-info" style="font-size: 0.65rem;">Uploading: 0%</small>
+                                    </div>
                                     <div class="form-text text-secondary mt-2">Upload a clear photo of your driver's license, passport, or national ID.</div>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="selfie_photo" class="form-label text-muted small fw-bold text-uppercase">Selfie with ID</label>
                                     <x-file-input 
                                         id="selfie_photo" 
-                                        name="selfie_photo" 
+                                        name="selfie_photo_raw" 
                                         accept="image/*" 
                                         placeholder="Upload Selfie Photo" 
                                         icon="bi-person-bounding-box" 
-                                        required 
                                     />
+                                    <div id="selfie-progress-container" class="mt-2" style="display: none;">
+                                        <div class="progress" style="height: 5px; background-color: #111122;">
+                                            <div id="selfie-progress-bar" class="progress-bar bg-info" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                        <small id="selfie-status" class="text-info" style="font-size: 0.65rem;">Uploading: 0%</small>
+                                    </div>
                                     <div class="form-text text-secondary mt-2">Take a photo of yourself holding your ID next to your face. Ensure both your face and the ID details are visible.</div>
                                 </div>
                             </div>
@@ -187,7 +200,7 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-neon-cyan mt-4 w-100">
+                            <button type="submit" id="btn-submit-verification" class="btn btn-neon-cyan mt-4 w-100">
                                 <i class="bi bi-shield-lock-fill"></i> SUBMIT FOR VERIFICATION
                             </button>
                         </form>
@@ -323,6 +336,96 @@ document.addEventListener('DOMContentLoaded', function() {
             uploadNextChunk();
         }
     });
+
+    // --- Identity Verification Chunk Uploads ---
+    const idInput = document.getElementById('id_photo');
+    const selfieInput = document.getElementById('selfie_photo');
+    const btnSubmitVerification = document.getElementById('btn-submit-verification');
+
+    function handleVerificationUpload(input, type) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const progressContainer = document.getElementById(`${type}-progress-container`);
+        const progressBar = document.getElementById(`${type}-progress-bar`);
+        const statusText = document.getElementById(`${type}-status`);
+        const tempInput = document.getElementById(`temporary_${type}_path`);
+
+        if (btnSubmitVerification) btnSubmitVerification.disabled = true;
+        progressContainer.style.display = 'block';
+        progressBar.style.width = '0%';
+        statusText.innerText = 'Uploading: 0%';
+        statusText.style.color = '#00f0ff';
+
+        const CHUNK_SIZE = 256 * 1024; // 256KB
+        const fileId = `${type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+        const extension = file.name.split('.').pop();
+        let chunkIndex = 0;
+
+        function uploadNext() {
+            const start = chunkIndex * CHUNK_SIZE;
+            const end = Math.min(start + CHUNK_SIZE, file.size);
+            const chunk = file.slice(start, end);
+
+            const formData = new FormData();
+            formData.append('file', chunk);
+            formData.append('file_id', fileId);
+            formData.append('chunk_index', chunkIndex);
+            formData.append('total_chunks', totalChunks);
+            formData.append('extension', extension);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+            fetch('{{ route("upload.chunk") }}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    statusText.innerText = 'Upload failed!';
+                    statusText.style.color = 'red';
+                    if (btnSubmitVerification) btnSubmitVerification.disabled = false;
+                    return;
+                }
+                
+                chunkIndex++;
+                const percent = Math.round((chunkIndex / totalChunks) * 100);
+                progressBar.style.width = percent + '%';
+                statusText.innerText = 'Uploading: ' + percent + '%';
+
+                if (chunkIndex < totalChunks) {
+                    uploadNext();
+                } else if (data.success && data.path) {
+                    tempInput.value = data.path;
+                    statusText.innerText = 'Upload complete!';
+                    statusText.style.color = '#39ff14';
+                    // Check if both are uploaded before re-enabling?
+                    // Actually, just re-enable and let validation handle it if one is missing.
+                    if (btnSubmitVerification) btnSubmitVerification.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Upload Error:', error);
+                statusText.innerText = 'Upload error!';
+                statusText.style.color = 'red';
+                if (btnSubmitVerification) btnSubmitVerification.disabled = false;
+            });
+        }
+        uploadNext();
+    }
+
+    if (idInput) {
+        idInput.addEventListener('change', function() {
+            handleVerificationUpload(this, 'id');
+        });
+    }
+
+    if (selfieInput) {
+        selfieInput.addEventListener('change', function() {
+            handleVerificationUpload(this, 'selfie');
+        });
+    }
 });
 </script>
 @endsection

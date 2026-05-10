@@ -45,7 +45,7 @@ class VerificationController extends Controller
             abort(404);
         }
 
-        return response()->file(storage_path('app/private/' . $path));
+        return response()->file(Storage::disk('local')->path($path));
     }
 
     /**

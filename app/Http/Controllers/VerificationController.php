@@ -25,18 +25,41 @@ class VerificationController extends Controller
         }
 
         $request->validate([
-            'id_photo' => 'required|image|max:5120', // 5MB max
-            'selfie_photo' => 'required|image|max:5120',
+            'temporary_id_path' => 'required|string',
+            'temporary_selfie_path' => 'required|string',
         ]);
 
-        // Store photos securely on the private disk
-        $idPath = $request->file('id_photo')->store('verifications/ids', 'local');
-        $selfiePath = $request->file('selfie_photo')->store('verifications/selfies', 'local');
+        $tempIdPath = $request->input('temporary_id_path');
+        $tempSelfiePath = $request->input('temporary_selfie_path');
+
+        // Move photos securely from public temp storage to private storage
+        // Using local disk (storage/app/verifications) which is not publicly accessible
+        $idFilename = 'id_' . time() . '_' . Str::random(10) . '.' . pathinfo($tempIdPath, PATHINFO_EXTENSION);
+        $selfieFilename = 'selfie_' . time() . '_' . Str::random(10) . '.' . pathinfo($tempSelfiePath, PATHINFO_EXTENSION);
+        
+        $finalIdPath = 'verifications/ids/' . $idFilename;
+        $finalSelfiePath = 'verifications/selfies/' . $selfieFilename;
+
+        // Note: Storage::disk('public') contains the temp uploads
+        // We move them to Storage::disk('local') (private)
+        if (Storage::disk('public')->exists($tempIdPath)) {
+            Storage::disk('local')->put($finalIdPath, Storage::disk('public')->get($tempIdPath));
+            Storage::disk('public')->delete($tempIdPath);
+        } else {
+            return back()->with('error', 'ID photo upload failed. Please try again.');
+        }
+
+        if (Storage::disk('public')->exists($tempSelfiePath)) {
+            Storage::disk('local')->put($finalSelfiePath, Storage::disk('public')->get($tempSelfiePath));
+            Storage::disk('public')->delete($tempSelfiePath);
+        } else {
+            return back()->with('error', 'Selfie photo upload failed. Please try again.');
+        }
 
         IdentityVerification::create([
             'user_id' => $user->id,
-            'id_photo_path' => $idPath,
-            'selfie_photo_path' => $selfiePath,
+            'id_photo_path' => $finalIdPath,
+            'selfie_photo_path' => $finalSelfiePath,
             'status' => 'pending',
         ]);
 

@@ -715,6 +715,72 @@ class DigitalCardRenderer {
     }
 }
 
+// Brag Interactive Tour
+window.startBragTour = function() {
+    if (typeof Shepherd === 'undefined') return;
+
+    const tour = new Shepherd.Tour({
+        useModalOverlay: true,
+        defaultStepOptions: {
+            classes: 'shepherd-theme-custom',
+            scrollTo: { behavior: 'smooth', block: 'center' }
+        }
+    });
+
+    tour.addStep({
+        id: 'welcome',
+        title: 'Welcome to Brag!',
+        text: 'This is your Command Center. Here you can track your cards, trophies, and battles.',
+        attachTo: { element: '.page-title', on: 'bottom' },
+        buttons: [{ text: 'Next', action: tour.next }]
+    });
+
+    tour.addStep({
+        id: 'inventory',
+        title: 'Your Inventory',
+        text: 'Check your digital cards and collected trophies here.',
+        attachTo: { element: '#nav-cards', on: 'bottom' },
+        buttons: [{ text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' }, { text: 'Next', action: tour.next }]
+    });
+
+    tour.addStep({
+        id: 'forge',
+        title: 'The Forge',
+        text: 'Templates are the blueprints for cards. Create your own designs here!',
+        attachTo: { element: '#nav-templates', on: 'bottom' },
+        buttons: [{ text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' }, { text: 'Next', action: tour.next }]
+    });
+
+    tour.addStep({
+        id: 'arena',
+        title: 'The Arena',
+        text: 'Enter the Arena to challenge other players. Stake your cards and win trophies!',
+        attachTo: { element: '#nav-battles', on: 'bottom' },
+        buttons: [{ text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' }, { text: 'Next', action: tour.next }]
+    });
+
+    tour.addStep({
+        id: 'wallet',
+        title: 'Diamonds',
+        text: 'Diamonds are used to forge templates and cards. Buy them in your wallet.',
+        attachTo: { element: '#nav-wallet', on: 'bottom' },
+        buttons: [{ text: 'Finish', action: tour.complete }]
+    });
+
+    tour.on('complete', () => {
+        fetch('/user/complete-tour', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+    });
+
+    tour.start();
+};
+
 window.DigitalCardRenderer = DigitalCardRenderer;
 
 window.neonAlert = function(message, title = 'ALERT') {
