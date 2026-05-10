@@ -88,7 +88,7 @@
                                     </div>
                                 </div>
                                 <div class="col-6 text-end">
-                                    <a href="{{ route('wallet.index') }}" class="text-decoration-none d-inline-flex align-items-center" style="background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 20px; padding: 4px 12px;">
+                                    <a href="{{ route('wallet.index') }}" id="nav-wallet-mob-badge" class="text-decoration-none d-inline-flex align-items-center" style="background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 20px; padding: 4px 12px;">
                                         <i class="bi bi-gem me-2" style="color: #00f0ff; font-size: 0.9rem;"></i>
                                         <span class="fw-bold" style="color: #fff; font-family: 'Orbitron', sans-serif; font-size: 0.9rem;">{{ number_format(Auth::user()->diamonds_balance, 0) }}</span>
                                     </a>

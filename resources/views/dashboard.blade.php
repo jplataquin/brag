@@ -11,7 +11,7 @@
     <div class="row g-3">
         @if($platformSettings->allow_battle_creation)
         <div class="col-6 col-md-3">
-            <a href="{{ route('battles.create') }}" class="quick-action-card">
+            <a href="{{ route('battles.create') }}" class="quick-action-card" id="mob-quick-battle">
                 <i class="bi bi-plus-lg" style="color: #ff00ff;"></i>
                 <span>New Battle</span>
             </a>
@@ -24,13 +24,13 @@
             </button>
         </div>
         <div class="col-6 col-md-3">
-            <a href="{{ route('cards.index') }}" class="quick-action-card">
+            <a href="{{ route('cards.index') }}" class="quick-action-card" id="mob-quick-inventory">
                 <i class="bi bi-collection-fill" style="color: #00f0ff;"></i>
                 <span>Inventory</span>
             </a>
         </div>
         <div class="col-6 col-md-3">
-            <a href="{{ route('templates.index') }}" class="quick-action-card">
+            <a href="{{ route('templates.index') }}" class="quick-action-card" id="mob-quick-template">
                 <i class="bi bi-palette-fill" style="color: #39ff14;"></i>
                 <span>Template</span>
             </a>
