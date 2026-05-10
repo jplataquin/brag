@@ -68,18 +68,14 @@
                         <div class="mb-4 text-start">
                             <label class="form-label text-muted small text-uppercase fw-bold">Upload Proof of Payment (Screenshot)</label>
                             
-                            <!-- Custom Dropzone -->
-                            <div class="position-relative" id="proof-upload-wrapper">
-                                <input type="file" class="position-absolute w-100 h-100 opacity-0"
-                                       style="z-index: 2; cursor: pointer; top: 0; left: 0;"
-                                       id="proof" accept="image/*" required>
-                                <div id="proof-dropzone" class="d-flex flex-column align-items-center justify-content-center p-5 text-center neon-card" 
-                                     style="border: 2px dashed rgba(255, 221, 0, 0.4); background: rgba(255, 221, 0, 0.02); transition: all 0.3s ease;">
-                                    <i class="bi bi-cloud-arrow-up-fill mb-2" style="font-size: 3rem; color: var(--neon-yellow); text-shadow: 0 0 10px rgba(255, 221, 0, 0.4);"></i>
-                                    <span class="text-warning fw-bold" style="font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">CLICK OR DRAG SCREENSHOT HERE</span>
-                                    <small class="mt-2 text-secondary" style="font-size: 0.8rem;">Supports JPEG, PNG, GIF, WebP</small>
-                                </div>
-                            </div>
+                            <x-file-input 
+                                id="proof" 
+                                accept="image/*" 
+                                placeholder="Choose Transaction Screenshot" 
+                                color="warning" 
+                                icon="bi-receipt-cutoff" 
+                                required 
+                            />
 
                             <!-- Photo Preview -->
                             <div id="proof-preview" class="mt-3 text-center" style="display: none;">

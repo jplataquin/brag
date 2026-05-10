@@ -37,7 +37,12 @@
                                     <img src="{{ asset('storage/' . $gameTitle->header_image) }}" alt="Current Header" class="img-fluid rounded border border-info" style="max-height: 150px;">
                                 </div>
                             @endif
-                            <input type="file" id="header_image_input" class="form-control bg-dark text-white border-info" accept="image/*">
+                            <x-file-input 
+                                id="header_image_input" 
+                                accept="image/*" 
+                                placeholder="Change Header Image" 
+                                color="magenta" 
+                            />
                             <input type="hidden" name="temporary_header_path" id="temporary_header_path">
                             <div id="upload-progress-container" class="mt-2" style="display: none;">
                                 <div class="progress bg-dark border border-info" style="height: 10px;">

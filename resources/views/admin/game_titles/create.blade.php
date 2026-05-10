@@ -32,7 +32,11 @@
 
                         <div class="mb-4">
                             <label for="header_image" class="form-label text-muted small text-uppercase fw-bold">Header Image</label>
-                            <input type="file" id="header_image_input" class="form-control bg-dark text-white border-info" accept="image/*">
+                            <x-file-input 
+                                id="header_image_input" 
+                                accept="image/*" 
+                                placeholder="Choose Game Header Image" 
+                            />
                             <input type="hidden" name="temporary_header_path" id="temporary_header_path">
                             <div id="upload-progress-container" class="mt-2" style="display: none;">
                                 <div class="progress bg-dark border border-info" style="height: 10px;">

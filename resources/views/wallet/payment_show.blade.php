@@ -107,17 +107,14 @@
                                     <input type="hidden" name="proof_temp_path" id="proof_temp_path">
                                     
                                     <div class="mb-0 text-start">
-                                        <!-- Custom Dropzone -->
-                                        <div class="position-relative" id="proof-upload-wrapper">
-                                            <input type="file" class="position-absolute w-100 h-100 opacity-0"
-                                                   style="z-index: 2; cursor: pointer; top: 0; left: 0;"
-                                                   id="proof" accept="image/*" required>
-                                            <div id="proof-dropzone" class="d-flex flex-column align-items-center justify-content-center p-5 text-center neon-card" 
-                                                 style="border: 2px dashed rgba(255, 221, 0, 0.4); background: rgba(255, 221, 0, 0.02); transition: all 0.3s ease;">
-                                                <i class="bi bi-cloud-arrow-up-fill mb-2" style="font-size: 2.5rem; color: var(--neon-yellow);"></i>
-                                                <span class="text-warning fw-bold small" style="font-family: 'Orbitron', sans-serif;">SELECT NEW SCREENSHOT</span>
-                                            </div>
-                                        </div>
+                                        <x-file-input 
+                                            id="proof" 
+                                            accept="image/*" 
+                                            placeholder="Select New Screenshot" 
+                                            color="warning" 
+                                            icon="bi-receipt-cutoff" 
+                                            required 
+                                        />
 
                                         <!-- Photo Preview -->
                                         <div id="proof-preview" class="mt-3 text-center" style="display: none;">

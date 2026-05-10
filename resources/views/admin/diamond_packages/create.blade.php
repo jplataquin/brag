@@ -67,7 +67,13 @@
 
                         <div class="mb-4">
                             <label for="qr_code" class="form-label text-muted small text-uppercase fw-bold">Manual Payment QR Code</label>
-                            <input type="file" name="qr_code" id="qr_code" class="form-control bg-dark text-white border-info @error('qr_code') is-invalid @enderror" accept="image/*">
+                            <x-file-input 
+                                id="qr_code" 
+                                name="qr_code" 
+                                accept="image/*" 
+                                placeholder="Upload QR Code Image" 
+                                color="lime" 
+                            />
                             @error('qr_code')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

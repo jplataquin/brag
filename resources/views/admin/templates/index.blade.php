@@ -199,7 +199,13 @@
                         <div class="col-md-7">
                             <div class="mb-3">
                                 <label for="config_file" class="form-label text-neon-cyan small fw-bold">1. TEMPLATE JSON FILE</label>
-                                <input type="file" id="config_file" class="form-control bg-dark text-white border-secondary" accept=".json">
+                                <x-file-input 
+                                    id="config_file" 
+                                    accept=".json" 
+                                    placeholder="Choose Configuration JSON" 
+                                    color="warning" 
+                                    icon="bi-filetype-json" 
+                                />
                                 <input type="hidden" name="temporary_json_path" id="temporary_json_path">
                                 
                                 <div class="progress mt-2 d-none" style="height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);" id="json-progress-wrapper">

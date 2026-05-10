@@ -135,7 +135,12 @@
                     </div>
                     <div class="col-12">
                         <label for="test_photo" class="form-label text-white-50">Test Personal Photo</label>
-                        <input type="file" id="test_photo" class="form-control bg-dark text-white border-secondary" accept="image/*">
+                        <x-file-input 
+                            id="test_photo" 
+                            accept="image/*" 
+                            placeholder="Select Test Artwork" 
+                            color="magenta" 
+                        />
                     </div>
                 </div>
             </div>

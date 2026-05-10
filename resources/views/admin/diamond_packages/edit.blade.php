@@ -74,7 +74,13 @@
                                     <img src="{{ asset('storage/' . $diamondPackage->qr_path) }}" alt="QR Code" class="img-thumbnail bg-dark border-info" style="max-height: 150px;">
                                 </div>
                             @endif
-                            <input type="file" name="qr_code" id="qr_code" class="form-control bg-dark text-white border-info @error('qr_code') is-invalid @enderror" accept="image/*">
+                            <x-file-input 
+                                id="qr_code" 
+                                name="qr_code" 
+                                accept="image/*" 
+                                placeholder="Choose New QR Image" 
+                                color="lime" 
+                            />
                             @error('qr_code')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

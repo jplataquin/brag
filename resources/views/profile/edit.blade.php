@@ -156,12 +156,26 @@
                             <div class="row g-4">
                                 <div class="col-md-6">
                                     <label for="id_photo" class="form-label text-muted small fw-bold text-uppercase">Government ID</label>
-                                    <input type="file" name="id_photo" id="id_photo" class="form-control bg-dark text-white border-info" accept="image/*" required>
+                                    <x-file-input 
+                                        id="id_photo" 
+                                        name="id_photo" 
+                                        accept="image/*" 
+                                        placeholder="Upload ID Photo" 
+                                        icon="bi-card-heading" 
+                                        required 
+                                    />
                                     <div class="form-text text-secondary mt-2">Upload a clear photo of your driver's license, passport, or national ID.</div>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="selfie_photo" class="form-label text-muted small fw-bold text-uppercase">Selfie with ID</label>
-                                    <input type="file" name="selfie_photo" id="selfie_photo" class="form-control bg-dark text-white border-info" accept="image/*" required>
+                                    <x-file-input 
+                                        id="selfie_photo" 
+                                        name="selfie_photo" 
+                                        accept="image/*" 
+                                        placeholder="Upload Selfie Photo" 
+                                        icon="bi-person-bounding-box" 
+                                        required 
+                                    />
                                     <div class="form-text text-secondary mt-2">Take a photo of yourself holding your ID next to your face. Ensure both your face and the ID details are visible.</div>
                                 </div>
                             </div>
