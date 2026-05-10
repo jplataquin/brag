@@ -98,6 +98,46 @@
                     </div>
                 </div>
 
+                <!-- Section 5: The Burn -->
+                <div class="accordion-item bg-dark bg-opacity-50 border-info border-opacity-25 mb-3 rounded-4 overflow-hidden">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-transparent text-white fw-bold py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBurn">
+                            <i class="bi bi-fire me-3" style="color: #ff6600;"></i> THE BURN: Earning Diamonds
+                        </button>
+                    </h2>
+                    <div id="collapseBurn" class="accordion-collapse collapse" data-bs-parent="#academyAccordion">
+                        <div class="accordion-body text-secondary lh-lg p-4 pt-0">
+                            <h5 class="text-white mb-3">Recycle Your Collection</h5>
+                            <p>Burning is the process of permanently destroying a digital card in exchange for immediate resources.</p>
+                            <ul>
+                                <li><strong style="color: #ff6600;">Burning Forged Cards:</strong> If you burn a card that you created yourself, you will receive a portion of Diamonds back into your wallet.</li>
+                                <li><strong style="color: #ff6600;">Burning Trophies:</strong> You can also burn trophies you have won from other players to claim Diamonds. This is a great way to clear out your inventory while funding your next forge.</li>
+                            </ul>
+                            <p class="mb-0 text-muted fst-italic">Warning: Burning is permanent. Once a card is burned, it is removed from the platform forever.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 6: Economy -->
+                <div class="accordion-item bg-dark bg-opacity-50 border-info border-opacity-25 mb-3 rounded-4 overflow-hidden">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-transparent text-white fw-bold py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEconomy">
+                            <i class="bi bi-gem me-3 text-info"></i> THE ECONOMY: Diamond Regeneration
+                        </button>
+                    </h2>
+                    <div id="collapseEconomy" class="accordion-collapse collapse" data-bs-parent="#academyAccordion">
+                        <div class="accordion-body text-secondary lh-lg p-4 pt-0">
+                            <h5 class="text-white mb-3">Funding Your Legacy</h5>
+                            <p><strong>Diamonds</strong> are required to forge new templates and cards. While you can always purchase Diamonds in your Wallet, the platform also provides scheduled support:</p>
+                            <ul>
+                                <li><strong class="text-info">Scheduled Regeneration:</strong> Twice a month—on the **15th** and the **last day of the month**—the platform checks all active users.</li>
+                                <li><strong class="text-success">The Grant:</strong> If your Diamond balance is below the minimum threshold (5 Diamonds), the system will automatically top your balance back up to that threshold for free.</li>
+                            </ul>
+                            <p class="mb-0">This ensures that every player has the opportunity to get back into the forge and rejoin the battle twice every month.</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             @auth
