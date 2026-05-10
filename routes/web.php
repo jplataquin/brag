@@ -72,6 +72,9 @@ Route::post('/feedback', [FeedbackController::class, 'send'])->name('feedback.se
 Route::get('/games', [\App\Http\Controllers\GameTitleController::class, 'index'])->name('game_titles.index');
 Route::get('/games/{gameTitle}', [\App\Http\Controllers\GameTitleController::class, 'show'])->name('game_titles.show');
 
+// Academy (Public)
+Route::get('/academy', [\App\Http\Controllers\AcademyController.php, 'index'])->name('academy.index');
+
 // Authenticated Routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -145,7 +148,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('user.complete_tour');
 
     // Academy
-    Route::get('/academy', [\App\Http\Controllers\AcademyController::class, 'index'])->name('academy.index');
     Route::post('/academy/restart-tour', function() {
         auth()->user()->update(['has_completed_tour' => false]);
         return redirect()->route('dashboard');
