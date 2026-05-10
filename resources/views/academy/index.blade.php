@@ -79,7 +79,39 @@
                     </div>
                 </div>
 
-                <!-- Section 4: Progression -->
+                <!-- Section 4: Card Stats & Leveling -->
+                <div class="accordion-item bg-dark bg-opacity-50 border-info border-opacity-25 mb-3 rounded-4 overflow-hidden">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-transparent text-white fw-bold py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStats">
+                            <i class="bi bi-bar-chart-fill me-3 text-success"></i> CARD STATS: The Path to Elite
+                        </button>
+                    </h2>
+                    <div id="collapseStats" class="accordion-collapse collapse" data-bs-parent="#academyAccordion">
+                        <div class="accordion-body text-secondary lh-lg p-4 pt-0">
+                            <h5 class="text-white mb-3">Understanding Your Card's Worth</h5>
+                            <p>Every Digital Card tracks its history. These stats determine its level and its value on the platform:</p>
+                            <ul>
+                                <li><strong class="text-info">Win Rate %:</strong> Calculated as <code>(Wins / Total Battles) * 100</code>. Consistency is key!</li>
+                                <li><strong class="text-info">Integrity Stat:</strong> This is a unique anti-farming metric. It is calculated as <code>(Unique Opponents / Total Battles) * 100</code>. Fighting the same person over and over will lower this score. To keep high integrity, you must challenge a diverse range of opponents.</li>
+                                <li><strong class="text-info">Life Points (LP):</strong> Every card starts with <strong>3 Life Points</strong>. Each time a card loses a battle, it loses 1 LP. At 0 LP, the card is surrendered to the winner as a Trophy. (Note: Surrendered cards reset to 3 LP for their new owner).</li>
+                            </ul>
+                            
+                            <h5 class="text-white mt-4 mb-3">Level Up Eligibility</h5>
+                            <p>Cards do not level up by wins alone. To reach the next level, a card must satisfy three conditions <strong>simultaneously</strong>:</p>
+                            <ol>
+                                <li>Minimum <strong>Total Wins</strong> reached.</li>
+                                <li>Minimum <strong>Win Rate %</strong> maintained.</li>
+                                <li>Minimum <strong>Integrity Stat %</strong> maintained.</li>
+                            </ol>
+                            <div class="p-3 rounded bg-info bg-opacity-10 border border-info border-opacity-25">
+                                <small class="text-info fw-bold"><i class="bi bi-info-circle-fill me-1"></i> PRO TIP:</small>
+                                <small class="text-secondary d-block">When a card levels up, its Life Points are fully restored to 3!</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 5: Progression -->
                 <div class="accordion-item bg-dark bg-opacity-50 border-info border-opacity-25 mb-3 rounded-4 overflow-hidden">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed bg-transparent text-white fw-bold py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProgression">
@@ -131,7 +163,7 @@
                             <p><strong>Diamonds</strong> are required to forge new templates and cards. While you can always purchase Diamonds in your Wallet, the platform also provides scheduled support:</p>
                             <ul>
                                 <li><strong class="text-info">Scheduled Regeneration:</strong> Twice a month—on the **15th** and the **last day of the month**—the platform checks all active users.</li>
-                                <li><strong class="text-success">The Grant:</strong> If your Diamond balance is below the minimum threshold (5 Diamonds), the system will automatically top your balance back up to that threshold for free.</li>
+                                <li><strong class="text-success">The Grant:</strong> If your Diamond balance is below the minimum threshold (5 Diamonds), the system will automatically top your balance back up to 10 Diamonds for free.</li>
                             </ul>
                             <p class="mb-0">This ensures that every player has the opportunity to get back into the forge and rejoin the battle twice every month.</p>
                         </div>
