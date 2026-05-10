@@ -83,17 +83,46 @@
                 <div class="accordion-item bg-dark bg-opacity-50 border-info border-opacity-25 mb-3 rounded-4 overflow-hidden">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed bg-transparent text-white fw-bold py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStats">
-                            <i class="bi bi-bar-chart-fill me-3 text-success"></i> CARD STATS: The Path to Elite
+                            <i class="bi bi-bar-chart-fill me-3 text-success"></i> CARD STATS & RARITY: The Visual Guide
                         </button>
                     </h2>
                     <div id="collapseStats" class="accordion-collapse collapse" data-bs-parent="#academyAccordion">
                         <div class="accordion-body text-secondary lh-lg p-4 pt-0">
-                            <h5 class="text-white mb-3">Understanding Your Card's Worth</h5>
-                            <p>Every Digital Card tracks its history. These stats determine its level and its value on the platform:</p>
+                            <h5 class="text-white mb-3">Card UI Indicators</h5>
+                            <p>Each Digital Card displays a shorthand for its stats at the bottom. Here is what they mean:</p>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <div class="p-3 rounded bg-black bg-opacity-50 border border-secondary border-opacity-25">
+                                        <ul class="list-unstyled mb-0">
+                                            <li class="mb-2"><strong class="text-danger"><i class="bi bi-heart-fill"></i>❤️❤️❤️:</strong> Current Life Points. Lose a battle, lose a heart.</li>
+                                            <li class="mb-2"><strong class="text-white">W:</strong> Total Wins recorded in official battles.</li>
+                                            <li class="mb-2"><strong class="text-white">L:</strong> Total Losses recorded in official battles.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 rounded bg-black bg-opacity-50 border border-secondary border-opacity-25">
+                                        <ul class="list-unstyled mb-0">
+                                            <li class="mb-2"><strong class="text-white">R:</strong> Win Rate Percentage <code>(Wins/Total) * 100</code>.</li>
+                                            <li class="mb-2"><strong class="text-white">I:</strong> Integrity Percentage <code>(Unique Opponents/Total) * 100</code>.</li>
+                                            <li><strong class="text-warning"># [ID]:</strong> The unique serial number of that specific forged card.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h5 class="text-white mb-3">Rarity Tiers</h5>
+                            <p>The small emoji icon at the bottom indicate the rarity of the digital cards:</p>
                             <ul>
-                                <li><strong class="text-info">Win Rate %:</strong> Calculated as <code>(Wins / Total Battles) * 100</code>. Consistency is key!</li>
-                                <li><strong class="text-info">Integrity Stat:</strong> This is a unique anti-farming metric. It is calculated as <code>(Unique Opponents / Total Battles) * 100</code>. Fighting the same person over and over will lower this score. To keep high integrity, you must challenge a diverse range of opponents.</li>
-                                <li><strong class="text-info">Life Points (LP):</strong> Every card starts with <strong>3 Life Points</strong>. Each time a card loses a battle, it loses 1 LP. At 0 LP, the card is surrendered to the winner as a Trophy. (Note: Surrendered cards reset to 3 LP for their new owner).</li>
+                                <li><strong style="color: #39ff14;">🪵 Common (Green):</strong> 10 or more copies exist.</li>
+                                <li><strong style="color: #ff00ff;">🦄 Rare (Magenta):</strong> 5 to 9 copies exist.</li>
+                                <li><strong style="color: #ff0000;">🐦‍🔥 Ultra Rare (Red):</strong> Fewer than 5 copies exist. This is the highest level of prestige.</li>
+                            </ul>
+
+                            <h5 class="text-white mt-4 mb-3">Special Statuses</h5>
+                            <ul>
+                                <li><strong class="text-info">Maintained:</strong> The card's template is active, and new copies can still be forged.</li>
+                                <li><strong class="text-danger">⚠️ Discontinued:</strong> The template for this card has been removed or hidden by the creator. <strong>No more cards of this design will ever be created again</strong>, making Discontinued cards highly collectible and finite. If you burn a discontinued card, it is gone forever.</li>
                             </ul>
                             
                             <h5 class="text-white mt-4 mb-3">Level Up Eligibility</h5>
