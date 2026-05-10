@@ -135,6 +135,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/payments/{payment}/reupload', [PaymentController::class, 'reuploadProof'])->name('payments.reupload');
 
 
+    // Identity Verification
+    Route::post('/verification', [\App\Http\Controllers\VerificationController::class, 'store'])->name('verification.store');
+
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
@@ -209,6 +212,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/privacy', [PrivacyPolicyController::class, 'index'])->name('privacy.index');
         Route::post('/privacy', [PrivacyPolicyController::class, 'store'])->name('privacy.store');
         Route::get('/privacy/history/{id}', [PrivacyPolicyController::class, 'showPrevious'])->name('privacy.show_previous');
+
+        // Identity Verifications
+        Route::get('/verifications', [\App\Http\Controllers\Admin\VerificationController::class, 'index'])->name('verifications.index');
+        Route::get('/verifications/{verification}', [\App\Http\Controllers\Admin\VerificationController::class, 'show'])->name('verifications.show');
+        Route::get('/verifications/photo/{id}/{type}', [\App\Http\Controllers\Admin\VerificationController::class, 'viewPhoto'])->name('verifications.photo');
+        Route::post('/verifications/{verification}/approve', [\App\Http\Controllers\Admin\VerificationController::class, 'approve'])->name('verifications.approve');
+        Route::post('/verifications/{verification}/reject', [\App\Http\Controllers\Admin\VerificationController::class, 'reject'])->name('verifications.reject');
     });
 });
 

@@ -98,7 +98,7 @@
                                 />
                                 <div class="text-center mt-2">
                                     <div class="small text-muted">Owned by</div>
-                                    <div class="fw-bold text-info">{{ $card->owner->username ?? 'None' }}</div>
+                                    <div class="fw-bold text-info"><x-username :user="$card->owner" /></div>
                                 </div>
                             </div>
                         @endforeach
@@ -106,63 +106,6 @@
                 @else
                     <div class="alert bg-dark border-info border-opacity-25 text-secondary rounded-4">
                         <i class="bi bi-info-circle me-2"></i> No digital cards have been forged for this game yet.
-                    </div>
-                @endif
-            </div>
-
-            <div class="mt-5">
-                <h2 class="h4 text-uppercase fw-bold mb-4" style="color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">Available Designs</h2>
-                
-                @php
-                    $allTemplates = collect();
-                    foreach($gameTitle->templates as $t) {
-                        $t->is_premium_type = false;
-                        $allTemplates->push($t);
-                    }
-                    foreach($gameTitle->premiumTemplates as $pt) {
-                        $pt->is_premium_type = true;
-                        $allTemplates->push($pt);
-                    }
-                    $allTemplates = $allTemplates->sortByDesc('created_at');
-                @endphp
-
-                @if($allTemplates->count() > 0)
-                    <div class="row g-4">
-                        @foreach($allTemplates as $template)
-                            <div class="col-md-6">
-                                <div class="card bg-dark bg-opacity-50 border-info border-opacity-25 rounded-4 overflow-hidden h-100 shadow-hover">
-                                    <div class="position-relative" style="height: 120px;">
-                                        @if($template->is_premium_type)
-                                            <img src="{{ $template->display_photo }}" class="w-100 h-100 object-fit-cover" alt="{{ $template->template_title }}">
-                                        @else
-                                            <img src="{{ $template->display_photo }}" class="w-100 h-100 object-fit-cover" alt="{{ $template->card_title }}">
-                                        @endif
-                                        
-                                        <div class="position-absolute top-0 end-0 p-2">
-                                            @if($template->is_premium_type)
-                                                <span class="badge bg-warning text-dark"><i class="bi bi-star-fill me-1"></i> Premium</span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <h5 class="fw-bold text-white mb-2">{{ $template->is_premium_type ? $template->template_title : $template->card_title }}</h5>
-                                        <div class="d-flex justify-content-between align-items-center mt-3">
-                                            @if($template->is_premium_type)
-                                                <button class="btn btn-sm btn-outline-warning rounded-pill px-3" disabled>Premium</button>
-                                                <span class="text-warning small"><i class="bi bi-gem"></i> {{ number_format($template->price) }}</span>
-                                            @else
-                                                <a href="{{ route('templates.show', $template->id) }}" class="btn btn-sm btn-outline-info rounded-pill px-3">View Template</a>
-                                                <span class="text-muted small"><i class="bi bi-lightning-fill text-warning"></i> Ready to Forge</span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="alert bg-dark border-info border-opacity-25 text-secondary rounded-4">
-                        <i class="bi bi-info-circle me-2"></i> No active designs found for this game title yet.
                     </div>
                 @endif
             </div>

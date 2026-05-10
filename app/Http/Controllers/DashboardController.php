@@ -81,6 +81,6 @@ class DashboardController extends Controller
                 })->count(),
         ];
 
-        return view('dashboard', compact('ownCards', 'trophies', 'templates', 'recentBattles', 'pendingInvites', 'stats'));
+        return view('dashboard', compact('user', 'ownCards', 'trophies', 'templates', 'recentBattles', 'pendingInvites', 'stats'));
     }
 }

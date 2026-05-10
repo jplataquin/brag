@@ -27,6 +27,8 @@
                 :title="$template->card_title" 
                 :game="$template->gameTitle->title ?? 'GAME'" 
                 :creator="$template->user->username ?? 'Creator'"
+                :isCreatorVerified="$template->user->is_verified"
+                :isCreatorUntrustworthy="$template->user->is_untrustworthy"
                 :quote="$template->quote"
                 :backgroundColor="$template->background_color"
                 :borderColor="$template->border_color"

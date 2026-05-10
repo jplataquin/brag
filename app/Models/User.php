@@ -34,6 +34,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'privacy_version_agreed',
         'suspended_until',
         'can_purchase_diamonds',
+        'is_verified',
     ];
 
     /**
@@ -67,6 +68,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_admin' => 'boolean',
             'suspended_until' => 'datetime',
             'can_purchase_diamonds' => 'boolean',
+            'is_verified' => 'boolean',
         ];
     }
 
@@ -100,6 +102,49 @@ class User extends Authenticatable implements MustVerifyEmail
     public function createdCards()
     {
         return $this->hasMany(DigitalCard::class, 'original_owner_id');
+    }
+
+    /**
+     * The identity verification applications from this user.
+     */
+    public function identityVerifications()
+    {
+        return $this->hasMany(IdentityVerification::class);
+    }
+
+    /**
+     * Get the current pending verification if any.
+     */
+    public function getPendingVerificationAttribute()
+    {
+        return $this->identityVerifications()->where('status', 'pending')->first();
+    }
+
+    /**
+     * Check if the user is considered untrustworthy.
+     * Calculated as (Failed Battles / Total Joined Battles) >= 30%
+     */
+    public function getIsUntrustworthyAttribute()
+    {
+        // Require at least 5 total battles to be flagged
+        $totalBattles = Battle::where(function($q) {
+            for ($i = 1; $i <= 6; $i++) {
+                $q->orWhere("team_a_user_{$i}", $this->id)
+                  ->orWhere("team_b_user_{$i}", $this->id);
+            }
+        })->count();
+
+        if ($totalBattles < 5) return false;
+
+        $failedBattles = Battle::where('status', 'failed')
+            ->where(function($q) {
+                for ($i = 1; $i <= 6; $i++) {
+                    $q->orWhere("team_a_user_{$i}", $this->id)
+                      ->orWhere("team_b_user_{$i}", $this->id);
+                }
+            })->count();
+
+        return ($failedBattles / $totalBattles) >= 0.30;
     }
 
     /**

@@ -11,7 +11,7 @@
         </div>
         <div class="col">
             <h1 style="font-family: 'Orbitron', sans-serif; font-size: 1.5rem; margin-bottom: 0.25rem; color: #00f0ff;">
-                @<span>{{ $user->username }}</span>
+                @<x-username :user="$user" />
             </h1>
             @if($user->bio)
                 <p style="color: #8888aa; font-size: 0.9rem; margin-bottom: 0.5rem;">{{ $user->bio }}</p>

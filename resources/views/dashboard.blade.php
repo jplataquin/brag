@@ -123,9 +123,15 @@
                                 <strong style="color: #ff00ff;">{{ $battle->team_name_b }}</strong>
                                 <span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">MARSHALLED</span>
                             @else
-                                <strong style="color: #00f0ff;">{{ Auth::user()->username }}</strong>
+                                <strong style="color: #00f0ff;"><x-username :user="Auth::user()" /></strong>
                                 <span class="text-muted">vs</span>
-                                <strong style="color: #ff00ff;">{{ $opponentUsername }}</strong>
+                                <strong style="color: #ff00ff;">
+                                    @if($oppUser)
+                                        <x-username :user="$oppUser" />
+                                    @else
+                                        {{ $opponentUsername }}
+                                    @endif
+                                </strong>
                             @endif
                             <span class="text-muted small ms-1">({{ $battle->no_players_per_team }} on {{ $battle->no_players_per_team }})</span>
                         </span>

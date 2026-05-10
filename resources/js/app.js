@@ -106,10 +106,12 @@ class DigitalCardRenderer {
 
         const imageUrl = isCensored ? '' : (options.image || '');
         const rankBadgeUrl = this.getRankBadgeUrl(options.rankLevel || 1, mode, options.badgeVersion, options);
+        const verifiedBadgeUrl = '/img/badge/verified.svg';
 
         await Promise.all([
             this.loadImage(imageUrl),
-            this.loadImage(rankBadgeUrl)
+            this.loadImage(rankBadgeUrl),
+            this.loadImage(verifiedBadgeUrl)
         ]);
 
         if (mode === 'thumbnail' && !isFullScreenRender && !options.asThumbnail) {
@@ -394,14 +396,63 @@ class DigitalCardRenderer {
         ctx.restore();
         // ----------------------------
 
+        // Footer text and badge
         ctx.save();
         ctx.fillStyle = isCensored ? 'rgba(255, 68, 68, 0.4)' : secondaryTextColor;
         ctx.font = `${fontSizeDesc}px sans-serif`;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
         const year = options.year || new Date().getFullYear();
-        const formattedQuote = isCensored ? quote : `"${quote}" — ${creator} (${year})`;
-        this.wrapText(ctx, formattedQuote, textStartX, descY + (h * 0.02), innerW - (w * 0.08), descH - (h * 0.04), fontSizeDesc * 1.4);
+        
+        let footerText = isCensored ? quote : `"${quote}" — `;
+        let creatorName = creator;
+
+        if (!isCensored) {
+            // Draw initial part
+            const quoteMetrics = ctx.measureText(footerText);
+            const quoteX = textStartX;
+            const quoteY = descY + (h * 0.02);
+            
+            this.wrapText(ctx, footerText, quoteX, quoteY, innerW - (w * 0.08), descH - (h * 0.04), fontSizeDesc * 1.4);
+            
+            // Recalculate where name starts (this is simplified, ideally wrapText returns last position)
+            // For now, let's just append the name and handle the styling
+            
+            ctx.restore();
+            ctx.save();
+            
+            if (options.isCreatorUntrustworthy) {
+                ctx.fillStyle = '#ff0000';
+                ctx.shadowColor = '#ff0000';
+                ctx.shadowBlur = 10;
+                ctx.font = `bold ${fontSizeDesc}px sans-serif`;
+            } else {
+                ctx.fillStyle = secondaryTextColor;
+                ctx.font = `${fontSizeDesc}px sans-serif`;
+            }
+
+            const fullText = isCensored ? quote : `"${quote}" — ${creator} (${year})`;
+            this.wrapText(ctx, fullText, textStartX, descY + (h * 0.02), innerW - (w * 0.08), descH - (h * 0.04), fontSizeDesc * 1.4);
+
+            // Draw verified badge if applicable
+            if (options.isCreatorVerified && this.imageCache['/img/badge/verified.svg']) {
+                // Find approximate position of name to draw badge after it
+                const badgeSize = fontSizeDesc * 1.2;
+                const metrics = ctx.measureText(fullText);
+                // This is a rough estimation since wrapText might multi-line
+                // For a more precise badge placement, wrapText would need to be updated.
+                // Assuming it's often on the last line:
+                const badgeX = textStartX + (metrics.width % (innerW - (w * 0.08))) + 5;
+                const badgeY = descY + (h * 0.02) + (Math.floor(metrics.width / (innerW - (w * 0.08))) * fontSizeDesc * 1.4);
+                
+                // Draw badge with primary blue tint
+                ctx.save();
+                ctx.drawImage(this.imageCache['/img/badge/verified.svg'], badgeX, badgeY, badgeSize, badgeSize);
+                ctx.restore();
+            }
+        } else {
+            this.wrapText(ctx, footerText, textStartX, descY + (h * 0.02), innerW - (w * 0.08), descH - (h * 0.04), fontSizeDesc * 1.4);
+        }
         ctx.restore();
 
         const currentMode = options.mode || 'default';
