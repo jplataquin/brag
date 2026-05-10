@@ -67,6 +67,12 @@
                 
                 <div class="d-flex align-items-center gap-2 d-lg-none">
                     @auth
+                        <!-- Mobile Diamonds (Always Visible) -->
+                        <a href="{{ route('wallet.index') }}" id="nav-wallet-mob-badge" class="text-decoration-none d-flex align-items-center me-1" style="background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 20px; padding: 4px 10px;">
+                            <i class="bi bi-gem me-1" style="color: #00f0ff; font-size: 0.85rem;"></i>
+                            <span class="fw-bold" style="color: #fff; font-family: 'Orbitron', sans-serif; font-size: 0.8rem;">{{ number_format(Auth::user()->diamonds_balance, 0) }}</span>
+                        </a>
+                        
                         <div class="navbar-nav flex-row">
                             <livewire:notification-dropdown :isMobile="true" />
                         </div>
@@ -81,17 +87,11 @@
                         <!-- Mobile User Info Row -->
                         <div class="d-lg-none py-3 border-bottom border-secondary mb-2" style="border-bottom-color: rgba(0,240,255,0.1) !important;">
                             <div class="row align-items-center g-0">
-                                <div class="col-6 text-start">
+                                <div class="col-12 text-start">
                                     <div class="d-flex align-items-center gap-2">
                                         <img src="{{ Auth::user()->avatar_url }}" alt="Avatar" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(0,240,255,0.3);">
                                         <span class="text-white fw-bold" style="font-family: 'Orbitron', sans-serif; font-size: 0.85rem;">{{ Auth::user()->username }}</span>
                                     </div>
-                                </div>
-                                <div class="col-6 text-end">
-                                    <a href="{{ route('wallet.index') }}" id="nav-wallet-mob-badge" class="text-decoration-none d-inline-flex align-items-center" style="background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 20px; padding: 4px 12px;">
-                                        <i class="bi bi-gem me-2" style="color: #00f0ff; font-size: 0.9rem;"></i>
-                                        <span class="fw-bold" style="color: #fff; font-family: 'Orbitron', sans-serif; font-size: 0.9rem;">{{ number_format(Auth::user()->diamonds_balance, 0) }}</span>
-                                    </a>
                                 </div>
                             </div>
                         </div>
