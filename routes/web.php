@@ -73,7 +73,7 @@ Route::get('/games', [\App\Http\Controllers\GameTitleController::class, 'index']
 Route::get('/games/{gameTitle}', [\App\Http\Controllers\GameTitleController::class, 'show'])->name('game_titles.show');
 
 // Academy (Public)
-Route::get('/academy', [\App\Http\Controllers\AcademyController.php, 'index'])->name('academy.index');
+Route::get('/academy', [\App\Http\Controllers\AcademyController::class, 'index'])->name('academy.index');
 
 // Authenticated Routes
 Route::middleware(['auth', 'verified'])->group(function () {
