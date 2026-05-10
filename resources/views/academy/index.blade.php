@@ -125,16 +125,9 @@
                                 <li><strong class="text-danger">⚠️ Discontinued:</strong> The template for this card has been removed or hidden by the creator. <strong>No more cards of this design will ever be created again</strong>, making Discontinued cards highly collectible and finite. If you burn a discontinued card, it is gone forever.</li>
                             </ul>
                             
-                            <h5 class="text-white mt-4 mb-3">Level Up Eligibility</h5>
-                            <p>Cards do not level up by wins alone. To reach the next level, a card must satisfy three conditions <strong>simultaneously</strong>:</p>
-                            <ol>
-                                <li>Minimum <strong>Total Wins</strong> reached.</li>
-                                <li>Minimum <strong>Win Rate %</strong> maintained.</li>
-                                <li>Minimum <strong>Integrity Stat %</strong> maintained.</li>
-                            </ol>
-                            <div class="p-3 rounded bg-info bg-opacity-10 border border-info border-opacity-25">
+                            <div class="p-3 rounded bg-info bg-opacity-10 border border-info border-opacity-25 mt-4">
                                 <small class="text-info fw-bold"><i class="bi bi-info-circle-fill me-1"></i> PRO TIP:</small>
-                                <small class="text-secondary d-block">When a card levels up, its Life Points are fully restored to 3!</small>
+                                <small class="text-secondary d-block">When a card levels up, its Life Points are fully restored to 3! Check the <strong>Progression</strong> section below for exact requirements for each rank.</small>
                             </div>
                         </div>
                     </div>
@@ -150,16 +143,41 @@
                     <div id="collapseProgression" class="accordion-collapse collapse" data-bs-parent="#academyAccordion">
                         <div class="accordion-body text-secondary lh-lg p-4 pt-0">
                             <h5 class="text-white mb-3">Build Your Legacy</h5>
-                            <p>Winning battles does more than just earn you cards. It levels up your inventory:</p>
-                            <ul>
-                                <li><strong class="text-success">Leveling Up:</strong> As a card wins more matches, its level increases. Higher-level cards are rarer and more prestigious.</li>
-                                <li><strong class="text-success">Trophy Collection:</strong> Cards won from others are stored in your <strong>Trophy Room</strong>. These cards display the original creator's name, serving as a permanent record of your dominance.</li>
-                            </ul>
+                            <p>Winning battles does more than just earn you cards. It levels up your inventory, unlocking prestigious new badges. Here is the path to greatness:</p>
+                            
+                            <div class="table-responsive mb-4">
+                                <table class="table table-dark table-hover border-info border-opacity-25 align-middle text-center mb-0">
+                                    <thead class="text-info small" style="font-family: 'Orbitron', sans-serif;">
+                                        <tr>
+                                            <th>Badge</th>
+                                            <th class="text-start">Level Rank</th>
+                                            <th>Min Wins</th>
+                                            <th>Min Win Rate</th>
+                                            <th>Min Integrity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-secondary">
+                                        @foreach(config('leveling.conditions') as $lvl => $cond)
+                                        <tr>
+                                            <td>
+                                                <img src="{{ asset('img/badge/lv' . $lvl . '.webp') }}" alt="Level {{ $lvl }}" style="width: 40px; height: 40px; filter: drop-shadow(0 0 5px rgba(0,240,255,0.5));">
+                                            </td>
+                                            <td class="text-start fw-bold text-white">Level {{ $lvl }}: {{ $cond['name'] }}</td>
+                                            <td>{{ $cond['min_wins'] }}</td>
+                                            <td>{{ $cond['min_win_rate'] }}%</td>
+                                            <td>{{ $cond['min_integrity'] }}%</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <p><strong class="text-success">Trophy Collection:</strong> Cards won from others are stored in your <strong>Trophy Room</strong>. These cards display the original creator's name, serving as a permanent record of your dominance.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Section 5: The Burn -->
+                <!-- Section 6: The Burn -->
                 <div class="accordion-item bg-dark bg-opacity-50 border-info border-opacity-25 mb-3 rounded-4 overflow-hidden">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed bg-transparent text-white fw-bold py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBurn">
@@ -179,7 +197,7 @@
                     </div>
                 </div>
 
-                <!-- Section 6: Economy -->
+                <!-- Section 7: Economy -->
                 <div class="accordion-item bg-dark bg-opacity-50 border-info border-opacity-25 mb-3 rounded-4 overflow-hidden">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed bg-transparent text-white fw-bold py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEconomy">
@@ -192,7 +210,7 @@
                             <p><strong>Diamonds</strong> are required to forge new templates and cards. While you can always purchase Diamonds in your Wallet, the platform also provides scheduled support:</p>
                             <ul>
                                 <li><strong class="text-info">Scheduled Regeneration:</strong> Twice a month—on the **15th** and the **last day of the month**—the platform checks all active users.</li>
-                                <li><strong class="text-success">The Grant:</strong> If your Diamond balance is below the minimum threshold (5 Diamonds), the system will automatically top your balance back up to 10 Diamonds for free.</li>
+                                <li><strong class="text-success">The Grant:</strong> If your Diamond balance is below the minimum threshold (5 Diamonds), the system will automatically grant you **10 Diamonds** for free.</li>
                             </ul>
                             <p class="mb-0">This ensures that every player has the opportunity to get back into the forge and rejoin the battle twice every month.</p>
                         </div>
