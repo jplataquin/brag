@@ -94,7 +94,7 @@
                                 <div class="col-md-6">
                                     <div class="p-3 rounded bg-black bg-opacity-50 border border-secondary border-opacity-25">
                                         <ul class="list-unstyled mb-0">
-                                            <li class="mb-2"><strong class="text-danger"><i class="bi bi-heart-fill"></i>❤️❤️❤️:</strong> Current Life Points. Lose a battle, lose a heart.</li>
+                                            <li class="mb-2"><strong class="text-danger">❤️❤️❤️:</strong> Current Life Points. Lose a battle, lose a heart.</li>
                                             <li class="mb-2"><strong class="text-white">W:</strong> Total Wins recorded in official battles.</li>
                                             <li class="mb-2"><strong class="text-white">L:</strong> Total Losses recorded in official battles.</li>
                                         </ul>
