@@ -543,7 +543,7 @@
             }, 1500);
         });
     </script>
-    @if(Auth::check() && !Auth::user()->has_completed_tour)
+    @if(Auth::check() && !Auth::user()->has_completed_tour && (request()->routeIs('dashboard') || request()->routeIs('home')))
         <script>
             window.addEventListener('load', function() {
                 if (typeof startBragTour === 'function') {

@@ -719,14 +719,15 @@ class DigitalCardRenderer {
 window.startBragTour = function() {
     if (typeof Shepherd === 'undefined') return;
 
-    // Detect if we are on mobile (using screen width or presence of mobile-only elements)
-    const isMobile = window.innerWidth < 992;
+    // Determine target elements based on what is actually visible in the DOM
+    const isMobileUI = document.getElementById('mob-quick-inventory') !== null;
 
     const tour = new Shepherd.Tour({
         useModalOverlay: true,
         defaultStepOptions: {
             classes: 'shepherd-theme-custom',
-            scrollTo: { behavior: 'smooth', block: 'center' }
+            scrollTo: { behavior: 'smooth', block: 'center' },
+            cancelIcon: { enabled: true }
         }
     });
 
@@ -743,8 +744,8 @@ window.startBragTour = function() {
         title: 'Your Inventory',
         text: 'Check your digital cards and collected trophies here.',
         attachTo: { 
-            element: isMobile ? '#mob-quick-inventory' : '#nav-cards', 
-            on: isMobile ? 'top' : 'bottom' 
+            element: isMobileUI ? '#mob-quick-inventory' : '#nav-cards', 
+            on: isMobileUI ? 'top' : 'bottom' 
         },
         buttons: [{ text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' }, { text: 'Next', action: tour.next }]
     });
@@ -754,8 +755,8 @@ window.startBragTour = function() {
         title: 'The Forge',
         text: 'Templates are the blueprints for cards. Create your own designs here!',
         attachTo: { 
-            element: isMobile ? '#mob-quick-template' : '#nav-templates', 
-            on: isMobile ? 'top' : 'bottom' 
+            element: isMobileUI ? '#mob-quick-template' : '#nav-templates', 
+            on: isMobileUI ? 'top' : 'bottom' 
         },
         buttons: [{ text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' }, { text: 'Next', action: tour.next }]
     });
@@ -765,8 +766,8 @@ window.startBragTour = function() {
         title: 'The Arena',
         text: 'Enter the Arena to challenge other players. Stake your cards and win trophies!',
         attachTo: { 
-            element: isMobile ? '#mob-quick-battle' : '#nav-battles', 
-            on: isMobile ? 'top' : 'bottom' 
+            element: isMobileUI ? '#mob-quick-battle' : '#nav-battles', 
+            on: isMobileUI ? 'top' : 'bottom' 
         },
         buttons: [{ text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' }, { text: 'Next', action: tour.next }]
     });
@@ -776,7 +777,7 @@ window.startBragTour = function() {
         title: 'Diamonds',
         text: 'Diamonds are used to forge templates and cards. Buy them in your wallet.',
         attachTo: { 
-            element: isMobile ? '#nav-wallet-mob-badge' : '#nav-wallet', 
+            element: isMobileUI ? '#nav-wallet-mob-badge' : '#nav-wallet', 
             on: 'bottom' 
         },
         buttons: [{ text: 'Finish', action: tour.complete }]
