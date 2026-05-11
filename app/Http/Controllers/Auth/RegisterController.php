@@ -50,7 +50,7 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        return Validator::make($data, [
+        $validator = Validator::make($data, [
             'firstname' => ['required', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:30', 'unique:users', 'regex:/^[a-zA-Z0-9_]+$/'],
@@ -64,6 +64,32 @@ class RegisterController extends Controller
         ], [
             'birthdate.before_or_equal' => 'You must be at least 13 years old to register.',
         ]);
+
+        $validator->sometimes(['parent_firstname', 'parent_lastname', 'parent_birthdate', 'parent_id_path', 'parent_consent_agreed'], 'required', function ($input) {
+            try {
+                return \Carbon\Carbon::parse($input->birthdate)->age < 18;
+            } catch (\Exception $e) {
+                return false;
+            }
+        });
+
+        $validator->sometimes('parent_birthdate', 'before_or_equal:' . now()->subYears(18)->format('Y-m-d'), function ($input) {
+            try {
+                return \Carbon\Carbon::parse($input->birthdate)->age < 18;
+            } catch (\Exception $e) {
+                return false;
+            }
+        });
+
+        $validator->sometimes('parent_consent_agreed', 'accepted', function ($input) {
+            try {
+                return \Carbon\Carbon::parse($input->birthdate)->age < 18;
+            } catch (\Exception $e) {
+                return false;
+            }
+        });
+
+        return $validator;
     }
 
     /**
@@ -79,6 +105,20 @@ class RegisterController extends Controller
         $latestPrivacy = PrivacyPolicy::latest('id')->first();
         $privacyVersion = $latestPrivacy ? $latestPrivacy->id : 0;
 
+        $age = \Carbon\Carbon::parse($data['birthdate'])->age;
+        $isMinor = $age < 18;
+        
+        $parentIdPath = null;
+        if ($isMinor && !empty($data['parent_id_path'])) {
+            $tempPath = $data['parent_id_path'];
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($tempPath)) {
+                $filename = basename($tempPath);
+                $permanentPath = 'uploads/parent_ids/' . $filename;
+                \Illuminate\Support\Facades\Storage::disk('public')->move($tempPath, $permanentPath);
+                $parentIdPath = $permanentPath;
+            }
+        }
+
         $user = User::create([
             'firstname' => $data['firstname'],
             'lastname' => $data['lastname'],
@@ -89,6 +129,11 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
             'terms_version_agreed' => $termsVersion,
             'privacy_version_agreed' => $privacyVersion,
+            'parent_firstname' => $isMinor ? ($data['parent_firstname'] ?? null) : null,
+            'parent_lastname' => $isMinor ? ($data['parent_lastname'] ?? null) : null,
+            'parent_birthdate' => $isMinor ? ($data['parent_birthdate'] ?? null) : null,
+            'parent_id_path' => $parentIdPath,
+            'parental_consent_status' => $isMinor ? 'pending' : 'not_required',
         ]);
 
         return $user;

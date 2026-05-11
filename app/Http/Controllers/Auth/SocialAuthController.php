@@ -138,7 +138,29 @@ class SocialAuthController extends Controller
             // Existing users are caught by EnsureTermsAgreed middleware
         }
 
+        // Parental Consent Rules
+        $age = \Carbon\Carbon::parse($request->birthdate)->age;
+        $isMinor = $age < 18;
+        if ($isMinor) {
+            $rules['parent_firstname'] = 'required|string|max:255';
+            $rules['parent_lastname'] = 'required|string|max:255';
+            $rules['parent_birthdate'] = 'required|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d');
+            $rules['parent_id_path'] = 'required|string';
+            $rules['parent_consent_agreed'] = 'required|accepted';
+        }
+
         $request->validate($rules);
+
+        $parentIdPath = null;
+        if ($isMinor && !empty($request->parent_id_path)) {
+            $tempPath = $request->parent_id_path;
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($tempPath)) {
+                $filename = basename($tempPath);
+                $permanentPath = 'uploads/parent_ids/' . $filename;
+                \Illuminate\Support\Facades\Storage::disk('public')->move($tempPath, $permanentPath);
+                $parentIdPath = $permanentPath;
+            }
+        }
 
         if ($isNewUser) {
             if (!session()->has('google_user_id')) {
@@ -159,6 +181,11 @@ class SocialAuthController extends Controller
                 'birthdate' => $request->birthdate,
                 'terms_version_agreed' => $latestTerms ? $latestTerms->id : 0,
                 'privacy_version_agreed' => $latestPrivacy ? $latestPrivacy->id : 0,
+                'parent_firstname' => $isMinor ? $request->parent_firstname : null,
+                'parent_lastname' => $isMinor ? $request->parent_lastname : null,
+                'parent_birthdate' => $isMinor ? $request->parent_birthdate : null,
+                'parent_id_path' => $parentIdPath,
+                'parental_consent_status' => $isMinor ? 'pending' : 'not_required',
             ]);
 
             // Fire the Verified event so listeners (like GrantWelcomeDiamonds) are triggered
@@ -174,6 +201,11 @@ class SocialAuthController extends Controller
                 'firstname' => $request->firstname,
                 'lastname' => $request->lastname,
                 'birthdate' => $request->birthdate,
+                'parent_firstname' => $isMinor ? $request->parent_firstname : null,
+                'parent_lastname' => $isMinor ? $request->parent_lastname : null,
+                'parent_birthdate' => $isMinor ? $request->parent_birthdate : null,
+                'parent_id_path' => $parentIdPath,
+                'parental_consent_status' => $isMinor ? 'pending' : 'not_required',
             ]);
             
             Auth::setUser($user->fresh());

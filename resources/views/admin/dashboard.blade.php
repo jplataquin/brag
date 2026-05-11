@@ -48,7 +48,17 @@
                 <div class="card bg-dark bg-opacity-75 border-magenta h-100 neon-hover" style="border-color: var(--neon-magenta);">
                     <div class="card-body text-center p-3">
                         <i class="bi bi-gem display-6 mb-2 d-block" style="color: var(--neon-magenta);"></i>
-                        <h6 class="text-white text-uppercase fw-bold mb-0">Diamond Packages</h6>
+                        <h6 class="text-white text-uppercase fw-bold mb-0">Diamond Packs</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('admin.parental_consents.index') }}" class="text-decoration-none">
+                <div class="card bg-dark bg-opacity-75 border-info h-100 neon-hover" style="border-color: var(--neon-cyan);">
+                    <div class="card-body text-center p-3">
+                        <i class="bi bi-shield-lock display-6 mb-2 d-block" style="color: var(--neon-cyan);"></i>
+                        <h6 class="text-white text-uppercase fw-bold mb-0">Parental Consents</h6>
                     </div>
                 </div>
             </a>

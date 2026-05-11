@@ -36,6 +36,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'can_purchase_diamonds',
         'is_verified',
         'has_completed_tour',
+        'parent_firstname',
+        'parent_lastname',
+        'parent_birthdate',
+        'parent_id_path',
+        'parental_consent_status',
     ];
 
     /**
@@ -71,6 +76,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'can_purchase_diamonds' => 'boolean',
             'is_verified' => 'boolean',
             'has_completed_tour' => 'boolean',
+            'parent_birthdate' => 'date',
         ];
     }
 

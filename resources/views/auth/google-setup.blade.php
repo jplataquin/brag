@@ -66,6 +66,61 @@
                     @enderror
                 </div>
 
+                <!-- Parental Consent Section -->
+                <div id="parental-consent-section" class="mb-4" style="display: none; background: rgba(0,240,255,0.05); border: 1px solid rgba(0,240,255,0.3); border-radius: 8px; padding: 15px;">
+                    <h5 style="color: #00f0ff; font-family: 'Orbitron', sans-serif;"><i class="bi bi-shield-lock"></i> Parental Consent Required</h5>
+                    <p style="font-size: 0.8rem; color: #aaa;">Because you are under 18, a parent or legal guardian must provide their details and a valid government ID to approve your account creation.</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="parent_firstname" class="form-label">Parent First Name</label>
+                            <input type="text" class="form-control @error('parent_firstname') is-invalid @enderror" id="parent_firstname" name="parent_firstname" value="{{ old('parent_firstname') }}">
+                            @error('parent_firstname')
+                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="parent_lastname" class="form-label">Parent Last Name</label>
+                            <input type="text" class="form-control @error('parent_lastname') is-invalid @enderror" id="parent_lastname" name="parent_lastname" value="{{ old('parent_lastname') }}">
+                            @error('parent_lastname')
+                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="parent_birthdate" class="form-label">Parent Birthdate</label>
+                        <input type="date" class="form-control @error('parent_birthdate') is-invalid @enderror" id="parent_birthdate" name="parent_birthdate" value="{{ old('parent_birthdate') }}" max="{{ now()->subYears(18)->format('Y-m-d') }}">
+                        <div class="form-text text-white-50" style="font-size: 0.75rem;">Your parent or guardian must be at least 18 years old.</div>
+                        @error('parent_birthdate')
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Parent / Guardian Government ID</label>
+                        <input type="file" class="form-control @error('parent_id_path') is-invalid @enderror" id="parent_id_file" accept="image/*,.pdf">
+                        <input type="hidden" name="parent_id_path" id="parent_id_path" value="{{ old('parent_id_path') }}">
+                        <div class="progress mt-2" style="height: 5px; display: none;" id="parent-id-progress-container">
+                            <div class="progress-bar bg-info" id="parent-id-progress" role="progressbar" style="width: 0%;"></div>
+                        </div>
+                        <small id="parent-id-status" class="text-success mt-1 d-block"></small>
+                        @error('parent_id_path')
+                            <span class="invalid-feedback d-block" role="alert"><strong>{{ $message }}</strong></span>
+                        @enderror
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input @error('parent_consent_agreed') is-invalid @enderror" type="checkbox" name="parent_consent_agreed" id="parent_consent_agreed" value="1" {{ old('parent_consent_agreed') ? 'checked' : '' }}>
+                        <label class="form-check-label text-white-50" for="parent_consent_agreed" style="font-size: 0.85rem;">
+                            I confirm that I am the parent or legal guardian of this user. I grant consent and accept responsibility for the gathering of the child's data and their participation in bragarena.com.
+                        </label>
+                        @error('parent_consent_agreed')
+                            <span class="invalid-feedback d-block" role="alert"><strong>{{ $message }}</strong></span>
+                        @enderror
+                    </div>
+                </div>
+
                 @if($isNewUser)
                 <div class="mb-3 form-check">
                     <input class="form-check-input @error('terms') is-invalid @enderror" type="checkbox" name="terms" id="terms" {{ old('terms') ? 'checked' : '' }} required>
@@ -103,4 +158,135 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const birthdateInput = document.getElementById('birthdate');
+    const consentSection = document.getElementById('parental-consent-section');
+    const parentIdFile = document.getElementById('parent_id_file');
+    const parentIdPath = document.getElementById('parent_id_path');
+    const progressBar = document.getElementById('parent-id-progress');
+    const progressContainer = document.getElementById('parent-id-progress-container');
+    const statusText = document.getElementById('parent-id-status');
+    const btnSubmit = document.querySelector('button[type="submit"]');
+    
+    // Parent fields
+    const parentFirstname = document.getElementById('parent_firstname');
+    const parentLastname = document.getElementById('parent_lastname');
+    const parentBirthdate = document.getElementById('parent_birthdate');
+    const parentAgreed = document.getElementById('parent_consent_agreed');
+
+    function calculateAge(birthdate) {
+        const today = new Date();
+        const birthDate = new Date(birthdate);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    }
+
+    function toggleConsentSection() {
+        const age = calculateAge(birthdateInput.value);
+        if (age >= 13 && age < 18) {
+            $(consentSection).slideDown();
+            parentFirstname.required = true;
+            parentLastname.required = true;
+            parentBirthdate.required = true;
+            parentAgreed.required = true;
+        } else {
+            $(consentSection).slideUp();
+            parentFirstname.required = false;
+            parentLastname.required = false;
+            parentBirthdate.required = false;
+            parentAgreed.required = false;
+        }
+    }
+
+    if (birthdateInput) {
+        birthdateInput.addEventListener('change', toggleConsentSection);
+        if (birthdateInput.value) toggleConsentSection();
+    }
+
+    if (parentIdFile) {
+        parentIdFile.addEventListener('change', function() {
+            const file = this.files[0];
+            if (!file) return;
+
+            const CHUNK_SIZE = 512 * 1024; // 512KB
+            const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+            const fileId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            const extension = file.name.split('.').pop();
+
+            let chunkIndex = 0;
+            btnSubmit.disabled = true;
+            progressContainer.style.display = 'block';
+            statusText.innerText = 'Starting upload...';
+            statusText.style.color = 'inherit';
+
+            function uploadNextChunk() {
+                const start = chunkIndex * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, file.size);
+                const chunk = file.slice(start, end);
+
+                const formData = new FormData();
+                formData.append('file', chunk);
+                formData.append('file_id', fileId);
+                formData.append('chunk_index', chunkIndex);
+                formData.append('total_chunks', totalChunks);
+                formData.append('extension', extension);
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+                fetch('{{ route("upload.chunk") }}', {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json' },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        statusText.innerText = 'Upload failed: ' + data.error;
+                        statusText.style.color = 'red';
+                        btnSubmit.disabled = false;
+                        return;
+                    }
+                    
+                    chunkIndex++;
+                    const percent = Math.round((chunkIndex / totalChunks) * 100);
+                    progressBar.style.width = percent + '%';
+                    statusText.innerText = 'Uploading ID: ' + percent + '%';
+
+                    if (chunkIndex < totalChunks) {
+                        uploadNextChunk();
+                    } else if (data.success && data.path) {
+                        parentIdPath.value = data.path;
+                        statusText.innerText = 'ID Upload complete!';
+                        statusText.style.color = '#39ff14';
+                        btnSubmit.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    console.error('Upload Error:', err);
+                    statusText.innerText = 'Upload error!';
+                    statusText.style.color = 'red';
+                    btnSubmit.disabled = false;
+                });
+            }
+            uploadNextChunk();
+        });
+    }
+
+    const setupForm = document.querySelector('form');
+    setupForm.addEventListener('submit', function(e) {
+        const age = calculateAge(birthdateInput.value);
+        if (age >= 13 && age < 18 && !parentIdPath.value) {
+            e.preventDefault();
+            window.neonAlert('Please wait for the parent ID upload to complete or select an ID file.', 'ID REQUIRED');
+        }
+    });
+});
+</script>
 @endsection

@@ -234,6 +234,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/verifications/photo/{id}/{type}', [\App\Http\Controllers\Admin\VerificationController::class, 'viewPhoto'])->name('verifications.photo');
         Route::post('/verifications/{verification}/approve', [\App\Http\Controllers\Admin\VerificationController::class, 'approve'])->name('verifications.approve');
         Route::post('/verifications/{verification}/reject', [\App\Http\Controllers\Admin\VerificationController::class, 'reject'])->name('verifications.reject');
+
+        // Parental Consents
+        Route::get('/parental-consents', [\App\Http\Controllers\Admin\ParentalConsentController::class, 'index'])->name('parental_consents.index');
+        Route::get('/parental-consents/{user}/id', [\App\Http\Controllers\Admin\ParentalConsentController::class, 'viewId'])->name('parental_consents.view_id');
+        Route::post('/parental-consents/{user}/approve', [\App\Http\Controllers\Admin\ParentalConsentController::class, 'approve'])->name('parental_consents.approve');
+        Route::post('/parental-consents/{user}/reject', [\App\Http\Controllers\Admin\ParentalConsentController::class, 'reject'])->name('parental_consents.reject');
     });
 });
 
