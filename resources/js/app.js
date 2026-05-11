@@ -411,6 +411,10 @@ class DigitalCardRenderer {
             ctx.restore();
             ctx.save();
             
+            ctx.textBaseline = 'top';
+            const quoteX = textStartX;
+            const quoteY = descY + (h * 0.02);
+
             if (options.isCreatorUntrustworthy) {
                 ctx.fillStyle = '#ff0000';
                 ctx.shadowColor = '#ff0000';
@@ -422,7 +426,7 @@ class DigitalCardRenderer {
             }
 
             const fullText = isCensored ? quote : `"${quote}" — ${creator} (${year})`;
-            this.wrapText(ctx, fullText, textStartX, descY + (h * 0.02), innerW - (w * 0.08), descH - (h * 0.04), fontSizeDesc * 1.4);
+            this.wrapText(ctx, fullText, quoteX, quoteY, innerW - (w * 0.08), descH - (h * 0.04), fontSizeDesc * 1.4);
 
             // Draw verified badge if applicable
             if (options.isCreatorVerified && this.imageCache['/img/badge/verified.svg']) {
