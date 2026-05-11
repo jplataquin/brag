@@ -98,7 +98,7 @@
                                             creator="NoobMaster88"
                                             quote="A sample quote for the academy."
                                             image="/img/academy-sample-card.jpg"
-                                            imagePositionY="70"
+                                            imagePositionY="90"
                                             wins="15"
                                             losses="5"
                                             integrityStat="35"
@@ -144,9 +144,9 @@
                             <h5 class="text-white mb-3">Rarity Tiers</h5>
                             <p>The small emoji icon at the bottom indicate the rarity of the digital cards:</p>
                             <ul>
-                                <li><strong style="color: #39ff14;">🪵 Common (Green):</strong> 10 or more copies exist.</li>
-                                <li><strong style="color: #ff00ff;">🦄 Rare (Magenta):</strong> 5 to 9 copies exist.</li>
-                                <li><strong style="color: #ff0000;">🐦‍🔥 Ultra Rare (Red):</strong> Fewer than 5 copies exist. This is the highest level of prestige.</li>
+                                <li><strong style="color: #39ff14;">🪵 Common:</strong> 10 or more copies exist.</li>
+                                <li><strong style="color: #ff00ff;">🦄 Rare:</strong> 5 to 9 copies exist.</li>
+                                <li><strong style="color: #ff0000;">🐦‍🔥 Ultra Rare:</strong> Fewer than 5 copies exist. This is the highest level of prestige.</li>
                             </ul>
 
                             <h5 class="text-white mt-4 mb-3">Special Statuses</h5>
