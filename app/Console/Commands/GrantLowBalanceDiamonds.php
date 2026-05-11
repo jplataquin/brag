@@ -33,9 +33,9 @@ class GrantLowBalanceDiamonds extends Command
             foreach ($users as $user) {
                 // Check computed balance
                 if ($user->diamonds_balance < 5) {
-                    $user->addDiamonds(10, 'system_grant', 'Low balance system grant (15th/End of Month)');
+                    $user->addDiamonds(5, 'system_grant', 'Low balance system grant (15th/End of Month)');
                     $count++;
-                    $this->comment("Granted 10 diamonds to user: {$user->username} (Current was: {$user->diamonds_balance})");
+                    $this->comment("Granted 5 diamonds to user: {$user->username} (Current was: {$user->diamonds_balance})");
                 }
             }
         });
