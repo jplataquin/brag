@@ -714,7 +714,8 @@ window.startBragTour = function() {
     if (typeof Shepherd === 'undefined') return;
 
     // Determine target elements based on what is actually visible in the DOM
-    const isMobileUI = document.getElementById('mob-quick-inventory') !== null;
+    const mobQuickInventory = document.getElementById('mob-quick-inventory');
+    const isMobileUI = mobQuickInventory && getComputedStyle(mobQuickInventory).display !== 'none';
 
     const tour = new Shepherd.Tour({
         useModalOverlay: true,
