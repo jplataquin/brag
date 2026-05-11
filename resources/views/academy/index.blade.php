@@ -92,12 +92,13 @@
                                 <div class="col-md-5 text-center order-md-last mb-4 mb-md-0">
                                     <div class="mx-auto" style="max-width: 280px;">
                                         <x-digital-card 
+                                            mode="thumbnail"
                                             title="Cyber Ronin"
                                             game="Tekken 8"
                                             creator="NoobMaster88"
                                             quote="A sample quote for the academy."
                                             image="/img/academy-sample-card.jpg"
-                                            imagePositionY="20"
+                                            imagePositionY="70"
                                             wins="15"
                                             losses="5"
                                             integrityStat="35"
