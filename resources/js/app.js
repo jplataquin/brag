@@ -408,16 +408,6 @@ class DigitalCardRenderer {
         let creatorName = creator;
 
         if (!isCensored) {
-            // Draw initial part
-            const quoteMetrics = ctx.measureText(footerText);
-            const quoteX = textStartX;
-            const quoteY = descY + (h * 0.02);
-            
-            this.wrapText(ctx, footerText, quoteX, quoteY, innerW - (w * 0.08), descH - (h * 0.04), fontSizeDesc * 1.4);
-            
-            // Recalculate where name starts (this is simplified, ideally wrapText returns last position)
-            // For now, let's just append the name and handle the styling
-            
             ctx.restore();
             ctx.save();
             

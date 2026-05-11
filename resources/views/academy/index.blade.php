@@ -93,10 +93,11 @@
                                     <div class="mx-auto" style="max-width: 280px;">
                                         <x-digital-card 
                                             title="Cyber Ronin"
-                                            game="Brag Academy"
+                                            game="Tekken 8"
                                             creator="NoobMaster88"
                                             quote="A sample quote for the academy."
                                             image="/img/academy-sample-card.jpg"
+                                            imagePositionY="70"
                                             wins="15"
                                             losses="5"
                                             integrityStat="35"
