@@ -413,7 +413,7 @@ class DigitalCardRenderer {
             
             ctx.textBaseline = 'top';
             const quoteX = textStartX;
-            const quoteY = descY + (h * 0.02);
+            const quoteY = descY + (h * 0.10);
 
             if (options.isCreatorUntrustworthy) {
                 ctx.fillStyle = '#ff0000';
