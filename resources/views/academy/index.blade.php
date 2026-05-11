@@ -240,7 +240,7 @@
                             <p><strong>Diamonds</strong> are required to forge new templates and cards. While you can always purchase Diamonds in your Wallet, the platform also provides scheduled support:</p>
                             <ul>
                                 <li><strong class="text-info">Scheduled Regeneration:</strong> Twice a month—on the **15th** and the **last day of the month**—the platform checks all active users.</li>
-                                <li><strong class="text-success">The Grant:</strong> If your Diamond balance is below the minimum threshold (5 Diamonds), the system will automatically grant you **5 Diamonds** for free.</li>
+                                <li><strong class="text-success">The Grant:</strong> If your Diamond balance is below the minimum threshold (5 Diamonds), the system will automatically grant you **5 Diamonds** for free during the scheduled regeneration.</li>
                             </ul>
                             <p class="mb-0">This ensures that every player has the opportunity to get back into the forge and rejoin the battle twice every month.</p>
                         </div>
