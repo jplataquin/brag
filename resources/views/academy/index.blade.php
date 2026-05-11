@@ -98,7 +98,7 @@
                                             creator="NoobMaster88"
                                             quote="A sample quote for the academy."
                                             image="/img/academy-sample-card.jpg"
-                                            imagePositionY="90"
+                                            imagePositionY="110"
                                             wins="15"
                                             losses="5"
                                             integrityStat="35"
