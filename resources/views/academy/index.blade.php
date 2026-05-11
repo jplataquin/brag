@@ -88,25 +88,53 @@
                     </h2>
                     <div id="collapseStats" class="accordion-collapse collapse" data-bs-parent="#academyAccordion">
                         <div class="accordion-body text-secondary lh-lg p-4 pt-0">
-                            <h5 class="text-white mb-3">Card UI Indicators</h5>
-                            <p>Each Digital Card displays a shorthand for its stats at the bottom. Here is what they mean:</p>
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-6">
-                                    <div class="p-3 rounded bg-black bg-opacity-50 border border-secondary border-opacity-25">
-                                        <ul class="list-unstyled mb-0">
-                                            <li class="mb-2"><strong class="text-danger">❤️❤️❤️:</strong> Current Life Points. Lose a battle, lose a heart.</li>
-                                            <li class="mb-2"><strong class="text-white">W:</strong> Total Wins recorded in official battles.</li>
-                                            <li class="mb-2"><strong class="text-white">L:</strong> Total Losses recorded in official battles.</li>
-                                        </ul>
+                            <div class="row align-items-center mb-4">
+                                <div class="col-md-5 text-center order-md-last mb-4 mb-md-0">
+                                    <div class="mx-auto" style="max-width: 280px;">
+                                        <x-digital-card 
+                                            title="Cyber Ronin"
+                                            game="Brag Academy"
+                                            creator="NoobMaster88"
+                                            quote="A sample quote for the academy."
+                                            image="/img/academy-sample-card.jpg"
+                                            wins="15"
+                                            losses="5"
+                                            integrityStat="35"
+                                            lifePoints="3"
+                                            status="Discontinued"
+                                            rankLevel="2"
+                                            serialNumber="0000XX"
+                                            rarity="rare"
+                                            width="300"
+                                            height="420"
+                                        />
+                                        <div class="mt-2 text-info small fst-italic">
+                                            Sample Digital Card Render
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="p-3 rounded bg-black bg-opacity-50 border border-secondary border-opacity-25">
-                                        <ul class="list-unstyled mb-0">
-                                            <li class="mb-2"><strong class="text-white">R:</strong> Win Rate Percentage <code>(Wins/Total) * 100</code>.</li>
-                                            <li class="mb-2"><strong class="text-white">I:</strong> Integrity Percentage <code>(Unique Opponents/Total) * 100</code>.</li>
-                                            <li><strong class="text-warning"># [ID]:</strong> The unique serial number of that specific forged card.</li>
-                                        </ul>
+                                <div class="col-md-7">
+                                    <h5 class="text-white mb-3">Card UI Indicators</h5>
+                                    <p>Each Digital Card displays a shorthand for its stats at the bottom. Here is what they mean:</p>
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <div class="p-3 rounded bg-black bg-opacity-50 border border-secondary border-opacity-25">
+                                                <ul class="list-unstyled mb-0">
+                                                    <li class="mb-2"><strong class="text-danger">❤️❤️❤️:</strong> Current Life Points. Lose a battle, lose a heart.</li>
+                                                    <li class="mb-2"><strong class="text-white">W:</strong> Total Wins recorded in official battles.</li>
+                                                    <li class="mb-2"><strong class="text-white">L:</strong> Total Losses recorded in official battles.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="p-3 rounded bg-black bg-opacity-50 border border-secondary border-opacity-25">
+                                                <ul class="list-unstyled mb-0">
+                                                    <li class="mb-2"><strong class="text-white">R:</strong> Win Rate Percentage <code>(Wins/Total) * 100</code>.</li>
+                                                    <li class="mb-2"><strong class="text-white">I:</strong> Integrity Percentage <code>(Unique Opponents/Total) * 100</code>.</li>
+                                                    <li><strong class="text-warning"># [ID]:</strong> The unique serial number of that specific forged card.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
