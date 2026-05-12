@@ -1,9 +1,18 @@
 import './bootstrap';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import * as bootstrap from 'bootstrap';
+import { removeBackground } from "@imgly/background-removal";
 
 // Make bootstrap available globally for the alert auto-dismiss script
 window.bootstrap = bootstrap;
+
+window.removeImageBackground = async function(imageSrc, progressCallback) {
+    const config = {
+        publicPath: `${import.meta.env.BASE_URL}imgly-assets/`.replace(/\/+/g, '/'),
+        progress: progressCallback
+    };
+    return await removeBackground(imageSrc, config);
+};
 
 class DigitalCardRenderer {
     constructor(canvasId) {
