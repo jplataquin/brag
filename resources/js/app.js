@@ -450,20 +450,14 @@ class DigitalCardRenderer {
             }
 
             const fullText = isCensored ? quote : `"${quote}" — ${creator} (${year})`;
-            this.wrapText(ctx, fullText, quoteX, quoteY, innerW - (w * 0.08), descH - (h * 0.04), fontSizeDesc * 1.4);
+            const endPos = this.wrapText(ctx, fullText, quoteX, quoteY, innerW - (w * 0.08), descH - (h * 0.04), fontSizeDesc * 1.4);
 
             // Draw verified badge if applicable
             if (options.isCreatorVerified && this.imageCache['/img/badge/verified.svg']) {
-                // Find approximate position of name to draw badge after it
                 const badgeSize = fontSizeDesc * 1.2;
-                const metrics = ctx.measureText(fullText);
-                // This is a rough estimation since wrapText might multi-line
-                // For a more precise badge placement, wrapText would need to be updated.
-                // Assuming it's often on the last line:
-                const badgeX = textStartX + (metrics.width % (innerW - (w * 0.08))) + 5;
-                const badgeY = descY + (h * 0.02) + (Math.floor(metrics.width / (innerW - (w * 0.08))) * fontSizeDesc * 1.4);
+                const badgeX = endPos.x + 5;
+                const badgeY = endPos.y - (badgeSize * 0.7); // Center it vertically with the text
                 
-                // Draw badge with primary blue tint
                 ctx.save();
                 ctx.drawImage(this.imageCache['/img/badge/verified.svg'], badgeX, badgeY, badgeSize, badgeSize);
                 ctx.restore();
@@ -677,6 +671,8 @@ class DigitalCardRenderer {
         const paragraphs = text.split('\\n');
         let currentY = y;
         const maxY = y + maxHeight;
+        let lastLineWidth = 0;
+
         for (let p = 0; p < paragraphs.length; p++) {
             const words = paragraphs[p].split(' ');
             let line = '';
@@ -688,7 +684,7 @@ class DigitalCardRenderer {
                     if (line !== '') {
                         if (currentY + lineHeight > maxY - lineHeight) {
                             context.fillText(line.trim() + '...', x, currentY);
-                            return;
+                            return { x: x + context.measureText(line.trim() + '...').width, y: currentY };
                         }
                         context.fillText(line.trim(), x, currentY);
                         line = '';
@@ -703,7 +699,7 @@ class DigitalCardRenderer {
                             if (context.measureText(testWord).width > maxWidth && tempWord.length > 0) {
                                 if (currentY + lineHeight > maxY - lineHeight) {
                                     context.fillText(tempWord + '...', x, currentY);
-                                    return;
+                                    return { x: x + context.measureText(tempWord + '...').width, y: currentY };
                                 }
                                 context.fillText(tempWord + '-', x, currentY);
                                 tempWord = char;
@@ -721,15 +717,22 @@ class DigitalCardRenderer {
                 }
             }
             if (currentY + lineHeight > maxY) {
-                if (line.trim() !== '') context.fillText(line.trim() + '...', x, currentY);
-                return;
+                if (line.trim() !== '') {
+                    context.fillText(line.trim() + '...', x, currentY);
+                    return { x: x + context.measureText(line.trim() + '...').width, y: currentY };
+                }
+                return { x: x, y: currentY - lineHeight };
             }
             if (line.trim() !== '') {
                 context.fillText(line.trim(), x, currentY);
+                lastLineWidth = context.measureText(line.trim()).width;
             }
-            currentY += lineHeight;
-            if (currentY > maxY) return;
+            
+            if (p < paragraphs.length - 1) {
+                currentY += lineHeight;
+            }
         }
+        return { x: x + lastLineWidth, y: currentY };
     }
 }
 

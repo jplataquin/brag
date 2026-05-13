@@ -80,6 +80,8 @@
                                     :title="$card->template->card_title"
                                     :game="$gameTitle->title"
                                     :creator="$card->originalOwner->username ?? 'Unknown'"
+                                    :isCreatorVerified="$card->originalOwner->is_verified ?? false"
+                                    :isCreatorUntrustworthy="$card->originalOwner->is_untrustworthy ?? false"
                                     :image="$card->template->display_photo"
                                     :imagePositionX="$card->template->image_position_x ?? 50"
                                     :imagePositionY="$card->template->image_position_y ?? 50"

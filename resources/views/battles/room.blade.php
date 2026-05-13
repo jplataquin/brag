@@ -585,6 +585,8 @@ function clearMarshall() {
                                                                     :title="$card->is_censored ? '[CENSORED]' : $card->template->card_title"
                                                                     :game="$card->template->gameTitle->title ?? 'GAME'"
                                                                     :creator="$card->originalOwner->username ?? 'Creator'"
+                                                                    :isCreatorVerified="$card->originalOwner->is_verified ?? false"
+                                                                    :isCreatorUntrustworthy="$card->originalOwner->is_untrustworthy ?? false"
                                                                     :quote="$card->is_censored ? '[Content hidden pending review]' : $card->template->quote"
                                                                     :image="$card->is_censored ? '' : $card->template->display_photo"
                                                                     :imagePositionY="$card->template->image_position_y ?? 50"

@@ -284,6 +284,8 @@
                             :title="$template->card_title"
                             :game="$template->gameTitle->title ?? 'GAME'"
                             :creator="$template->user->username ?? 'CREATOR'"
+                            :isCreatorVerified="$template->user->is_verified"
+                            :isCreatorUntrustworthy="$template->user->is_untrustworthy"
                             :quote="$template->quote"
                             :image="$template->display_photo"
                             :imagePositionX="$template->image_position_x ?? 50"

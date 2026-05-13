@@ -31,6 +31,8 @@
             :title="$c->is_censored ? '[CENSORED]' : $c->template->card_title"
             :game="$c->template->gameTitle->title ?? 'GAME'"
             :creator="$c->originalOwner->username ?? 'Creator'"
+            :isCreatorVerified="$c->originalOwner->is_verified ?? false"
+            :isCreatorUntrustworthy="$c->originalOwner->is_untrustworthy ?? false"
             :quote="$c->is_censored ? '[Content hidden pending review]' : $c->template->quote"
             :image="$c->is_censored ? '' : $c->template->display_photo"
             :imagePositionY="$c->template->image_position_y ?? 50"

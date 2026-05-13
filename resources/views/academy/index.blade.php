@@ -96,6 +96,7 @@
                                             title="Cyber Ronin"
                                             game="Tekken 8"
                                             creator="NoobMaster88"
+                                            :isCreatorVerified="true"
                                             quote="A sample quote for the academy."
                                             image="/img/academy-sample-card.jpg"
                                             imagePositionY="20"

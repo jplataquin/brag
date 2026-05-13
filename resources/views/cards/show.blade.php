@@ -29,6 +29,8 @@
                     :title="$digitalCard->is_censored ? '[CENSORED]' : $digitalCard->template->card_title" 
                     :game="$digitalCard->template->gameTitle->title ?? 'GAME'" 
                     :creator="$digitalCard->originalOwner->username ?? 'Creator'"
+                    :isCreatorVerified="$digitalCard->originalOwner->is_verified ?? false"
+                    :isCreatorUntrustworthy="$digitalCard->originalOwner->is_untrustworthy ?? false"
                     :quote="$digitalCard->is_censored ? '[Content hidden pending review]' : $digitalCard->template->quote"
                     :backgroundColor="$digitalCard->template->background_color"
                     :borderColor="$digitalCard->template->border_color"

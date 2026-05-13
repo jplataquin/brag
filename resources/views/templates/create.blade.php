@@ -256,6 +256,8 @@
                                :title="old('card_title', 'CARD TITLE')"
                                :game="$selectedGameTitle"
                                :creator="Auth::user()->username"
+                               :isCreatorVerified="Auth::user()->is_verified"
+                               :isCreatorUntrustworthy="Auth::user()->is_untrustworthy"
                                :quote="old('quote', 'Card quote goes here...')"
                                :image="$initialPreviewImage"
                                :backgroundColor="old('background_color', '#0a0a1a')"
