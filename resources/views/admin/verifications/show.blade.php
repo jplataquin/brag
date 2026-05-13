@@ -16,6 +16,14 @@
                     <x-username :user="$verification->user" />
                 </h2>
                 <p class="text-secondary mb-0">{{ $verification->user->email }}</p>
+                <div class="mt-2 text-info small fw-bold">
+                    {{ $verification->user->firstname }} {{ $verification->user->lastname }}
+                </div>
+                @if($verification->user->birthdate)
+                    <div class="text-secondary small">
+                        Born: {{ \Carbon\Carbon::parse($verification->user->birthdate)->format('M d, Y') }}
+                    </div>
+                @endif
                 <div class="mt-3">
                     <span class="badge bg-{{ $verification->status === 'pending' ? 'warning text-dark' : ($verification->status === 'approved' ? 'success' : 'danger') }} text-uppercase px-3 py-2">
                         {{ $verification->status }}
