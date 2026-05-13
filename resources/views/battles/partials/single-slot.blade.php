@@ -21,10 +21,13 @@
             @if($i == 1)
             👑
             @endif
-            @if($u->is_verified)
+        
+            {{ $isMe ? 'YOU' : $u->username }}
+
+            
                 <i class="bi bi-patch-check-fill text-primary me-1" title="Verified User"></i>
-            @endif
-            {{ $isMe ? 'YOU' : $u->username }}</span>
+            
+        </span>
     </div>
     <div class="{{ $cardClass }}" style="{{ $cardStyle }}">
         <x-digital-card 
