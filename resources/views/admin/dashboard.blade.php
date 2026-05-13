@@ -121,6 +121,23 @@
             </a>
         </div>
         <div class="col-md-3">
+            <a href="{{ route('admin.verifications.index') }}" class="text-decoration-none">
+                <div class="card bg-dark bg-opacity-75 border-info h-100 neon-hover" style="border-color: #00f0ff;">
+                    <div class="card-body text-center p-3">
+                        <div class="position-relative d-inline-block">
+                            <i class="bi bi-shield-check display-6 mb-2 d-block" style="color: #00f0ff;"></i>
+                            @if($stats['pending_verifications'] > 0)
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                                    {{ $stats['pending_verifications'] }}
+                                </span>
+                            @endif
+                        </div>
+                        <h6 class="text-white text-uppercase fw-bold mb-0">Verifications</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
             <div class="dropdown h-100">
                 <button class="btn p-0 border-0 w-100 h-100 text-decoration-none text-start" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <div class="card bg-dark bg-opacity-75 border-secondary h-100 neon-hover">
