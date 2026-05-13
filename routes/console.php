@@ -13,3 +13,5 @@ Schedule::command('payments:auto-approve')->everyMinute()->appendOutputTo(storag
 
 Schedule::command('app:grant-low-balance-diamonds')->monthlyOn(15, '00:00')->appendOutputTo(storage_path('logs/cron.log'));
 Schedule::command('app:grant-low-balance-diamonds')->lastDayOfMonth('00:00')->appendOutputTo(storage_path('logs/cron.log'));
+
+Schedule::command('app:cleanup-temp-files')->daily()->appendOutputTo(storage_path('logs/cron.log'));
