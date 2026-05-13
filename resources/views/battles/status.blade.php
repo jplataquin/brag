@@ -62,7 +62,13 @@
 
     @if($battle->marshall_id)
         <div class="mt-3">
-            <span class="badge bg-warning text-dark"><i class="bi bi-shield-check"></i> MARSHALL: {{ $battle->marshall->username }}</span>
+            <span class="badge bg-warning text-dark">
+                <i class="bi bi-shield-check"></i> MARSHALL: 
+                @if($battle->marshall->is_verified)
+                    <i class="bi bi-patch-check-fill text-primary me-1" title="Verified User"></i>
+                @endif
+                {{ $battle->marshall->username }}
+            </span>
         </div>
     @elseif($battle->team_a_marshall_elect && $battle->team_a_marshall_elect == $battle->team_b_marshall_elect && !in_array($battle->status, ['completed', 'cancelled']))
         @if(Auth::id() == $battle->team_a_marshall_elect)

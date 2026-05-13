@@ -516,8 +516,8 @@ function searchUsers(query, type) {
                         let div = document.createElement('div');
                         div.className = 'p-2 d-flex align-items-center gap-2';
                         div.style.cssText = 'cursor: pointer; border-bottom: 1px solid rgba(0, 240, 255, 0.1);';
-                        div.onclick = () => selectUser(user.id, user.username, type);
-                        div.innerHTML = '<img src="' + (user.avatar_url || '') + '" style="width: 24px; height: 24px; border-radius: 50%;"> <span class="text-white">@' + user.username + '</span>';
+                        div.onclick = () => selectUser(user.id, user.username, type, user.is_verified);
+                        div.innerHTML = '<img src="' + (user.avatar_url || '') + '" style="width: 24px; height: 24px; border-radius: 50%;"> <span class="text-white">' + (user.is_verified ? '<i class="bi bi-patch-check-fill text-primary me-1"></i>' : '') + '@' + user.username + '</span>';
                         resultsDiv.appendChild(div);
                     });
                 }
@@ -526,13 +526,13 @@ function searchUsers(query, type) {
     }, 300);
 }
 
-function selectUser(id, username, type) {
+function selectUser(id, username, type, isVerified) {
     document.getElementById(type + '_nominee_id').value = id;
     document.getElementById(type + '_search_input').classList.add('d-none');
     document.getElementById(type + '_search_results').classList.add('d-none');
     let badge = document.getElementById(type + '_selected_badge');
     badge.classList.remove('d-none');
-    document.getElementById(type + '_selected_username').innerText = username;
+    document.getElementById(type + '_selected_username').innerHTML = (isVerified ? '<i class="bi bi-patch-check-fill text-primary me-1"></i>' : '') + username;
     document.getElementById(type + '_submit_btn').disabled = false;
 }
 
@@ -759,19 +759,19 @@ function clearMarshall() {
 
     @php
         $showCancelModal = false;
-        $requesterName = '';
+        $requester = null;
         if ($battle->status !== 'cancelled' && $battle->status !== 'completed') {
             if ($battle->team_a_cancel_flag && Auth::id() == $battle->team_b_user_1) {
                 $showCancelModal = true;
-                $requesterName = \App\Models\User::find($battle->team_a_user_1)?->username ?? 'Team A Leader';
+                $requester = \App\Models\User::find($battle->team_a_user_1);
             } elseif ($battle->team_b_cancel_flag && Auth::id() == $battle->team_a_user_1) {
                 $showCancelModal = true;
-                $requesterName = \App\Models\User::find($battle->team_b_user_1)?->username ?? 'Team B Leader';
+                $requester = \App\Models\User::find($battle->team_b_user_1);
             }
         }
     @endphp
 
-    @if($showCancelModal)
+    @if($showCancelModal && $requester)
     <div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0, 0, 0, 0.8);">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="background: rgba(10, 10, 30, 0.95); border: 1px solid #ff00ff; backdrop-filter: blur(20px); box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);">
@@ -783,7 +783,7 @@ function clearMarshall() {
                         <i class="bi bi-exclamation-triangle-fill" style="font-size: 3rem; color: #ff00ff; opacity: 0.8;"></i>
                     </div>
                     <p class="mb-4" style="font-size: 1.1rem;">
-                        <strong id="cancel-requester-name">{{ $requesterName }}</strong> has requested to cancel this battle. 
+                        <strong id="cancel-requester-name"><x-username :user="$requester" /></strong> has requested to cancel this battle. 
                         Do you agree to cancel the match?
                     </p>
                     <p class="text-muted small mb-4">

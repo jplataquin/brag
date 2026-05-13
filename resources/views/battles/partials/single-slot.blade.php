@@ -21,6 +21,9 @@
             @if($i == 1)
             👑
             @endif
+            @if($u->is_verified)
+                <i class="bi bi-patch-check-fill text-primary me-1" title="Verified User"></i>
+            @endif
             {{ $isMe ? 'YOU' : $u->username }}</span>
     </div>
     <div class="{{ $cardClass }}" style="{{ $cardStyle }}">

@@ -21,7 +21,7 @@ class UserSearchController extends Controller
         $users = User::where('username', 'like', "%{$q}%")
             ->whereNotIn('id', $except)
             ->take(5)
-            ->get(['id', 'username', 'avatar']);
+            ->get(['id', 'username', 'avatar', 'is_verified']);
 
         return response()->json($users);
     }
