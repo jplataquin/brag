@@ -178,6 +178,22 @@
                             <div class="text-danger mt-1 small">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    <!-- Background Removal Feature -->
+                    <div id="bg-removal-container" class="mt-4 pt-3 border-top border-secondary">
+                        <button type="button" id="btn-remove-bg" class="btn btn-outline-neon-magenta w-100 mb-2">
+                            <i class="bi bi-person-bounding-box"></i> REMOVE BACKGROUND
+                        </button>
+                        <div id="bg-removal-progress-container" style="display: none;">
+                            <div class="progress" style="height: 8px; background-color: #111122; border-radius: 4px; overflow: hidden;">
+                                <div id="bg-removal-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; background-color: #ff00ff;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <small id="bg-removal-status" style="color: #ff00ff; font-size: 0.7rem; font-family: 'Orbitron', sans-serif;">Initializing background removal...</small>
+                        </div>
+                        <small class="text-center d-block" style="color: #555577; font-size: 0.7rem;">
+                            Runs locally in your browser. Powered by @imgly.
+                        </small>
+                    </div>
                 </div>
 
             </form>
@@ -220,29 +236,13 @@
                     :imagePositionX="$template->image_position_x ?? 50"
                     :imagePositionY="$template->image_position_y ?? 50"
                     :imageScale="$template->image_scale ?? 1.0"
-                    :imageStretchY="$template->image_stretch_y ?? 1.0" />
+                    :imageStretchY="$template->image_stretch_y ?? 1.0"
                     :year="$template->created_at->format('Y')"
                 />
             </div>
             <p class="text-center mt-3 mb-4" style="color: #555577; font-size: 0.8rem;">
                 This is a preview of how digital cards forged from this template will look.
             </p>
-
-            <!-- Background Removal Feature -->
-            <div id="bg-removal-container" class="mb-4">
-                <button type="button" id="btn-remove-bg" class="btn btn-outline-neon w-100 mb-2" style="border-color: #ff00ff; color: #ff00ff;">
-                    <i class="bi bi-person-bounding-box"></i> REMOVE BACKGROUND
-                </button>
-                <div id="bg-removal-progress-container" style="display: none;">
-                    <div class="progress" style="height: 8px; background-color: #111122; border-radius: 4px; overflow: hidden;">
-                        <div id="bg-removal-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; background-color: #ff00ff;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <small id="bg-removal-status" style="color: #ff00ff; font-size: 0.7rem; font-family: 'Orbitron', sans-serif;">Initializing background removal...</small>
-                </div>
-                <small class="text-center d-block" style="color: #555577; font-size: 0.7rem;">
-                    Runs locally in your browser. Powered by @imgly.
-                </small>
-            </div>
 
             <div class="mb-4">
                 <label for="image_position_x" class="form-label" style="font-size: 0.75rem; color: #bbbbd0;">IMAGE HORIZONTAL POSITION (X-AXIS CROP)</label>

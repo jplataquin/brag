@@ -159,6 +159,22 @@
                                 <input type="hidden" id="generated_ai_photo" name="generated_ai_photo">
                             </div>
                         </div>
+
+                        <!-- Background Removal Feature -->
+                        <div id="bg-removal-container" class="mt-4 pt-3 border-top border-secondary">
+                            <button type="button" id="btn-remove-bg" class="btn btn-outline-neon-magenta w-100 mb-2">
+                                <i class="bi bi-person-bounding-box"></i> REMOVE BACKGROUND
+                            </button>
+                            <div id="bg-removal-progress-container" style="display: none;">
+                                <div class="progress" style="height: 8px; background-color: #111122; border-radius: 4px; overflow: hidden;">
+                                    <div id="bg-removal-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; background-color: #ff00ff;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <small id="bg-removal-status" style="color: #ff00ff; font-size: 0.7rem; font-family: 'Orbitron', sans-serif;">Initializing background removal...</small>
+                            </div>
+                            <small class="text-center d-block text-muted" style="font-size: 0.7rem;">
+                                Runs locally in your browser. Powered by @imgly.
+                            </small>
+                        </div>
                     </div>
 
                     <hr class="border-info my-4">
@@ -339,6 +355,125 @@
                     }
                 }
             });
+        });
+
+        // Background Removal Logic
+        document.getElementById('btn-remove-bg').addEventListener('click', async function() {
+            const renderer = window.digitalCardRenderers ? window.digitalCardRenderers['card_canvas_admin_preview'] : null;
+            if (!renderer || !renderer.currentOptions || !renderer.currentOptions.image) {
+                window.neonAlert('No image found in preview to process.');
+                return;
+            }
+
+            const btn = this;
+            const progressContainer = document.getElementById('bg-removal-progress-container');
+            const progressBar = document.getElementById('bg-removal-progress-bar');
+            const statusText = document.getElementById('bg-removal-status');
+            const submitBtn = document.querySelector('button[type="submit"]');
+
+            try {
+                btn.disabled = true;
+                submitBtn.disabled = true;
+                progressContainer.style.display = 'block';
+                progressBar.style.width = '0%';
+                statusText.innerText = 'Initializing background removal...';
+                statusText.style.color = '#ff00ff';
+
+                const blob = await window.removeImageBackground(renderer.currentOptions.image, (key, current, total) => {
+                    const percent = Math.round((current / total) * 100);
+                    progressBar.style.width = percent + '%';
+                    statusText.innerText = `Downloading model: ${percent}%`;
+                    if (percent === 100) {
+                        statusText.innerText = 'Processing image (this may take a few seconds)...';
+                    }
+                });
+
+                statusText.innerText = 'Background removed! Preparing upload...';
+                
+                // Switch to upload mode
+                document.getElementById('mode_upload').checked = true;
+                document.getElementById('mode_upload').dispatchEvent(new Event('change'));
+
+                // Create a file object from blob
+                const processedFile = new File([blob], "isolated_subject.png", { type: "image/png" });
+                
+                // Local preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Update dropzone UI to show it's now using a processed image
+                    dropzone.innerHTML = `
+                        <i class="bi bi-person-check-fill mb-2" style="font-size: 2.5rem; color: #ff00ff; text-shadow: 0 0 10px rgba(255,0,255,0.4);"></i>
+                        <span style="font-family: 'Orbitron', sans-serif; color: #ff00ff; font-weight: 600; letter-spacing: 1px;">PROCESSED_IMAGE.PNG</span>
+                        <small class="mt-2" style="color: #8888aa; font-size: 0.75rem;">Background Removed</small>
+                    `;
+                    dropzone.style.borderColor = '#ff00ff';
+
+                    updateLivePreview({ image: e.target.result });
+                };
+                reader.readAsDataURL(processedFile);
+
+                // Re-use chunk upload logic
+                const file = processedFile;
+                const fileId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const CHUNK_SIZE = 256 * 1024; // 256KB
+                const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+                const extension = 'png';
+                const tempInput = document.getElementById('temporary_photo_path');
+                let chunkIndex = 0;
+
+                function uploadNextChunk() {
+                    const start = chunkIndex * CHUNK_SIZE;
+                    const end = Math.min(start + CHUNK_SIZE, file.size);
+                    const chunk = file.slice(start, end);
+
+                    const formData = new FormData();
+                    formData.append('file', chunk);
+                    formData.append('file_id', fileId);
+                    formData.append('chunk_index', chunkIndex);
+                    formData.append('total_chunks', totalChunks);
+                    formData.append('extension', extension);
+                    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+                    fetch('{{ route("upload.chunk") }}', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            statusText.innerText = 'Upload failed!';
+                            statusText.style.color = 'red';
+                            return;
+                        }
+                        
+                        chunkIndex++;
+                        const percent = Math.round((chunkIndex / totalChunks) * 100);
+                        progressBar.style.width = percent + '%';
+                        statusText.innerText = 'Uploading: ' + percent + '%';
+
+                        if (chunkIndex < totalChunks) {
+                            uploadNextChunk();
+                        } else if (data.success && data.path) {
+                            tempInput.value = data.path;
+                            statusText.innerText = 'Process complete!';
+                            statusText.style.color = '#39ff14';
+                            submitBtn.disabled = false;
+                            setTimeout(() => {
+                                progressContainer.style.display = 'none';
+                            }, 3000);
+                        }
+                    });
+                }
+                uploadNextChunk();
+
+            } catch (error) {
+                console.error('Background Removal Error:', error);
+                window.neonAlert('Failed to remove background: ' + error.message);
+                statusText.innerText = 'Error occurred.';
+                statusText.style.color = 'red';
+                btn.disabled = false;
+                submitBtn.disabled = false;
+            }
         });
 
         const photoInput = document.getElementById('photo');

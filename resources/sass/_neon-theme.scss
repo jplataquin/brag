@@ -515,6 +515,38 @@ h1, h2, h3, h4, h5, h6,
     }
 }
 
+.btn-outline-neon {
+    background: transparent;
+    border: 1px solid rgba($neon-cyan, 0.5);
+    color: $neon-cyan;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba($neon-cyan, 0.1);
+        color: $neon-cyan;
+        box-shadow: 0 0 15px rgba($neon-cyan, 0.2);
+        border-color: $neon-cyan;
+    }
+}
+
+.btn-outline-neon-magenta {
+    @extend .btn-outline-neon;
+    border-color: rgba($neon-magenta, 0.5);
+    color: $neon-magenta;
+
+    &:hover {
+        background: rgba($neon-magenta, 0.1);
+        color: $neon-magenta;
+        box-shadow: 0 0 15px rgba($neon-magenta, 0.2);
+        border-color: $neon-magenta;
+    }
+}
+
 .btn-neon-lime {
     @extend .btn-neon;
     border-color: $neon-lime;
