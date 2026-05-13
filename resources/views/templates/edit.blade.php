@@ -182,7 +182,8 @@
                     <!-- Background Removal Feature -->
                     <div id="bg-removal-container" class="mt-4 pt-3 border-top border-secondary">
                         <button type="button" id="btn-remove-bg" class="btn btn-outline-neon-magenta w-100 mb-2">
-                            <i class="bi bi-person-bounding-box"></i> REMOVE BACKGROUND
+                            <span class="spinner-border spinner-border-sm d-none" id="bg-remove-spinner" role="status" aria-hidden="true"></span>
+                            <span id="bg-remove-text"><i class="bi bi-person-bounding-box"></i> REMOVE BACKGROUND</span>
                         </button>
                         <div id="bg-removal-progress-container" style="display: none;">
                             <div class="progress" style="height: 8px; background-color: #111122; border-radius: 4px; overflow: hidden;">
@@ -577,6 +578,8 @@
         }
 
         const btn = this;
+        const btnText = document.getElementById('bg-remove-text');
+        const btnSpinner = document.getElementById('bg-remove-spinner');
         const progressContainer = document.getElementById('bg-removal-progress-container');
         const progressBar = document.getElementById('bg-removal-progress-bar');
         const statusText = document.getElementById('bg-removal-status');
@@ -584,6 +587,8 @@
 
         try {
             btn.disabled = true;
+            btnSpinner.classList.remove('d-none');
+            btnText.innerText = ' PROCESSING...';
             submitBtn.disabled = true;
             progressContainer.style.display = 'block';
             progressBar.style.width = '0%';
@@ -650,6 +655,8 @@
             statusText.style.color = 'red';
         } finally {
             btn.disabled = false;
+            btnSpinner.classList.add('d-none');
+            btnText.innerHTML = '<i class="bi bi-person-bounding-box"></i> REMOVE BACKGROUND';
             submitBtn.disabled = false;
         }
     });
