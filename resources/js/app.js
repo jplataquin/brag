@@ -1,17 +1,32 @@
 import './bootstrap';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import * as bootstrap from 'bootstrap';
-import { removeBackground } from "@imgly/background-removal";
+import { removeBackground, preload } from "@imgly/background-removal";
 
 // Make bootstrap available globally for the alert auto-dismiss script
 window.bootstrap = bootstrap;
 
+/**
+ * Common configuration for background removal
+ */
+const getBackgroundRemovalConfig = (progressCallback = null) => ({
+    publicPath: window.location.origin + '/imgly-assets/',
+    model: 'small', // Use the optimized small model for speed
+    progress: progressCallback
+});
+
 window.removeImageBackground = async function(imageSrc, progressCallback) {
-    const config = {
-        publicPath: window.location.origin + '/imgly-assets/',
-        progress: progressCallback
-    };
-    return await removeBackground(imageSrc, config);
+    return await removeBackground(imageSrc, getBackgroundRemovalConfig(progressCallback));
+};
+
+window.preloadImageBackgroundModel = async function() {
+    try {
+        console.log('Preloading background removal model...');
+        await preload(getBackgroundRemovalConfig());
+        console.log('Background removal model preloaded successfully.');
+    } catch (error) {
+        console.warn('Failed to preload background removal model:', error);
+    }
 };
 
 class DigitalCardRenderer {

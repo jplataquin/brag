@@ -518,6 +518,11 @@ const ts = new TomSelect("#game_title_id",{
 });
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Preload background removal model
+    if (window.preloadImageBackgroundModel) {
+        window.preloadImageBackgroundModel();
+    }
+
     const autoForgeCheckbox = document.getElementById('auto_forge');
     const displayCost = document.getElementById('display-total-cost');
     const submitBtn = document.getElementById('btn-submit-template');

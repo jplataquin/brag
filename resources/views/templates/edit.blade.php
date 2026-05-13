@@ -435,6 +435,11 @@
         });
     }
 
+    // Preload background removal model
+    if (window.preloadImageBackgroundModel) {
+        window.preloadImageBackgroundModel();
+    }
+
     // Clear validation errors on input for all standard fields
     document.querySelectorAll('.form-control').forEach(function(input) {
         input.addEventListener('input', function() {

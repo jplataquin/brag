@@ -312,6 +312,11 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        // Preload background removal model
+        if (window.preloadImageBackgroundModel) {
+            window.preloadImageBackgroundModel();
+        }
+
         // Handle Game Title Dropdown changes
         const gameSelect = document.getElementById('game_title_id');
         if (gameSelect) {
