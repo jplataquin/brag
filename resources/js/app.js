@@ -9,6 +9,7 @@ window.bootstrap = bootstrap;
 window.removeImageBackground = async function(imageSrc, progressCallback) {
     const config = {
         publicPath: window.location.origin + '/imgly-assets/',
+        model: 'medium',
         progress: progressCallback
     };
     return await removeBackground(imageSrc, config);
