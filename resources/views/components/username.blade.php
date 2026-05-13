@@ -1,6 +1,6 @@
 <span class="username-wrapper {{ $user->is_untrustworthy ? 'untrustworthy-glow' : '' }}" style="{{ $user->is_untrustworthy ? 'color: #ff0000; text-shadow: 0 0 8px #ff0000; font-weight: bold;' : '' }}">
     {{ $user->username }}
-    @if($user->is_verified)
+    @if(!$user->is_verified)
         <i class="bi bi-patch-check-fill text-primary me-1" title="Verified User"></i>
     @endif
 </span>
