@@ -8,9 +8,14 @@
         <h1 class="page-title m-0">
             <span class="page-title-accent"><i class="bi bi-file-earmark-lock"></i></span> PRIVACY POLICY <span class="text-muted fs-4">#{{ $privacy->id }}</span>
         </h1>
-        <a href="{{ route('admin.privacy.index') }}" class="btn btn-outline-info">
-            <i class="bi bi-arrow-left"></i> Back to Manage Privacy
-        </a>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-outline-info no-print">
+                <i class="bi bi-printer"></i> Print
+            </button>
+            <a href="{{ route('admin.privacy.index') }}" class="btn btn-outline-info no-print">
+                <i class="bi bi-arrow-left"></i> Back to Manage Privacy
+            </a>
+        </div>
     </div>
 
     <div class="row justify-content-center">
@@ -55,5 +60,39 @@
         margin-bottom: 1.5rem;
     }
     .tracking-wide { letter-spacing: 1px; }
+
+    /* Print Styles */
+    @media print {
+        .no-print, .navbar, footer, .badge {
+            display: none !important;
+        }
+        body {
+            background: white !important;
+            color: black !important;
+        }
+        .card {
+            background: white !important;
+            color: black !important;
+            border: none !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+        }
+        .privacy-content {
+            color: black !important;
+        }
+        .privacy-content h1, .privacy-content h2, .privacy-content h3 {
+            color: black !important;
+        }
+        .container {
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .page-title-accent {
+            display: none !important;
+        }
+    }
 </style>
 @endsection
