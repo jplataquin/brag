@@ -144,7 +144,16 @@
 
                     <div class="mb-3">
                         <label class="form-label">Parent / Guardian Government ID</label>
-                        <input type="file" class="form-control @error('parent_id_path') is-invalid @enderror" id="parent_id_file" accept="image/*,.pdf">
+                        <div class="position-relative" id="parent-id-upload-wrapper">
+                            <input type="file" class="position-absolute w-100 h-100 opacity-0"
+                                   style="z-index: 2; cursor: pointer; top: 0; left: 0;"
+                                   id="parent_id_file" accept="image/*,.pdf">
+                            <div id="parent-id-dropzone" class="d-flex flex-column align-items-center justify-content-center p-4 text-center neon-card @error('parent_id_path') border-danger @enderror" style="border: 2px dashed rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.02); transition: all 0.3s ease;">
+                                <i class="bi bi-cloud-arrow-up-fill mb-2" style="font-size: 2.5rem; color: #00f0ff; text-shadow: 0 0 10px rgba(0,240,255,0.4);"></i>
+                                <span style="font-family: 'Orbitron', sans-serif; color: #00f0ff; font-weight: 600; letter-spacing: 1px;">CLICK OR DRAG ID HERE</span>
+                                <small class="mt-2" style="color: #8888aa; font-size: 0.75rem;">Supports JPEG, PNG, PDF</small>
+                            </div>
+                        </div>
                         <input type="hidden" name="parent_id_path" id="parent_id_path" value="{{ old('parent_id_path') }}">
                         <div class="progress mt-2" style="height: 5px; display: none;" id="parent-id-progress-container">
                             <div class="progress-bar bg-info" id="parent-id-progress" role="progressbar" style="width: 0%;"></div>
@@ -279,9 +288,49 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (parentIdFile) {
+        const dropzone = document.getElementById('parent-id-dropzone');
+
+        parentIdFile.addEventListener('dragenter', () => {
+            dropzone.style.borderColor = '#00f0ff';
+            dropzone.style.background = 'rgba(0, 240, 255, 0.1)';
+            dropzone.style.boxShadow = '0 0 20px rgba(0, 240, 255, 0.3)';
+        });
+
+        parentIdFile.addEventListener('dragleave', () => {
+            dropzone.style.borderColor = 'rgba(0, 240, 255, 0.4)';
+            dropzone.style.background = 'rgba(0, 240, 255, 0.02)';
+            dropzone.style.boxShadow = 'none';
+        });
+
+        parentIdFile.addEventListener('drop', () => {
+            dropzone.style.borderColor = 'rgba(0, 240, 255, 0.4)';
+            dropzone.style.background = 'rgba(0, 240, 255, 0.02)';
+            dropzone.style.boxShadow = 'none';
+        });
+
+        parentIdFile.addEventListener('mouseenter', () => {
+            dropzone.style.borderColor = '#00f0ff';
+            dropzone.style.background = 'rgba(0, 240, 255, 0.05)';
+            dropzone.style.transform = 'translateY(-2px)';
+        });
+
+        parentIdFile.addEventListener('mouseleave', () => {
+            dropzone.style.borderColor = 'rgba(0, 240, 255, 0.4)';
+            dropzone.style.background = 'rgba(0, 240, 255, 0.02)';
+            dropzone.style.transform = 'translateY(0)';
+        });
+
         parentIdFile.addEventListener('change', function() {
             const file = this.files[0];
             if (!file) return;
+
+            // Update dropzone UI
+            dropzone.innerHTML = `
+                <i class="bi bi-file-earmark-check-fill mb-2" style="font-size: 2.5rem; color: #39ff14; text-shadow: 0 0 10px rgba(57,255,20,0.4);"></i>
+                <span style="font-family: 'Orbitron', sans-serif; color: #39ff14; font-weight: 600; letter-spacing: 1px;">${file.name}</span>
+                <small class="mt-2" style="color: #8888aa; font-size: 0.75rem;">Click or drag to change</small>
+            `;
+            dropzone.style.borderColor = '#39ff14';
 
             const CHUNK_SIZE = 512 * 1024; // 512KB
             const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
