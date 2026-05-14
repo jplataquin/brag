@@ -134,6 +134,15 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="parent_email" class="form-label">Parent Email Address</label>
+                        <input type="email" class="form-control @error('parent_email') is-invalid @enderror" id="parent_email" name="parent_email" value="{{ old('parent_email') }}" placeholder="parent@email.com">
+                        <div class="form-text text-white-50" style="font-size: 0.75rem;">A confirmation link will be sent to this email address.</div>
+                        @error('parent_email')
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
                         <label for="parent_birthdate" class="form-label">Parent Birthdate</label>
                         <input type="date" class="form-control @error('parent_birthdate') is-invalid @enderror" id="parent_birthdate" name="parent_birthdate" value="{{ old('parent_birthdate') }}" max="{{ now()->subYears(18)->format('Y-m-d') }}">
                         <div class="form-text text-white-50" style="font-size: 0.75rem;">Your parent or guardian must be at least 18 years old.</div>
@@ -247,6 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Parent fields
     const parentFirstname = document.getElementById('parent_firstname');
     const parentLastname = document.getElementById('parent_lastname');
+    const parentEmail = document.getElementById('parent_email');
     const parentBirthdate = document.getElementById('parent_birthdate');
     const parentAgreed = document.getElementById('parent_consent_agreed');
 
@@ -267,12 +277,14 @@ document.addEventListener('DOMContentLoaded', function() {
             consentSection.style.display = 'block';
             parentFirstname.required = true;
             parentLastname.required = true;
+            parentEmail.required = true;
             parentBirthdate.required = true;
             parentAgreed.required = true;
         } else {
             consentSection.style.display = 'none';
             parentFirstname.required = false;
             parentLastname.required = false;
+            parentEmail.required = false;
             parentBirthdate.required = false;
             parentAgreed.required = false;
         }

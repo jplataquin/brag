@@ -75,6 +75,10 @@ Route::get('/games/{gameTitle}', [\App\Http\Controllers\GameTitleController::cla
 // Academy (Public)
 Route::get('/academy', [\App\Http\Controllers\AcademyController::class, 'index'])->name('academy.index');
 
+// Parental Consent Actions
+Route::get('/parental-consent/confirm/{token}', [\App\Http\Controllers\ParentalConsentController::class, 'confirm'])->name('parental.confirm');
+Route::get('/parental-consent/reject/{token}', [\App\Http\Controllers\ParentalConsentController::class, 'reject'])->name('parental.reject');
+
 // Authenticated Routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

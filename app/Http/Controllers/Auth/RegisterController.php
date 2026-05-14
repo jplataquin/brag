@@ -44,6 +44,20 @@ class RegisterController extends Controller
     }
 
     /**
+     * The user has been registered.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @return mixed
+     */
+    protected function registered(\Illuminate\Http\Request $request, $user)
+    {
+        if ($user->parental_consent_status === 'pending' && $user->parent_email) {
+            \Illuminate\Support\Facades\Mail::to($user->parent_email)->send(new \App\Mail\ParentalConsentRequest($user));
+        }
+    }
+
+    /**
      * Get a validator for an incoming registration request.
      *
      * @return \Illuminate\Contracts\Validation\Validator
@@ -65,7 +79,15 @@ class RegisterController extends Controller
             'birthdate.before_or_equal' => 'You must be at least 13 years old to register.',
         ]);
 
-        $validator->sometimes(['parent_firstname', 'parent_lastname', 'parent_birthdate', 'parent_id_base64', 'parent_consent_agreed'], 'required', function ($input) {
+        $validator->sometimes(['parent_firstname', 'parent_lastname', 'parent_email', 'parent_birthdate', 'parent_id_base64', 'parent_consent_agreed'], 'required', function ($input) {
+            try {
+                return \Carbon\Carbon::parse($input->birthdate)->age < 18;
+            } catch (\Exception $e) {
+                return false;
+            }
+        });
+
+        $validator->sometimes('parent_email', 'email|max:255', function ($input) {
             try {
                 return \Carbon\Carbon::parse($input->birthdate)->age < 18;
             } catch (\Exception $e) {
@@ -148,8 +170,10 @@ class RegisterController extends Controller
             'parent_firstname' => $isMinor ? ($data['parent_firstname'] ?? null) : null,
             'parent_lastname' => $isMinor ? ($data['parent_lastname'] ?? null) : null,
             'parent_birthdate' => $isMinor ? ($data['parent_birthdate'] ?? null) : null,
+            'parent_email' => $isMinor ? ($data['parent_email'] ?? null) : null,
             'parent_id_path' => $parentIdPath,
             'parental_consent_status' => $isMinor ? 'pending' : 'not_required',
+            'parent_consent_token' => $isMinor ? \Illuminate\Support\Str::random(60) : null,
         ]);
 
         return $user;

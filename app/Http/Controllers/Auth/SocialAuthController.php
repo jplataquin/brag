@@ -144,6 +144,7 @@ class SocialAuthController extends Controller
         if ($isMinor) {
             $rules['parent_firstname'] = 'required|string|max:255';
             $rules['parent_lastname'] = 'required|string|max:255';
+            $rules['parent_email'] = 'required|email|max:255';
             $rules['parent_birthdate'] = 'required|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d');
             $rules['parent_id_base64'] = 'required|string';
             $rules['parent_consent_agreed'] = 'required|accepted';
@@ -197,12 +198,18 @@ class SocialAuthController extends Controller
                 'parent_firstname' => $isMinor ? $request->parent_firstname : null,
                 'parent_lastname' => $isMinor ? $request->parent_lastname : null,
                 'parent_birthdate' => $isMinor ? $request->parent_birthdate : null,
+                'parent_email' => $isMinor ? $request->parent_email : null,
                 'parent_id_path' => $parentIdPath,
                 'parental_consent_status' => $isMinor ? 'pending' : 'not_required',
+                'parent_consent_token' => $isMinor ? \Illuminate\Support\Str::random(60) : null,
             ]);
 
             // Fire the Verified event so listeners (like GrantWelcomeDiamonds) are triggered
             event(new \Illuminate\Auth\Events\Verified($user));
+
+            if ($user->parental_consent_status === 'pending' && $user->parent_email) {
+                \Illuminate\Support\Facades\Mail::to($user->parent_email)->send(new \App\Mail\ParentalConsentRequest($user));
+            }
 
             session()->forget(['google_user_id', 'google_user_email', 'google_user_name', 'google_user_avatar']);
             
@@ -217,9 +224,15 @@ class SocialAuthController extends Controller
                 'parent_firstname' => $isMinor ? $request->parent_firstname : null,
                 'parent_lastname' => $isMinor ? $request->parent_lastname : null,
                 'parent_birthdate' => $isMinor ? $request->parent_birthdate : null,
+                'parent_email' => $isMinor ? $request->parent_email : null,
                 'parent_id_path' => $parentIdPath,
                 'parental_consent_status' => $isMinor ? 'pending' : 'not_required',
+                'parent_consent_token' => $isMinor ? \Illuminate\Support\Str::random(60) : null,
             ]);
+
+            if ($user->parental_consent_status === 'pending' && $user->parent_email) {
+                \Illuminate\Support\Facades\Mail::to($user->parent_email)->send(new \App\Mail\ParentalConsentRequest($user));
+            }
             
             Auth::setUser($user->fresh());
         }

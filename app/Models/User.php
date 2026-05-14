@@ -39,8 +39,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'parent_firstname',
         'parent_lastname',
         'parent_birthdate',
+        'parent_email',
         'parent_id_path',
         'parental_consent_status',
+        'parent_consent_token',
     ];
 
     /**
