@@ -259,13 +259,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function toggleConsentSection() {
         const age = calculateAge(birthdateInput.value);
         if (age >= 13 && age < 18) {
-            $(consentSection).slideDown();
+            consentSection.style.display = 'block';
             parentFirstname.required = true;
             parentLastname.required = true;
             parentBirthdate.required = true;
             parentAgreed.required = true;
         } else {
-            $(consentSection).slideUp();
+            consentSection.style.display = 'none';
             parentFirstname.required = false;
             parentLastname.required = false;
             parentBirthdate.required = false;
