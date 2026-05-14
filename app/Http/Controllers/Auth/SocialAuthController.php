@@ -145,20 +145,33 @@ class SocialAuthController extends Controller
             $rules['parent_firstname'] = 'required|string|max:255';
             $rules['parent_lastname'] = 'required|string|max:255';
             $rules['parent_birthdate'] = 'required|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d');
-            $rules['parent_id_path'] = 'required|string';
+            $rules['parent_id_base64'] = 'required|string';
             $rules['parent_consent_agreed'] = 'required|accepted';
         }
 
         $request->validate($rules);
 
         $parentIdPath = null;
-        if ($isMinor && !empty($request->parent_id_path)) {
-            $tempPath = $request->parent_id_path;
-            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($tempPath)) {
-                $filename = basename($tempPath);
-                $permanentPath = 'uploads/parent_ids/' . $filename;
-                \Illuminate\Support\Facades\Storage::disk('public')->move($tempPath, $permanentPath);
-                $parentIdPath = $permanentPath;
+        if ($isMinor && !empty($request->parent_id_base64)) {
+            try {
+                $imageData = $request->parent_id_base64;
+                if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+                    $imageData = substr($imageData, strpos($imageData, ',') + 1);
+                    $type = strtolower($type[1]);
+
+                    if (!in_array($type, ['jpg', 'jpeg', 'png'])) {
+                        throw new \Exception('Invalid image type');
+                    }
+
+                    $imageData = base64_decode($imageData);
+                    if ($imageData !== false) {
+                        $filename = uniqid() . '.' . $type;
+                        $parentIdPath = 'uploads/parent_ids/' . $filename;
+                        \Illuminate\Support\Facades\Storage::disk('public')->put($parentIdPath, $imageData);
+                    }
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Social Parent ID Upload Error: ' . $e->getMessage());
             }
         }
 

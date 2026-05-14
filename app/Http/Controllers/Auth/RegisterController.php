@@ -65,7 +65,7 @@ class RegisterController extends Controller
             'birthdate.before_or_equal' => 'You must be at least 13 years old to register.',
         ]);
 
-        $validator->sometimes(['parent_firstname', 'parent_lastname', 'parent_birthdate', 'parent_id_path', 'parent_consent_agreed'], 'required', function ($input) {
+        $validator->sometimes(['parent_firstname', 'parent_lastname', 'parent_birthdate', 'parent_id_base64', 'parent_consent_agreed'], 'required', function ($input) {
             try {
                 return \Carbon\Carbon::parse($input->birthdate)->age < 18;
             } catch (\Exception $e) {
@@ -109,13 +109,29 @@ class RegisterController extends Controller
         $isMinor = $age < 18;
         
         $parentIdPath = null;
-        if ($isMinor && !empty($data['parent_id_path'])) {
-            $tempPath = $data['parent_id_path'];
-            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($tempPath)) {
-                $filename = basename($tempPath);
-                $permanentPath = 'uploads/parent_ids/' . $filename;
-                \Illuminate\Support\Facades\Storage::disk('public')->move($tempPath, $permanentPath);
-                $parentIdPath = $permanentPath;
+        if ($isMinor && !empty($data['parent_id_base64'])) {
+            try {
+                $imageData = $data['parent_id_base64'];
+                if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+                    $imageData = substr($imageData, strpos($imageData, ',') + 1);
+                    $type = strtolower($type[1]); // jpg, png, etc
+
+                    if (!in_array($type, ['jpg', 'jpeg', 'png'])) {
+                        throw new \Exception('Invalid image type');
+                    }
+
+                    $imageData = base64_decode($imageData);
+
+                    if ($imageData === false) {
+                        throw new \Exception('base64_decode failed');
+                    }
+
+                    $filename = uniqid() . '.' . $type;
+                    $parentIdPath = 'uploads/parent_ids/' . $filename;
+                    \Illuminate\Support\Facades\Storage::disk('public')->put($parentIdPath, $imageData);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Parent ID Upload Error: ' . $e->getMessage());
             }
         }
 

@@ -102,19 +102,15 @@
                         <div class="position-relative" id="parent-id-upload-wrapper">
                             <input type="file" class="position-absolute w-100 h-100 opacity-0"
                                    style="z-index: 2; cursor: pointer; top: 0; left: 0;"
-                                   id="parent_id_file" accept="image/*,.pdf">
-                            <div id="parent-id-dropzone" class="d-flex flex-column align-items-center justify-content-center p-4 text-center neon-card @error('parent_id_path') border-danger @enderror" style="border: 2px dashed rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.02); transition: all 0.3s ease;">
+                                   id="parent_id_file" accept="image/jpeg,image/png">
+                            <div id="parent-id-dropzone" class="d-flex flex-column align-items-center justify-content-center p-4 text-center neon-card @error('parent_id_base64') border-danger @enderror" style="border: 2px dashed rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.02); transition: all 0.3s ease;">
                                 <i class="bi bi-cloud-arrow-up-fill mb-2" style="font-size: 2.5rem; color: #00f0ff; text-shadow: 0 0 10px rgba(0,240,255,0.4);"></i>
-                                <span style="font-family: 'Orbitron', sans-serif; color: #00f0ff; font-weight: 600; letter-spacing: 1px;">CLICK OR DRAG ID HERE</span>
-                                <small class="mt-2" style="color: #8888aa; font-size: 0.75rem;">Supports JPEG, PNG, PDF</small>
+                                <span style="font-family: 'Orbitron', sans-serif; color: #00f0ff; font-weight: 600; letter-spacing: 1px;" id="parent-id-dropzone-text">CLICK OR DRAG ID HERE</span>
+                                <small class="mt-2" style="color: #8888aa; font-size: 0.75rem;">Supports JPEG, PNG only (Auto-resized)</small>
                             </div>
                         </div>
-                        <input type="hidden" name="parent_id_path" id="parent_id_path" value="{{ old('parent_id_path') }}">
-                        <div class="progress mt-2" style="height: 5px; display: none;" id="parent-id-progress-container">
-                            <div class="progress-bar bg-info" id="parent-id-progress" role="progressbar" style="width: 0%;"></div>
-                        </div>
-                        <small id="parent-id-status" class="text-success mt-1 d-block"></small>
-                        @error('parent_id_path')
+                        <input type="hidden" name="parent_id_base64" id="parent_id_base64" value="{{ old('parent_id_base64') }}">
+                        @error('parent_id_base64')
                             <span class="invalid-feedback d-block" role="alert"><strong>{{ $message }}</strong></span>
                         @enderror
                     </div>
@@ -222,6 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (parentIdFile) {
         const dropzone = document.getElementById('parent-id-dropzone');
+        const hiddenBase64 = document.getElementById('parent_id_base64');
 
         parentIdFile.addEventListener('dragenter', () => {
             dropzone.style.borderColor = '#00f0ff';
@@ -257,83 +254,62 @@ document.addEventListener('DOMContentLoaded', function() {
             const file = this.files[0];
             if (!file) return;
 
-            // Update dropzone UI
-            dropzone.innerHTML = `
-                <i class="bi bi-file-earmark-check-fill mb-2" style="font-size: 2.5rem; color: #39ff14; text-shadow: 0 0 10px rgba(57,255,20,0.4);"></i>
-                <span style="font-family: 'Orbitron', sans-serif; color: #39ff14; font-weight: 600; letter-spacing: 1px;">${file.name}</span>
-                <small class="mt-2" style="color: #8888aa; font-size: 0.75rem;">Click or drag to change</small>
-            `;
-            dropzone.style.borderColor = '#39ff14';
-
-            const CHUNK_SIZE = 512 * 1024; // 512KB
-            const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-            const fileId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-            const extension = file.name.split('.').pop();
-
-            let chunkIndex = 0;
-            btnSubmit.disabled = true;
-            progressContainer.style.display = 'block';
-            statusText.innerText = 'Starting upload...';
-            statusText.style.color = 'inherit';
-
-            function uploadNextChunk() {
-                const start = chunkIndex * CHUNK_SIZE;
-                const end = Math.min(start + CHUNK_SIZE, file.size);
-                const chunk = file.slice(start, end);
-
-                const formData = new FormData();
-                formData.append('file', chunk);
-                formData.append('file_id', fileId);
-                formData.append('chunk_index', chunkIndex);
-                formData.append('total_chunks', totalChunks);
-                formData.append('extension', extension);
-                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-
-                fetch('{{ route("upload.chunk") }}', {
-                    method: 'POST',
-                    headers: { 'Accept': 'application/json' },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        statusText.innerText = 'Upload failed: ' + data.error;
-                        statusText.style.color = 'red';
-                        btnSubmit.disabled = false;
-                        return;
-                    }
-                    
-                    chunkIndex++;
-                    const percent = Math.round((chunkIndex / totalChunks) * 100);
-                    progressBar.style.width = percent + '%';
-                    statusText.innerText = 'Uploading ID: ' + percent + '%';
-
-                    if (chunkIndex < totalChunks) {
-                        uploadNextChunk();
-                    } else if (data.success && data.path) {
-                        parentIdPath.value = data.path;
-                        statusText.innerText = 'ID Upload complete!';
-                        statusText.style.color = '#39ff14';
-                        btnSubmit.disabled = false;
-                    }
-                })
-                .catch(err => {
-                    console.error('Upload Error:', err);
-                    statusText.innerText = 'Upload error!';
-                    statusText.style.color = 'red';
-                    btnSubmit.disabled = false;
-                });
+            // Simple validation
+            if (!['image/jpeg', 'image/png'].includes(file.type)) {
+                window.neonAlert('Please select a JPEG or PNG image.', 'INVALID FILE');
+                this.value = '';
+                return;
             }
-            uploadNextChunk();
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const max_size = 1200;
+
+                    if (width > height) {
+                        if (width > max_size) {
+                            height *= max_size / width;
+                            width = max_size;
+                        }
+                    } else {
+                        if (height > max_size) {
+                            width *= max_size / height;
+                            height = max_size;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    hiddenBase64.value = dataUrl;
+
+                    // Update UI
+                    dropzone.innerHTML = `
+                        <i class="bi bi-file-earmark-check-fill mb-2" style="font-size: 2.5rem; color: #39ff14; text-shadow: 0 0 10px rgba(57,255,20,0.4);"></i>
+                        <span style="font-family: 'Orbitron', sans-serif; color: #39ff14; font-weight: 600; letter-spacing: 1px;">${file.name}</span>
+                        <small class="mt-2" style="color: #8888aa; font-size: 0.75rem;">Resized & Ready</small>
+                    `;
+                    dropzone.style.borderColor = '#39ff14';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         });
     }
 
     const setupForm = document.querySelector('form');
     setupForm.addEventListener('submit', function(e) {
         const age = calculateAge(birthdateInput.value);
-        if (age >= 13 && age < 18 && !parentIdPath.value) {
+        if (age >= 13 && age < 18 && !hiddenBase64.value) {
             e.preventDefault();
-            window.neonAlert('Please wait for the parent ID upload to complete or select an ID file.', 'ID REQUIRED');
+            window.neonAlert('Please select and wait for the parent ID image to be processed.', 'ID REQUIRED');
         }
     });
 });
