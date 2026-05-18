@@ -10,3 +10,17 @@
 @import 'bootstrap/scss/bootstrap';
 
 
+
+/* Disable interaction with the entire range input (track and background) */
+input[type="range"] {
+  pointer-events: none;
+}
+
+/* Re-enable interaction ONLY for the thumb handle */
+input[type="range"]::-webkit-slider-thumb {
+  pointer-events: auto;
+}
+
+input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+}
