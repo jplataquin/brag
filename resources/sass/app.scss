@@ -10,17 +10,22 @@
 @import 'bootstrap/scss/bootstrap';
 
 
+@media only screen and (max-width: 600px) { 
+    
+    /* Disable interaction with the entire range input (track and background) */
+    input[type="range"] {
+    pointer-events: none;
+    }
 
-/* Disable interaction with the entire range input (track and background) */
-input[type="range"] {
-  pointer-events: none;
-}
+    /* Re-enable interaction ONLY for the thumb handle */
+    input[type="range"]::-webkit-slider-thumb {
+    pointer-events: auto;
+    height:30px;
+    }
 
-/* Re-enable interaction ONLY for the thumb handle */
-input[type="range"]::-webkit-slider-thumb {
-  pointer-events: auto;
-}
+    input[type="range"]::-moz-range-thumb {
+    pointer-events: auto;
+    height:30px;
+    }
 
-input[type="range"]::-moz-range-thumb {
-  pointer-events: auto;
 }
