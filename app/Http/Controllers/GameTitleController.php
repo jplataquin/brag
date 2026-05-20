@@ -43,13 +43,12 @@ class GameTitleController extends Controller
             }
         ]);
 
-        // Fetch top 8 cards by win rate and level
+        // Fetch top 8 cards by leaderboard score
         $topCards = $gameTitle->digitalCards()
             ->with(['template', 'owner', 'originalOwner'])
             ->select('*')
-            ->selectRaw('(wins / GREATEST(1, wins + losses)) as win_rate_calc')
-            ->orderBy('level', 'desc')
-            ->orderBy('win_rate_calc', 'desc')
+            ->selectRaw('(level + win_rate + integrity_stat) as leaderboard_score')
+            ->orderByRaw('(level + win_rate + integrity_stat) DESC')
             ->limit(8)
             ->get();
 

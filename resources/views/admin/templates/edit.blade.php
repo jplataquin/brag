@@ -280,7 +280,7 @@
                      <div style="transform: scale(0.85); transform-origin: top center; width: 100%;">
                         <x-digital-card 
                             id="card_canvas_admin_preview" 
-                            :card="$dummyCard" 
+                            mode="display"
                             :title="$template->card_title"
                             :game="$template->gameTitle->title ?? 'GAME'"
                             :creator="$template->user->username ?? 'CREATOR'"
@@ -297,6 +297,11 @@
                             :sectionColor="$template->section_color"
                             :primaryTextColor="$template->primary_text_color"
                             :secondaryTextColor="$template->secondary_text_color"
+                            :wins="0"
+                            :losses="0"
+                            :integrityStat="0"
+                            :rankLevel="1"
+                            :serialNumber="0"
                         />
                      </div>
                  </div>

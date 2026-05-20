@@ -92,6 +92,7 @@
                                     :imageStretchY="$card->template->image_stretch_y ?? 1.0"
                                     :wins="$card->wins"
                                     :losses="$card->losses"
+                                    :integrityStat="$card->integrity_stat"
                                     :rankLevel="$card->level"
                                     :serialNumber="$card->id"
                                     :backgroundColor="$card->template->background_color"

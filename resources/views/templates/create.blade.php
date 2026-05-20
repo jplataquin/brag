@@ -267,8 +267,13 @@
                                :secondaryTextColor="old('secondary_text_color', '#dddddd')"
                                :imagePositionX="old('image_position_x', 50)"
                                :imagePositionY="old('image_position_y', 50)"
-                               :imageScale="old('image_scale', 1.0)"
-                               :imageStretchY="old('image_stretch_y', 1.0)" />
+                               :wins="0"
+                               :losses="0"
+                               :integrityStat="0"
+                               :lifePoints="3"
+                               :status="'Maintained'"
+                               :rankLevel="1"
+                               :serialNumber="0" />
             </div>
             <p class="text-center mt-3 mb-4" style="color: #555577; font-size: 0.8rem;">
                 This is a preview of how digital cards forged from this template will look.

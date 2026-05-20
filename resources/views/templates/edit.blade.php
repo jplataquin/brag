@@ -241,6 +241,11 @@
                     :imageScale="$template->image_scale ?? 1.0"
                     :imageStretchY="$template->image_stretch_y ?? 1.0"
                     :year="$template->created_at->format('Y')"
+                    :wins="0"
+                    :losses="0"
+                    :integrityStat="0"
+                    :rankLevel="1"
+                    :serialNumber="0"
                 />
             </div>
             <p class="text-center mt-3 mb-4" style="color: #555577; font-size: 0.8rem;">
