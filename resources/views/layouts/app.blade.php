@@ -109,6 +109,11 @@
                                 <i class="bi bi-info-circle-fill"></i> About
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('games*') ? 'active' : '' }}" href="{{ route('game_titles.index') }}">
+                                <i class="bi bi-controller"></i> Games
+                            </a>
+                        </li>
                         @auth
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('blog.*') ? 'active' : '' }}" href="{{ route('blog.index') }}">
@@ -139,6 +144,11 @@
                             <li class="nav-item d-lg-none">
                                 <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="{{ route('about') }}">
                                     <i class="bi bi-info-circle-fill"></i> About
+                                </a>
+                            </li>
+                            <li class="nav-item d-lg-none">
+                                <a class="nav-link {{ request()->is('games*') ? 'active' : '' }}" href="{{ route('game_titles.index') }}">
+                                    <i class="bi bi-controller"></i> Games
                                 </a>
                             </li>
                             <li class="nav-item d-lg-none">

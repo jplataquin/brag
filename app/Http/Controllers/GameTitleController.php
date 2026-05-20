@@ -47,8 +47,8 @@ class GameTitleController extends Controller
         $topCards = $gameTitle->digitalCards()
             ->with(['template', 'owner', 'originalOwner'])
             ->select('*')
-            ->selectRaw('(level + win_rate + integrity_stat) as leaderboard_score')
-            ->orderByRaw('(level + win_rate + integrity_stat) DESC')
+            ->selectRaw('(CASE WHEN win_rate = 0 THEN 0 ELSE (level + win_rate + integrity_stat) END) as leaderboard_score')
+            ->orderByRaw('(CASE WHEN win_rate = 0 THEN 0 ELSE (level + win_rate + integrity_stat) END) DESC')
             ->limit(8)
             ->get();
 
@@ -67,8 +67,8 @@ class GameTitleController extends Controller
         $cards = $gameTitle->digitalCards()
             ->with(['template', 'owner'])
             ->select('*')
-            ->selectRaw('(level + win_rate + integrity_stat) as leaderboard_score')
-            ->orderByRaw('(level + win_rate + integrity_stat) DESC')
+            ->selectRaw('(CASE WHEN win_rate = 0 THEN 0 ELSE (level + win_rate + integrity_stat) END) as leaderboard_score')
+            ->orderByRaw('(CASE WHEN win_rate = 0 THEN 0 ELSE (level + win_rate + integrity_stat) END) DESC')
             ->paginate(50);
 
         return view('game_titles.leaderboard', compact('gameTitle', 'cards'));

@@ -29,7 +29,7 @@
     <div class="row g-5">
         <!-- Sidebar / Stats -->
         <div class="col-lg-4 order-lg-2">
-            <div class="card bg-dark bg-opacity-75 border-info border-opacity-25 rounded-4 p-4 sticky-top" style="top: 20px; backdrop-filter: blur(10px);">
+            <div class="card bg-dark bg-opacity-75 border-info border-opacity-25 rounded-4 p-4" style="backdrop-filter: blur(10px);">
                 <h4 class="text-info fw-bold text-uppercase mb-4" style="font-family: 'Orbitron', sans-serif;">Game Info</h4>
                 
                 <div class="mb-4">
