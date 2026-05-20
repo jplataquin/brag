@@ -55,4 +55,23 @@ class GameTitleController extends Controller
 
         return view('game_titles.show', compact('gameTitle', 'topCards'));
     }
+
+    /**
+     * Display the leaderboard for a specific game title.
+     */
+    public function leaderboard(GameTitle $gameTitle)
+    {
+        if ($gameTitle->status !== 'active') {
+            abort(404);
+        }
+
+        $cards = $gameTitle->digitalCards()
+            ->with(['template', 'owner'])
+            ->select('*')
+            ->selectRaw('(level + win_rate + integrity_stat) as leaderboard_score')
+            ->orderByRaw('(level + win_rate + integrity_stat) DESC')
+            ->paginate(50);
+
+        return view('game_titles.leaderboard', compact('gameTitle', 'cards'));
+    }
 }

@@ -28,7 +28,7 @@
 
         <!-- Welcome Cards -->
         <div class="row mt-5 g-4 justify-content-center">
-            <div class="col-md-4 col-sm-12">
+            <div class="col-md-3 col-sm-12">
                 <a href="{{ url('/cards/gallery') }}" class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center text-decoration-none" style="transition: transform 0.2s, box-shadow 0.2s; border-color: #00f0ff;">
                     <div style="font-family: 'Orbitron', sans-serif; font-size: 3.5rem; font-weight: 700; color: #00f0ff; text-shadow: 0 0 20px rgba(0,240,255,0.5); line-height: 1;">
                         {{ number_format($cardsInCirculation) }}
@@ -36,7 +36,7 @@
                     <h5 class="mt-3" style="font-family: 'Orbitron', sans-serif; font-size: 1rem; color: #8888aa; letter-spacing: 2px;">CARDS IN CIRCULATION</h5>
                 </a>
             </div>
-            <div class="col-md-4 col-sm-12">
+            <div class="col-md-3 col-sm-12">
                 <a href="{{ route('game_titles.index') }}" class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center text-decoration-none" style="transition: transform 0.2s, box-shadow 0.2s; border-color: #39ff14;">
                     <div style="font-family: 'Orbitron', sans-serif; font-size: 3.5rem; font-weight: 700; color: #39ff14; text-shadow: 0 0 20px rgba(57,255,20,0.5); line-height: 1;">
                         {{ number_format($gameTitlesCount) }}
@@ -44,10 +44,16 @@
                     <h5 class="mt-3" style="font-family: 'Orbitron', sans-serif; font-size: 1rem; color: #8888aa; letter-spacing: 2px;">ACTIVE GAME TITLES</h5>
                 </a>
             </div>
-            <div class="col-md-4 col-sm-12">
+            <div class="col-md-3 col-sm-12">
                 <a href="{{ route('pwa.instructions') }}" id="btn-install-pwa-welcome" class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center text-decoration-none" style="transition: transform 0.2s, box-shadow 0.2s; border-color: #ff00ff; background: rgba(255,0,255,0.05);">
                     <div style="font-size: 3.5rem; margin-bottom: 0.5rem; color: #ff00ff; text-shadow: 0 0 20px rgba(255,0,255,0.5);"><i class="bi bi-download"></i></div>
                     <h5 style="font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: #ff00ff; letter-spacing: 2px; margin-bottom: 0;">INSTALL APP</h5>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-12">
+                <a href="{{ route('academy.index') }}" class="neon-card p-4 text-center h-100 d-flex flex-column justify-content-center text-decoration-none" style="transition: transform 0.2s, box-shadow 0.2s; border-color: #ffdd00; background: rgba(255,221,0,0.05);">
+                    <div style="font-size: 3.5rem; margin-bottom: 0.5rem; color: #ffdd00; text-shadow: 0 0 20px rgba(255,221,0,0.5);"><i class="bi bi-mortarboard-fill"></i></div>
+                    <h5 style="font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: #ffdd00; letter-spacing: 2px; margin-bottom: 0;">HOW TO PLAY</h5>
                 </a>
             </div>
         </div>

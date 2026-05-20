@@ -53,6 +53,9 @@
                     <a href="{{ route('templates.create', ['game_title_id' => $gameTitle->id]) }}" class="btn btn-neon-cyan fw-bold">
                         <i class="bi bi-plus-lg me-1"></i> Forge New Template
                     </a>
+                    <a href="{{ route('game_titles.leaderboard', $gameTitle->id) }}" class="btn btn-outline-warning fw-bold mt-2">
+                        <i class="bi bi-trophy-fill me-1"></i> View Leaderboard
+                    </a>
                 </div>
             </div>
         </div>

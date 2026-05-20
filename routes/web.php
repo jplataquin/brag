@@ -71,6 +71,7 @@ Route::post('/feedback', [FeedbackController::class, 'send'])->name('feedback.se
 // Game Titles (Public)
 Route::get('/games', [\App\Http\Controllers\GameTitleController::class, 'index'])->name('game_titles.index');
 Route::get('/games/{gameTitle}', [\App\Http\Controllers\GameTitleController::class, 'show'])->name('game_titles.show');
+Route::get('/games/{gameTitle}/leaderboard', [\App\Http\Controllers\GameTitleController::class, 'leaderboard'])->name('game_titles.leaderboard');
 
 // Academy (Public)
 Route::get('/academy', [\App\Http\Controllers\AcademyController::class, 'index'])->name('academy.index');

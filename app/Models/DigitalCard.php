@@ -28,6 +28,8 @@ class DigitalCard extends Model
         'status',
         'wins',
         'losses',
+        'win_rate',
+        'integrity_stat',
         'life_points',
         'is_trophy',
         'is_censored',
@@ -41,6 +43,8 @@ class DigitalCard extends Model
     protected $casts = [
         'level' => 'integer',
         'life_points' => 'integer',
+        'win_rate' => 'decimal:2',
+        'integrity_stat' => 'decimal:2',
         'is_trophy' => 'boolean',
         'is_censored' => 'boolean',
         'forged_at' => 'datetime',
@@ -156,26 +160,26 @@ class DigitalCard extends Model
     }
 
     /**
-     * Get win rate percentage.
+     * Get win rate percentage (calculated from stored column).
      */
-    public function getWinRateAttribute()
+    public function getWinRateAttribute($value)
     {
-        $total = $this->wins + $this->losses;
-        if ($total === 0) return 0;
-        return ($this->wins / $total) * 100;
+        return (float) $value;
     }
 
     /**
-     * Get integrity stat metric.
-     * (Unique Users / Total Matches) * 100 rounded to 2 decimal places.
+     * Update and persist leaderboard stats (win rate and integrity).
      */
-    public function getIntegrityStatAttribute()
+    public function updateLeaderboardStats()
     {
+        // 1. Calculate Win Rate
+        $total = $this->wins + $this->losses;
+        $newWinRate = ($total === 0) ? 0 : ($this->wins / $total) * 100;
+
+        // 2. Calculate Integrity Stat
         $uniqueUsers = collect();
         $totalMatches = 0;
 
-        // Battles
-        // We need to find all battles where this card was used and identify its specific opponent in the same slot
         $battles = \App\Models\Battle::where('status', 'completed')
             ->where(function($q) {
                 for ($i = 1; $i <= 6; $i++) {
@@ -200,13 +204,13 @@ class DigitalCard extends Model
             }
         }
 
-        if ($totalMatches === 0) {
-            return 0;
-        }
+        $newIntegrity = ($totalMatches === 0) ? 0 : round(($uniqueUsers->unique()->count() / $totalMatches) * 100, 2);
 
-        $integrityCount = $uniqueUsers->unique()->count();
-
-        return round(($integrityCount / $totalMatches) * 100, 2);
+        // Update the model and database
+        $this->update([
+            'win_rate' => $newWinRate,
+            'integrity_stat' => $newIntegrity
+        ]);
     }
 
     /**
