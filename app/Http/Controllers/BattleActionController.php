@@ -480,6 +480,14 @@ class BattleActionController extends Controller
             'winner_team' => $winnerTeam,
         ]);
 
+        // Now that the battle is 'completed', update the leaderboard stats for all involved cards
+        for ($i = 1; $i <= $battle->no_players_per_team; $i++) {
+            $cardA = DigitalCard::find($battle->{"team_a_card_{$i}"});
+            $cardB = DigitalCard::find($battle->{"team_b_card_{$i}"});
+            if ($cardA) $cardA->updateLeaderboardStats();
+            if ($cardB) $cardB->updateLeaderboardStats();
+        }
+
         $teamASnapshots = $this->generateTeamSnapshots($battle, 'A', $overrides);
         $teamBSnapshots = $this->generateTeamSnapshots($battle, 'B', $overrides);
 

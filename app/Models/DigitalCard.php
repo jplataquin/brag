@@ -206,11 +206,10 @@ class DigitalCard extends Model
 
         $newIntegrity = ($totalMatches === 0) ? 0 : round(($uniqueUsers->unique()->count() / $totalMatches) * 100, 2);
 
-        // Update the model and database
-        $this->update([
-            'win_rate' => $newWinRate,
-            'integrity_stat' => $newIntegrity
-        ]);
+        // Update the model and database directly to avoid recursion
+        $this->win_rate = $newWinRate;
+        $this->integrity_stat = $newIntegrity;
+        $this->saveQuietly();
     }
 
     /**

@@ -52,10 +52,6 @@ trait HandlesBattleResults
         
         $loserCard->save();
 
-        // Update leaderboard stats for both cards
-        $winnerCard->updateLeaderboardStats();
-        $loserCard->updateLeaderboardStats();
-
         return [
             'promoted' => $promoted,
             'cardTransferred' => $cardTransferred,
