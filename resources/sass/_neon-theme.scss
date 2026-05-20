@@ -191,11 +191,11 @@ h1, h2, h3, h4, h5, h6,
         border-radius: 20px;
         padding: 0.35rem 1rem 0.35rem 2.2rem;
         font-size: 0.85rem;
-        width: 200px;
+        width: 150px;
         transition: all 0.3s ease;
 
         &:focus {
-            width: 280px;
+            width: 220px;
             background: rgba(0, 240, 255, 0.08);
             border-color: $neon-cyan;
             box-shadow: 0 0 10px rgba($neon-cyan, 0.2);

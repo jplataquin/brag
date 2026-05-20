@@ -142,16 +142,6 @@
                             </li>
 
                             <li class="nav-item d-lg-none">
-                                <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="{{ route('about') }}">
-                                    <i class="bi bi-info-circle-fill"></i> About
-                                </a>
-                            </li>
-                            <li class="nav-item d-lg-none">
-                                <a class="nav-link {{ request()->is('games*') ? 'active' : '' }}" href="{{ route('game_titles.index') }}">
-                                    <i class="bi bi-controller"></i> Games
-                                </a>
-                            </li>
-                            <li class="nav-item d-lg-none">
                                 <a class="nav-link {{ request()->routeIs('profile.show') && request()->route('username') == Auth::user()->username ? 'active' : '' }}" href="{{ route('profile.show', Auth::user()->username) }}" id="nav-profile-mob">
                                     <i class="bi bi-person-fill"></i> My Profile
                                 </a>
