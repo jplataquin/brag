@@ -19,8 +19,16 @@ trait HandlesBattleResults
     {
         \Log::info("Processing Battle Result: Winner Card {$winnerCard->id}, Loser Card {$loserCard->id}, Winner User {$winnerUser->id}");
 
+        $isNoQuarter = (isset($this->mode) && $this->mode === 'no_quarter');
+        $loserOriginalLP = $loserCard->life_points;
+
         // Update winner card stats
-        $winnerCard->wins += 1;
+        $winIncrement = 1;
+        if ($isNoQuarter && $loserOriginalLP > 0) {
+            $winIncrement = $loserOriginalLP;
+        }
+
+        $winnerCard->wins += $winIncrement;
         $winnerCard->save();
         $winnerCard->refresh();
         
@@ -34,9 +42,16 @@ trait HandlesBattleResults
         
         $cardTransferred = false;
 
-        if ($loserCard->life_points > 0) {
-            $loserCard->life_points -= 1;
-            \Log::info("Card {$loserCard->id} lost 1 LP. Remaining: {$loserCard->life_points}");
+        if ($isNoQuarter) {
+            if ($loserCard->life_points > 0) {
+                $loserCard->life_points = 0;
+                \Log::info("Card {$loserCard->id} lost ALL LP in No Quarter mode.");
+            }
+        } else {
+            if ($loserCard->life_points > 0) {
+                $loserCard->life_points -= 1;
+                \Log::info("Card {$loserCard->id} lost 1 LP. Remaining: {$loserCard->life_points}");
+            }
         }
 
         if ($loserCard->life_points <= 0) {

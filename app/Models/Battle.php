@@ -20,6 +20,7 @@ class Battle extends Model
         'battle_terms',
         'no_players_per_team',
         'status',
+        'mode',
         'winner_team',
         'team_a_card_data',
         'team_b_card_data',

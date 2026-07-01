@@ -19,6 +19,7 @@ class CreateBattleForm extends Component
     public $noPlayersPerTeam = 1;
     public $battleTerms = '';
     public $selectedCardId = '';
+    public $mode = 'standard';
 
     public function mount($gameTitleId = null, $selectedCardId = null)
     {
@@ -53,6 +54,7 @@ class CreateBattleForm extends Component
             'noPlayersPerTeam' => 'required|integer|min:1|max:6',
             'battleTerms' => 'required|string|max:1000',
             'selectedCardId' => 'required|exists:digital_cards,id',
+            'mode' => 'required|in:standard,no_quarter',
         ]);
 
         $user = Auth::user();
@@ -77,6 +79,7 @@ class CreateBattleForm extends Component
                 'battle_terms' => $this->battleTerms,
                 'no_players_per_team' => $this->noPlayersPerTeam,
                 'status' => 'pending',
+                'mode' => $this->mode,
                 'team_a_user_1' => $user->id,
                 'team_a_card_1' => $card->id,
             ]);

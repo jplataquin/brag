@@ -56,13 +56,48 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label">5. BATTLE TERMS</label>
+                        <label class="form-label">5. BATTLE MODE</label>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-check p-0">
+                                    <input type="radio" class="btn-check" name="mode" id="mode_standard" value="standard" wire:model="mode">
+                                    <label class="btn btn-outline-info w-100 p-3 text-start d-flex align-items-center h-100" for="mode_standard" style="border-width: 2px;">
+                                        <div class="me-3">
+                                            <i class="bi bi-shield-shaded" style="font-size: 2rem; color: #00f0ff;"></i>
+                                        </div>
+                                        <div>
+                                            <strong class="d-block orbitron text-cyan" style="font-size: 0.9rem;">STANDARD MODE</strong>
+                                            <span class="text-white-50 small" style="font-size: 0.75rem;">Losing card loses 1 heart. Safer for practice and casual matches.</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check p-0">
+                                    <input type="radio" class="btn-check" name="mode" id="mode_no_quarter" value="no_quarter" wire:model="mode">
+                                    <label class="btn btn-outline-danger w-100 p-3 text-start d-flex align-items-center h-100" for="mode_no_quarter" style="border-width: 2px;">
+                                        <div class="me-3">
+                                            <i class="bi bi-skull-fill" style="font-size: 2rem; color: #ff00ff;"></i>
+                                        </div>
+                                        <div>
+                                            <strong class="d-block orbitron text-magenta" style="font-size: 0.9rem;">NO QUARTER MODE</strong>
+                                            <span class="text-white-50 small" style="font-size: 0.75rem;">Winner takes all! Loser loses their card instantly. Winner's wins multiplier based on opponent's hearts.</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        @error('mode') <span class="text-danger small">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">6. BATTLE TERMS</label>
                         <textarea wire:model="battleTerms" class="form-control" rows="3" placeholder="Define the rules of engagement..."></textarea>
                         @error('battleTerms') <span class="text-danger small">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label">6. SELECT YOUR CARD TO BET</label>
+                        <label class="form-label">7. SELECT YOUR CARD TO BET</label>
                         <div class="card-selection-area">
                             @if($gameTitleId)
                                 @php

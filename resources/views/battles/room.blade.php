@@ -84,10 +84,23 @@
         </div>
     @endif
 
-    <div class="row g-4">
+    <div class="row g-4 mb-2">
          
         <div class="col-12">
              <div class="text-center mb-2">
+                @if(($battle->mode ?? 'standard') === 'no_quarter')
+                    <div class="mb-3">
+                        <span class="badge px-3 py-2 orbitron" style="background: rgba(255, 0, 255, 0.15); border: 1px dashed #ff00ff; color: #ff00ff; letter-spacing: 2px; font-size: 0.85rem; text-shadow: 0 0 5px #ff00ff;">
+                            <i class="bi bi-skull me-1"></i> NO QUARTER MODE <i class="bi bi-skull ms-1"></i>
+                        </span>
+                    </div>
+                @else
+                    <div class="mb-3">
+                        <span class="badge px-3 py-2 orbitron" style="background: rgba(0, 240, 255, 0.15); border: 1px dashed #00f0ff; color: #00f0ff; letter-spacing: 2px; font-size: 0.85rem; text-shadow: 0 0 5px #00f0ff;">
+                            <i class="bi bi-shield-shaded me-1"></i> STANDARD MODE
+                        </span>
+                    </div>
+                @endif
                 <h4 class="orbitron neon-text-magenta mb-0 w-100">
                    VS
                 </h4>
