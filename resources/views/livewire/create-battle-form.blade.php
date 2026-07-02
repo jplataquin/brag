@@ -60,36 +60,36 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="form-check p-0 h-100">
-                                    <input type="radio" class="btn-check" name="mode" id="mode_standard" value="standard" wire:model="mode">
-                                    <label class="mode-select-card w-100 p-3 text-start d-flex align-items-center" for="mode_standard">
+                                    <input type="radio" class="btn-check" name="mode" id="mode_standard" value="standard" wire:model="mode" autocomplete="off">
+                                    <div class="mode-select-card standard-card w-100 p-3 text-start d-flex align-items-center {{ $mode === 'standard' ? 'active-standard' : '' }}" wire:click="$set('mode', 'standard')">
                                         <div class="me-3">
                                             <i class="bi bi-shield-shaded mode-icon" style="color: rgba(0, 240, 255, 0.455);"></i>
                                         </div>
                                         <div class="flex-grow-1">
-                                            <strong class="d-block mode-title text-cyan">STANDARD MODE</strong>
+                                            <strong class="d-block mode-title text-cyan">STANDARD</strong>
                                             <span class="mode-description d-block">Losing card loses 1 heart. Safer for practice and casual matches.</span>
                                         </div>
                                         <div class="ms-auto ps-3 d-none d-sm-block">
                                             <div class="custom-radio-indicator"></div>
                                         </div>
-                                    </label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-check p-0 h-100">
-                                    <input type="radio" class="btn-check" name="mode" id="mode_no_quarter" value="no_quarter" wire:model="mode">
-                                    <label class="mode-select-card w-100 p-3 text-start d-flex align-items-center" for="mode_no_quarter">
+                                    <input type="radio" class="btn-check" name="mode" id="mode_no_quarter" value="no_quarter" wire:model="mode" autocomplete="off">
+                                    <div class="mode-select-card no-quarter-card w-100 p-3 text-start d-flex align-items-center {{ $mode === 'no_quarter' ? 'active-no-quarter' : '' }}" wire:click="$set('mode', 'no_quarter')">
                                         <div class="me-3">
                                             <i class="bi bi-skull-fill mode-icon" style="color: rgba(255, 0, 255, 0.455);"></i>
                                         </div>
                                         <div class="flex-grow-1">
-                                            <strong class="d-block mode-title text-magenta">NO QUARTER MODE</strong>
+                                            <strong class="d-block mode-title text-magenta">NO QUARTER</strong>
                                             <span class="mode-description d-block">Winner takes all! Loser loses their card instantly. Winner's wins multiplier based on opponent's hearts.</span>
                                         </div>
                                         <div class="ms-auto ps-3 d-none d-sm-block">
                                             <div class="custom-radio-indicator"></div>
                                         </div>
-                                    </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>

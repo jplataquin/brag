@@ -17,7 +17,7 @@
         </div>
 
         <div class="neon-card p-5 mb-4 privacy-print-container" style="background: rgba(10, 10, 26, 0.8); max-height: 60vh; overflow-y: auto; border: 1px solid rgba(0, 240, 255, 0.1);">
-            <div class="privacy-content" style="color: #ccc; line-height: 1.8;">
+            <div class="privacy-content wysiwyg-content" style="color: #ccc; line-height: 1.8;">
                 {!! $latestPrivacy->content !!}
             </div>
         </div>

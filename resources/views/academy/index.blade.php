@@ -63,7 +63,47 @@
                     </div>
                 </div>
 
-                <!-- Section 3: Marshalls -->
+                <!-- Section 3: Battle Modes -->
+                <div class="accordion-item bg-dark bg-opacity-50 border-info border-opacity-25 mb-3 rounded-4 overflow-hidden">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-transparent text-white fw-bold py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseModes">
+                            <i class="bi bi-controller me-3 text-cyan"></i> BATTLE MODES: Standard & No Quarter
+                        </button>
+                    </h2>
+                    <div id="collapseModes" class="accordion-collapse collapse" data-bs-parent="#academyAccordion">
+                        <div class="accordion-body text-secondary lh-lg p-4 pt-0">
+                            <h5 class="text-white mb-3">Choose Your Rules of Engagement</h5>
+                            <p>Every match created in the Arena is played under one of two distinct combat rulesets. Understanding these is vital before staking your precious cards:</p>
+                            
+                            <div class="row g-4 mt-1">
+                                <div class="col-md-6">
+                                    <div class="p-4 rounded-4 h-100" style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2);">
+                                        <h6 class="text-cyan fw-bold orbitron mb-3"><i class="bi bi-shield-shaded me-2"></i> STANDARD</h6>
+                                        <p class="small text-secondary">A safer, more strategic mode designed for practicing, casual play, and building up card ratings.</p>
+                                        <ul class="small text-secondary ps-3">
+                                            <li>The losing card loses exactly <strong class="text-white">1 Heart (Life Point)</strong>.</li>
+                                            <li>Cards remain in their respective owners' inventories after the battle unless the card runs out of hearts.</li>
+                                            <li>Great for keeping high-rarity designs in circulation while racking up wins.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-4 rounded-4 h-100" style="background: rgba(255, 0, 255, 0.05); border: 1px solid rgba(255, 0, 255, 0.2);">
+                                        <h6 class="text-magenta fw-bold orbitron mb-3"><i class="bi bi-skull-fill me-2"></i> NO QUARTER</h6>
+                                        <p class="small text-secondary">The ultimate high-stakes showdown where there is no safety net. Winner takes everything instantly.</p>
+                                        <ul class="small text-secondary ps-3">
+                                            <li>The loser's staked card is <strong class="text-white">transferred immediately</strong> to the winner's inventory as a trophy.</li>
+                                            <li>The loser forfeits their card regardless of how many hearts (Life Points) it had left.</li>
+                                            <li>The winner receives a high <strong class="text-magenta">Wins Multiplier</strong> based on the amount of hearts the opponent's card had, launching them up the leaderboard!</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Marshalls -->
                 <div class="accordion-item bg-dark bg-opacity-50 border-info border-opacity-25 mb-3 rounded-4 overflow-hidden">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed bg-transparent text-white fw-bold py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMarshall">
@@ -79,7 +119,7 @@
                     </div>
                 </div>
 
-                <!-- Section 4: Card Stats & Leveling -->
+                <!-- Section 5: Card Stats & Rarity -->
                 <div class="accordion-item bg-dark bg-opacity-50 border-info border-opacity-25 mb-3 rounded-4 overflow-hidden">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed bg-transparent text-white fw-bold py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStats">
@@ -164,7 +204,7 @@
                     </div>
                 </div>
 
-                <!-- Section 5: Progression -->
+                <!-- Section 6: Progression -->
                 <div class="accordion-item bg-dark bg-opacity-50 border-info border-opacity-25 mb-3 rounded-4 overflow-hidden">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed bg-transparent text-white fw-bold py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProgression">
@@ -208,7 +248,7 @@
                     </div>
                 </div>
 
-                <!-- Section 6: The Burn -->
+                <!-- Section 7: The Burn -->
                 <div class="accordion-item bg-dark bg-opacity-50 border-info border-opacity-25 mb-3 rounded-4 overflow-hidden">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed bg-transparent text-white fw-bold py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBurn">
@@ -228,7 +268,7 @@
                     </div>
                 </div>
 
-                <!-- Section 7: Economy -->
+                <!-- Section 8: Economy -->
                 <div class="accordion-item bg-dark bg-opacity-50 border-info border-opacity-25 mb-3 rounded-4 overflow-hidden">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed bg-transparent text-white fw-bold py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEconomy">

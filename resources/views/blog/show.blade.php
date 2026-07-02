@@ -24,7 +24,7 @@
                         </div>
                     </header>
 
-                    <div class="post-body text-light">
+                    <div class="post-body text-light wysiwyg-content">
                         {!! $post->content !!}
                     </div>
 

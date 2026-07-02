@@ -1125,12 +1125,12 @@ h1, h2, h3, h4, h5, h6,
 }
 
 // Hover/Check interactions for Standard Mode (Cyan Theme)
-#mode_standard:hover + .mode-select-card {
+.mode-select-card.standard-card:hover {
     border-color: rgba($neon-cyan, 0.5);
     box-shadow: 0 0 15px rgba($neon-cyan, 0.15);
 }
 
-#mode_standard:checked + .mode-select-card {
+.mode-select-card.active-standard {
     background: rgba($neon-cyan, 0.08);
     border-color: $neon-cyan;
     border-width: 1px;
@@ -1163,12 +1163,12 @@ h1, h2, h3, h4, h5, h6,
 }
 
 // Hover/Check interactions for No Quarter Mode (Magenta Theme)
-#mode_no_quarter:hover + .mode-select-card {
+.mode-select-card.no-quarter-card:hover {
     border-color: rgba($neon-magenta, 0.5);
     box-shadow: 0 0 15px rgba($neon-magenta, 0.15);
 }
 
-#mode_no_quarter:checked + .mode-select-card {
+.mode-select-card.active-no-quarter {
     background: rgba($neon-magenta, 0.08);
     border-color: $neon-magenta;
     border-width: 1px;
@@ -1199,4 +1199,42 @@ h1, h2, h3, h4, h5, h6,
         }
     }
 }
+
+// -- WYSIWYG and Rich Text Rendering Styles --
+.wysiwyg-content, .ck-content, .ck-editor__editable {
+    line-height: 1.8 !important;
+
+    p {
+        margin-top: 0 !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        color: $neon-cyan !important;
+        font-family: 'Orbitron', sans-serif !important;
+        margin-top: 2rem !important;
+        margin-bottom: 1rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 1px !important;
+    }
+
+    ul, ol {
+        margin-bottom: 1.5rem !important;
+        padding-left: 2.5rem !important;
+
+        li {
+            margin-bottom: 0.5rem !important;
+        }
+    }
+
+    blockquote {
+        border-left: 3px solid $neon-cyan !important;
+        padding: 0.5rem 0 0.5rem 1.5rem !important;
+        margin: 1.5rem 0 !important;
+        color: rgba($text-primary, 0.85) !important;
+        font-style: italic !important;
+        background: rgba($neon-cyan, 0.02) !important;
+    }
+}
+
 
