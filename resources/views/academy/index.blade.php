@@ -173,7 +173,10 @@
                                             <div class="p-3 rounded bg-black bg-opacity-50 border border-secondary border-opacity-25">
                                                 <ul class="list-unstyled mb-0">
                                                     <li class="mb-2"><strong class="text-white">R:</strong> Win Rate Percentage <code>(Wins/Total) * 100</code>.</li>
-                                                    <li class="mb-2"><strong class="text-white">I:</strong> Integrity Percentage <code>(Unique Opponents/Total) * 100</code>.</li>
+                                                    <li class="mb-2">
+                                                        <strong class="text-white">I:</strong> Integrity <code>(Unique Opponents / max(Matches, Wins)) * 100</code>.
+                                                        <span class="text-muted d-block small mt-1" style="font-size: 0.7rem; line-height: 1.3;"><i class="bi bi-info-circle text-info"></i> Taking the higher of Matches vs. Wins prevents "No Quarter" multipliers from being exploited to bypass opponent variety requirements.</span>
+                                                    </li>
                                                     <li><strong class="text-warning"># [ID]:</strong> The unique serial number of that specific forged card.</li>
                                                 </ul>
                                             </div>

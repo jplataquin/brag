@@ -399,9 +399,23 @@ class BattleActionController extends Controller
             $battle = clone $battle;
             $battle = Battle::where('id', $battle->id)->lockForUpdate()->first();
             
-            if ($isLeaderA) $battle->team_a_declare_win = $team;
-            if ($isLeaderB) $battle->team_b_declare_win = $team;
-            if ($isMarshall) $battle->marshall_declare_win = $team;
+            if ($isLeaderA) {
+                $battle->team_a_declare_win = $team;
+                // If Team A leader declares Team B as the winner (concedes), auto-declare Team B's vote as well for instant resolution
+                if ($team === 'B') {
+                    $battle->team_b_declare_win = 'B';
+                }
+            }
+            if ($isLeaderB) {
+                $battle->team_b_declare_win = $team;
+                // If Team B leader declares Team A as the winner (concedes), auto-declare Team A's vote as well for instant resolution
+                if ($team === 'A') {
+                    $battle->team_a_declare_win = 'A';
+                }
+            }
+            if ($isMarshall) {
+                $battle->marshall_declare_win = $team;
+            }
             
             $battle->save();
 

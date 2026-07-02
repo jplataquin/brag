@@ -204,7 +204,10 @@ class DigitalCard extends Model
             }
         }
 
-        $newIntegrity = ($totalMatches === 0) ? 0 : round(($uniqueUsers->unique()->count() / $totalMatches) * 100, 2);
+        // Tie the integrity denominator to whichever is higher between total matches and total wins.
+        // This neutralizes the "No Quarter" multiplier exploit (getting lots of wins in very few matches).
+        $integrityDenominator = max($totalMatches, $this->wins);
+        $newIntegrity = ($integrityDenominator === 0) ? 0 : round(($uniqueUsers->unique()->count() / $integrityDenominator) * 100, 2);
 
         // Update the model and database directly to avoid recursion
         $this->win_rate = $newWinRate;

@@ -68,7 +68,7 @@ class RegisterController extends Controller
             'firstname' => ['required', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:30', 'unique:users', 'regex:/^[a-zA-Z0-9_]+$/'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'not_regex:/\+/'],
             'birthdate' => ['required', 'date', 'before_or_equal:' . now()->subYears(13)->format('Y-m-d')],
             'gender' => ['nullable', 'string', 'in:Male,Female,None'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
@@ -77,6 +77,7 @@ class RegisterController extends Controller
             'cf-turnstile-response' => ['required', new Turnstile],
         ], [
             'birthdate.before_or_equal' => 'You must be at least 13 years old to register.',
+            'email.not_regex' => 'Plus signs (+) are not allowed in email addresses to prevent sub-addressing exploits.',
         ]);
 
         $validator->sometimes(['parent_firstname', 'parent_lastname', 'parent_email', 'parent_birthdate', 'parent_id_base64', 'parent_consent_agreed'], 'required', function ($input) {
@@ -87,7 +88,7 @@ class RegisterController extends Controller
             }
         });
 
-        $validator->sometimes('parent_email', 'email|max:255', function ($input) {
+        $validator->sometimes('parent_email', 'email|max:255|not_regex:/\+/', function ($input) {
             try {
                 return \Carbon\Carbon::parse($input->birthdate)->age < 18;
             } catch (\Exception $e) {

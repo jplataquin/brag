@@ -62,4 +62,25 @@ class RegistrationTest extends TestCase
             'remarks' => 'Welcome Gift',
         ]);
     }
+
+    public function test_registration_does_not_allow_plus_sign_in_email()
+    {
+        $response = $this->post('/register', [
+            'firstname' => 'John',
+            'lastname' => 'Doe',
+            'username' => 'newplayerplus',
+            'email' => 'newplayer+alias@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'terms' => 'on',
+            'privacy' => 'on',
+            'cf-turnstile-response' => 'fake-token',
+        ]);
+
+        $response->assertSessionHasErrors('email');
+        
+        $this->assertDatabaseMissing('users', [
+            'username' => 'newplayerplus',
+        ]);
+    }
 }
