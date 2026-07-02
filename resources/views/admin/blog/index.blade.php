@@ -33,7 +33,7 @@
                         <tr>
                             <td>
                                 <div class="fw-bold">{{ $post->title }}</div>
-                                <div class="small text-muted">{{ Str::limit(strip_tags($post->content), 100) }}</div>
+                                <div class="small text-muted">{{ Str::limit(html_entity_decode(strip_tags($post->content), ENT_QUOTES, 'UTF-8'), 100) }}</div>
                             </td>
                             <td>
                                 @if($post->is_published)

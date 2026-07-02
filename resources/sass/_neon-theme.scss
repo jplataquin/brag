@@ -1045,3 +1045,158 @@ h1, h2, h3, h4, h5, h6,
         }
     }
 }
+
+// -- Mode Selection Cards --
+.mode-select-card {
+    cursor: pointer;
+    background: rgba(15, 15, 35, 0.7);
+    border: 1px solid rgba($text-secondary, 0.2);
+    border-radius: 8px;
+    padding: 1.25rem;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    align-items: center;
+
+    // Glowing subtle grid effect in background
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.015) 50%, transparent 100%);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    &:hover {
+        background: rgba(25, 25, 55, 0.9);
+        transform: translateY(-2px);
+    }
+
+    .mode-icon {
+        font-size: 2.2rem;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s ease, text-shadow 0.3s ease;
+    }
+
+    &:hover .mode-icon {
+        transform: scale(1.15) rotate(5deg);
+    }
+
+    .mode-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 0.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .mode-description {
+        font-size: 0.8rem;
+        color: rgba($text-primary, 0.7);
+        line-height: 1.4;
+        transition: color 0.3s ease;
+    }
+}
+
+.custom-radio-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba($text-secondary, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    z-index: 2;
+
+    &::after {
+        content: '';
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: transparent;
+        transform: scale(0);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+}
+
+// Hover/Check interactions for Standard Mode (Cyan Theme)
+#mode_standard:hover + .mode-select-card {
+    border-color: rgba($neon-cyan, 0.5);
+    box-shadow: 0 0 15px rgba($neon-cyan, 0.15);
+}
+
+#mode_standard:checked + .mode-select-card {
+    background: rgba($neon-cyan, 0.08);
+    border-color: $neon-cyan;
+    border-width: 1px;
+    box-shadow: 0 0 20px rgba($neon-cyan, 0.3), inset 0 0 10px rgba($neon-cyan, 0.1);
+
+    .mode-icon {
+        color: $neon-cyan !important;
+        text-shadow: 0 0 15px rgba($neon-cyan, 0.6);
+    }
+
+    .mode-title {
+        color: $neon-cyan !important;
+        text-shadow: 0 0 10px rgba($neon-cyan, 0.5);
+    }
+
+    .mode-description {
+        color: #fff;
+    }
+
+    .custom-radio-indicator {
+        border-color: $neon-cyan;
+        box-shadow: 0 0 8px rgba($neon-cyan, 0.5);
+
+        &::after {
+            background: $neon-cyan;
+            box-shadow: 0 0 6px $neon-cyan;
+            transform: scale(1);
+        }
+    }
+}
+
+// Hover/Check interactions for No Quarter Mode (Magenta Theme)
+#mode_no_quarter:hover + .mode-select-card {
+    border-color: rgba($neon-magenta, 0.5);
+    box-shadow: 0 0 15px rgba($neon-magenta, 0.15);
+}
+
+#mode_no_quarter:checked + .mode-select-card {
+    background: rgba($neon-magenta, 0.08);
+    border-color: $neon-magenta;
+    border-width: 1px;
+    box-shadow: 0 0 20px rgba($neon-magenta, 0.3), inset 0 0 10px rgba($neon-magenta, 0.1);
+
+    .mode-icon {
+        color: $neon-magenta !important;
+        text-shadow: 0 0 15px rgba($neon-magenta, 0.6);
+    }
+
+    .mode-title {
+        color: $neon-magenta !important;
+        text-shadow: 0 0 10px rgba($neon-magenta, 0.5);
+    }
+
+    .mode-description {
+        color: #fff;
+    }
+
+    .custom-radio-indicator {
+        border-color: $neon-magenta;
+        box-shadow: 0 0 8px rgba($neon-magenta, 0.5);
+
+        &::after {
+            background: $neon-magenta;
+            box-shadow: 0 0 6px $neon-magenta;
+            transform: scale(1);
+        }
+    }
+}
+

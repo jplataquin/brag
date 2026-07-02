@@ -17,7 +17,7 @@
                         <hr class="border-secondary my-3">
                         
                         <div class="text-light mb-4 post-preview">
-                            {{ Str::limit(strip_tags($post->content), 300) }}
+                            {{ Str::limit(html_entity_decode(strip_tags($post->content), ENT_QUOTES, 'UTF-8'), 300) }}
                         </div>
                         
                         <a href="{{ route('blog.show', $post) }}" class="btn btn-neon btn-sm orbitron">

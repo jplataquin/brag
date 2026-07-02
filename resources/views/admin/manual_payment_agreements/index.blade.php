@@ -61,7 +61,7 @@
                                 </td>
                                 <td class="py-3">
                                     <div class="text-truncate text-white" style="max-width: 400px;">
-                                        {{ Str::limit(strip_tags($agreement->content), 80) }}
+                                        {{ Str::limit(html_entity_decode(strip_tags($agreement->content), ENT_QUOTES, 'UTF-8'), 80) }}
                                     </div>
                                 </td>
                                 <td class="py-3 text-end px-4">

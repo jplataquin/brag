@@ -59,29 +59,35 @@
                         <label class="form-label">5. BATTLE MODE</label>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <div class="form-check p-0">
+                                <div class="form-check p-0 h-100">
                                     <input type="radio" class="btn-check" name="mode" id="mode_standard" value="standard" wire:model="mode">
-                                    <label class="btn btn-outline-info w-100 p-3 text-start d-flex align-items-center h-100" for="mode_standard" style="border-width: 2px;">
+                                    <label class="mode-select-card w-100 p-3 text-start d-flex align-items-center" for="mode_standard">
                                         <div class="me-3">
-                                            <i class="bi bi-shield-shaded" style="font-size: 2rem; color: #00f0ff;"></i>
+                                            <i class="bi bi-shield-shaded mode-icon" style="color: rgba(0, 240, 255, 0.455);"></i>
                                         </div>
-                                        <div>
-                                            <strong class="d-block orbitron text-cyan" style="font-size: 0.9rem;">STANDARD MODE</strong>
-                                            <span class="text-white-50 small" style="font-size: 0.75rem;">Losing card loses 1 heart. Safer for practice and casual matches.</span>
+                                        <div class="flex-grow-1">
+                                            <strong class="d-block mode-title text-cyan">STANDARD MODE</strong>
+                                            <span class="mode-description d-block">Losing card loses 1 heart. Safer for practice and casual matches.</span>
+                                        </div>
+                                        <div class="ms-auto ps-3 d-none d-sm-block">
+                                            <div class="custom-radio-indicator"></div>
                                         </div>
                                     </label>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-check p-0">
+                                <div class="form-check p-0 h-100">
                                     <input type="radio" class="btn-check" name="mode" id="mode_no_quarter" value="no_quarter" wire:model="mode">
-                                    <label class="btn btn-outline-danger w-100 p-3 text-start d-flex align-items-center h-100" for="mode_no_quarter" style="border-width: 2px;">
+                                    <label class="mode-select-card w-100 p-3 text-start d-flex align-items-center" for="mode_no_quarter">
                                         <div class="me-3">
-                                            <i class="bi bi-skull-fill" style="font-size: 2rem; color: #ff00ff;"></i>
+                                            <i class="bi bi-skull-fill mode-icon" style="color: rgba(255, 0, 255, 0.455);"></i>
                                         </div>
-                                        <div>
-                                            <strong class="d-block orbitron text-magenta" style="font-size: 0.9rem;">NO QUARTER MODE</strong>
-                                            <span class="text-white-50 small" style="font-size: 0.75rem;">Winner takes all! Loser loses their card instantly. Winner's wins multiplier based on opponent's hearts.</span>
+                                        <div class="flex-grow-1">
+                                            <strong class="d-block mode-title text-magenta">NO QUARTER MODE</strong>
+                                            <span class="mode-description d-block">Winner takes all! Loser loses their card instantly. Winner's wins multiplier based on opponent's hearts.</span>
+                                        </div>
+                                        <div class="ms-auto ps-3 d-none d-sm-block">
+                                            <div class="custom-radio-indicator"></div>
                                         </div>
                                     </label>
                                 </div>

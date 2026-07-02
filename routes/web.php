@@ -186,7 +186,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/settings', [AdminPlatformSettingController::class, 'update'])->name('settings.update');
 
         // Blog Management
-        Route::resource('blog', AdminBlogController::class)->except(['show']);
+        Route::resource('blog', AdminBlogController::class)->except(['show'])->parameters(['blog' => 'post']);
 
         // Game Titles
         Route::resource('game_titles', AdminGameTitleController::class)->except(['show']);
