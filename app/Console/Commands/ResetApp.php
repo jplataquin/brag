@@ -14,14 +14,14 @@ class ResetApp extends Command
      *
      * @var string
      */
-    protected $signature = 'app:reset {--force : Force the operation to run when in production}';
+    protected $signature = 'app:reset {--force : Force the operation to run when in production} {--all : Truncate terms of services, privacy policies, and manual payment agreements as well}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Truncate all database records (except migrations) and delete all uploaded card images.';
+    protected $description = 'Truncate all database records (except migrations, terms of services, privacy policies, and manual payment agreements unless --all is passed) and delete all uploaded card images.';
 
     /**
      * Execute the console command.
@@ -74,11 +74,17 @@ class ResetApp extends Command
         $tables = DB::select('SHOW TABLES');
         $tableKey = 'Tables_in_' . $databaseName;
 
+        $excludedTables = ['migrations'];
+        if (!$this->option('all')) {
+            $excludedTables = array_merge($excludedTables, ['terms_of_services', 'privacy_policies', 'manual_payment_agreements', 'diamond_packages']);
+        }
+
         foreach ($tables as $table) {
             $tableName = $table->$tableKey;
 
-            // Skip migrations table
-            if ($tableName === 'migrations') {
+            // Skip essential tables
+            if (in_array($tableName, $excludedTables)) {
+                $this->comment("Skipping table: {$tableName}");
                 continue;
             }
 
@@ -98,6 +104,9 @@ class ResetApp extends Command
         $this->info('Deleting uploaded images...');
 
         $directories = ['templates', 'tmp'];
+        if ($this->option('all')) {
+            $directories = array_merge($directories, ['qr', 'proofs']);
+        }
 
         foreach ($directories as $directory) {
             if (Storage::disk('public')->exists($directory)) {

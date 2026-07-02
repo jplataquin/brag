@@ -156,7 +156,7 @@ $placeholderSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.
     @if($showProgressBar)
     <div class="card-level-progress-wrapper w-100 mt-2 px-1" style="max-width: {{ $width }}px;">
         <div class="d-flex justify-content-between align-items-center mb-1 small" style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: {{ $computedRarityColor }};">
-            <span>LEVEL UP PROGRESS</span>
+            <span>NEXT LEVEL PROGRESS</span>
             <span>{{ $nextLevelProgress }}%</span>
         </div>
         <div class="progress" style="height: 6px; background-color: #111122; border: 1px solid rgba(0, 240, 255, 0.15); border-radius: 4px; overflow: hidden; box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);">
@@ -173,7 +173,7 @@ $placeholderSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.
     @if($showProgressBar)
     <div class="card-level-progress-wrapper w-100 mt-2 px-1" style="max-width: {{ $width }}px;">
         <div class="d-flex justify-content-between align-items-center mb-1 small" style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: {{ $computedRarityColor }};">
-            <span>LEVEL UP PROGRESS</span>
+            <span>NEXT LEVEL PROGRESS</span>
             <span>{{ $nextLevelProgress }}%</span>
         </div>
         <div class="progress" style="height: 6px; background-color: #111122; border: 1px solid rgba(0, 240, 255, 0.15); border-radius: 4px; overflow: hidden; box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);">
@@ -195,7 +195,7 @@ $placeholderSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.
                 @if($showProgressBar)
                 <div class="card-level-progress-wrapper w-100 mt-3 px-3 pb-2">
                     <div class="d-flex justify-content-between align-items-center mb-1 small" style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: {{ $computedRarityColor }};">
-                        <span>LEVEL UP PROGRESS</span>
+                        <span>NEXT LEVEL PROGRESS</span>
                         <span>{{ $nextLevelProgress }}%</span>
                     </div>
                     <div class="progress" style="height: 8px; background-color: #111122; border: 1px solid rgba(0, 240, 255, 0.15); border-radius: 4px; overflow: hidden; box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);">
