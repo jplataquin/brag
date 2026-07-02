@@ -73,6 +73,25 @@ $computedRarityColor = $rarityColors[$mode === 'template' ? 'template' : $rarity
 $computedRarityIcon = $rarityIcons[$mode === 'template' ? 'template' : $rarity] ?? '🪵';
 $winRate = ($wins + $losses > 0) ? round(($wins / ($wins + $losses)) * 100) : 0;
 
+$nextLevelProgress = 100;
+$showProgressBar = false;
+if ($mode !== 'template' && $rankLevel < 5) {
+    $showProgressBar = true;
+    $levelConditions = config('leveling.conditions', []);
+    $nextConditions = $levelConditions[$rankLevel + 1] ?? null;
+    if ($nextConditions) {
+        $minWins = $nextConditions['min_wins'];
+        $minWinRate = $nextConditions['min_win_rate'];
+        $minIntegrity = $nextConditions['min_integrity'] ?? 0;
+
+        $winsProgress = $minWins > 0 ? min(100, ($wins / $minWins) * 100) : 100;
+        $winRateProgress = $minWinRate > 0 ? min(100, ($winRate / $minWinRate) * 100) : 100;
+        $integrityProgress = $minIntegrity > 0 ? min(100, ($integrityStat / $minIntegrity) * 100) : 100;
+
+        $nextLevelProgress = round(($winsProgress + $winRateProgress + $integrityProgress) / 3);
+    }
+}
+
 $cardOptionsJson = json_encode([
     'mode' => $mode,
     'title' => $title,
@@ -127,15 +146,41 @@ $placeholderSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.
     </div>
     @endif
 @elseif($mode === 'display')
-<div id="wrapper_{{ $id }}" class="digital-card rarity-{{ $rarity }}" style="padding: 4px; border-radius: 16px; display: inline-block; max-width: 100%; {{ $hasFullscreen ? 'cursor: pointer; transition: transform 0.2s;' : '' }}" 
-    @if($hasFullscreen) 
-        onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'" data-bs-toggle="modal" data-bs-target="#modal_{{ $id }}"
-    @endif>
-    <canvas id="{{ $id }}" width="{{ $width }}" height="{{ $height }}" class="digital-card-canvas" style="border-radius: 10px; box-shadow: 0 0 15px {{ $borderColor }}40; max-width: 100%; height: auto;" data-card-options="{{ $cardOptionsJson }}"></canvas>
+<div class="d-inline-flex flex-column align-items-center">
+    <div id="wrapper_{{ $id }}" class="digital-card rarity-{{ $rarity }}" style="padding: 4px; border-radius: 16px; display: inline-block; max-width: 100%; {{ $hasFullscreen ? 'cursor: pointer; transition: transform 0.2s;' : '' }}" 
+        @if($hasFullscreen) 
+            onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'" data-bs-toggle="modal" data-bs-target="#modal_{{ $id }}"
+        @endif>
+        <canvas id="{{ $id }}" width="{{ $width }}" height="{{ $height }}" class="digital-card-canvas" style="border-radius: 10px; box-shadow: 0 0 15px {{ $borderColor }}40; max-width: 100%; height: auto;" data-card-options="{{ $cardOptionsJson }}"></canvas>
+    </div>
+    @if($showProgressBar)
+    <div class="card-level-progress-wrapper w-100 mt-2 px-1" style="max-width: {{ $width }}px;">
+        <div class="d-flex justify-content-between align-items-center mb-1 small" style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: {{ $computedRarityColor }};">
+            <span>LEVEL UP PROGRESS</span>
+            <span>{{ $nextLevelProgress }}%</span>
+        </div>
+        <div class="progress" style="height: 6px; background-color: #111122; border: 1px solid rgba(0, 240, 255, 0.15); border-radius: 4px; overflow: hidden; box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);">
+            <div class="progress-bar" role="progressbar" style="width: {{ $nextLevelProgress }}%; background-color: {{ $computedRarityColor }}; box-shadow: 0 0 8px {{ $computedRarityColor }}; transition: width 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);" aria-valuenow="{{ $nextLevelProgress }}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+    @endif
 </div>
 @else
-<div id="wrapper_{{ $id }}" @if($hasFullscreen) style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'" data-bs-toggle="modal" data-bs-target="#modal_{{ $id }}" @endif>
-    <canvas id="{{ $id }}" width="{{ $width }}" height="{{ $height }}" class="digital-card-canvas" style="border-radius: 10px; box-shadow: 0 0 15px {{ $borderColor }}40; max-width: 100%; height: auto;" data-card-options="{{ $cardOptionsJson }}"></canvas>
+<div class="d-inline-flex flex-column align-items-center">
+    <div id="wrapper_{{ $id }}" @if($hasFullscreen) style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'" data-bs-toggle="modal" data-bs-target="#modal_{{ $id }}" @endif>
+        <canvas id="{{ $id }}" width="{{ $width }}" height="{{ $height }}" class="digital-card-canvas" style="border-radius: 10px; box-shadow: 0 0 15px {{ $borderColor }}40; max-width: 100%; height: auto;" data-card-options="{{ $cardOptionsJson }}"></canvas>
+    </div>
+    @if($showProgressBar)
+    <div class="card-level-progress-wrapper w-100 mt-2 px-1" style="max-width: {{ $width }}px;">
+        <div class="d-flex justify-content-between align-items-center mb-1 small" style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: {{ $computedRarityColor }};">
+            <span>LEVEL UP PROGRESS</span>
+            <span>{{ $nextLevelProgress }}%</span>
+        </div>
+        <div class="progress" style="height: 6px; background-color: #111122; border: 1px solid rgba(0, 240, 255, 0.15); border-radius: 4px; overflow: hidden; box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);">
+            <div class="progress-bar" role="progressbar" style="width: {{ $nextLevelProgress }}%; background-color: {{ $computedRarityColor }}; box-shadow: 0 0 8px {{ $computedRarityColor }}; transition: width 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);" aria-valuenow="{{ $nextLevelProgress }}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+    @endif
 </div>
 @endif
 
@@ -145,8 +190,19 @@ $placeholderSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.
 <div class="modal fade" wire:ignore.self id="modal_{{ $id }}" tabindex="-1" aria-hidden="true" style="z-index: 1055;">
     <div class="modal-dialog modal-dialog-centered modal-lg d-flex justify-content-center">
         <div class="modal-content" style="background: transparent; border: none; align-items: center; box-shadow: none;">
-            <div class="digital-card rarity-{{ $rarity }}" style="padding: 4px; border-radius: 16px; width: 100%; max-width: 500px; margin: 0 auto;">
+            <div class="digital-card rarity-{{ $rarity }} d-flex flex-column align-items-center" style="padding: 4px; border-radius: 16px; width: 100%; max-width: 500px; margin: 0 auto;">
                 <canvas id="fullscreen_{{ $id }}" width="500" height="700" class="digital-card-canvas" style="border-radius: 12px; display: block; position: relative; z-index: 1; max-width: 100%; height: auto;" data-card-options="{{ $cardOptionsJson }}"></canvas>
+                @if($showProgressBar)
+                <div class="card-level-progress-wrapper w-100 mt-3 px-3 pb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-1 small" style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: {{ $computedRarityColor }};">
+                        <span>LEVEL UP PROGRESS</span>
+                        <span>{{ $nextLevelProgress }}%</span>
+                    </div>
+                    <div class="progress" style="height: 8px; background-color: #111122; border: 1px solid rgba(0, 240, 255, 0.15); border-radius: 4px; overflow: hidden; box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);">
+                        <div class="progress-bar" role="progressbar" style="width: {{ $nextLevelProgress }}%; background-color: {{ $computedRarityColor }}; box-shadow: 0 0 10px {{ $computedRarityColor }}; transition: width 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);" aria-valuenow="{{ $nextLevelProgress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+                @endif
             </div>
             <div class="mt-4 text-center d-flex gap-2 justify-content-center flex-wrap">
                 @if($detailUrl)
