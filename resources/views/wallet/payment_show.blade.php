@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const proofUploadWrapper = document.getElementById('proof-upload-wrapper');
 
         const expectedAmount = "{{ number_format($payment->amount, 2, '.', '') }}";
-        const requiredOcrText = "{{ $payment->package->ocr_match_string ?? '' }}";
+        const requiredOcrPatterns = @json(array_values(array_filter(array_map('trim', explode('&&', $payment->package->ocr_match_string ?? '')))));
 
         btnReset.addEventListener('click', function() {
             proofInput.value = '';
@@ -248,12 +248,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         return;
                     }
 
-                    if (requiredOcrText) {
-                        const patterns = requiredOcrText.split('&&');
-                        for (let p of patterns) {
-                            const currentPattern = p.trim();
-                            if (!currentPattern) continue;
-
+                    if (requiredOcrPatterns && requiredOcrPatterns.length > 0) {
+                        for (let currentPattern of requiredOcrPatterns) {
                             try {
                                 const regex = new RegExp(currentPattern.replace(/[\s,]/g, ''), 'i');
                                 if (!regex.test(sanitizedText)) {
