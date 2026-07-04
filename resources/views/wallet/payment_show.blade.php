@@ -107,15 +107,17 @@
                                     <input type="hidden" name="proof_temp_path" id="proof_temp_path">
                                     
                                     <div class="mb-0 text-start">
-                                        <x-file-input 
-                                            id="proof" 
-                                            name="proof"
-                                            accept="image/*" 
-                                            placeholder="Select New Screenshot" 
-                                            color="warning" 
-                                            icon="bi-receipt-cutoff" 
-                                            required 
-                                        />
+                                        <div id="proof-upload-wrapper">
+                                            <x-file-input 
+                                                id="proof" 
+                                                name="proof"
+                                                accept="image/*" 
+                                                placeholder="Select New Screenshot" 
+                                                color="warning" 
+                                                icon="bi-receipt-cutoff" 
+                                                required 
+                                            />
+                                        </div>
 
                                         <!-- Photo Preview -->
                                         <div id="proof-preview" class="mt-3 text-center" style="display: none;">

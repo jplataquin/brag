@@ -68,15 +68,17 @@
                         <div class="mb-4 text-start">
                             <label class="form-label text-muted small text-uppercase fw-bold">Upload Proof of Payment (Screenshot)</label>
                             
-                            <x-file-input 
-                                id="proof" 
-                                name="proof"
-                                accept="image/*" 
-                                placeholder="Choose Transaction Screenshot" 
-                                color="warning" 
-                                icon="bi-receipt-cutoff" 
-                                required 
-                            />
+                            <div id="proof-upload-wrapper">
+                                <x-file-input 
+                                    id="proof" 
+                                    name="proof"
+                                    accept="image/*" 
+                                    placeholder="Choose Transaction Screenshot" 
+                                    color="warning" 
+                                    icon="bi-receipt-cutoff" 
+                                    required 
+                                />
+                            </div>
 
                             <!-- Photo Preview -->
                             <div id="proof-preview" class="mt-3 text-center" style="display: none;">

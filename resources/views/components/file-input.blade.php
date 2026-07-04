@@ -42,7 +42,7 @@
         onmouseenter="this.nextElementSibling.style.background = '{{ $bgHover }}'; this.nextElementSibling.style.borderColor = '{{ $textColor }}'; this.nextElementSibling.style.boxShadow = '0 0 15px {{ $borderColor }}'; this.nextElementSibling.style.transform = 'translateY(-2px)';"
         onmouseleave="this.nextElementSibling.style.background = 'rgba(10, 10, 26, 0.5)'; this.nextElementSibling.style.borderColor = '{{ $borderColor }}'; this.nextElementSibling.style.boxShadow = 'none'; this.nextElementSibling.style.transform = 'translateY(0)';"
     >
-    <div class="d-flex align-items-center justify-content-between p-3 rounded-3" 
+    <div id="{{ $id }}-dropzone" class="d-flex align-items-center justify-content-between p-3 rounded-3" 
          style="background: rgba(10, 10, 26, 0.5); border: 1px dashed {{ $borderColor }}; transition: all 0.3s ease;">
         <span class="text-truncate text-light opacity-75" style="font-family: 'Orbitron', sans-serif; font-size: 0.85rem; letter-spacing: 1px;">
             <i id="icon_{{ $id }}" class="bi {{ $icon }} me-2" style="color: {{ $textColor }};"></i>
