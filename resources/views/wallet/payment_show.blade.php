@@ -109,6 +109,7 @@
                                     <div class="mb-0 text-start">
                                         <x-file-input 
                                             id="proof" 
+                                            name="proof"
                                             accept="image/*" 
                                             placeholder="Select New Screenshot" 
                                             color="warning" 

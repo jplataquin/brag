@@ -70,6 +70,7 @@
                             
                             <x-file-input 
                                 id="proof" 
+                                name="proof"
                                 accept="image/*" 
                                 placeholder="Choose Transaction Screenshot" 
                                 color="warning" 

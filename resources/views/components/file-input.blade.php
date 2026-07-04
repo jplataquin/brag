@@ -33,7 +33,7 @@
     <input 
         type="file" 
         id="{{ $id }}"
-        name="{{ $name }}"
+        name="{{ $name ?: $id }}"
         accept="{{ $accept }}"
         {{ $required ? 'required' : '' }}
         {{ $attributes->merge(['class' => 'position-absolute w-100 h-100 opacity-0']) }} 
