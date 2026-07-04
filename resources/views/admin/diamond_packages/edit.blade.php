@@ -105,7 +105,7 @@
                             @enderror
                             <div class="form-text text-secondary mt-2">
                                 <i class="bi bi-info-circle me-1"></i> Supports Regular Expressions. The system will verify this pattern against the text found in the screenshot (spaces and commas are removed from the image text before checking).<br>
-                                <strong>Examples:</strong> <code>(1234|234)</code> for partial account numbers, <code>bdo.*1234</code> to require both a bank name and account.
+                                <strong>Examples:</strong> <code>(1234|234)</code> for partial account numbers, <code>bdo.*1234</code> to require both a bank name and account. Use <code>&&</code> to require multiple distinct patterns (e.g., <code>gcash&&Ref No.</code>).
                             </div>
                         </div>
 

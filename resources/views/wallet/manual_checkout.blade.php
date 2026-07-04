@@ -212,28 +212,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 const searchAmountInt = parseInt(searchAmount);
 
                 if (!sanitizedText.includes(searchAmount) && !sanitizedText.includes(searchAmountInt.toString())) {
-                    statusText.innerHTML = 'Error: Could not find amount <strong>' + expectedAmount + '</strong> in screenshot. <br><small class="text-secondary">Please ensure the image is not blurry and the amount is clearly visible.</small>';
+                    statusText.innerHTML = 'Error: Payment details or amount could not be verified in the screenshot. <br><small class="text-secondary">Please ensure the screenshot is clear, not blurry, and clearly shows the payment confirmation and transaction amount.</small>';
                     statusText.style.color = '#ff4444';
                     return;
                 }
 
                 // Custom Regex Check
                 if (requiredOcrText) {
-                    try {
-                        const regex = new RegExp(requiredOcrText.replace(/[\s,]/g, ''), 'i');
-                        if (!regex.test(sanitizedText)) {
-                            statusText.innerHTML = 'Error: Required information matching pattern <strong>"' + requiredOcrText + '"</strong> not found. <br><small class="text-secondary">Please ensure the image is not blurry and all details are clearly visible.</small>';
-                            statusText.style.color = '#ff4444';
-                            return;
-                        }
-                    } catch (regexErr) {
-                        console.error('Invalid OCR Regex:', regexErr);
-                        // Fallback to simple inclusion if regex is invalid
-                        const searchString = requiredOcrText.replace(/[\s,]/g, '').toLowerCase();
-                        if (!sanitizedText.includes(searchString)) {
-                            statusText.innerHTML = 'Error: Required information <strong>"' + requiredOcrText + '"</strong> not found. <br><small class="text-secondary">Please ensure the image is not blurry and all details are clearly visible.</small>';
-                            statusText.style.color = '#ff4444';
-                            return;
+                    const patterns = requiredOcrText.split('&&');
+                    for (let p of patterns) {
+                        const currentPattern = p.trim();
+                        if (!currentPattern) continue;
+
+                        try {
+                            const regex = new RegExp(currentPattern.replace(/[\s,]/g, ''), 'i');
+                            if (!regex.test(sanitizedText)) {
+                                statusText.innerHTML = 'Error: Required information matching pattern <strong>"' + currentPattern + '"</strong> not found. <br><small class="text-secondary">Please ensure the image is not blurry and all details are clearly visible.</small>';
+                                statusText.style.color = '#ff4444';
+                                return;
+                            }
+                        } catch (regexErr) {
+                            console.error('Invalid OCR Regex:', regexErr);
+                            // Fallback to simple inclusion if regex is invalid
+                            const searchString = currentPattern.replace(/[\s,]/g, '').toLowerCase();
+                            if (!sanitizedText.includes(searchString)) {
+                                statusText.innerHTML = 'Error: Required information <strong>"' + currentPattern + '"</strong> not found. <br><small class="text-secondary">Please ensure the image is not blurry and all details are clearly visible.</small>';
+                                statusText.style.color = '#ff4444';
+                                return;
+                            }
                         }
                     }
                 }

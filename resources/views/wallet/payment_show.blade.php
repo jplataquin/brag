@@ -243,24 +243,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     const searchAmountInt = parseInt(searchAmount);
 
                     if (!sanitizedText.includes(searchAmount) && !sanitizedText.includes(searchAmountInt.toString())) {
-                        statusText.innerHTML = 'Error: Amount <strong>' + expectedAmount + '</strong> not found. <br><small class="text-secondary">Please ensure the image is clear.</small>';
+                        statusText.innerHTML = 'Error: Payment details or amount could not be verified in the screenshot. <br><small class="text-secondary">Please ensure the image is clear and clearly shows the payment confirmation and transaction amount.</small>';
                         statusText.style.color = '#ff4444';
                         return;
                     }
 
                     if (requiredOcrText) {
-                        try {
-                            const regex = new RegExp(requiredOcrText.replace(/[\s,]/g, ''), 'i');
-                            if (!regex.test(sanitizedText)) {
-                                statusText.innerHTML = 'Error: Required pattern not found. <br><small class="text-secondary">Please ensure all details are visible.</small>';
-                                statusText.style.color = '#ff4444';
-                                return;
-                            }
-                        } catch (e) {
-                            if (!sanitizedText.includes(requiredOcrText.toLowerCase())) {
-                                statusText.innerHTML = 'Error: Required text not found.';
-                                statusText.style.color = '#ff4444';
-                                return;
+                        const patterns = requiredOcrText.split('&&');
+                        for (let p of patterns) {
+                            const currentPattern = p.trim();
+                            if (!currentPattern) continue;
+
+                            try {
+                                const regex = new RegExp(currentPattern.replace(/[\s,]/g, ''), 'i');
+                                if (!regex.test(sanitizedText)) {
+                                    statusText.innerHTML = 'Error: Required pattern <strong>"' + currentPattern + '"</strong> not found. <br><small class="text-secondary">Please ensure all details are visible.</small>';
+                                    statusText.style.color = '#ff4444';
+                                    return;
+                                }
+                            } catch (e) {
+                                if (!sanitizedText.includes(currentPattern.toLowerCase().replace(/[\s,]/g, ''))) {
+                                    statusText.innerHTML = 'Error: Required text <strong>"' + currentPattern + '"</strong> not found.';
+                                    statusText.style.color = '#ff4444';
+                                    return;
+                                }
                             }
                         }
                     }
