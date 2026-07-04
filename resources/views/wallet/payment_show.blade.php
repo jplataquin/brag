@@ -262,10 +262,16 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         }
                     }
-                } catch (err) { console.error(err); }
 
-                statusText.innerText = 'Verification passed! Uploading...';
-                statusText.style.color = '#39ff14';
+                    // OCR successfully verified the details!
+                    statusText.innerText = 'Verification passed! Uploading...';
+                    statusText.style.color = '#39ff14';
+
+                } catch (err) { 
+                    console.error(err); 
+                    statusText.innerText = 'OCR scanner offline. Bypassing check... Starting upload...';
+                    statusText.style.color = '#ffaa00';
+                }
 
                 const CHUNK_SIZE = 256 * 1024;
                 const fileId = 'proof_re_' + Date.now();

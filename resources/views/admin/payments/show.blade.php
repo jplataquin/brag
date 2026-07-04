@@ -279,7 +279,7 @@ function confirmApproval() {
 
     let confirmMsg = 'Are you sure you want to APPROVE this payment? This will credit {{ $payment->diamonds_amount }} diamonds to {{ $payment->user->username }}.';
     if (tracerValue) {
-        confirmMsg += '<br><br><span class="text-warning">Tracer ID: <strong>' + tracerValue + '</strong></span>';
+        confirmMsg += '\n\nTracer ID: ' + tracerValue;
     }
 
     window.neonConfirm(confirmMsg).then(confirmed => {

@@ -113,4 +113,15 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Sales Transaction Notification Email
+    |--------------------------------------------------------------------------
+    |
+    | The email address that receives notifications whenever someone completes
+    | or submits a sales/diamond purchase transaction.
+    |
+    */
+    'sales_transaction_email' => env('SALES_TRANSACTION_EMAIL'),
+
 ];

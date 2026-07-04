@@ -84,4 +84,33 @@ class Payment extends Model
     {
         return $this->payment_method === 'manual';
     }
+
+    /**
+     * Boot the model and register events.
+     */
+    protected static function booted()
+    {
+        $sendSalesEmail = function ($payment) {
+            if ($payment->status === 'completed') {
+                $salesEmail = config('mail.sales_transaction_email');
+                if ($salesEmail) {
+                    try {
+                        \Illuminate\Support\Facades\Mail::to($salesEmail)->send(new \App\Mail\DiamondPurchaseReceipt($payment));
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error('Sales Transaction Notification Email Error: ' . $e->getMessage());
+                    }
+                }
+            }
+        };
+
+        static::created(function ($payment) use ($sendSalesEmail) {
+            $sendSalesEmail($payment);
+        });
+
+        static::updated(function ($payment) use ($sendSalesEmail) {
+            if ($payment->wasChanged('status')) {
+                $sendSalesEmail($payment);
+            }
+        });
+    }
 }

@@ -235,14 +235,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                 }
+
+                // If we get here, OCR successfully verified the details!
+                statusText.innerText = 'Verification passed! Starting upload...';
+                statusText.style.color = '#39ff14';
+
             } catch (err) {
                 console.error('OCR Error:', err);
                 // Fail silently on OCR error to avoid blocking users if Tesseract fails
+                statusText.innerText = 'OCR scanner offline. Bypassing check... Starting upload...';
+                statusText.style.color = '#ffaa00';
             }
-
-            // Start Chunked Upload
-            statusText.innerText = 'Verification passed! Starting upload...';
-            statusText.style.color = '#39ff14';
 
             const CHUNK_SIZE = 256 * 1024;
             const fileId = 'proof_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);

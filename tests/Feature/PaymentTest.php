@@ -465,4 +465,48 @@ class PaymentTest extends TestCase
         $this->assertEquals('completed', $payment->status);
         $this->assertNull($payment->tracer_id);
     }
+
+    public function test_completed_payment_sends_sales_transaction_notification_email()
+    {
+        // Mock Mail facade
+        \Illuminate\Support\Facades\Mail::fake();
+
+        // Configure sales transaction email
+        config(['mail.sales_transaction_email' => 'sales-team@brag.com']);
+
+        $user = User::factory()->create();
+
+        $package = DiamondPackage::create([
+            'name' => '10 Diamonds',
+            'diamonds' => 10,
+            'price' => 50.00,
+            'currency' => 'PHP',
+            'is_active' => true,
+            'allow_manual' => true,
+            'allow_hitpay' => true,
+        ]);
+
+        $payment = Payment::create([
+            'user_id' => $user->id,
+            'diamond_package_id' => $package->id,
+            'reference' => 'SALES-NOTIF-999',
+            'amount' => 50,
+            'currency' => 'PHP',
+            'diamonds_amount' => 10,
+            'status' => 'pending',
+            'payment_method' => 'manual',
+        ]);
+
+        // Mail should not be sent yet (it is pending)
+        \Illuminate\Support\Facades\Mail::assertNotSent(\App\Mail\DiamondPurchaseReceipt::class);
+
+        // Update status to completed
+        $payment->update(['status' => 'completed']);
+
+        // Verify Mail was sent to sales-team@brag.com
+        \Illuminate\Support\Facades\Mail::assertSent(\App\Mail\DiamondPurchaseReceipt::class, function ($mail) {
+            return $mail->hasTo('sales-team@brag.com') && 
+                   $mail->payment->reference === 'SALES-NOTIF-999';
+        });
+    }
 }
