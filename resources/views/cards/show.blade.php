@@ -43,6 +43,7 @@
                     :losses="$digitalCard->losses"
                     :lifePoints="$digitalCard->life_points"
                     :integrityStat="$digitalCard->integrity_stat"
+                    :eloScore="$digitalCard->elo_score"
                     :status="$digitalCard->status"
                     :rankLevel="$digitalCard->level"
                     :serialNumber="$digitalCard->serial_number"

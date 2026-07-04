@@ -93,6 +93,7 @@
                                     :wins="$card->wins"
                                     :losses="$card->losses"
                                     :integrityStat="$card->integrity_stat"
+                                    :eloScore="$card->elo_score"
                                     :rankLevel="$card->level"
                                     :serialNumber="$card->id"
                                     :backgroundColor="$card->template->background_color"

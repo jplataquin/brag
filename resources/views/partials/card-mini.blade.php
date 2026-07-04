@@ -20,6 +20,7 @@
     :losses="$card->losses"
     :lifePoints="$card->life_points"
     :integrityStat="$card->integrity_stat"
+    :eloScore="$card->elo_score"
     :status="$card->status"
     :rankLevel="$card->level"
     :serialNumber="$card->serial_number"

@@ -50,6 +50,7 @@
             :wins="$snapshot ? $snapshot['wins'] : $c->wins"
             :losses="$snapshot ? $snapshot['losses'] : $c->losses"
             :integrityStat="$snapshot ? $snapshot['integrity_stat'] : $c->integrity_stat"
+            :eloScore="$snapshot ? ($snapshot['elo_score'] ?? 1000) : $c->elo_score"
             :lifePoints="$snapshot ? $snapshot['life_points'] : $c->life_points"
             :status="$snapshot ? $snapshot['status'] : $c->status"
             :rankLevel="$snapshot ? $snapshot['level'] : $c->level"

@@ -417,6 +417,15 @@ class DigitalCardRenderer {
         }
         ctx.fillText(lifePointsStr, startX, yCenterBottomLine);
 
+        // Draw Elo Rating on the right side of the bottom line
+        const eloScore = options.eloScore || 1000;
+        if (options.mode !== 'template' && !isCensored) {
+            ctx.fillStyle = '#ffdd00'; // Yellow
+            ctx.font = `bold ${fontSizeStats * 0.9}px 'Orbitron', sans-serif`;
+            ctx.textAlign = 'right';
+            ctx.fillText(`ELO: ${eloScore}`, innerX + w - (w * 0.04), yCenterBottomLine);
+        }
+
         ctx.restore();
         // ----------------------------
 

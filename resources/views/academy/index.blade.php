@@ -143,6 +143,7 @@
                                             wins="15"
                                             losses="5"
                                             integrityStat="35"
+                                            eloScore="1450"
                                             lifePoints="3"
                                             status="Discontinued"
                                             rankLevel="2"

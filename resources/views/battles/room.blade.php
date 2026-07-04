@@ -611,6 +611,7 @@ function clearMarshall() {
                                                                     :wins="$card->wins"
                                                                     :losses="$card->losses"
                                                                     :integrityStat="$card->integrity_stat"
+                                                                    :eloScore="$card->elo_score"
                                                                     :lifePoints="$card->life_points"
                                                                     :status="$card->status"
                                                                     :rankLevel="$card->level"
