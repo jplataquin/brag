@@ -188,7 +188,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end gap-2 mt-4">
-                            <button type="submit" class="btn fw-bold text-dark px-4" style="background-color: var(--neon-yellow); border-color: var(--neon-yellow); box-shadow: 0 0 10px rgba(255, 221, 0, 0.5);">
+                            <button type="submit" class="btn fw-bold text-warning px-4" style="background-color: var(--neon-yellow); border-color: var(--neon-yellow); box-shadow: 0 0 10px rgba(255, 221, 0, 0.5);">
                                 <i class="bi bi-arrow-left-right"></i> Apply Adjustment
                             </button>
                         </div>
