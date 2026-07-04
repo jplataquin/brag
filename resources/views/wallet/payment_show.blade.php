@@ -238,27 +238,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 statusText.innerText = 'Scanning receipt...';
                 try {
                     const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
+                    console.log('[OCR Debug] Raw Extracted Text:', text);
+                    
                     const sanitizedText = text.replace(/[\s,]/g, '').toLowerCase();
+                    console.log('[OCR Debug] Sanitized Extracted Text:', sanitizedText);
+                    
                     const searchAmount = expectedAmount.replace(/[\s,]/g, '');
                     const searchAmountInt = parseInt(searchAmount);
+                    console.log('[OCR Debug] Amount Check - Expected:', searchAmount, 'or integer:', searchAmountInt.toString());
 
-                    if (!sanitizedText.includes(searchAmount) && !sanitizedText.includes(searchAmountInt.toString())) {
+                    const hasAmount = sanitizedText.includes(searchAmount) || sanitizedText.includes(searchAmountInt.toString());
+                    console.log('[OCR Debug] Amount Check Result:', hasAmount ? 'PASSED' : 'FAILED');
+
+                    if (!hasAmount) {
                         statusText.innerHTML = 'Error: Payment details or amount could not be verified in the screenshot. <br><small class="text-secondary">Please ensure the image is clear and clearly shows the payment confirmation and transaction amount.</small>';
                         statusText.style.color = '#ff4444';
                         return;
                     }
 
                     if (requiredOcrPatterns && requiredOcrPatterns.length > 0) {
+                        console.log('[OCR Debug] Required Patterns list:', requiredOcrPatterns);
                         for (let currentPattern of requiredOcrPatterns) {
+                            const processedPattern = currentPattern.replace(/[\s,]/g, '');
+                            console.log('[OCR Debug] Pattern Check - Original:', currentPattern, '| Processed (no spaces/commas):', processedPattern);
+
+                            let patternPassed = false;
                             try {
-                                const regex = new RegExp(currentPattern.replace(/[\s,]/g, ''), 'i');
-                                if (!regex.test(sanitizedText)) {
+                                const regex = new RegExp(processedPattern, 'i');
+                                patternPassed = regex.test(sanitizedText);
+                                console.log('[OCR Debug] Regex verification used:', regex, '| Result:', patternPassed ? 'PASSED' : 'FAILED');
+                                
+                                if (!patternPassed) {
                                     statusText.innerHTML = 'Error: Required pattern <strong>"' + currentPattern + '"</strong> not found. <br><small class="text-secondary">Please ensure all details are visible.</small>';
                                     statusText.style.color = '#ff4444';
                                     return;
                                 }
                             } catch (e) {
-                                if (!sanitizedText.includes(currentPattern.toLowerCase().replace(/[\s,]/g, ''))) {
+                                console.warn('[OCR Debug] Invalid Regex - Falling back to text inclusion check', e);
+                                const searchString = processedPattern.toLowerCase();
+                                patternPassed = sanitizedText.includes(searchString);
+                                console.log('[OCR Debug] Fallback text inclusion check for:', searchString, '| Result:', patternPassed ? 'PASSED' : 'FAILED');
+                                
+                                if (!patternPassed) {
                                     statusText.innerHTML = 'Error: Required text <strong>"' + currentPattern + '"</strong> not found.';
                                     statusText.style.color = '#ff4444';
                                     return;
