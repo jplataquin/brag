@@ -203,18 +203,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
             try {
                 const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
-                console.log('[OCR Debug] Raw Extracted Text:', text);
+                console.warn('[OCR Debug] Raw Extracted Text:', text);
                 
                 const sanitizedText = text.replace(/[\s,]/g, '').toLowerCase();
-                console.log('[OCR Debug] Sanitized Extracted Text:', sanitizedText);
+                console.warn('[OCR Debug] Sanitized Extracted Text:', sanitizedText);
                 
                 // Amount Check
                 const searchAmount = expectedAmount.replace(/[\s,]/g, '');
                 const searchAmountInt = parseInt(searchAmount);
-                console.log('[OCR Debug] Amount Check - Expected:', searchAmount, 'or integer:', searchAmountInt.toString());
+                console.warn('[OCR Debug] Amount Check - Expected:', searchAmount, 'or integer:', searchAmountInt.toString());
 
                 const hasAmount = sanitizedText.includes(searchAmount) || sanitizedText.includes(searchAmountInt.toString());
-                console.log('[OCR Debug] Amount Check Result:', hasAmount ? 'PASSED' : 'FAILED');
+                console.warn('[OCR Debug] Amount Check Result:', hasAmount ? 'PASSED' : 'FAILED');
 
                 if (!hasAmount) {
                     statusText.innerHTML = 'Error: Payment details or amount could not be verified in the screenshot. <br><small class="text-secondary">Please ensure the screenshot is clear, not blurry, and clearly shows the payment confirmation and transaction amount.</small>';
@@ -224,16 +224,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Custom Regex Check
                 if (requiredOcrPatterns && requiredOcrPatterns.length > 0) {
-                    console.log('[OCR Debug] Required Patterns list:', requiredOcrPatterns);
+                    console.warn('[OCR Debug] Required Patterns list:', requiredOcrPatterns);
                     for (let currentPattern of requiredOcrPatterns) {
                         const processedPattern = currentPattern.replace(/[\s,]/g, '');
-                        console.log('[OCR Debug] Pattern Check - Original:', currentPattern, '| Processed (no spaces/commas):', processedPattern);
+                        console.warn('[OCR Debug] Pattern Check - Original:', currentPattern, '| Processed (no spaces/commas):', processedPattern);
                         
                         let patternPassed = false;
                         try {
                             const regex = new RegExp(processedPattern, 'i');
                             patternPassed = regex.test(sanitizedText);
-                            console.log('[OCR Debug] Regex verification used:', regex, '| Result:', patternPassed ? 'PASSED' : 'FAILED');
+                            console.warn('[OCR Debug] Regex verification used:', regex, '| Result:', patternPassed ? 'PASSED' : 'FAILED');
                             
                             if (!patternPassed) {
                                 statusText.innerHTML = 'Error: Required information matching pattern <strong>"' + currentPattern + '"</strong> not found. <br><small class="text-secondary">Please ensure the image is not blurry and all details are clearly visible.</small>';
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             // Fallback to simple inclusion if regex is invalid
                             const searchString = processedPattern.toLowerCase();
                             patternPassed = sanitizedText.includes(searchString);
-                            console.log('[OCR Debug] Fallback text inclusion check for:', searchString, '| Result:', patternPassed ? 'PASSED' : 'FAILED');
+                            console.warn('[OCR Debug] Fallback text inclusion check for:', searchString, '| Result:', patternPassed ? 'PASSED' : 'FAILED');
                             
                             if (!patternPassed) {
                                 statusText.innerHTML = 'Error: Required information <strong>"' + currentPattern + '"</strong> not found. <br><small class="text-secondary">Please ensure the image is not blurry and all details are clearly visible.</small>';
@@ -261,6 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 statusText.style.color = '#39ff14';
 
             } catch (err) {
+                console.warn('[OCR Debug] Tesseract initialization or recognition failed with exception:', err);
                 console.error('OCR Error:', err);
                 // Fail silently on OCR error to avoid blocking users if Tesseract fails
                 statusText.innerText = 'OCR scanner offline. Bypassing check... Starting upload...';
