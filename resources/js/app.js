@@ -385,6 +385,14 @@ class DigitalCardRenderer {
         ctx.fillText(`I: ${integrityStatStr}`, startX, yCenterTopLine);
         startX += ctx.measureText(`I: ${integrityStatStr}`).width + fontSizeStats * 0.8;
 
+        // Elo
+        if (options.mode !== 'template') {
+            const eloScore = options.eloScore || 1000;
+            ctx.fillStyle = isCensored ? '#555' : '#ffffff'; // White
+            ctx.fillText(`E: ${eloScore}`, startX, yCenterTopLine);
+            startX += ctx.measureText(`E: ${eloScore}`).width + fontSizeStats * 0.8;
+        }
+
         // Discontinued Badge
         if (status === 'Discontinued' && !isCensored) {
             ctx.fillStyle = '#ff00ff'; // Magenta
@@ -416,15 +424,6 @@ class DigitalCardRenderer {
             lifePointsStr = '---';
         }
         ctx.fillText(lifePointsStr, startX, yCenterBottomLine);
-
-        // Draw Elo Rating on the right side of the bottom line
-        const eloScore = options.eloScore || 1000;
-        if (options.mode !== 'template' && !isCensored) {
-            ctx.fillStyle = '#ffdd00'; // Yellow
-            ctx.font = `bold ${fontSizeStats * 0.9}px 'Orbitron', sans-serif`;
-            ctx.textAlign = 'right';
-            ctx.fillText(`ELO: ${eloScore}`, innerX + w - (w * 0.04), yCenterBottomLine);
-        }
 
         ctx.restore();
         // ----------------------------
