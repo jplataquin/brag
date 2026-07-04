@@ -85,8 +85,12 @@ class PaymentController extends Controller
             return back()->with('error', 'This payment cannot be approved.');
         }
 
+        $request->validate([
+            'tracer_id' => 'nullable|string|max:255|unique:payments,tracer_id,' . $payment->id,
+        ]);
+
         try {
-            DB::transaction(function () use ($payment) {
+            DB::transaction(function () use ($payment, $request) {
                 $payment->lockForUpdate();
 
                 $payment->update([
@@ -94,6 +98,7 @@ class PaymentController extends Controller
                     'payment_type' => 'manual_approval',
                     'collected_at' => now(),
                     'collected_by' => auth()->id(),
+                    'tracer_id' => $request->input('tracer_id'),
                 ]);
 
                 // Add Diamonds to user

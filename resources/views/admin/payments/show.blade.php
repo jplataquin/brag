@@ -64,6 +64,15 @@
                                 <i class="bi bi-gem"></i> {{ number_format($payment->diamonds_amount) }}
                             </div>
                         </div>
+
+                        @if($payment->tracer_id)
+                            <div class="col-sm-6">
+                                <div class="text-muted small text-uppercase fw-bold mb-1">Tracer ID / Reference</div>
+                                <div class="text-white fs-5 fw-bold" style="color: var(--neon-cyan) !important;">
+                                    <i class="bi bi-hash"></i> {{ $payment->tracer_id }}
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -82,7 +91,7 @@
                         </a>
                         
                         @if($payment->status === 'pending' || $payment->status === 'flagged')
-                            <div class="mt-4 pt-4 border-top border-secondary">
+                            <div class="mt-4 pt-4 border-top border-secondary text-start">
                                 @if($payment->status === 'pending')
                                     <div class="alert bg-warning bg-opacity-10 border-warning text-warning small mb-3">
                                         <i class="bi bi-clock-history"></i> Auto-approval timer: 
@@ -90,6 +99,15 @@
                                         ({{ $payment->auto_approve_at ? $payment->auto_approve_at->format('g:i A') : '-' }})
                                     </div>
                                 @endif
+
+                                <div class="mb-4">
+                                    <label for="approve_tracer_id" class="form-label text-muted small text-uppercase fw-bold">Tracer ID / Gateway Reference (Optional, Unique)</label>
+                                    <input type="text" id="approve_tracer_id" class="form-control bg-dark text-white border-warning" placeholder="Enter tracer ID, transaction hash, or gateway reference..." value="{{ old('tracer_id', $payment->tracer_id) }}">
+                                    @error('tracer_id')
+                                        <div class="text-danger small mt-1 fw-bold">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
                                 <div class="d-flex justify-content-center gap-3">
                                     <button type="button" onclick="confirmApproval()" class="btn btn-lg btn-success px-4 fw-bold text-uppercase">
                                         <i class="bi bi-check-circle me-1"></i> Approve
@@ -240,7 +258,10 @@
     </div>
 </div>
 <!-- Approval/Rejection Forms -->
-<form id="approveForm" action="{{ route('admin.payments.approve', $payment->id) }}" method="POST" class="d-none">@csrf</form>
+<form id="approveForm" action="{{ route('admin.payments.approve', $payment->id) }}" method="POST" class="d-none">
+    @csrf
+    <input type="hidden" name="tracer_id" id="approveFormTracerId">
+</form>
 <form id="rejectForm" action="{{ route('admin.payments.reject', $payment->id) }}" method="POST" class="d-none">
     @csrf
     <input type="hidden" name="reason" id="rejectReasonInput">
@@ -253,8 +274,20 @@
 
 <script>
 function confirmApproval() {
-    window.neonConfirm('Are you sure you want to APPROVE this payment? This will credit {{ $payment->diamonds_amount }} diamonds to {{ $payment->user->username }}.').then(confirmed => {
+    const tracerInput = document.getElementById('approve_tracer_id');
+    const tracerValue = tracerInput ? tracerInput.value.trim() : '';
+
+    let confirmMsg = 'Are you sure you want to APPROVE this payment? This will credit {{ $payment->diamonds_amount }} diamonds to {{ $payment->user->username }}.';
+    if (tracerValue) {
+        confirmMsg += '<br><br><span class="text-warning">Tracer ID: <strong>' + tracerValue + '</strong></span>';
+    }
+
+    window.neonConfirm(confirmMsg).then(confirmed => {
         if (confirmed) {
+            const hiddenInput = document.getElementById('approveFormTracerId');
+            if (hiddenInput) {
+                hiddenInput.value = tracerValue;
+            }
             document.getElementById('approveForm').submit();
         }
     });

@@ -11,6 +11,7 @@ class Payment extends Model
         'diamond_package_id',
         'manual_payment_agreement_id',
         'reference',
+        'tracer_id',
         'hitpay_id',
         'amount',
         'currency',

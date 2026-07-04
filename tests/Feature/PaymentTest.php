@@ -333,4 +333,136 @@ class PaymentTest extends TestCase
         $this->assertEquals('pending', $payment->status);
         $this->assertEquals('proofs/' . $file->hashName(), $payment->proof_path);
     }
+
+    public function test_admin_can_approve_payment_with_tracer_id()
+    {
+        $admin = User::factory()->create(['is_admin' => true, 'can_purchase_diamonds' => true]);
+        $this->actingAs($admin);
+
+        $user = User::factory()->create();
+
+        $package = DiamondPackage::create([
+            'name' => '10 Diamonds',
+            'diamonds' => 10,
+            'price' => 50.00,
+            'currency' => 'PHP',
+            'is_active' => true,
+            'allow_manual' => true,
+            'allow_hitpay' => true,
+        ]);
+
+        $payment = Payment::create([
+            'user_id' => $user->id,
+            'diamond_package_id' => $package->id,
+            'reference' => 'MANUAL-REF-999',
+            'amount' => 50,
+            'currency' => 'PHP',
+            'diamonds_amount' => 10,
+            'status' => 'pending',
+            'payment_method' => 'manual',
+        ]);
+
+        $response = $this->post(route('admin.payments.approve', $payment->id), [
+            'tracer_id' => 'TRACER-UNIQUE-123'
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+
+        $payment->refresh();
+        $this->assertEquals('completed', $payment->status);
+        $this->assertEquals('TRACER-UNIQUE-123', $payment->tracer_id);
+    }
+
+    public function test_admin_cannot_approve_payment_with_duplicate_tracer_id()
+    {
+        $admin = User::factory()->create(['is_admin' => true, 'can_purchase_diamonds' => true]);
+        $this->actingAs($admin);
+
+        $user = User::factory()->create();
+
+        $package = DiamondPackage::create([
+            'name' => '10 Diamonds',
+            'diamonds' => 10,
+            'price' => 50.00,
+            'currency' => 'PHP',
+            'is_active' => true,
+            'allow_manual' => true,
+            'allow_hitpay' => true,
+        ]);
+
+        // Pre-existing payment with some tracer ID
+        Payment::create([
+            'user_id' => $user->id,
+            'diamond_package_id' => $package->id,
+            'reference' => 'MANUAL-REF-EXISTING',
+            'amount' => 50,
+            'currency' => 'PHP',
+            'diamonds_amount' => 10,
+            'status' => 'completed',
+            'payment_method' => 'manual',
+            'tracer_id' => 'TRACER-DUP-555'
+        ]);
+
+        // Pending payment we want to approve
+        $payment = Payment::create([
+            'user_id' => $user->id,
+            'diamond_package_id' => $package->id,
+            'reference' => 'MANUAL-REF-PENDING',
+            'amount' => 50,
+            'currency' => 'PHP',
+            'diamonds_amount' => 10,
+            'status' => 'pending',
+            'payment_method' => 'manual',
+        ]);
+
+        $response = $this->post(route('admin.payments.approve', $payment->id), [
+            'tracer_id' => 'TRACER-DUP-555'
+        ]);
+
+        $response->assertSessionHasErrors(['tracer_id']);
+
+        $payment->refresh();
+        $this->assertEquals('pending', $payment->status);
+    }
+
+    public function test_admin_can_approve_payment_with_null_tracer_id()
+    {
+        $admin = User::factory()->create(['is_admin' => true, 'can_purchase_diamonds' => true]);
+        $this->actingAs($admin);
+
+        $user = User::factory()->create();
+
+        $package = DiamondPackage::create([
+            'name' => '10 Diamonds',
+            'diamonds' => 10,
+            'price' => 50.00,
+            'currency' => 'PHP',
+            'is_active' => true,
+            'allow_manual' => true,
+            'allow_hitpay' => true,
+        ]);
+
+        $payment = Payment::create([
+            'user_id' => $user->id,
+            'diamond_package_id' => $package->id,
+            'reference' => 'MANUAL-REF-NULL',
+            'amount' => 50,
+            'currency' => 'PHP',
+            'diamonds_amount' => 10,
+            'status' => 'pending',
+            'payment_method' => 'manual',
+        ]);
+
+        $response = $this->post(route('admin.payments.approve', $payment->id), [
+            'tracer_id' => null
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+
+        $payment->refresh();
+        $this->assertEquals('completed', $payment->status);
+        $this->assertNull($payment->tracer_id);
+    }
 }
