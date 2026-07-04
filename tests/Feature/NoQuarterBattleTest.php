@@ -82,10 +82,14 @@ class NoQuarterBattleTest extends TestCase
 
         // Standard rules: Winner gets +1 win
         $this->assertEquals(1, $cardA->wins);
+        // Elo rules: Winner starts at 1000 and gets +16 points
+        $this->assertEquals(1016, $cardA->elo_score);
 
         // Standard rules: Loser loses 1 life point (3 -> 2)
         $this->assertEquals(2, $cardB->life_points);
         $this->assertEquals(1, $cardB->losses);
+        // Elo rules: Loser starts at 1000 and loses 16 points
+        $this->assertEquals(984, $cardB->elo_score);
         $this->assertFalse($result['cardTransferred']);
         $this->assertEquals($userB->id, $cardB->owner_id); // Not transferred yet
     }

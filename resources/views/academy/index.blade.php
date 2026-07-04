@@ -185,6 +185,20 @@
                                 </div>
                             </div>
 
+                            <h5 class="text-white mt-4 mb-3">Leaderboard Ranking: The Elo Rating System</h5>
+                            <p>To rank the top cards objectively and solve the "small sample size" anomaly (where a card with 1 win could outrank a veteran card with 50 wins), Brag uses the world-standard <strong>Elo Rating System</strong>:</p>
+                            <ul>
+                                <li><strong>Base Rating:</strong> Every forged card starts with a baseline rating of <strong>1000 Elo</strong>.</li>
+                                <li><strong>Match Adjustment:</strong> When two cards battle, the system calculates their expected chances of winning based on their starting Elo scores.
+                                    <ul>
+                                        <li>If a lower-rated card defeats a higher-rated card, it gains a <em>large</em> boost, and the loser drops significantly.</li>
+                                        <li>If a higher-rated card defeats a lower-rated card, it only gains a small amount of points.</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Anti-Farming:</strong> Repeatedly battling the same opponent yields diminishing returns. As you drain their Elo, subsequent victories against them will eventually award <strong>+0 Elo points</strong>, making stat-farming completely ineffective.</li>
+                                <li><strong>Legacy Statistics:</strong> We still keep your card's raw <strong>Win Rate (R)</strong> and <strong>Integrity (I)</strong> statistics fully visible so you can showcase your card's historical performance, but the <strong>Elo Rating</strong> is what determines your rank on the leaderboard.</li>
+                            </ul>
+
                             <h5 class="text-white mb-3">Rarity Tiers</h5>
                             <p>The small emoji icon at the bottom indicate the rarity of the digital cards:</p>
                             <ul>

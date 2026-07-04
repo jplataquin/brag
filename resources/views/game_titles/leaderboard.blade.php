@@ -37,7 +37,7 @@
                         <th class="py-3 text-center">LEVEL</th>
                         <th class="py-3 text-center">WIN RATE</th>
                         <th class="py-3 text-center">INTEGRITY</th>
-                        <th class="py-3 text-center pe-4" style="width: 120px;">SCORE</th>
+                        <th class="py-3 text-center pe-4" style="width: 120px;">ELO RATING</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -89,7 +89,7 @@
                             </td>
                             <td class="text-center pe-4">
                                 <div class="orbitron fw-bold text-warning fs-5" style="text-shadow: 0 0 10px rgba(255, 221, 0, 0.3);">
-                                    {{ number_format($card->leaderboard_score, 2) }}
+                                    {{ number_format($card->leaderboard_score, 0) }}
                                 </div>
                             </td>
                         </tr>

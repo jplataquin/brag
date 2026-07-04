@@ -19,6 +19,27 @@ trait HandlesBattleResults
     {
         \Log::info("Processing Battle Result: Winner Card {$winnerCard->id}, Loser Card {$loserCard->id}, Winner User {$winnerUser->id}");
 
+        // Calculate Elo Rating Change
+        $winnerElo = $winnerCard->elo_score ?? 1000;
+        $loserElo = $loserCard->elo_score ?? 1000;
+
+        $kFactor = 32;
+
+        // Expected score for winner card
+        $expectedWinner = 1 / (1 + pow(10, ($loserElo - $winnerElo) / 400));
+        // Expected score for loser card
+        $expectedLoser = 1 / (1 + pow(10, ($winnerElo - $loserElo) / 400));
+
+        // Elo adjustments
+        $newWinnerElo = (int) round($winnerElo + $kFactor * (1 - $expectedWinner));
+        $newLoserElo = (int) round($loserElo + $kFactor * (0 - $expectedLoser));
+
+        // Update Elo values (minimum limit of 100 Elo)
+        $winnerCard->elo_score = max(100, $newWinnerElo);
+        $loserCard->elo_score = max(100, $newLoserElo);
+
+        \Log::info("Elo Rating Updated: Winner Card {$winnerCard->id} ($winnerElo -> {$winnerCard->elo_score}), Loser Card {$loserCard->id} ($loserElo -> {$loserCard->elo_score})");
+
         $isNoQuarter = (isset($this->mode) && $this->mode === 'no_quarter');
         $loserOriginalLP = $loserCard->life_points;
 
